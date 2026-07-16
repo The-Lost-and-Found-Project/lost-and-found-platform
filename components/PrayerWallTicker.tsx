@@ -8,7 +8,10 @@ type PrayerRequest = {
   id: string;
   request_text: string;
   display_name: string | null;
+  created_at: string;
 };
+
+const REFRESH_INTERVAL_MS = 30000;
 
 export default function PrayerWallTicker() {
   const supabase = createClient();
@@ -21,9 +24,9 @@ export default function PrayerWallTicker() {
     async function load() {
       const { data } = await supabase
         .from("prayer_wall_public")
-        .select("id, request_text, display_name")
+        .select("id, request_text, display_name, created_at")
         .order("created_at", { ascending: false })
-        .limit(15);
+        .limit(30);
 
       if (active) {
         setRequests((data as PrayerRequest[]) ?? []);
@@ -32,9 +35,11 @@ export default function PrayerWallTicker() {
     }
 
     load();
+    const interval = setInterval(load, REFRESH_INTERVAL_MS);
 
     return () => {
       active = false;
+      clearInterval(interval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -43,11 +48,12 @@ export default function PrayerWallTicker() {
     return null;
   }
 
+  // Duplicated so the animation can loop seamlessly from bottom to top.
   const items = [...requests, ...requests];
 
   return (
-    <div className="mt-8 overflow-hidden rounded-lg border border-gray-200 bg-white py-4 shadow-sm">
-      <div className="flex items-center justify-between px-5">
+    <div className="mt-8 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
           Prayers From Our Community
         </h2>
@@ -59,35 +65,35 @@ export default function PrayerWallTicker() {
         </Link>
       </div>
 
-      <div className="lfp-ticker-mask relative mt-3 overflow-hidden">
-        <div className="lfp-ticker-track flex w-max items-center gap-12 px-5">
+      <div className="lfp-ticker-mask relative h-80 overflow-hidden">
+        <div className="lfp-ticker-track flex flex-col gap-4 px-5 py-4">
           {items.map((r, i) => (
-            <span
+            <div
               key={`${r.id}-${i}`}
-              className="whitespace-nowrap italic text-gray-700"
+              className="rounded-md bg-gray-50 px-4 py-3"
             >
-              &ldquo;{r.request_text}&rdquo;
-              <span className="ml-2 not-italic text-gray-400">
+              <p className="italic text-gray-700">&ldquo;{r.request_text}&rdquo;</p>
+              <p className="mt-1 text-xs text-gray-400">
                 &mdash; {r.display_name?.trim() || "Anonymous"}
-              </span>
-            </span>
+              </p>
+            </div>
           ))}
         </div>
       </div>
 
       <style jsx>{`
         .lfp-ticker-track {
-          animation: lfp-ticker-scroll 40s linear infinite;
+          animation: lfp-ticker-scroll-up 60s linear infinite;
         }
         .lfp-ticker-mask:hover .lfp-ticker-track {
           animation-play-state: paused;
         }
-        @keyframes lfp-ticker-scroll {
+        @keyframes lfp-ticker-scroll-up {
           from {
-            transform: translateX(0);
+            transform: translateY(0);
           }
           to {
-            transform: translateX(-50%);
+            transform: translateY(-50%);
           }
         }
       `}</style>
