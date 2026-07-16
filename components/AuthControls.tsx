@@ -10,6 +10,76 @@ type Profile = {
   avatar_url: string | null;
 };
 
+const menuItems = [
+  {
+    href: "/account",
+    label: "Account",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-4 w-4"
+      >
+        <path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    href: "/profile",
+    label: "Profile",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-4 w-4"
+      >
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <circle cx="9" cy="12" r="2" />
+        <path d="M14 10h4M14 14h4" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    href: "/settings",
+    label: "Settings",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-4 w-4"
+      >
+        <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h13M21 18h.01" strokeLinecap="round" />
+        <circle cx="16" cy="6" r="2" fill="currentColor" stroke="none" />
+        <circle cx="9" cy="12" r="2" fill="currentColor" stroke="none" />
+        <circle cx="18" cy="18" r="2" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
+    href: "/programs",
+    label: "Programs",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+        <circle cx="5" cy="5" r="1.6" />
+        <circle cx="12" cy="5" r="1.6" />
+        <circle cx="19" cy="5" r="1.6" />
+        <circle cx="5" cy="12" r="1.6" />
+        <circle cx="12" cy="12" r="1.6" />
+        <circle cx="19" cy="12" r="1.6" />
+        <circle cx="5" cy="19" r="1.6" />
+        <circle cx="12" cy="19" r="1.6" />
+        <circle cx="19" cy="19" r="1.6" />
+      </svg>
+    ),
+  },
+];
+
 export default function AuthControls() {
   const supabase = createClient();
   const router = useRouter();
@@ -69,14 +139,14 @@ export default function AuthControls() {
   }
 
   if (loading) {
-    return <div className="h-8 w-16" aria-hidden="true" />;
+    return <div className="h-9 w-9" aria-hidden="true" />;
   }
 
   if (!email) {
     return (
       <Link
         href="/login"
-        className="rounded-md bg-gray-900 px-3 py-1.5 text-white hover:bg-gray-700"
+        className="rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500"
       >
         Login
       </Link>
@@ -90,32 +160,27 @@ export default function AuthControls() {
     <div className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 rounded-full border border-gray-200 py-1 pl-1 pr-3 text-sm hover:bg-gray-50"
+        className="flex items-center rounded-full ring-2 ring-transparent transition hover:ring-indigo-100"
+        aria-label="Account menu"
       >
         {profile?.avatar_url ? (
           <img
             src={profile.avatar_url}
             alt=""
-            className="h-7 w-7 rounded-full object-cover"
+            className="h-9 w-9 rounded-full object-cover"
           />
         ) : (
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-600 text-xs font-medium text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-semibold text-white">
             {initial}
           </span>
         )}
-        <span className="max-w-[120px] truncate text-gray-700">
-          {displayName}
-        </span>
       </button>
 
       {open && (
         <>
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setOpen(false)}
-          />
-          <div className="absolute right-0 z-20 mt-2 w-64 rounded-md border border-gray-200 bg-white shadow-lg">
-            <div className="flex items-center gap-3 border-b border-gray-100 px-4 py-3">
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 z-20 mt-2 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl ring-1 ring-black/5">
+            <div className="flex items-center gap-3 border-b border-gray-100 bg-gray-50/60 px-4 py-3">
               {profile?.avatar_url ? (
                 <img
                   src={profile.avatar_url}
@@ -123,7 +188,7 @@ export default function AuthControls() {
                   className="h-10 w-10 rounded-full object-cover"
                 />
               ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-sm font-medium text-white">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-semibold text-white">
                   {initial}
                 </span>
               )}
@@ -135,26 +200,37 @@ export default function AuthControls() {
               </div>
             </div>
 
-            <Link
-              href="/profile"
-              onClick={() => setOpen(false)}
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-            >
-              Profile
-            </Link>
-
-            <Link
-              href="/my-journey"
-              onClick={() => setOpen(false)}
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-            >
-              My Journey
-            </Link>
+            <div className="py-1.5">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 transition hover:bg-gray-50"
+                >
+                  <span className="text-gray-400">{item.icon}</span>
+                  {item.label}
+                </Link>
+              ))}
+            </div>
 
             <button
               onClick={handleSignOut}
-              className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50"
+              className="flex w-full items-center gap-3 border-t border-gray-100 px-4 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50"
             >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                className="h-4 w-4"
+              >
+                <path
+                  d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               Sign out
             </button>
           </div>
