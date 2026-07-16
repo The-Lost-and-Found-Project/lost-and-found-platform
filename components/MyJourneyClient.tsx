@@ -13,7 +13,6 @@ type PrayerRequestSummary = {
 
 type Props = {
   email: string;
-  initialFullName: string;
   initialFaithStory: string;
   initialFavoriteScripture: string;
   requests: PrayerRequestSummary[];
@@ -22,14 +21,12 @@ type Props = {
 
 export default function MyJourneyClient({
   email,
-  initialFullName,
   initialFaithStory,
   initialFavoriteScripture,
   requests,
   categoryMap,
 }: Props) {
   const supabase = createClient();
-  const [fullName, setFullName] = useState(initialFullName);
   const [faithStory, setFaithStory] = useState(initialFaithStory);
   const [favoriteScripture, setFavoriteScripture] = useState(
     initialFavoriteScripture
@@ -50,7 +47,6 @@ export default function MyJourneyClient({
       await supabase
         .from("profiles")
         .update({
-          full_name: fullName,
           faith_story: faithStory,
           favorite_scripture: favoriteScripture,
         })
@@ -71,7 +67,7 @@ export default function MyJourneyClient({
 
       <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900">
-          My Faith Journey Profile
+          My Faith Journey
         </h2>
         <p className="mt-1 text-sm text-gray-500">
           Share a bit about your faith story below — this will appear on your
@@ -80,18 +76,6 @@ export default function MyJourneyClient({
         </p>
 
         <form onSubmit={handleSave} className="mt-6 space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Name
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
-            />
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Favorite Bible Verse

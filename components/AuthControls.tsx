@@ -136,11 +136,19 @@ export default function AuthControls() {
             </div>
 
             <Link
+              href="/profile"
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+            >
+              Profile
+            </Link>
+
+            <Link
               href="/my-journey"
               onClick={() => setOpen(false)}
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
             >
-              My profile
+              My Journey
             </Link>
 
             <button
