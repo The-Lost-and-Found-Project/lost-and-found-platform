@@ -7,8 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 type PrayerRequest = {
   id: string;
   created_at: string;
-  name: string;
-  is_anonymous: boolean;
+  display_name: string | null;
   request_text: string;
   category_id: string | null;
   prayer_count: number;
@@ -37,11 +36,10 @@ export default function PrayerWallPage() {
       setCategories(catMap);
 
       const { data: reqs } = await supabase
-        .from("prayer_requests")
+        .from("prayer_wall_public")
         .select(
-          "id, created_at, name, is_anonymous, request_text, category_id, prayer_count, status"
+          "id, created_at, display_name, request_text, category_id, prayer_count, status"
         )
-        .eq("is_public", true)
         .order("created_at", { ascending: false });
 
       setRequests((reqs as PrayerRequest[]) ?? []);
@@ -129,7 +127,7 @@ export default function PrayerWallPage() {
               <div>
                 <p className="text-gray-900">{r.request_text}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-500">
-                  <span>{r.is_anonymous ? "Anonymous" : r.name}</span>
+                  <span>{r.display_name ?? "Anonymous"}</span>
                   {r.category_id && categories[r.category_id] && (
                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
                       {categories[r.category_id]}
