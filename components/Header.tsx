@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import NotificationBell from "./NotificationBell";
+import AuthControls from "./AuthControls";
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
@@ -27,12 +28,7 @@ export default function Header() {
             </Link>
           ))}
           <NotificationBell />
-          <Link
-            href="/login"
-            className="rounded-md bg-gray-900 px-3 py-1.5 text-white hover:bg-gray-700"
-          >
-            Login
-          </Link>
+          <AuthControls />
         </nav>
       </div>
     </header>
