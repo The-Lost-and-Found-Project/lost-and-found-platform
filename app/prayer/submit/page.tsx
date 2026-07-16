@@ -36,6 +36,29 @@ export default function SubmitPrayerRequestPage() {
       setCategories((data as Category[]) ?? []);
     }
     loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // Pre-fill the anonymous checkbox from the signed-in user's saved
+    // preference (Settings > Submit prayers anonymously by default).
+    async function loadDefaultAnonymous() {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("user_settings")
+        .select("default_anonymous")
+        .eq("user_id", user.id)
+        .single();
+
+      if (data?.default_anonymous) {
+        setIsAnonymous(true);
+      }
+    }
+    loadDefaultAnonymous();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
