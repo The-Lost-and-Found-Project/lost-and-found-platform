@@ -1,10 +1,24 @@
-export default function DashboardPage() {
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-      <p className="mt-4 text-gray-600">
-        This page is a placeholder for the member dashboard.
-      </p>
-    </div>
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import SignOutButton from "@/components/SignOutButton";
+
+export default async function DashboardPage() {
+  const supabase = await createClient();
+
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+if (!user) {
+  redirect("/login");
+}
+
+return (
+  <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+  <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+    <p className="mt-4 text-gray-600">Signed in as {user.email}.</p>
+    <div className="mt-6">
+    <SignOutButton /></div>
+  </div>
   );
 }
