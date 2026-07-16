@@ -1,6 +1,6 @@
 # The Lost and Found Project — Ministry Platform
 
-Starter web application for The Lost and Found Project ministry platform.
+Starter web application for The Lost and Found Project ministry platform. Deployed via Vercel + GitHub integration.
 
 ## Tech Stack
 
