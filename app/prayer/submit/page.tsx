@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-type Category = { id: string; name: string };
+type Category = {
+  id: string;
+  name: string;
+  default_care_level: string | null;
+  route_to: string | null;
+};
 
 export default function SubmitPrayerRequestPage() {
   const supabase = createClient();
@@ -26,7 +31,7 @@ export default function SubmitPrayerRequestPage() {
     async function loadCategories() {
       const { data } = await supabase
         .from("prayer_categories")
-        .select("id, name")
+        .select("id, name, default_care_level, route_to")
         .order("sort_order");
       setCategories((data as Category[]) ?? []);
     }
@@ -59,6 +64,31 @@ export default function SubmitPrayerRequestPage() {
       setSubmitting(false);
       return;
     }
+
+    const category = categories.find((c) => c.id === categoryId);
+
+    // Fire-and-forget: notify the care team by email. If this fails, the
+    // prayer request has still been saved successfully, so we don't block
+    // or show an error to the person submitting.
+    fetch("/api/notify-prayer-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        email,
+        phone: phone || null,
+        preferredContact: contactRequested ? preferredContact || null : null,
+        categoryName: category?.name ?? null,
+        careLevel: category?.default_care_level ?? null,
+        routeTo: category?.route_to ?? null,
+        requestText,
+        isPublic,
+        isAnonymous,
+        contactRequested,
+      }),
+    }).catch((err) => {
+      console.error("Failed to send prayer request notification:", err);
+    });
 
     setSubmitted(true);
     setSubmitting(false);
