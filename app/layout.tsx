@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import BottomNav from "@/components/BottomNav";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "The Lost and Found Project",
@@ -13,10 +17,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-white text-gray-900">
+    <html lang="en" className={inter.variable}>
+      <body className="min-h-screen bg-gray-50 font-sans text-gray-900 antialiased">
         <Header />
-        <main>{children}</main>
+        <main className="pb-24">{children}</main>
+        <BottomNav />
       </body>
     </html>
   );
