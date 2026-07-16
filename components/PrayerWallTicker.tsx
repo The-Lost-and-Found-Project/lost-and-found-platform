@@ -11,6 +11,7 @@ type PrayerRequest = {
   created_at: string;
 };
 
+// Poll for newly submitted prayers so the ticker keeps growing over time.
 const REFRESH_INTERVAL_MS = 30000;
 
 export default function PrayerWallTicker() {
