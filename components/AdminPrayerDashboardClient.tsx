@@ -42,12 +42,14 @@ type Props = {
   requests: AdminRequest[];
   categories: CategoryOption[];
   careTeam: CareTeamMember[];
+  isAdmin?: boolean;
 };
 
 export default function AdminPrayerDashboardClient({
   requests: initialRequests,
   categories,
   careTeam,
+  isAdmin,
 }: Props) {
   const supabase = createClient();
   const [requests, setRequests] = useState<AdminRequest[]>(initialRequests);
@@ -113,10 +115,22 @@ export default function AdminPrayerDashboardClient({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-      <h1 className="text-2xl font-bold text-gray-900">Prayer Care Admin</h1>
-      <p className="mt-2 text-gray-600">
-        Manage incoming prayer requests, assignments, and follow-up.
-      </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Prayer Care Admin</h1>
+          <p className="mt-2 text-gray-600">
+            Manage incoming prayer requests, assignments, and follow-up.
+          </p>
+        </div>
+        {isAdmin && (
+          <a
+            href="/admin/users"
+            className="shrink-0 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+          >
+            Manage Users
+          </a>
+        )}
+      </div>
 
       <div className="mt-6 flex items-center gap-3">
         <label className="text-sm font-medium text-gray-700">
