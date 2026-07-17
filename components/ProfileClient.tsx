@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import ExpandableText from "./ExpandableText";
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024; // 5MB
 
@@ -411,11 +412,18 @@ export default function ProfileClient({
                 <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                   {field.label}
                 </p>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-gray-900">
-                  {field.value || (
-                    <span className="text-gray-400">{field.empty}</span>
-                  )}
-                </p>
+                {field.value && field.label === "My Testimony" ? (
+                  <ExpandableText
+                    text={field.value}
+                    className="mt-1 whitespace-pre-wrap text-sm text-gray-900"
+                  />
+                ) : (
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-gray-900">
+                    {field.value || (
+                      <span className="text-gray-400">{field.empty}</span>
+                    )}
+                  </p>
+                )}
               </div>
             ))
           )}

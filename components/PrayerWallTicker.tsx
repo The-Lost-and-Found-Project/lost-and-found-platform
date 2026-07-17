@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import TickerScroll from "./TickerScroll";
+import ExpandableText from "./ExpandableText";
 
 type PrayerRequest = {
   id: string;
@@ -62,7 +63,10 @@ export default function PrayerWallTicker() {
       <TickerScroll>
         {items.map((r, i) => (
           <div key={`${r.id}-${i}`} className="rounded-md bg-gray-50 px-4 py-3">
-            <p className="italic text-gray-700">&ldquo;{r.request_text}&rdquo;</p>
+            <ExpandableText
+              text={`“${r.request_text}”`}
+              className="italic text-gray-700"
+            />
           </div>
         ))}
       </TickerScroll>
