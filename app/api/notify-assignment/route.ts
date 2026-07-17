@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
@@ -8,16 +9,22 @@ const SITE_URL =
   "https://lost-and-found-platform-rho.vercel.app";
 
 // Sent whenever a care team member is assigned (matched) to a prayer
-// request, in addition to the in-app notification created by the
-// notify_prayer_request_assigned DB trigger. Includes the full submission so
-// the assignee can contact the person directly if needed.
+// request, in addition to the in-app notification created by a DB trigger
+// (either notify_prayer_request_assigned for manual admin assignment, or
+// notify_auto_assigned_care_team_member for the automatic round-robin
+// assignment on new submissions). Includes the full submission so the
+// assignee can contact the person directly if needed.
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const {
+    let {
       assigneeEmail,
       assigneeName,
+    }: { assigneeEmail?: string; assigneeName?: string | null } = body ?? {};
+
+    const {
+      assigneeId,
       name,
       email,
       phone,
@@ -28,6 +35,21 @@ export async function POST(request: NextRequest) {
       isAnonymous,
       contactRequested,
     } = body ?? {};
+
+    // The public submission form doesn't have access to care team profiles
+    // (blocked by RLS), so it only sends the assignee's id. Look up the
+    // email/name here server-side using the service role, which bypasses RLS.
+    if (!assigneeEmail && assigneeId) {
+      const supabase = createAdminClient();
+      const { data: assignee } = await supabase
+        .from("profiles")
+        .select("email, full_name")
+        .eq("id", assigneeId)
+        .single();
+
+      assigneeEmail = assignee?.email ?? undefined;
+      assigneeName = assignee?.full_name ?? null;
+    }
 
     if (!assigneeEmail || !requestText) {
       return NextResponse.json(
