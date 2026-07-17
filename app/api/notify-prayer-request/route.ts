@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
 const ADMIN_EMAIL = "chad@lostandfoundproject.org";
-const FROM_ADDRESS = "Lost and Found Prayer Care <prayer@updates.lostandfoundproject.org>";
+const FROM_ADDRESS = "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 
 export async function POST(request: NextRequest) {
   try {
