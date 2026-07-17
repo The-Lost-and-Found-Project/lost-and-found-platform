@@ -7,7 +7,6 @@ import { createClient } from "@/lib/supabase/client";
 type PrayerRequest = {
   id: string;
   request_text: string;
-  display_name: string | null;
   created_at: string;
 };
 
@@ -25,7 +24,7 @@ export default function PrayerWallTicker() {
     async function load() {
       const { data } = await supabase
         .from("prayer_wall_public")
-        .select("id, request_text, display_name, created_at")
+        .select("id, request_text, created_at")
         .order("created_at", { ascending: false })
         .limit(30);
 
@@ -75,7 +74,7 @@ export default function PrayerWallTicker() {
             >
               <p className="italic text-gray-700">&ldquo;{r.request_text}&rdquo;</p>
               <p className="mt-1 text-xs text-gray-400">
-                &mdash; {r.display_name?.trim() || "Anonymous"}
+                &mdash; Shared anonymously
               </p>
             </div>
           ))}
