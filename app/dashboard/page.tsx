@@ -55,22 +55,29 @@ export default async function DashboardPage() {
                 your own journey.
               </p>
             </div>
-            <ShareButton />
-          </div>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/prayer/submit"
-              className="rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
-            >
-              Submit a Prayer
-            </Link>
-            <Link
-              href="/prayer"
-              className="rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              View Prayer Wall
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <ShareButton />
+              <Link
+                href="/profile"
+                className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-4 w-4"
+                >
+                  <path
+                    d="M12 20.25c-.36 0-.71-.1-1.02-.28C7.9 18.36 3.5 15.24 3.5 10.5 3.5 7.74 5.74 5.5 8.5 5.5c1.4 0 2.73.6 3.5 1.6.77-1 2.1-1.6 3.5-1.6 2.76 0 5 2.24 5 5 0 4.74-4.4 7.86-7.48 9.47-.31.18-.66.28-1.02.28z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Share My Testimony
+              </Link>
+            </div>
           </div>
         </div>
       </section>
