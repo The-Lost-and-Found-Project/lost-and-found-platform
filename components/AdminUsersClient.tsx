@@ -3,10 +3,10 @@
 import { useState } from "react";
 
 const ROLE_OPTIONS = [
-  { value: "member", label: "Member" },
-  { value: "prayer_team", label: "Prayer Team" },
-  { value: "pastor", label: "Pastor" },
-  { value: "admin", label: "Admin" },
+  { value: "member", label: "Community Member" },
+  { value: "prayer_team", label: "Community Prayer Member" },
+  { value: "pastor", label: "Community Mentor" },
+  { value: "admin", label: "Community Admin" },
 ];
 
 type UserRow = {

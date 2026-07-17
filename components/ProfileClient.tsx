@@ -20,18 +20,18 @@ type Props = {
 const PREVIEW_OPTIONS: { value: string; label: string; description: string }[] = [
   {
     value: "",
-    label: "Admin (no preview)",
+    label: "Community Admin (no preview)",
     description: "See the app as yourself, with full admin access.",
   },
   {
     value: "member",
-    label: "Regular User",
-    description: "See the app as a regular member would.",
+    label: "Community Member",
+    description: "See the app as a Community Member would.",
   },
   {
     value: "prayer_team",
-    label: "Care Team Member",
-    description: "See the app as a prayer care team member would.",
+    label: "Community Prayer Member",
+    description: "See the app as a Community Prayer Member would.",
   },
 ];
 
@@ -294,10 +294,10 @@ export default function ProfileClient({
             Preview as a role
           </h2>
           <p className="mt-1 text-xs text-gray-500">
-            See what the app looks like for a regular user or care team
-            member — handy for training. This only changes what you see; your
-            real admin access is never affected, and you can switch back any
-            time.
+            See what the app looks like for a Community Member or Community
+            Prayer Member — handy for training. This only changes what you
+            see; your real admin access is never affected, and you can switch
+            back any time.
           </p>
 
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
