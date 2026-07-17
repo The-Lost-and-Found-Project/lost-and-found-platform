@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import TickerScroll from "./TickerScroll";
 
 type Testimony = {
   id: string;
@@ -89,7 +90,7 @@ export default function TestimonyTicker() {
     return null;
   }
 
-  // Duplicated so the animation can loop seamlessly from bottom to top.
+  // Duplicated so the auto-scroll can loop seamlessly.
   const items = [...testimonies, ...testimonies];
 
   return (
@@ -106,9 +107,8 @@ export default function TestimonyTicker() {
         </a>
       </div>
 
-      <div className="lfp-ticker-mask relative h-80 overflow-hidden">
-        <div className="lfp-ticker-track flex flex-col gap-4 px-5 py-4">
-          {items.map((t, i) => {
+      <TickerScroll>
+        {items.map((t, i) => {
             const key = `${t.id}-${i}`;
             const alreadySent = sentTo.has(t.id);
             const isSelf = userId === t.id;
@@ -178,25 +178,7 @@ export default function TestimonyTicker() {
               </div>
             );
           })}
-        </div>
-      </div>
-
-      <style jsx>{`
-        .lfp-ticker-track {
-          animation: lfp-ticker-scroll-up 42s linear infinite;
-        }
-        .lfp-ticker-mask:hover .lfp-ticker-track {
-          animation-play-state: paused;
-        }
-        @keyframes lfp-ticker-scroll-up {
-          from {
-            transform: translateY(0);
-          }
-          to {
-            transform: translateY(-50%);
-          }
-        }
-      `}</style>
+      </TickerScroll>
     </div>
   );
 }

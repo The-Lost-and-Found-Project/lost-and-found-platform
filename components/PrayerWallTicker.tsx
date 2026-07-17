@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import TickerScroll from "./TickerScroll";
 
 type PrayerRequest = {
   id: string;
@@ -48,7 +49,7 @@ export default function PrayerWallTicker() {
     return null;
   }
 
-  // Duplicated so the animation can loop seamlessly from bottom to top.
+  // Duplicated so the auto-scroll can loop seamlessly.
   const items = [...requests, ...requests];
 
   return (
@@ -65,38 +66,16 @@ export default function PrayerWallTicker() {
         </Link>
       </div>
 
-      <div className="lfp-ticker-mask relative h-80 overflow-hidden">
-        <div className="lfp-ticker-track flex flex-col gap-4 px-5 py-4">
-          {items.map((r, i) => (
-            <div
-              key={`${r.id}-${i}`}
-              className="rounded-md bg-gray-50 px-4 py-3"
-            >
-              <p className="italic text-gray-700">&ldquo;{r.request_text}&rdquo;</p>
-              <p className="mt-1 text-xs text-gray-400">
-                &mdash; Shared anonymously
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <style jsx>{`
-        .lfp-ticker-track {
-          animation: lfp-ticker-scroll-up 42s linear infinite;
-        }
-        .lfp-ticker-mask:hover .lfp-ticker-track {
-          animation-play-state: paused;
-        }
-        @keyframes lfp-ticker-scroll-up {
-          from {
-            transform: translateY(0);
-          }
-          to {
-            transform: translateY(-50%);
-          }
-        }
-      `}</style>
+      <TickerScroll>
+        {items.map((r, i) => (
+          <div key={`${r.id}-${i}`} className="rounded-md bg-gray-50 px-4 py-3">
+            <p className="italic text-gray-700">&ldquo;{r.request_text}&rdquo;</p>
+            <p className="mt-1 text-xs text-gray-400">
+              &mdash; Shared anonymously
+            </p>
+          </div>
+        ))}
+      </TickerScroll>
     </div>
   );
 }
