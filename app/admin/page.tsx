@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AdminPrayerDashboardClient from "@/components/AdminPrayerDashboardClient";
+import { getEffectiveRole } from "@/lib/effective-role";
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -15,14 +16,18 @@ export default async function AdminPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, preview_role")
     .eq("id", user.id)
     .single();
 
+  // Use the effective role (which honors an admin's preview_role, if set)
+  // so admins can preview the app as another role for training purposes.
+  const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
+
   const isCareTeam =
-    profile?.role === "admin" ||
-    profile?.role === "prayer_team" ||
-    profile?.role === "pastor";
+    effectiveRole === "admin" ||
+    effectiveRole === "prayer_team" ||
+    effectiveRole === "pastor";
 
   if (!isCareTeam) {
     return (
@@ -60,7 +65,7 @@ export default async function AdminPage() {
       requests={requests ?? []}
       categories={categories ?? []}
       careTeam={careTeam ?? []}
-      isAdmin={profile?.role === "admin"}
+      isAdmin={effectiveRole === "admin"}
     />
   );
 }
