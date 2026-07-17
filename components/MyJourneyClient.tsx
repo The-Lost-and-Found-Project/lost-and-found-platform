@@ -22,7 +22,6 @@ type JourneyEntry = {
 
 type Props = {
   email: string;
-  favoriteScripture: string;
   dateOfSalvation: string;
   dateOfBaptism: string;
   requests: PrayerRequestSummary[];
@@ -93,7 +92,6 @@ function todayInputValue() {
 
 export default function MyJourneyClient({
   email,
-  favoriteScripture,
   dateOfSalvation,
   dateOfBaptism,
   requests,
@@ -247,46 +245,6 @@ export default function MyJourneyClient({
           </svg>
           Add To My Journey
         </button>
-      </div>
-
-      <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          From Your Profile
-        </h2>
-        <dl className="mt-3 grid gap-4 sm:grid-cols-3">
-          <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-              Favorite Bible Verse
-            </dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              {favoriteScripture || <span className="text-gray-400">Not set</span>}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-              Date of Salvation
-            </dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              {dateOfSalvation ? (
-                formatDateOnly(dateOfSalvation)
-              ) : (
-                <span className="text-gray-400">Not set</span>
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-              Date of Baptism
-            </dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              {dateOfBaptism ? (
-                formatDateOnly(dateOfBaptism)
-              ) : (
-                <span className="text-gray-400">Not set</span>
-              )}
-            </dd>
-          </div>
-        </dl>
       </div>
 
       <div className="mt-10">
