@@ -60,6 +60,10 @@ const items = [
 export default function BottomNav() {
   const pathname = usePathname();
 
+  // The marketing landing page and the sign-in/create-account page are
+  // public-facing and don't need the authenticated app's bottom nav.
+  if (pathname === "/" || pathname === "/login") return null;
+
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-100 bg-white/90 backdrop-blur-md"
