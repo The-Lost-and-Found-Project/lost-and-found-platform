@@ -1,8 +1,23 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import PrayerWallTicker from "@/components/PrayerWallTicker";
 import TestimonyTicker from "@/components/TestimonyTicker";
+import { createClient } from "@/lib/supabase/server";
 
-export default function HomePage() {
+export default async function HomePage() {
+  // The app's PWA manifest always launches at "/" (start_url), so anyone who
+  // closes and reopens the installed app lands here first. Without this
+  // check, a signed-in visitor would see the public marketing page instead
+  // of their dashboard every time they reopened the app.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect("/dashboard");
+  }
+
   return (
     <div>
       <section className="relative overflow-hidden">
