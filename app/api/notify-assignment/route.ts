@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
 const FROM_ADDRESS =
-  "Lost and Found Prayer Care <prayer@updates.lostandfoundproject.org>";
+  "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
   "https://lost-and-found-platform-rho.vercel.app";
