@@ -15,7 +15,7 @@ export default async function MyJourneyPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("favorite_scripture, date_of_salvation, date_of_baptism")
+    .select("date_of_salvation, date_of_baptism")
     .eq("id", user.id)
     .single();
 
@@ -43,7 +43,6 @@ export default async function MyJourneyPage() {
   return (
     <MyJourneyClient
       email={user.email ?? ""}
-      favoriteScripture={profile?.favorite_scripture ?? ""}
       dateOfSalvation={profile?.date_of_salvation ?? ""}
       dateOfBaptism={profile?.date_of_baptism ?? ""}
       requests={requests ?? []}
