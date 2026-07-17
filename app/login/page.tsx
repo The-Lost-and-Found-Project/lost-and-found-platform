@@ -54,6 +54,16 @@ export default function LoginPage() {
       return;
     }
 
+    // Let admins know a new person has joined. Fire-and-forget so a slow or
+    // failed email never blocks the signup confirmation the user is waiting on.
+    fetch("/api/notify-new-signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    }).catch((err) => {
+      console.error("Failed to send new signup notification:", err);
+    });
+
     setMessage("Check your email to confirm your account.");
     setLoading(false);
   }
