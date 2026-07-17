@@ -57,6 +57,9 @@ const items = [
   },
 ];
 
+const GIVE_URL =
+  "https://www.zeffy.com/en-US/donation-form/donate-to-build-god-centered-marriages";
+
 export default function BottomNav() {
   const pathname = usePathname();
 
@@ -69,7 +72,7 @@ export default function BottomNav() {
       className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-r from-indigo-600 to-violet-600 shadow-[0_-4px_16px_rgba(79,70,229,0.25)]"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="mx-auto flex max-w-md items-stretch justify-around">
+      <div className="mx-auto flex max-w-md items-stretch justify-around divide-x divide-white/20">
         {items.map((item) => {
           const active = pathname === item.href;
           return (
@@ -93,6 +96,29 @@ export default function BottomNav() {
             </Link>
           );
         })}
+        <a
+          href={GIVE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium text-indigo-100 transition hover:text-white"
+        >
+          <span className="flex h-8 w-8 items-center justify-center rounded-full">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              className="h-5 w-5"
+            >
+              <path
+                d="M12 20.25c-.36 0-.71-.1-1.02-.28C7.9 18.36 3.5 15.24 3.5 10.5 3.5 7.74 5.74 5.5 8.5 5.5c1.4 0 2.73.6 3.5 1.6.77-1 2.1-1.6 3.5-1.6 2.76 0 5 2.24 5 5 0 4.74-4.4 7.86-7.48 9.47-.31.18-.66.28-1.02.28z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <span>Give</span>
+        </a>
       </div>
     </nav>
   );

@@ -95,16 +95,10 @@ export default function TestimonyTicker() {
 
   return (
     <div className="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3">
+      <div className="border-b border-gray-100 px-5 py-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
           Testimonies From Our Community
         </h2>
-        <a
-          href="/profile"
-          className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-        >
-          Share Yours
-        </a>
       </div>
 
       <TickerScroll>
