@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AdminUsersClient from "@/components/AdminUsersClient";
+import { getEffectiveRole } from "@/lib/effective-role";
 
 export default async function AdminUsersPage() {
   const supabase = await createClient();
@@ -15,14 +16,19 @@ export default async function AdminUsersPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, preview_role")
     .eq("id", user.id)
     .single();
+
+  // Use the effective role (honors an admin's preview_role override) so an
+  // admin previewing as another role sees the same restriction a real user
+  // of that role would.
+  const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
 
   // Managing roles and deactivating accounts is admin-only, unlike the
   // broader prayer care dashboard which is open to the whole care team
   // (admin, prayer_team, pastor).
-  if (profile?.role !== "admin") {
+  if (effectiveRole !== "admin") {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
         <h1 className="text-2xl font-bold text-gray-900">
