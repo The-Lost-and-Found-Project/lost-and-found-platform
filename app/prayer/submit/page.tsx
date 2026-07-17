@@ -88,30 +88,9 @@ export default function SubmitPrayerRequestPage() {
       return;
     }
 
-    const category = categories.find((c) => c.id === categoryId);
-
-    // Fire-and-forget: notify the care team by email. If this fails, the
-    // prayer request has still been saved successfully, so we don't block
-    // or show an error to the person submitting.
-    fetch("/api/notify-prayer-request", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        email,
-        phone: phone || null,
-        preferredContact: contactRequested ? preferredContact || null : null,
-        categoryName: category?.name ?? null,
-        careLevel: category?.default_care_level ?? null,
-        routeTo: category?.route_to ?? null,
-        requestText,
-        isPublic,
-        isAnonymous,
-        contactRequested,
-      }),
-    }).catch((err) => {
-      console.error("Failed to send prayer request notification:", err);
-    });
+    // Care team members already get an in-app notification the moment a
+    // request comes in (via a DB trigger), and a rolled-up summary email
+    // every Monday morning instead of one email per submission.
 
     setSubmitted(true);
     setSubmitting(false);
