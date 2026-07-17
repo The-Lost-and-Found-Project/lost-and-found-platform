@@ -4,13 +4,23 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getEffectiveRole } from "@/lib/effective-role";
 
 type Profile = {
   full_name: string | null;
   avatar_url: string | null;
+  role: string | null;
+  preview_role: string | null;
 };
 
-const menuItems = [
+const ROLE_LABELS: Record<string, string> = {
+  member: "Member",
+  prayer_team: "Care Team",
+  pastor: "Pastor",
+  admin: "Admin",
+};
+
+const baseMenuItems = [
   {
     href: "/account",
     label: "Account",
@@ -80,6 +90,23 @@ const menuItems = [
   },
 ];
 
+const adminMenuItem = {
+  href: "/admin",
+  label: "Admin",
+  icon: (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      className="h-4 w-4"
+    >
+      <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" strokeLinejoin="round" />
+      <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+};
+
 export default function AuthControls() {
   const supabase = createClient();
   const router = useRouter();
@@ -108,7 +135,7 @@ export default function AuthControls() {
 
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("full_name, avatar_url")
+        .select("full_name, avatar_url, role, preview_role")
         .eq("id", user.id)
         .single();
 
@@ -156,6 +183,16 @@ export default function AuthControls() {
   const displayName = profile?.full_name?.trim() || email;
   const initial = displayName.charAt(0).toUpperCase() || "?";
 
+  const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
+  const isPreviewing =
+    profile?.role === "admin" &&
+    !!profile?.preview_role &&
+    profile.preview_role !== "admin";
+  const menuItems =
+    effectiveRole === "admin"
+      ? [...baseMenuItems, adminMenuItem]
+      : baseMenuItems;
+
   return (
     <div className="relative">
       <button
@@ -199,6 +236,19 @@ export default function AuthControls() {
                 <p className="truncate text-xs text-gray-500">{email}</p>
               </div>
             </div>
+
+            {isPreviewing && (
+              <div className="border-b border-gray-100 bg-amber-50 px-4 py-2 text-xs font-medium text-amber-700">
+                Previewing as {ROLE_LABELS[effectiveRole]} —{" "}
+                <Link
+                  href="/profile"
+                  onClick={() => setOpen(false)}
+                  className="underline hover:text-amber-800"
+                >
+                  end preview
+                </Link>
+              </div>
+            )}
 
             <div className="py-1.5">
               {menuItems.map((item) => (

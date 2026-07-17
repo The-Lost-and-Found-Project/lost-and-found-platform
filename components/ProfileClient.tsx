@@ -13,7 +13,27 @@ type Props = {
   initialFavoriteScripture: string;
   initialDateOfSalvation: string;
   initialDateOfBaptism: string;
+  isRealAdmin?: boolean;
+  initialPreviewRole?: string;
 };
+
+const PREVIEW_OPTIONS: { value: string; label: string; description: string }[] = [
+  {
+    value: "",
+    label: "Admin (no preview)",
+    description: "See the app as yourself, with full admin access.",
+  },
+  {
+    value: "member",
+    label: "Regular User",
+    description: "See the app as a regular member would.",
+  },
+  {
+    value: "prayer_team",
+    label: "Care Team Member",
+    description: "See the app as a prayer care team member would.",
+  },
+];
 
 type Snapshot = {
   fullName: string;
@@ -45,9 +65,14 @@ export default function ProfileClient({
   initialFavoriteScripture,
   initialDateOfSalvation,
   initialDateOfBaptism,
+  isRealAdmin = false,
+  initialPreviewRole = "",
 }: Props) {
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [previewRole, setPreviewRole] = useState(initialPreviewRole);
+  const [savingPreview, setSavingPreview] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
@@ -198,6 +223,29 @@ export default function ProfileClient({
     setUploadingAvatar(false);
   }
 
+  // Lets a real admin preview the app as another role, purely for
+  // training/QA. This only ever touches preview_role, never the real role
+  // column, so there's no way to get locked out and no privilege escalation
+  // risk for non-admins (the server ignores preview_role unless the caller's
+  // real role is already admin — see lib/effective-role.ts).
+  async function handlePreviewChange(value: string) {
+    setPreviewRole(value);
+    setSavingPreview(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      await supabase
+        .from("profiles")
+        .update({ preview_role: value || null })
+        .eq("id", user.id);
+    }
+
+    setSavingPreview(false);
+  }
+
   const avatarImage = avatarUrl ? (
     <img
       src={avatarUrl}
@@ -239,6 +287,54 @@ export default function ProfileClient({
       <p className="mt-2 text-gray-600">
         Manage your account details and how you appear across the app.
       </p>
+
+      {isRealAdmin && (
+        <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="text-sm font-semibold text-gray-900">
+            Preview as a role
+          </h2>
+          <p className="mt-1 text-xs text-gray-500">
+            See what the app looks like for a regular user or care team
+            member — handy for training. This only changes what you see; your
+            real admin access is never affected, and you can switch back any
+            time.
+          </p>
+
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+            {PREVIEW_OPTIONS.map((option) => {
+              const isSelected = (previewRole || "") === option.value;
+              return (
+                <button
+                  key={option.value || "admin"}
+                  type="button"
+                  disabled={savingPreview}
+                  onClick={() => handlePreviewChange(option.value)}
+                  className={`flex-1 rounded-md border px-3 py-2 text-left text-sm shadow-sm transition disabled:opacity-50 ${
+                    isSelected
+                      ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                      : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <span className="block font-medium">{option.label}</span>
+                  <span className="mt-0.5 block text-xs text-gray-500">
+                    {option.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {previewRole && (
+            <p className="mt-3 text-xs font-medium text-amber-600">
+              Currently previewing as{" "}
+              {PREVIEW_OPTIONS.find((o) => o.value === previewRole)?.label ??
+                previewRole}
+              . Other pages and your profile menu will reflect this until you
+              switch back to Admin above.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
