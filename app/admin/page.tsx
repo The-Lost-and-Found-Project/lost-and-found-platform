@@ -52,7 +52,7 @@ export default async function AdminPage() {
 
   const { data: careTeam } = await supabase
     .from("profiles")
-    .select("id, full_name, email")
+    .select("id, full_name")
     .in("role", ["admin", "prayer_team", "pastor"]);
 
   return (
@@ -60,6 +60,7 @@ export default async function AdminPage() {
       requests={requests ?? []}
       categories={categories ?? []}
       careTeam={careTeam ?? []}
+      isAdmin={profile?.role === "admin"}
     />
   );
 }
