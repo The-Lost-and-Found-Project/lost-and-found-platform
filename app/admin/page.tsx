@@ -36,7 +36,7 @@ export default async function AdminPage() {
           Access Restricted
         </h1>
         <p className="mt-4 text-gray-600">
-          This area is reserved for prayer care team members. If you believe
+          This area is reserved for Community Prayer Members. If you believe
           you should have access, please contact your ministry admin.
         </p>
       </div>
