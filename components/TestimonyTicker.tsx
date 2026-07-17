@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import TickerScroll from "./TickerScroll";
-import ExpandableText from "./ExpandableText";
 
 type Testimony = {
   id: string;
@@ -111,10 +110,9 @@ export default function TestimonyTicker() {
 
             return (
               <div key={key} className="rounded-md bg-gray-50 px-4 py-3">
-                <ExpandableText
-                  text={`“${t.faith_story}”`}
-                  className="italic text-gray-700"
-                />
+                <p className="italic text-gray-700">
+                  &ldquo;{t.faith_story}&rdquo;
+                </p>
 
                 {!isSelf && userId && (
                   <div className="mt-2">
