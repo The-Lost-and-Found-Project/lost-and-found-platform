@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import PrayerWallTicker from "@/components/PrayerWallTicker";
+import TestimonyTicker from "@/components/TestimonyTicker";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -19,6 +20,7 @@ export default async function DashboardPage() {
       <p className="mt-4 text-gray-600">Signed in as {user.email}.</p>
 
       <PrayerWallTicker />
+      <TestimonyTicker />
     </div>
   );
 }
