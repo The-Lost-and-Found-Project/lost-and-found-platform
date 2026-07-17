@@ -35,8 +35,8 @@ export default async function AdminUsersPage() {
           Access Restricted
         </h1>
         <p className="mt-4 text-gray-600">
-          This area is reserved for admins. If you believe you should have
-          access, please contact your ministry admin.
+          This area is reserved for Community Admins. If you believe you
+          should have access, please contact your ministry admin.
         </p>
       </div>
     );
