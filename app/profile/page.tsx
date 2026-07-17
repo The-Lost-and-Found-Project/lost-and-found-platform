@@ -16,7 +16,7 @@ export default async function ProfilePage() {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "full_name, avatar_url, faith_story, favorite_scripture, date_of_salvation, date_of_baptism"
+      "full_name, avatar_url, faith_story, favorite_scripture, date_of_salvation, date_of_baptism, role, preview_role"
     )
     .eq("id", user.id)
     .single();
@@ -30,6 +30,8 @@ export default async function ProfilePage() {
       initialFavoriteScripture={profile?.favorite_scripture ?? ""}
       initialDateOfSalvation={profile?.date_of_salvation ?? ""}
       initialDateOfBaptism={profile?.date_of_baptism ?? ""}
+      isRealAdmin={profile?.role === "admin"}
+      initialPreviewRole={profile?.preview_role ?? ""}
     />
   );
 }
