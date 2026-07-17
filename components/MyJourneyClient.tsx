@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type PrayerRequestSummary = {
@@ -11,146 +11,360 @@ type PrayerRequestSummary = {
   category_id: string | null;
 };
 
+type JourneyEntry = {
+  id: string;
+  entry_type: "bible_reading" | "prayer_answered" | "custom";
+  title: string | null;
+  notes: string | null;
+  entry_date: string;
+  created_at: string;
+};
+
 type Props = {
   email: string;
-  initialFaithStory: string;
-  initialFavoriteScripture: string;
+  dateOfSalvation: string;
+  dateOfBaptism: string;
   requests: PrayerRequestSummary[];
   categoryMap: Record<string, string>;
+  entries: JourneyEntry[];
 };
+
+type TimelineKind =
+  | "salvation"
+  | "baptism"
+  | "prayer"
+  | "bible_reading"
+  | "prayer_answered"
+  | "custom";
+
+type TimelineItem = {
+  key: string;
+  time: number;
+  dateLabel: string;
+  kind: TimelineKind;
+  title: string;
+  description?: string;
+  meta?: string;
+};
+
+const ENTRY_TYPES: {
+  value: JourneyEntry["entry_type"];
+  label: string;
+  placeholder: string;
+}[] = [
+  { value: "bible_reading", label: "Bible Reading", placeholder: "What passage did you read?" },
+  { value: "prayer_answered", label: "Prayer Answered", placeholder: "What prayer was answered?" },
+  { value: "custom", label: "Add Your Own", placeholder: "Give it a title" },
+];
+
+const KIND_STYLES: Record<TimelineKind, { dot: string; badge: string; label: string }> = {
+  salvation: { dot: "bg-amber-500", badge: "bg-amber-50 text-amber-700", label: "Salvation" },
+  baptism: { dot: "bg-sky-500", badge: "bg-sky-50 text-sky-700", label: "Baptism" },
+  prayer: { dot: "bg-indigo-500", badge: "bg-indigo-50 text-indigo-700", label: "Prayer Request" },
+  bible_reading: { dot: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-700", label: "Bible Reading" },
+  prayer_answered: { dot: "bg-violet-500", badge: "bg-violet-50 text-violet-700", label: "Prayer Answered" },
+  custom: { dot: "bg-gray-400", badge: "bg-gray-100 text-gray-700", label: "Note" },
+};
+
+function parseLocalDate(value: string) {
+  const [y, m, d] = value.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+}
+
+function formatDateOnly(value: string) {
+  const date = parseLocalDate(value);
+  if (!date) return value;
+  return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
+function todayInputValue() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
 
 export default function MyJourneyClient({
   email,
-  initialFaithStory,
-  initialFavoriteScripture,
+  dateOfSalvation,
+  dateOfBaptism,
   requests,
   categoryMap,
+  entries: initialEntries,
 }: Props) {
   const supabase = createClient();
-  const [faithStory, setFaithStory] = useState(initialFaithStory);
-  const [favoriteScripture, setFavoriteScripture] = useState(
-    initialFavoriteScripture
-  );
+  const [entries, setEntries] = useState(initialEntries);
+  const [showForm, setShowForm] = useState(false);
+  const [entryType, setEntryType] = useState<JourneyEntry["entry_type"]>("bible_reading");
+  const [entryDate, setEntryDate] = useState(todayInputValue());
+  const [title, setTitle] = useState("");
+  const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
-  async function handleSave(e: React.FormEvent) {
+  const activeType = ENTRY_TYPES.find((t) => t.value === entryType)!;
+
+  function openForm() {
+    setEntryType("bible_reading");
+    setEntryDate(todayInputValue());
+    setTitle("");
+    setNotes("");
+    setError("");
+    setShowForm(true);
+  }
+
+  function closeForm() {
+    setShowForm(false);
+  }
+
+  async function handleAddEntry(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
-    setSaved(false);
+    setError("");
 
+    if (entryType === "custom" && !title.trim()) {
+      setError("Please give your entry a title.");
+      return;
+    }
+
+    setSaving(true);
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({
-          faith_story: faithStory,
-          favorite_scripture: favoriteScripture,
-        })
-        .eq("id", user.id);
+    if (!user) {
+      setSaving(false);
+      setError("You need to be signed in to add to your journey.");
+      return;
     }
 
+    const { data, error: insertError } = await supabase
+      .from("journey_entries")
+      .insert({
+        user_id: user.id,
+        entry_type: entryType,
+        title: title.trim() || null,
+        notes: notes.trim() || null,
+        entry_date: entryDate,
+      })
+      .select("id, entry_type, title, notes, entry_date, created_at")
+      .single();
+
     setSaving(false);
-    setSaved(true);
+
+    if (insertError || !data) {
+      setError("Something went wrong saving that entry. Please try again.");
+      return;
+    }
+
+    setEntries((prev) => [data as JourneyEntry, ...prev]);
+    setShowForm(false);
   }
+
+  const timeline = useMemo(() => {
+    const items: TimelineItem[] = [];
+
+    if (dateOfSalvation) {
+      const date = parseLocalDate(dateOfSalvation);
+      items.push({
+        key: "salvation",
+        time: date ? date.getTime() : 0,
+        dateLabel: formatDateOnly(dateOfSalvation),
+        kind: "salvation",
+        title: "Accepted Christ",
+      });
+    }
+
+    if (dateOfBaptism) {
+      const date = parseLocalDate(dateOfBaptism);
+      items.push({
+        key: "baptism",
+        time: date ? date.getTime() : 0,
+        dateLabel: formatDateOnly(dateOfBaptism),
+        kind: "baptism",
+        title: "Baptized",
+      });
+    }
+
+    requests.forEach((r) => {
+      items.push({
+        key: `prayer-${r.id}`,
+        time: new Date(r.created_at).getTime(),
+        dateLabel: formatDateTime(r.created_at),
+        kind: "prayer",
+        title: r.category_id ? categoryMap[r.category_id] ?? "Prayer Request" : "Prayer Request",
+        description: r.request_text,
+        meta: r.status,
+      });
+    });
+
+    entries.forEach((entry) => {
+      const date = parseLocalDate(entry.entry_date);
+      const typeInfo = ENTRY_TYPES.find((t) => t.value === entry.entry_type);
+      items.push({
+        key: `entry-${entry.id}`,
+        time: date ? date.getTime() : new Date(entry.created_at).getTime(),
+        dateLabel: formatDateOnly(entry.entry_date),
+        kind: entry.entry_type,
+        title: entry.title || typeInfo?.label || "Journey Entry",
+        description: entry.notes ?? undefined,
+      });
+    });
+
+    return items.sort((a, b) => b.time - a.time);
+  }, [dateOfSalvation, dateOfBaptism, requests, categoryMap, entries]);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-      <h1 className="text-2xl font-bold text-gray-900">My Journey</h1>
-      <p className="mt-2 text-gray-600">
-        A personal look at your prayer requests and the ways God is moving in
-        your life.
-      </p>
-
-      <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900">
-          My Faith Journey
-        </h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Share a bit about your faith story below — this will appear on your
-          profile so our community can celebrate what God is doing in your
-          life.
-        </p>
-
-        <form onSubmit={handleSave} className="mt-6 space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Favorite Bible Verse
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. Philippians 4:13"
-              value={favoriteScripture}
-              onChange={(e) => setFavoriteScripture(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              My Faith Journey
-            </label>
-            <textarea
-              rows={4}
-              placeholder="Share your testimony — how you came to faith, or a moment God has shown up in your life."
-              value={faithStory}
-              onChange={(e) => setFaithStory(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
-            />
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400 disabled:opacity-50"
-            >
-              {saving ? "Saving..." : "Save"}
-            </button>
-            {saved && <span className="text-sm text-green-600">Saved.</span>}
-          </div>
-        </form>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">My Journey</h1>
+          <p className="mt-2 text-gray-600">
+            A timeline of your walk with God — milestones, prayers, and moments worth remembering.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={openForm}
+          className="inline-flex items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-md"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="h-4 w-4"
+          >
+            <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+          </svg>
+          Add To My Journey
+        </button>
       </div>
 
       <div className="mt-10">
-        <h2 className="text-lg font-semibold text-gray-900">
-          Prayer Requests You&apos;ve Submitted
-        </h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Every request you&apos;ve shared with us, all in one place.
-        </p>
-
-        <div className="mt-4 space-y-3">
-          {requests.length === 0 && (
-            <p className="text-gray-500">
-              You haven&apos;t submitted any prayer requests yet. Once you do,
-              you&apos;ll be able to track them here as part of your journey.
-            </p>
-          )}
-
-          {requests.map((r) => (
-            <div
-              key={r.id}
-              className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-gray-900">{r.request_text}</p>
-                <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
-                  {r.status}
-                </span>
-              </div>
-              {r.category_id && categoryMap[r.category_id] && (
-                <p className="mt-1 text-xs text-gray-500">
-                  {categoryMap[r.category_id]}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
+        {timeline.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-gray-300 bg-white px-6 py-10 text-center text-gray-500">
+            Nothing here yet. Add a Bible reading, an answered prayer, or your own note to start your
+            timeline.
+          </div>
+        ) : (
+          <ol className="relative border-l border-gray-200 pl-6">
+            {timeline.map((item) => {
+              const style = KIND_STYLES[item.kind];
+              return (
+                <li key={item.key} className="relative mb-8 last:mb-0">
+                  <span className={`absolute -left-[31px] mt-1.5 h-3 w-3 rounded-full ${style.dot}`} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${style.badge}`}>
+                      {style.label}
+                    </span>
+                    <span className="text-xs text-gray-400">{item.dateLabel}</span>
+                    {item.meta && (
+                      <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium capitalize text-gray-600">
+                        {item.meta}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="mt-1.5 font-semibold text-gray-900">{item.title}</h3>
+                  {item.description && (
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-gray-600">{item.description}</p>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        )}
       </div>
+
+      {showForm && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
+          onClick={closeForm}
+        >
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold text-gray-900">Add To My Journey</h2>
+
+            <form onSubmit={handleAddEntry} className="mt-4 space-y-4">
+              <div className="flex gap-2">
+                {ENTRY_TYPES.map((type) => (
+                  <button
+                    key={type.value}
+                    type="button"
+                    onClick={() => setEntryType(type.value)}
+                    className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition ${
+                      entryType === type.value
+                        ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {type.label}
+                  </button>
+                ))}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Date</label>
+                <input
+                  type="date"
+                  value={entryDate}
+                  onChange={(e) => setEntryDate(e.target.value)}
+                  required
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  {entryType === "custom" ? "Title" : "Title (optional)"}
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder={activeType.placeholder}
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Notes (optional)</label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                  placeholder="Any thoughts you want to remember?"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              {error && <p className="text-sm text-red-600">{error}</p>}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={closeForm}
+                  className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
+                >
+                  {saving ? "Saving…" : "Save"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <p className="mt-10 text-sm text-gray-400">Signed in as {email}.</p>
     </div>
