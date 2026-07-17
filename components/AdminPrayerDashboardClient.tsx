@@ -14,7 +14,7 @@ const STATUS_OPTIONS = [
   "Closed",
 ];
 
-type CareTeamMember = { id: string; full_name: string | null };
+type CareTeamMember = { id: string; full_name: string | null; email: string | null };
 type CategoryOption = { id: string; name: string };
 
 type AdminRequest = {
@@ -64,6 +64,40 @@ export default function AdminPrayerDashboardClient({
     );
 
     await supabase.from("prayer_requests").update(changes).eq("id", id);
+  }
+
+  async function assignRequest(request: AdminRequest, assigneeId: string) {
+    await updateRequest(request.id, { assigned_to: assigneeId || null });
+
+    if (!assigneeId) return;
+
+    const assignee = careTeam.find((m) => m.id === assigneeId);
+    if (!assignee?.email) return;
+
+    // Fire-and-forget: the in-app notification is already handled by a DB
+    // trigger. This email gives the assignee the full submission so they can
+    // reach out directly if needed.
+    fetch("/api/notify-assignment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        assigneeEmail: assignee.email,
+        assigneeName: assignee.full_name,
+        name: request.name,
+        email: request.email,
+        phone: request.phone,
+        preferredContact: request.preferred_contact,
+        categoryName: request.category_id
+          ? categoryMap[request.category_id]
+          : null,
+        requestText: request.request_text,
+        isPublic: request.is_public,
+        isAnonymous: request.is_anonymous,
+        contactRequested: request.contact_requested,
+      }),
+    }).catch((err) => {
+      console.error("Failed to send assignment notification:", err);
+    });
   }
 
   function updatePraiseReportLocal(id: string, value: string) {
@@ -164,11 +198,7 @@ export default function AdminPrayerDashboardClient({
 
                 <select
                   value={r.assigned_to ?? ""}
-                  onChange={(e) =>
-                    updateRequest(r.id, {
-                      assigned_to: e.target.value || null,
-                    })
-                  }
+                  onChange={(e) => assignRequest(r, e.target.value)}
                   className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
                 >
                   <option value="">Unassigned</option>
