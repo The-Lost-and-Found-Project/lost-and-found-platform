@@ -84,7 +84,7 @@ export default function PrayerWallTicker() {
 
       <style jsx>{`
         .lfp-ticker-track {
-          animation: lfp-ticker-scroll-up 60s linear infinite;
+          animation: lfp-ticker-scroll-up 42s linear infinite;
         }
         .lfp-ticker-mask:hover .lfp-ticker-track {
           animation-play-state: paused;
