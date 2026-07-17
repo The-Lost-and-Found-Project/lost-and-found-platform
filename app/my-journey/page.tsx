@@ -15,7 +15,7 @@ export default async function MyJourneyPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("faith_story, favorite_scripture")
+    .select("date_of_salvation, date_of_baptism")
     .eq("id", user.id)
     .single();
 
@@ -29,6 +29,12 @@ export default async function MyJourneyPage() {
     .from("prayer_categories")
     .select("id, name");
 
+  const { data: entries } = await supabase
+    .from("journey_entries")
+    .select("id, entry_type, title, notes, entry_date, created_at")
+    .eq("user_id", user.id)
+    .order("entry_date", { ascending: false });
+
   const categoryMap: Record<string, string> = {};
   (categories ?? []).forEach((c) => {
     categoryMap[c.id] = c.name;
@@ -37,10 +43,11 @@ export default async function MyJourneyPage() {
   return (
     <MyJourneyClient
       email={user.email ?? ""}
-      initialFaithStory={profile?.faith_story ?? ""}
-      initialFavoriteScripture={profile?.favorite_scripture ?? ""}
+      dateOfSalvation={profile?.date_of_salvation ?? ""}
+      dateOfBaptism={profile?.date_of_baptism ?? ""}
       requests={requests ?? []}
       categoryMap={categoryMap}
+      entries={entries ?? []}
     />
   );
 }
