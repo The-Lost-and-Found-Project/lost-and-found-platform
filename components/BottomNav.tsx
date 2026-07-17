@@ -66,7 +66,7 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-100 bg-white/90 backdrop-blur-md"
+      className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-r from-indigo-600 to-violet-600 shadow-[0_-4px_16px_rgba(79,70,229,0.25)]"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="mx-auto flex max-w-md items-stretch justify-around">
@@ -77,10 +77,18 @@ export default function BottomNav() {
               key={item.href}
               href={item.href}
               className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium transition ${
-                active ? "text-indigo-600" : "text-gray-500 hover:text-gray-800"
+                active
+                  ? "text-white"
+                  : "text-indigo-100 hover:text-white"
               }`}
             >
-              {item.icon}
+              <span
+                className={`flex h-8 w-8 items-center justify-center rounded-full transition ${
+                  active ? "bg-white/20" : ""
+                }`}
+              >
+                {item.icon}
+              </span>
               <span>{item.label}</span>
             </Link>
           );
