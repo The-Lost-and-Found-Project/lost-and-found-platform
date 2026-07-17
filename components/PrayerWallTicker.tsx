@@ -70,9 +70,6 @@ export default function PrayerWallTicker() {
         {items.map((r, i) => (
           <div key={`${r.id}-${i}`} className="rounded-md bg-gray-50 px-4 py-3">
             <p className="italic text-gray-700">&ldquo;{r.request_text}&rdquo;</p>
-            <p className="mt-1 text-xs text-gray-400">
-              &mdash; Shared anonymously
-            </p>
           </div>
         ))}
       </TickerScroll>

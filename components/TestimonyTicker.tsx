@@ -119,9 +119,6 @@ export default function TestimonyTicker() {
                 <p className="italic text-gray-700">
                   &ldquo;{t.faith_story}&rdquo;
                 </p>
-                <p className="mt-1 text-xs text-gray-400">
-                  &mdash; Shared anonymously
-                </p>
 
                 {!isSelf && userId && (
                   <div className="mt-2">
