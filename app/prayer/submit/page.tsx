@@ -69,7 +69,17 @@ export default function SubmitPrayerRequestPage() {
     const { data: userData } = await supabase.auth.getUser();
     const user = userData?.user;
 
+    // Generate the id ourselves so we can look up the auto-assignment
+    // afterward without needing to read the row back (private, anonymous
+    // submissions aren't visible to the submitter under RLS, so a
+    // `.select()` on the insert would fail even though it succeeded).
+    const newRequestId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : undefined;
+
     const { error: insertError } = await supabase.from("prayer_requests").insert({
+      ...(newRequestId ? { id: newRequestId } : {}),
       user_id: user ? user.id : null,
       name,
       email,
@@ -91,6 +101,41 @@ export default function SubmitPrayerRequestPage() {
     // Care team members already get an in-app notification the moment a
     // request comes in (via a DB trigger), and a rolled-up summary email
     // every Monday morning instead of one email per submission.
+    //
+    // A separate DB trigger auto-assigns this request to the next care team
+    // member in the rotation. Look that assignment up (via a narrow RPC that
+    // only ever returns the assignee's id) and fire the same "you've been
+    // matched" email the admin dashboard sends for manual assignments, so
+    // the assignee finds out right away instead of waiting for the weekly
+    // digest.
+    if (newRequestId) {
+      const { data: assignedTo } = await supabase.rpc(
+        "get_prayer_request_assignment",
+        { request_id: newRequestId }
+      );
+
+      if (assignedTo) {
+        const category = categories.find((c) => c.id === categoryId);
+        fetch("/api/notify-assignment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            assigneeId: assignedTo,
+            name,
+            email,
+            phone,
+            preferredContact,
+            categoryName: category?.name ?? null,
+            requestText,
+            isPublic,
+            isAnonymous,
+            contactRequested,
+          }),
+        }).catch((err) => {
+          console.error("Failed to send assignment notification:", err);
+        });
+      }
+    }
 
     setSubmitted(true);
     setSubmitting(false);
