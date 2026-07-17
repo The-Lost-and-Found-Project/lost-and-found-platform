@@ -51,7 +51,7 @@ export default function ShareButton() {
           strokeLinejoin="round"
         />
       </svg>
-      {copied ? "Link copied!" : "Share"}
+      {copied ? "Link copied!" : "Share This App"}
     </button>
   );
 }

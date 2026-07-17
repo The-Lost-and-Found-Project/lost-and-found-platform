@@ -15,8 +15,8 @@ export default async function Header() {
     <Image
       src="/logo.svg"
       alt="The Lost and Found Project"
-      width={32}
-      height={32}
+      width={44}
+      height={44}
       priority
     />
   );
