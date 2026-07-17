@@ -22,6 +22,14 @@ export default function TickerScroll({
   const programmatic = useRef(false);
   const lastUserInput = useRef(0);
   const pointerDown = useRef(false);
+  // Our own precise, fractional scroll position. We deliberately do NOT use
+  // el.scrollTop as the running total: browsers store/report scrollTop as a
+  // rounded whole pixel, and at this speed each frame only advances by a
+  // fraction of a pixel (~0.3px at 60fps). Reading the rounded value back
+  // every frame throws away that fractional progress before it can add up,
+  // so the ticker would appear to never move at all. Tracking position
+  // ourselves and only writing it into scrollTop avoids that.
+  const position = useRef(0);
 
   useEffect(() => {
     const current = maskRef.current;
@@ -31,6 +39,8 @@ export default function TickerScroll({
     // (it does not narrow across function boundaries on its own).
     const el: HTMLDivElement = current;
 
+    position.current = el.scrollTop;
+
     let raf = 0;
     let last = performance.now();
 
@@ -39,9 +49,12 @@ export default function TickerScroll({
       // anything else came from the visitor (touch drag, momentum, wheel).
       if (programmatic.current) {
         programmatic.current = false;
-        return;
+      } else {
+        lastUserInput.current = performance.now();
       }
-      lastUserInput.current = performance.now();
+      // Either way, resync our tracked position to reality so that once
+      // auto-scroll resumes it continues from wherever the visitor left it.
+      position.current = el.scrollTop;
     }
 
     function onPointerDown() {
@@ -67,10 +80,11 @@ export default function TickerScroll({
       const idleFor = now - lastUserInput.current;
 
       if (!pointerDown.current && idleFor > RESUME_DELAY_MS && half > 0) {
-        let next = el.scrollTop + (SCROLL_SPEED_PX_PER_SEC * dt) / 1000;
+        let next = position.current + (SCROLL_SPEED_PX_PER_SEC * dt) / 1000;
         while (next >= half) {
           next -= half;
         }
+        position.current = next;
         programmatic.current = true;
         el.scrollTop = next;
       }
