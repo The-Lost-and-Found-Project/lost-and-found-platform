@@ -24,8 +24,12 @@ export default function TickerScroll({
   const pointerDown = useRef(false);
 
   useEffect(() => {
-    const el = maskRef.current;
-    if (!el) return;
+    const current = maskRef.current;
+    if (!current) return;
+    // Give the element a non-nullable local binding so TypeScript's control
+    // flow narrowing above carries through into the nested closures below
+    // (it does not narrow across function boundaries on its own).
+    const el: HTMLDivElement = current;
 
     let raf = 0;
     let last = performance.now();
