@@ -71,12 +71,6 @@ export default async function DashboardPage() {
             >
               View Prayer Wall
             </Link>
-            <Link
-              href="/my-journey"
-              className="rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              My Journey
-            </Link>
           </div>
         </div>
       </section>
