@@ -23,6 +23,25 @@ const items = [
     ),
   },
   {
+    href: "/testimonies",
+    label: "Testimonies",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-5 w-5"
+      >
+        <path d="M7 8h10M7 12h6" strokeLinecap="round" />
+        <path
+          d="M4 5h16v10a2 2 0 01-2 2H9l-4 3v-3H4a2 2 0 01-2-2V5z"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
     href: "/my-journey",
     label: "My Journey",
     icon: (
