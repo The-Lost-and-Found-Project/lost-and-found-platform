@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import SignOutButton from "@/components/SignOutButton";
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024; // 5MB
 
@@ -19,21 +19,29 @@ type Props = {
   initialPreviewRole?: string;
 };
 
-const PREVIEW_OPTIONS: { value: string; label: string; description: string }[] = [
+const PREVIEW_OPTIONS: {
+  value: string;
+  label: string;
+  shortLabel: string;
+  description: string;
+}[] = [
   {
     value: "",
     label: "Community Admin (no preview)",
+    shortLabel: "Admin",
     description: "See the app as yourself, with full admin access.",
   },
   {
     value: "member",
     label: "Community Member",
-    description: "See the app as a Community Member would.",
+    shortLabel: "Member",
+    description: "Preview the app as a Community Member would see it.",
   },
   {
     value: "prayer_team",
     label: "Community Prayer Member",
-    description: "See the app as a Community Prayer Member would.",
+    shortLabel: "Prayer",
+    description: "Preview the app as a Community Prayer Member would see it.",
   },
 ];
 
@@ -73,18 +81,6 @@ export default function ProfileClient({
 }: Props) {
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [resetStatus, setResetStatus] = useState<
-    "idle" | "sending" | "sent" | "error"
-  >("idle");
-
-  async function handleResetPassword() {
-    setResetStatus("sending");
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
-    });
-    setResetStatus(error ? "error" : "sent");
-  }
 
   const [previewRole, setPreviewRole] = useState(initialPreviewRole);
   const [savingPreview, setSavingPreview] = useState(false);
@@ -303,54 +299,6 @@ export default function ProfileClient({
         Manage your account details and how you appear across the app.
       </p>
 
-      {isRealAdmin && (
-        <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-semibold text-gray-900">
-            Preview as a role
-          </h2>
-          <p className="mt-1 text-xs text-gray-500">
-            See what the app looks like for a Community Member or Community
-            Prayer Member — handy for training. This only changes what you
-            see; your real admin access is never affected, and you can switch
-            back any time.
-          </p>
-
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-            {PREVIEW_OPTIONS.map((option) => {
-              const isSelected = (previewRole || "") === option.value;
-              return (
-                <button
-                  key={option.value || "admin"}
-                  type="button"
-                  disabled={savingPreview}
-                  onClick={() => handlePreviewChange(option.value)}
-                  className={`flex-1 rounded-md border px-3 py-2 text-left text-sm shadow-sm transition disabled:opacity-50 ${
-                    isSelected
-                      ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                      : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <span className="block font-medium">{option.label}</span>
-                  <span className="mt-0.5 block text-xs text-gray-500">
-                    {option.description}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {previewRole && (
-            <p className="mt-3 text-xs font-medium text-amber-600">
-              Currently previewing as{" "}
-              {PREVIEW_OPTIONS.find((o) => o.value === previewRole)?.label ??
-                previewRole}
-              . Other pages and your profile menu will reflect this until you
-              switch back to Admin above.
-            </p>
-          )}
-        </div>
-      )}
-
       <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -377,6 +325,31 @@ export default function ProfileClient({
             {justSaved && !isEditing && (
               <span className="text-sm text-green-600">Saved.</span>
             )}
+
+            {isRealAdmin && !isEditing && (
+              <div className="flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 p-0.5">
+                {PREVIEW_OPTIONS.map((option) => {
+                  const isSelected = (previewRole || "") === option.value;
+                  return (
+                    <button
+                      key={option.value || "admin"}
+                      type="button"
+                      title={option.description}
+                      disabled={savingPreview}
+                      onClick={() => handlePreviewChange(option.value)}
+                      className={`rounded px-2 py-1 text-xs font-medium transition disabled:opacity-50 ${
+                        isSelected
+                          ? "bg-indigo-600 text-white shadow-sm"
+                          : "text-gray-600 hover:bg-gray-200"
+                      }`}
+                    >
+                      {option.shortLabel}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {isEditing ? (
               <>
                 <button
@@ -407,6 +380,16 @@ export default function ProfileClient({
             )}
           </div>
         </div>
+
+        {isRealAdmin && previewRole && (
+          <p className="mt-3 text-xs font-medium text-amber-600">
+            Previewing as{" "}
+            {PREVIEW_OPTIONS.find((o) => o.value === previewRole)?.label ??
+              previewRole}
+            . Your real admin access isn&rsquo;t affected — click Admin above
+            to switch back.
+          </p>
+        )}
 
         {isEditing && (
           <div className="mt-6">
@@ -534,51 +517,19 @@ export default function ProfileClient({
       </div>
 
       <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-sm font-semibold text-gray-900">Account</h2>
-        <p className="mt-1 text-xs text-gray-500">
-          Your login details and account security.
-        </p>
-
-        <div className="mt-5 space-y-5 divide-y divide-gray-100">
+        <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              Member since
-            </p>
-            <p className="mt-1 text-sm text-gray-900">
-              {new Date(createdAt).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+            <h2 className="text-sm font-semibold text-gray-900">Account</h2>
+            <p className="mt-1 text-xs text-gray-500">
+              Your login details, password, and sign out.
             </p>
           </div>
-
-          <div className="pt-5">
-            <p className="text-sm font-medium text-gray-900">Password</p>
-            <p className="mt-1 text-sm text-gray-600">
-              Send yourself a secure link to reset your password.
-            </p>
-            <button
-              onClick={handleResetPassword}
-              disabled={resetStatus === "sending" || resetStatus === "sent"}
-              className="mt-3 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 disabled:opacity-60"
-            >
-              {resetStatus === "sent"
-                ? "Reset link sent"
-                : resetStatus === "sending"
-                ? "Sending..."
-                : "Send password reset email"}
-            </button>
-            {resetStatus === "error" && (
-              <p className="mt-2 text-sm text-red-600">
-                Something went wrong. Please try again.
-              </p>
-            )}
-          </div>
-
-          <div className="pt-5">
-            <SignOutButton />
-          </div>
+          <Link
+            href="/account"
+            className="shrink-0 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+          >
+            Account →
+          </Link>
         </div>
       </div>
     </div>
