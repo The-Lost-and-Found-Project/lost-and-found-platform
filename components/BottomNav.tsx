@@ -63,9 +63,10 @@ const GIVE_URL =
 export default function BottomNav() {
   const pathname = usePathname();
 
-  // The marketing landing page and the sign-in/create-account page are
+  // The marketing landing page and the sign-in/create-account pages are
   // public-facing and don't need the authenticated app's bottom nav.
-  if (pathname === "/" || pathname === "/login") return null;
+  if (pathname === "/" || pathname === "/login" || pathname === "/signup")
+    return null;
 
   return (
     <nav
