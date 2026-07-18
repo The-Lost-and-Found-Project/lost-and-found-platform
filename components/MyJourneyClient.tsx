@@ -9,6 +9,9 @@ type PrayerRequestSummary = {
   request_text: string;
   status: string;
   category_id: string | null;
+  is_public: boolean;
+  is_anonymous: boolean;
+  moderation_status: string;
 };
 
 type JourneyEntry = {
@@ -45,6 +48,8 @@ type TimelineItem = {
   title: string;
   description?: string;
   meta?: string;
+  requestId?: string;
+  moderationStatus?: string;
 };
 
 const ENTRY_TYPES: {
@@ -94,12 +99,13 @@ export default function MyJourneyClient({
   email,
   dateOfSalvation,
   dateOfBaptism,
-  requests,
+  requests: initialRequests,
   categoryMap,
   entries: initialEntries,
 }: Props) {
   const supabase = createClient();
   const [entries, setEntries] = useState(initialEntries);
+  const [requests, setRequests] = useState(initialRequests);
   const [showForm, setShowForm] = useState(false);
   const [entryType, setEntryType] = useState<JourneyEntry["entry_type"]>("bible_reading");
   const [entryDate, setEntryDate] = useState(todayInputValue());
@@ -108,7 +114,74 @@ export default function MyJourneyClient({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const [editingRequestId, setEditingRequestId] = useState<string | null>(null);
+  const [editRequestText, setEditRequestText] = useState("");
+  const [editCategoryId, setEditCategoryId] = useState("");
+  const [editIsPublic, setEditIsPublic] = useState(true);
+  const [editIsAnonymous, setEditIsAnonymous] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState("");
+
+  const categoryOptions = useMemo(
+    () => Object.entries(categoryMap).map(([id, name]) => ({ id, name })),
+    [categoryMap]
+  );
+
   const activeType = ENTRY_TYPES.find((t) => t.value === entryType)!;
+
+  function openEditRequest(requestId: string) {
+    const request = requests.find((r) => r.id === requestId);
+    if (!request) return;
+    setEditingRequestId(requestId);
+    setEditRequestText(request.request_text);
+    setEditCategoryId(request.category_id ?? "");
+    setEditIsPublic(request.is_public);
+    setEditIsAnonymous(request.is_anonymous);
+    setEditError("");
+  }
+
+  function closeEditRequest() {
+    setEditingRequestId(null);
+  }
+
+  async function handleSaveRequestEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingRequestId) return;
+
+    if (!editRequestText.trim()) {
+      setEditError("Your prayer request can't be empty.");
+      return;
+    }
+
+    setEditSaving(true);
+    setEditError("");
+
+    const { data, error: updateError } = await supabase
+      .from("prayer_requests")
+      .update({
+        request_text: editRequestText.trim(),
+        category_id: editCategoryId || null,
+        is_public: editIsPublic,
+        is_anonymous: editIsAnonymous,
+      })
+      .eq("id", editingRequestId)
+      .select(
+        "id, created_at, request_text, status, category_id, is_public, is_anonymous, moderation_status"
+      )
+      .single();
+
+    setEditSaving(false);
+
+    if (updateError || !data) {
+      setEditError("Something went wrong saving your changes. Please try again.");
+      return;
+    }
+
+    setRequests((prev) =>
+      prev.map((r) => (r.id === editingRequestId ? (data as PrayerRequestSummary) : r))
+    );
+    setEditingRequestId(null);
+  }
 
   function openForm() {
     setEntryType("bible_reading");
@@ -200,6 +273,8 @@ export default function MyJourneyClient({
         title: r.category_id ? categoryMap[r.category_id] ?? "Prayer Request" : "Prayer Request",
         description: r.request_text,
         meta: r.status,
+        requestId: r.id,
+        moderationStatus: r.moderation_status,
       });
     });
 
@@ -270,10 +345,29 @@ export default function MyJourneyClient({
                         {item.meta}
                       </span>
                     )}
+                    {item.moderationStatus === "pending" && (
+                      <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                        Pending review
+                      </span>
+                    )}
+                    {item.moderationStatus === "rejected" && (
+                      <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-600">
+                        Not published — please revise
+                      </span>
+                    )}
                   </div>
                   <h3 className="mt-1.5 font-semibold text-gray-900">{item.title}</h3>
                   {item.description && (
                     <p className="mt-1 whitespace-pre-wrap text-sm text-gray-600">{item.description}</p>
+                  )}
+                  {item.requestId && (
+                    <button
+                      type="button"
+                      onClick={() => openEditRequest(item.requestId!)}
+                      className="mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-500"
+                    >
+                      Edit this request
+                    </button>
                   )}
                 </li>
               );
@@ -359,6 +453,94 @@ export default function MyJourneyClient({
                   className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
                 >
                   {saving ? "Saving…" : "Save"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editingRequestId && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
+          onClick={closeEditRequest}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold text-gray-900">
+              Edit Your Prayer Request
+            </h2>
+
+            <form onSubmit={handleSaveRequestEdit} className="mt-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Your Prayer Request
+                </label>
+                <textarea
+                  value={editRequestText}
+                  onChange={(e) => setEditRequestText(e.target.value)}
+                  rows={4}
+                  required
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Category
+                </label>
+                <select
+                  value={editCategoryId}
+                  onChange={(e) => setEditCategoryId(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+                  <option value="">No category</option>
+                  {categoryOptions.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={editIsPublic}
+                  onChange={(e) => setEditIsPublic(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                Allow this request to appear on the Public Prayer Wall
+              </label>
+
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={editIsAnonymous}
+                  onChange={(e) => setEditIsAnonymous(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                Hide my personal information (appear anonymously)
+              </label>
+
+              {editError && <p className="text-sm text-red-600">{editError}</p>}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={closeEditRequest}
+                  className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editSaving}
+                  className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
+                >
+                  {editSaving ? "Saving…" : "Save Changes"}
                 </button>
               </div>
             </form>
