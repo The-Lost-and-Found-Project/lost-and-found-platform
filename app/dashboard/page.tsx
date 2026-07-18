@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import PrayerWallTicker from "@/components/PrayerWallTicker";
-import TestimonyTicker from "@/components/TestimonyTicker";
 import ShareButton from "@/components/ShareButton";
 import Link from "next/link";
 
@@ -84,7 +83,6 @@ export default async function DashboardPage() {
 
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
         <PrayerWallTicker />
-        <TestimonyTicker />
       </section>
     </div>
   );
