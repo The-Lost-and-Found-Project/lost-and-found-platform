@@ -23,6 +23,7 @@ export default function SubmitPrayerRequestPage() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [contactRequested, setContactRequested] = useState(false);
   const [preferredContact, setPreferredContact] = useState("");
+  const [preferredCareGender, setPreferredCareGender] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -85,6 +86,9 @@ export default function SubmitPrayerRequestPage() {
       email,
       phone: phone || null,
       preferred_contact: contactRequested ? preferredContact || null : null,
+      preferred_care_gender: contactRequested
+        ? preferredCareGender || null
+        : null,
       category_id: categoryId || null,
       request_text: requestText,
       is_public: isPublic,
@@ -287,6 +291,27 @@ export default function SubmitPrayerRequestPage() {
               <option value="Phone Call">Phone Call</option>
               <option value="Text Message">Text Message</option>
             </select>
+          </div>
+        )}
+
+        {contactRequested && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Preferred care team gender (optional)
+            </label>
+            <select
+              value={preferredCareGender}
+              onChange={(e) => setPreferredCareGender(e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+            >
+              <option value="">No preference</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500">
+              If you&apos;d feel more comfortable being contacted by someone
+              of a specific gender, let us know here.
+            </p>
           </div>
         )}
 
