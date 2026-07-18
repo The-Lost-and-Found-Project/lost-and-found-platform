@@ -86,13 +86,6 @@ export default function SettingsClient({
         <p className="text-sm text-gray-600">
           Need to update your login or personal info? Head to{" "}
           <a
-            href="/account"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
-          >
-            Account
-          </a>{" "}
-          or{" "}
-          <a
             href="/profile"
             className="font-medium text-indigo-600 hover:text-indigo-500"
           >

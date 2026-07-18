@@ -22,21 +22,6 @@ const ROLE_LABELS: Record<string, string> = {
 
 const baseMenuItems = [
   {
-    href: "/account",
-    label: "Account",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        className="h-4 w-4"
-      >
-        <path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-  {
     href: "/profile",
     label: "Profile",
     icon: (
