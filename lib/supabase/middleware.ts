@@ -12,6 +12,7 @@ const PROTECTED_PREFIXES = [
   "/account",
   "/admin",
   "/notifications",
+  "/testimonies/submit",
 ];
 
 export async function updateSession(request: NextRequest) {
