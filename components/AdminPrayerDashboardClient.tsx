@@ -164,12 +164,26 @@ export default function AdminPrayerDashboardClient({
   }
 
   async function saveEdit(id: string) {
-    await updateRequest(id, {
-      request_text: editText,
-      category_id: editCategoryId || null,
-      is_public: editIsPublic,
-      is_anonymous: editIsAnonymous,
-    });
+    // Editing request_text re-runs the moderation trigger server-side (it
+    // can flip flagged/moderation_status/flag_reason in either direction),
+    // so re-select the row afterward instead of trusting the fields we sent.
+    const { data, error } = await supabase
+      .from("prayer_requests")
+      .update({
+        request_text: editText,
+        category_id: editCategoryId || null,
+        is_public: editIsPublic,
+        is_anonymous: editIsAnonymous,
+      })
+      .eq("id", id)
+      .select("request_text, category_id, is_public, is_anonymous, flagged, moderation_status, flag_reason")
+      .single();
+
+    if (!error && data) {
+      setRequests((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, ...data } : r))
+      );
+    }
     setEditingId(null);
   }
 
