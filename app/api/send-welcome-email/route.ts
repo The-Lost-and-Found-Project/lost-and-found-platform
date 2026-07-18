@@ -71,6 +71,15 @@ export async function POST(request: NextRequest) {
         </ul>
 
         <p>
+          <strong>Tip:</strong> add this app to your phone's home screen so
+          it opens like any other app. On <strong>iPhone/iPad</strong>, tap
+          the Share icon in Safari, then &ldquo;Add to Home Screen.&rdquo;
+          On <strong>Android</strong>, tap the three-dot menu in Chrome,
+          then &ldquo;Add to Home screen&rdquo; (or &ldquo;Install
+          app&rdquo;).
+        </p>
+
+        <p>
           None of this happens without people like you. The Lost and Found
           Project is sustained entirely by the generosity of our community,
           and a recurring monthly gift &mdash; even a small one &mdash; helps
