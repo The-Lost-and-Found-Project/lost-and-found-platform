@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getEffectiveRole } from "@/lib/effective-role";
 
@@ -110,10 +110,19 @@ const adminMenuItem = {
 export default function AuthControls() {
   const supabase = createClient();
   const router = useRouter();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [open, setOpen] = useState(false);
+
+  // Header (and this component) persists across client-side navigations —
+  // it isn't remounted per page — so without this the menu would stay open
+  // after clicking a link elsewhere (e.g. the notification bell or a
+  // BottomNav tab) instead of closing when you navigate away.
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     let active = true;
