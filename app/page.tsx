@@ -47,22 +47,22 @@ export default async function HomePage() {
               prayer, encouragement, and real support. Share what&rsquo;s on
               your heart, see how others are being lifted up, and read
               testimonies from people who&rsquo;ve walked through hard seasons
-              and found hope. If you&rsquo;re ready to do more than watch from
-              the sidelines, our care team is always looking for people
-              willing to pray for and walk alongside others.
+              and found hope. Whether you need prayer today or want to be the
+              one praying for someone else, there&rsquo;s a place for you
+              here.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
-                href="/prayer"
-                className="rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-900 transition hover:-translate-y-0.5 hover:shadow-md"
+                href="/signup"
+                className="rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-3 text-sm font-medium text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
               >
-                Prayer Wall
+                Create Account
               </Link>
               <Link
                 href="/login"
-                className="rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-3 text-sm font-medium text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+                className="rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-900 transition hover:-translate-y-0.5 hover:shadow-md"
               >
-                Join Care Team
+                Sign In
               </Link>
             </div>
           </div>
@@ -84,10 +84,83 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+            How It Works
+          </h2>
+          <p className="mt-3 text-gray-600">
+            Getting started takes less than a minute.
+          </p>
+        </div>
+
+        <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
+          <HowItWorksStep
+            number="1"
+            title="Create Your Account"
+            description="Tell us a little about yourself so we can connect you with the right people, safely and comfortably."
+          />
+          <HowItWorksStep
+            number="2"
+            title="Share or Support"
+            description="Submit a prayer request whenever you need one, or browse the Prayer Wall and lift up someone else's."
+          />
+          <HowItWorksStep
+            number="3"
+            title="Stay Connected"
+            description="Track your own journey, get notified when someone prays for you, and grow alongside a caring community."
+          />
+        </div>
+
+        <div className="mt-12 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-6 text-center sm:p-8">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Ready to join the community?
+          </h3>
+          <p className="mt-2 text-sm text-gray-600">
+            Create a free account to submit prayer requests, follow your
+            journey, and connect with people who care.
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-4">
+            <Link
+              href="/signup"
+              className="rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-3 text-sm font-medium text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              Create Account
+            </Link>
+            <Link
+              href="/login"
+              className="rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-900 transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              Sign In
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
         <PrayerWallTicker />
         <TestimonyTicker />
       </section>
+    </div>
+  );
+}
+
+function HowItWorksStep({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="text-center sm:text-left">
+      <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white">
+        {number}
+      </span>
+      <h3 className="mt-3 text-base font-semibold text-gray-900">{title}</h3>
+      <p className="mt-2 text-sm text-gray-600">{description}</p>
     </div>
   );
 }
