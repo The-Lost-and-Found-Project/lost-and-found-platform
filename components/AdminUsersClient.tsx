@@ -158,18 +158,21 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                     </select>
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      type="button"
+                    <select
+                      value={u.is_active ? "active" : "deactivated"}
                       disabled={isSelf || isPending}
-                      onClick={() => handleActiveToggle(u.id, !u.is_active)}
-                      className={`rounded-full px-3 py-1 text-xs font-medium shadow-sm transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                      onChange={(e) =>
+                        handleActiveToggle(u.id, e.target.value === "active")
+                      }
+                      className={`rounded-md border px-2 py-1 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50 ${
                         u.is_active
-                          ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                          : "bg-red-50 text-red-700 hover:bg-red-100"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-red-200 bg-red-50 text-red-700"
                       }`}
                     >
-                      {u.is_active ? "Active" : "Deactivated"}
-                    </button>
+                      <option value="active">Active</option>
+                      <option value="deactivated">Deactivate</option>
+                    </select>
                   </td>
                 </tr>
               );
