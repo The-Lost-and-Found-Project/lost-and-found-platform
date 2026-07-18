@@ -6,14 +6,36 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/dashboard";
 
-if (code) {
-  const supabase = await createClient();
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  if (code) {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-  if (!error) {
-    return NextResponse.redirect(`${origin}${next}`);
+    if (!error) {
+      // This route only runs once, right when someone confirms their email
+      // for the first time — the perfect (and only) hook point for a
+      // one-time welcome email. Awaited (rather than fire-and-forget) because
+      // Vercel serverless functions don't guarantee background work continues
+      // after the response is sent; errors are swallowed so a failed email
+      // never blocks the redirect the user is waiting on.
+      const user = data?.user;
+      if (user?.email) {
+        const fullName =
+          (user.user_metadata?.full_name as string | undefined) ?? null;
+
+        try {
+          await fetch(`${origin}/api/send-welcome-email`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: user.email, fullName }),
+          });
+        } catch (err) {
+          console.error("Failed to send welcome email:", err);
+        }
+      }
+
+      return NextResponse.redirect(`${origin}${next}`);
+    }
   }
-}
 
-return NextResponse.redirect(`${origin}/login`);
+  return NextResponse.redirect(`${origin}/login`);
 }
