@@ -1,8 +1,17 @@
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import AccountClient from "@/components/AccountClient";
 
-// Account and Profile have been combined into a single page. This route is
-// kept (rather than removed) so any old bookmarks, emails, or links that
-// still point to /account land somewhere useful instead of 404ing.
-export default function AccountPage() {
-  redirect("/profile");
+export default async function AccountPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  return <AccountClient email={user.email ?? ""} createdAt={user.created_at} />;
 }
