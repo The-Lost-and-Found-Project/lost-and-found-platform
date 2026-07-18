@@ -242,6 +242,13 @@ export default function SubmitPrayerRequestPage() {
             onChange={(e) => setRequestText(e.target.value)}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
           />
+          <p className="mt-1 text-xs text-gray-500">
+            Out of respect for others&apos; privacy, please avoid including
+            other people&apos;s full names or personal details (addresses,
+            medical, legal, or financial information) without their
+            permission. Referring to someone as &quot;my brother&quot; or
+            &quot;a friend at work&quot; is perfectly fine.
+          </p>
         </div>
 
         <div className="space-y-3">
@@ -315,14 +322,31 @@ export default function SubmitPrayerRequestPage() {
           </div>
         )}
 
-        <p className="text-xs text-gray-500">
-          By submitting this request, you understand that your prayer request
-          may be shared with The Lost and Found Project prayer team for the
-          purpose of prayer and follow-up. If you do not want your personal
-          information visible, select &quot;Hide my personal
-          information.&quot; Your request will never be sold or used outside
-          the ministry of The Lost and Found Project.
-        </p>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed text-gray-500">
+          <p>
+            By submitting this request, you understand that your prayer
+            request may be shared with The Lost and Found Project prayer team
+            for the purpose of prayer and follow-up. If you do not want your
+            personal information visible, select &quot;Hide my personal
+            information.&quot; Your request will never be sold or used
+            outside the ministry of The Lost and Found Project.
+          </p>
+          <p className="mt-2">
+            To keep this a safe space, submissions may not include
+            harassment, threats, or aggressive language; sexual content or
+            advances; hate speech; or other abusive language. Requests are
+            reviewed and may be edited, held for review, or declined at our
+            discretion if they don&apos;t meet these guidelines.
+          </p>
+          <p className="mt-2">
+            This form is not monitored for emergencies and is not a
+            substitute for professional medical, legal, or mental health
+            care. If you or someone else is in immediate danger, please call
+            911. If you&apos;re in crisis or thinking about suicide, you can
+            reach the 988 Suicide &amp; Crisis Lifeline by calling or texting
+            988, any time.
+          </p>
+        </div>
 
         <p className="text-sm text-red-600">{error}</p>
 
