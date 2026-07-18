@@ -24,6 +24,7 @@ export default async function ProfilePage() {
   return (
     <ProfileClient
       email={user.email ?? ""}
+      createdAt={user.created_at}
       initialFullName={profile?.full_name ?? ""}
       initialAvatarUrl={profile?.avatar_url ?? ""}
       initialTestimony={profile?.faith_story ?? ""}
