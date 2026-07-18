@@ -94,6 +94,39 @@ export default function SettingsClient({
           .
         </p>
       </div>
+
+      <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="text-sm font-semibold text-gray-900">
+          Install the app on your phone
+        </h2>
+        <p className="mt-1 text-sm text-gray-600">
+          Add The Lost and Found Project to your home screen so it opens
+          like any other app, with no browser bar.
+        </p>
+
+        <div className="mt-4 space-y-4">
+          <div>
+            <p className="text-sm font-medium text-gray-900">
+              iPhone or iPad (Safari)
+            </p>
+            <p className="mt-1 text-sm text-gray-600">
+              Tap the Share icon (a square with an arrow pointing up), then
+              scroll down and tap &ldquo;Add to Home Screen,&rdquo; then tap
+              &ldquo;Add.&rdquo;
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-900">
+              Android (Chrome)
+            </p>
+            <p className="mt-1 text-sm text-gray-600">
+              Tap the three-dot menu in the top right, then tap
+              &ldquo;Add to Home screen&rdquo; (or &ldquo;Install app&rdquo;),
+              then confirm.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
