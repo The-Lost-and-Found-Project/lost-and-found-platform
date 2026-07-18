@@ -96,6 +96,19 @@ export default function SettingsClient({
       </div>
 
       <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <p className="text-sm text-gray-600">
+          Spot a bug or have an idea for us?{" "}
+          <a
+            href="/feedback"
+            className="font-medium text-indigo-600 hover:text-indigo-500"
+          >
+            Send Feedback
+          </a>
+          .
+        </p>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <h2 className="text-sm font-semibold text-gray-900">
           Install the app on your phone
         </h2>

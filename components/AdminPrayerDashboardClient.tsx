@@ -201,12 +201,20 @@ export default function AdminPrayerDashboardClient({
           </p>
         </div>
         {isAdmin && (
-          <a
-            href="/admin/users"
-            className="shrink-0 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
-          >
-            Manage Users
-          </a>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <a
+              href="/admin/feedback"
+              className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+            >
+              Feedback
+            </a>
+            <a
+              href="/admin/users"
+              className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+            >
+              Manage Users
+            </a>
+          </div>
         )}
       </div>
 
