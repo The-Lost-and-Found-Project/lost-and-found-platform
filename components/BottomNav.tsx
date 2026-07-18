@@ -42,6 +42,32 @@ const items = [
     ),
   },
   {
+    href: "/praise",
+    label: "Praise Wall",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-5 w-5"
+      >
+        <path
+          d="M12 3v3M12 3l-2.5 2.5M12 3l2.5 2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M5 20l1.5-6M19 20l-1.5-6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M9 20h6" strokeLinecap="round" />
+        <circle cx="12" cy="11" r="4" />
+      </svg>
+    ),
+  },
+  {
     href: "/my-journey",
     label: "My Journey",
     icon: (
