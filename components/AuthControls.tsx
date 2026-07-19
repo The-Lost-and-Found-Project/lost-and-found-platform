@@ -258,6 +258,28 @@ export default function AuthControls() {
               ))}
             </div>
 
+            <div className="border-t border-gray-100 px-4 py-2.5">
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                Contact
+              </p>
+              <a
+                href="mailto:admin@lostandfoundproject.org"
+                className="mt-1 flex items-center gap-3 text-sm text-gray-700 transition hover:text-indigo-600"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  className="h-4 w-4 shrink-0 text-gray-400"
+                >
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="M3 7l9 6 9-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                admin@lostandfoundproject.org
+              </a>
+            </div>
+
             <button
               onClick={handleSignOut}
               className="flex w-full items-center gap-3 border-t border-gray-100 px-4 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50"
