@@ -82,7 +82,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Manage Users</h1>
           <p className="mt-2 text-gray-600">
@@ -103,7 +103,10 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
         </p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+      {/* Table layout for wider screens — narrow phones use the stacked
+          cards below instead, since 5 columns of user data doesn't fit a
+          phone-width viewport without forcing horizontal scrolling. */}
+      <div className="mt-6 hidden overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm sm:block">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>
@@ -179,6 +182,74 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Stacked cards for narrow phone screens. */}
+      <div className="mt-6 space-y-3 sm:hidden">
+        {users.map((u) => {
+          const isSelf = u.id === currentUserId;
+          const isPending = pendingId === u.id;
+          return (
+            <div
+              key={u.id}
+              className={`rounded-lg border border-gray-200 bg-white p-4 shadow-sm ${
+                u.is_active ? "" : "opacity-60"
+              }`}
+            >
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+                {u.full_name ?? "Unnamed"}
+                {isSelf && (
+                  <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-600">
+                    You
+                  </span>
+                )}
+              </div>
+              {u.email ? (
+                <a
+                  href={`mailto:${u.email}`}
+                  className="mt-0.5 block break-all text-sm text-indigo-600 hover:text-indigo-500"
+                >
+                  {u.email}
+                </a>
+              ) : (
+                <p className="mt-0.5 text-sm text-gray-400">N/A</p>
+              )}
+              <p className="mt-1 text-xs text-gray-400">
+                Joined {new Date(u.created_at).toLocaleDateString()}
+              </p>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <select
+                  value={u.role ?? "member"}
+                  disabled={isSelf || isPending}
+                  onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                  className="min-w-0 flex-1 rounded-md border border-gray-300 px-2 py-1.5 text-sm shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {ROLE_OPTIONS.map((r) => (
+                    <option key={r.value} value={r.value}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={u.is_active ? "active" : "deactivated"}
+                  disabled={isSelf || isPending}
+                  onChange={(e) =>
+                    handleActiveToggle(u.id, e.target.value === "active")
+                  }
+                  className={`min-w-0 flex-1 rounded-md border px-2 py-1.5 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50 ${
+                    u.is_active
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : "border-red-200 bg-red-50 text-red-700"
+                  }`}
+                >
+                  <option value="active">Active</option>
+                  <option value="deactivated">Deactivate</option>
+                </select>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {isSelfNoteVisible(users, currentUserId) && (

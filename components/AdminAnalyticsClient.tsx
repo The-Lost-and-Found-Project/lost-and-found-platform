@@ -178,7 +178,7 @@ export default function AdminAnalyticsClient({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             Growth &amp; Effectiveness

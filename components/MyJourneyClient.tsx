@@ -118,6 +118,7 @@ export default function MyJourneyClient({
   const [entries, setEntries] = useState(initialEntries);
   const [requests, setRequests] = useState(initialRequests);
   const [showForm, setShowForm] = useState(false);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [entryType, setEntryType] = useState<JourneyEntry["entry_type"]>("bible_reading");
   const [entryDate, setEntryDate] = useState(todayInputValue());
   const [title, setTitle] = useState("");
@@ -139,6 +140,18 @@ export default function MyJourneyClient({
   );
 
   const activeType = ENTRY_TYPES.find((t) => t.value === entryType)!;
+
+  function toggleExpanded(key: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }
 
   function openEditRequest(requestId: string) {
     const request = requests.find((r) => r.id === requestId);
@@ -355,6 +368,8 @@ export default function MyJourneyClient({
           <ol className="relative border-l border-gray-200 pl-6">
             {timeline.map((item) => {
               const style = KIND_STYLES[item.kind];
+              const hasDescription = Boolean(item.description);
+              const expanded = expandedIds.has(item.key);
               return (
                 <li key={item.key} className="relative mb-8 last:mb-0">
                   <span className={`absolute -left-[31px] mt-1.5 h-3 w-3 rounded-full ${style.dot}`} />
@@ -379,11 +394,40 @@ export default function MyJourneyClient({
                       </span>
                     )}
                   </div>
-                  <h3 className="mt-1.5 font-semibold text-gray-900">{item.title}</h3>
-                  {item.description && (
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-gray-600">{item.description}</p>
+
+                  {hasDescription ? (
+                    <button
+                      type="button"
+                      onClick={() => toggleExpanded(item.key)}
+                      className="mt-1.5 flex w-full items-start gap-2 text-left"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        className={`mt-1 h-3.5 w-3.5 shrink-0 text-gray-400 transition-transform ${
+                          expanded ? "rotate-90" : ""
+                        }`}
+                      >
+                        <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                        <p
+                          className={`mt-1 text-sm text-gray-600 ${
+                            expanded ? "whitespace-pre-wrap" : "truncate"
+                          }`}
+                        >
+                          {item.description}
+                        </p>
+                      </div>
+                    </button>
+                  ) : (
+                    <h3 className="mt-1.5 font-semibold text-gray-900">{item.title}</h3>
                   )}
-                  {item.requestId && (
+
+                  {expanded && item.requestId && (
                     <button
                       type="button"
                       onClick={() => openEditRequest(item.requestId!)}
@@ -392,7 +436,7 @@ export default function MyJourneyClient({
                       Edit this request
                     </button>
                   )}
-                  {!item.requestId && item.link && (
+                  {expanded && !item.requestId && item.link && (
                     <a
                       href={item.link.href}
                       className="mt-2 inline-block text-xs font-medium text-indigo-600 hover:text-indigo-500"

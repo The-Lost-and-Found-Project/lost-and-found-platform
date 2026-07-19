@@ -497,7 +497,7 @@ export default function ProfileClient({
       </div>
 
       <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-sm font-semibold text-gray-900">
               My Testimony
@@ -516,7 +516,7 @@ export default function ProfileClient({
       </div>
 
       <div className="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-sm font-semibold text-gray-900">Account</h2>
             <p className="mt-1 text-xs text-gray-500">
