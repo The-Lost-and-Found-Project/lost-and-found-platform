@@ -195,8 +195,23 @@ export default function AdminAnalyticsClient({
         </a>
       </div>
 
+      <div className="mt-8 rounded-lg border border-indigo-100 bg-indigo-50/50 p-5">
+        <h2 className="text-sm font-semibold text-indigo-900">
+          All-Time Totals
+        </h2>
+        <p className="mt-0.5 text-xs text-indigo-700/70">
+          These never reset — they add up for as long as the ministry exists,
+          separate from the weekly snapshots below.
+        </p>
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <StatCard label="Prayer Requests Submitted" value={totalRequests} />
+          <StatCard label="Testimonies Shared" value={testimonies.length} />
+          <StatCard label="Prayers Offered" value={totalPrayersOffered} />
+          <StatCard label="Lives Touched (Members)" value={totalMembers} />
+        </div>
+      </div>
+
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        <StatCard label="Total Requests" value={totalRequests} />
         <StatCard
           label="This Week"
           value={thisWeek}
@@ -216,11 +231,10 @@ export default function AdminAnalyticsClient({
           value={`${assignedRate}%`}
           sub={`${unassignedCount} unassigned`}
         />
-        <StatCard label="Prayers Offered" value={totalPrayersOffered} />
         <StatCard label="Follow-ups Due" value={followUpCount} />
         <StatCard label="Pending Review" value={pendingModerationCount} />
         <StatCard
-          label="Members"
+          label="Member Breakdown"
           value={totalMembers}
           sub={`${activeMembers} active · ${careTeamMembers} care team`}
         />

@@ -11,7 +11,6 @@ type Props = {
   createdAt: string;
   initialFullName: string;
   initialAvatarUrl: string;
-  initialTestimony: string;
   initialFavoriteScripture: string;
   initialDateOfSalvation: string;
   initialDateOfBaptism: string;
@@ -47,7 +46,6 @@ const PREVIEW_OPTIONS: {
 
 type Snapshot = {
   fullName: string;
-  testimony: string;
   favoriteScripture: string;
   dateOfSalvation: string;
   dateOfBaptism: string;
@@ -72,7 +70,6 @@ export default function ProfileClient({
   createdAt,
   initialFullName,
   initialAvatarUrl,
-  initialTestimony,
   initialFavoriteScripture,
   initialDateOfSalvation,
   initialDateOfBaptism,
@@ -90,7 +87,6 @@ export default function ProfileClient({
 
   const [fullName, setFullName] = useState(initialFullName);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
-  const [testimony, setTestimony] = useState(initialTestimony);
   const [favoriteScripture, setFavoriteScripture] = useState(
     initialFavoriteScripture
   );
@@ -109,7 +105,6 @@ export default function ProfileClient({
   function handleEdit() {
     setSnapshot({
       fullName,
-      testimony,
       favoriteScripture,
       dateOfSalvation,
       dateOfBaptism,
@@ -121,7 +116,6 @@ export default function ProfileClient({
   function handleCancel() {
     if (snapshot) {
       setFullName(snapshot.fullName);
-      setTestimony(snapshot.testimony);
       setFavoriteScripture(snapshot.favoriteScripture);
       setDateOfSalvation(snapshot.dateOfSalvation);
       setDateOfBaptism(snapshot.dateOfBaptism);
@@ -143,7 +137,6 @@ export default function ProfileClient({
         .from("profiles")
         .update({
           full_name: fullName,
-          faith_story: testimony.trim() || null,
           favorite_scripture: favoriteScripture.trim() || null,
           date_of_salvation: dateOfSalvation || null,
           date_of_baptism: dateOfBaptism || null,
@@ -284,11 +277,6 @@ export default function ProfileClient({
       label: "Date of Baptism",
       value: formatDate(dateOfBaptism),
       empty: "Not set",
-    },
-    {
-      label: "My Testimony",
-      value: testimony,
-      empty: "No testimony shared yet.",
     },
   ];
 
@@ -478,26 +466,6 @@ export default function ProfileClient({
                   />
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  My Testimony
-                </label>
-                <p className="mt-1 text-xs text-gray-500">
-                  Share what God has done in your life. If you save a
-                  testimony, it will appear anonymously in the &ldquo;Testimonies
-                  From Our Community&rdquo; ticker on the Dashboard — your name
-                  is never shown. Leave this blank to remove it from the
-                  ticker.
-                </p>
-                <textarea
-                  rows={6}
-                  value={testimony}
-                  onChange={(e) => setTestimony(e.target.value)}
-                  placeholder="Share your testimony here..."
-                  className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
-                />
-              </div>
             </div>
           ) : (
             fields.map((field) => (
@@ -529,6 +497,25 @@ export default function ProfileClient({
       </div>
 
       <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900">
+              My Testimony
+            </h2>
+            <p className="mt-1 text-xs text-gray-500">
+              Share or update your testimony on the Testimony Board.
+            </p>
+          </div>
+          <Link
+            href="/testimonies/submit"
+            className="shrink-0 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+          >
+            Testimony Board →
+          </Link>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="text-sm font-semibold text-gray-900">Account</h2>

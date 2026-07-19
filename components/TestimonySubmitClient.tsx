@@ -1,14 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function TestimonySubmitClient() {
   const supabase = createClient();
   const [contentText, setContentText] = useState("");
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+  const [existingId, setExistingId] = useState<string | null>(null);
+  const [loadingExisting, setLoadingExisting] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    // Members can only ever have one testimony. If they already have one on
+    // file, load it into the form so submitting again edits it in place
+    // instead of creating a duplicate.
+    async function loadExisting() {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+      if (!user) {
+        setLoadingExisting(false);
+        return;
+      }
+
+      const [{ data: profile }, { data: existing }] = await Promise.all([
+        supabase.from("profiles").select("full_name").eq("id", user.id).single(),
+        supabase
+          .from("testimonies")
+          .select("id, content_text, is_anonymous")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+      ]);
+
+      if (profile?.full_name) setDisplayName(profile.full_name);
+
+      if (existing) {
+        setExistingId(existing.id);
+        setContentText(existing.content_text);
+        setIsAnonymous(existing.is_anonymous);
+      }
+
+      setLoadingExisting(false);
+    }
+    loadExisting();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,19 +63,32 @@ export default function TestimonySubmitClient() {
       return;
     }
 
-    const { error: insertError } = await supabase.from("testimonies").insert({
-      user_id: user.id,
-      content_text: contentText,
-    });
+    const { error: saveError } = existingId
+      ? await supabase
+          .from("testimonies")
+          .update({
+            content_text: contentText,
+            is_anonymous: isAnonymous,
+          })
+          .eq("id", existingId)
+      : await supabase.from("testimonies").insert({
+          user_id: user.id,
+          content_text: contentText,
+          is_anonymous: isAnonymous,
+        });
 
-    if (insertError) {
-      setError(insertError.message);
+    if (saveError) {
+      setError(saveError.message);
       setSubmitting(false);
       return;
     }
 
     setSubmitted(true);
     setSubmitting(false);
+  }
+
+  if (loadingExisting) {
+    return null;
   }
 
   if (submitted) {
@@ -61,13 +113,19 @@ export default function TestimonySubmitClient() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
       <h1 className="text-2xl font-bold text-gray-900">
-        Share Your Testimony
+        {existingId ? "Update Your Testimony" : "Share Your Testimony"}
       </h1>
       <p className="mt-2 text-gray-600">
         Tell us how God is working in your life. Your testimony will be
-        shared on the Testimony Board completely anonymously &mdash; no name
-        or personal information is ever attached.
+        shared on the Testimony Board under your name, unless you choose to
+        post it anonymously below.
       </p>
+      {existingId && (
+        <p className="mt-2 text-sm text-amber-600">
+          You&apos;ve already shared a testimony. Everyone gets just one, so
+          saving here will update it rather than add a new one.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <div>
@@ -89,6 +147,25 @@ export default function TestimonySubmitClient() {
           </p>
         </div>
 
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          <input
+            type="checkbox"
+            checked={isAnonymous}
+            onChange={(e) => setIsAnonymous(e.target.checked)}
+            className="rounded border-gray-300"
+          />
+          Post this anonymously (hide my name)
+        </label>
+        {!isAnonymous && (
+          <p className="-mt-3 text-xs text-gray-500">
+            This will be shared as{" "}
+            <span className="font-medium text-gray-700">
+              {displayName || "your name"}
+            </span>
+            .
+          </p>
+        )}
+
         <div className="rounded-md border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed text-gray-500">
           <p>
             To keep this a safe space, submissions may not include
@@ -106,7 +183,11 @@ export default function TestimonySubmitClient() {
           disabled={submitting}
           className="rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400 disabled:opacity-50"
         >
-          {submitting ? "Sharing..." : "Share My Testimony"}
+          {submitting
+            ? "Saving..."
+            : existingId
+            ? "Update My Testimony"
+            : "Share My Testimony"}
         </button>
       </form>
     </div>

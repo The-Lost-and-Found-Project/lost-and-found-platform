@@ -23,6 +23,12 @@ type JourneyEntry = {
   created_at: string;
 };
 
+type Testimony = {
+  content_text: string;
+  created_at: string;
+  updated_at: string;
+} | null;
+
 type Props = {
   email: string;
   dateOfSalvation: string;
@@ -30,6 +36,7 @@ type Props = {
   requests: PrayerRequestSummary[];
   categoryMap: Record<string, string>;
   entries: JourneyEntry[];
+  testimony: Testimony;
 };
 
 type TimelineKind =
@@ -38,7 +45,8 @@ type TimelineKind =
   | "prayer"
   | "bible_reading"
   | "prayer_answered"
-  | "custom";
+  | "custom"
+  | "testimony";
 
 type TimelineItem = {
   key: string;
@@ -50,6 +58,7 @@ type TimelineItem = {
   meta?: string;
   requestId?: string;
   moderationStatus?: string;
+  link?: { href: string; label: string };
 };
 
 const ENTRY_TYPES: {
@@ -69,6 +78,7 @@ const KIND_STYLES: Record<TimelineKind, { dot: string; badge: string; label: str
   bible_reading: { dot: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-700", label: "Bible Reading" },
   prayer_answered: { dot: "bg-violet-500", badge: "bg-violet-50 text-violet-700", label: "Prayer Answered" },
   custom: { dot: "bg-gray-400", badge: "bg-gray-100 text-gray-700", label: "Note" },
+  testimony: { dot: "bg-rose-500", badge: "bg-rose-50 text-rose-700", label: "Testimony" },
 };
 
 function parseLocalDate(value: string) {
@@ -102,6 +112,7 @@ export default function MyJourneyClient({
   requests: initialRequests,
   categoryMap,
   entries: initialEntries,
+  testimony,
 }: Props) {
   const supabase = createClient();
   const [entries, setEntries] = useState(initialEntries);
@@ -291,8 +302,20 @@ export default function MyJourneyClient({
       });
     });
 
+    if (testimony) {
+      items.push({
+        key: "testimony",
+        time: new Date(testimony.updated_at || testimony.created_at).getTime(),
+        dateLabel: formatDateTime(testimony.updated_at || testimony.created_at),
+        kind: "testimony",
+        title: "My Testimony",
+        description: testimony.content_text,
+        link: { href: "/testimonies/submit", label: "Edit my testimony" },
+      });
+    }
+
     return items.sort((a, b) => b.time - a.time);
-  }, [dateOfSalvation, dateOfBaptism, requests, categoryMap, entries]);
+  }, [dateOfSalvation, dateOfBaptism, requests, categoryMap, entries, testimony]);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
@@ -368,6 +391,14 @@ export default function MyJourneyClient({
                     >
                       Edit this request
                     </button>
+                  )}
+                  {!item.requestId && item.link && (
+                    <a
+                      href={item.link.href}
+                      className="mt-2 inline-block text-xs font-medium text-indigo-600 hover:text-indigo-500"
+                    >
+                      {item.link.label}
+                    </a>
                   )}
                 </li>
               );

@@ -8,6 +8,7 @@ type Testimony = {
   id: string;
   faith_story: string;
   updated_at: string;
+  user_id: string;
 };
 
 // Poll for newly saved testimonies so the ticker keeps growing over time.
@@ -29,7 +30,7 @@ export default function TestimonyTicker() {
     async function load() {
       const { data } = await supabase
         .from("testimonies_public")
-        .select("id, faith_story, updated_at")
+        .select("id, faith_story, updated_at, user_id")
         .order("updated_at", { ascending: false })
         .limit(30);
 
@@ -68,19 +69,19 @@ export default function TestimonyTicker() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function sendEncouragement(testimonyId: string) {
-    const message = (messages[testimonyId] ?? "").trim();
+  async function sendEncouragement(messageKey: string, ownerUserId: string) {
+    const message = (messages[messageKey] ?? "").trim();
     if (!message || !userId) return;
 
-    setSending(testimonyId);
+    setSending(messageKey);
     const { error } = await supabase.from("testimony_encouragements").insert({
-      profile_id: testimonyId,
+      profile_id: ownerUserId,
       from_user_id: userId,
       message,
     });
 
     if (!error) {
-      setSentTo((prev) => new Set(prev).add(testimonyId));
+      setSentTo((prev) => new Set(prev).add(ownerUserId));
       setOpenKey(null);
     }
     setSending(null);
@@ -104,8 +105,8 @@ export default function TestimonyTicker() {
       <TickerScroll>
         {items.map((t, i) => {
             const key = `${t.id}-${i}`;
-            const alreadySent = sentTo.has(t.id);
-            const isSelf = userId === t.id;
+            const alreadySent = sentTo.has(t.user_id);
+            const isSelf = userId === t.user_id;
             const isOpen = openKey === key;
 
             return (
@@ -137,7 +138,7 @@ export default function TestimonyTicker() {
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() => sendEncouragement(t.id)}
+                            onClick={() => sendEncouragement(t.id, t.user_id)}
                             disabled={
                               sending === t.id ||
                               !(messages[t.id] ?? "").trim()
