@@ -14,6 +14,19 @@ export default function PraiseWallPage() {
   const supabase = createClient();
   const [reports, setReports] = useState<PraiseReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  function toggleExpanded(id: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
 
   useEffect(() => {
     async function load() {
@@ -55,19 +68,44 @@ export default function PraiseWallPage() {
           </p>
         )}
 
-        {reports.map((r) => (
-          <div
-            key={r.id}
-            className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
-          >
-            <p className="whitespace-pre-wrap text-gray-900">
-              {r.content_text}
-            </p>
-            <p className="mt-3 text-xs font-medium uppercase tracking-wide text-gray-400">
-              Shared anonymously
-            </p>
-          </div>
-        ))}
+        {reports.map((r) => {
+          const expanded = expandedIds.has(r.id);
+          const snippet =
+            r.content_text.length > 90
+              ? `${r.content_text.slice(0, 90)}...`
+              : r.content_text;
+
+          return (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => toggleExpanded(r.id)}
+              className="block w-full rounded-lg border border-gray-200 bg-white p-5 text-left shadow-sm"
+            >
+              <div className="flex items-start gap-3">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className={`mt-1 h-4 w-4 shrink-0 text-gray-400 transition-transform ${
+                    expanded ? "rotate-90" : ""
+                  }`}
+                >
+                  <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <div className="min-w-0 flex-1">
+                  <p className="whitespace-pre-wrap text-gray-900">
+                    {expanded ? r.content_text : snippet}
+                  </p>
+                  <p className="mt-3 text-xs font-medium uppercase tracking-wide text-gray-400">
+                    Shared anonymously
+                  </p>
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
