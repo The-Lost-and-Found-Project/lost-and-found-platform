@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import PrayerWallTicker from "@/components/PrayerWallTicker";
-import PersonalDashboardSummary from "@/components/PersonalDashboardSummary";
 import ShareButton from "@/components/ShareButton";
 import Link from "next/link";
 
@@ -23,42 +22,6 @@ export default async function DashboardPage() {
     .single();
 
   const firstName = profile?.full_name?.trim().split(" ")[0] || null;
-
-  const { data: myRequests } = await supabase
-    .from("prayer_requests")
-    .select("id, created_at, request_text, status")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(5);
-
-  const { data: reactions } = await supabase
-    .from("prayer_reactions")
-    .select("prayer_request_id, created_at")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(5);
-
-  type PrayedRow = {
-    id: string;
-    request_text: string;
-    display_name: string | null;
-  };
-
-  let prayedFor: PrayedRow[] = [];
-  if (reactions && reactions.length > 0) {
-    const ids = reactions.map((r) => r.prayer_request_id);
-    const { data: prayedRequests } = await supabase
-      .from("prayer_wall_public")
-      .select("id, request_text, display_name")
-      .in("id", ids);
-
-    const prayedMap = new Map(
-      ((prayedRequests as PrayedRow[]) ?? []).map((p) => [p.id, p])
-    );
-    prayedFor = reactions
-      .map((r) => prayedMap.get(r.prayer_request_id))
-      .filter((p): p is PrayedRow => Boolean(p));
-  }
 
   return (
     <div>
@@ -119,14 +82,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
-        <PersonalDashboardSummary
-          myRequests={myRequests ?? []}
-          prayedFor={prayedFor}
-        />
-
-        <div className="mt-6">
-          <PrayerWallTicker />
-        </div>
+        <PrayerWallTicker />
       </section>
     </div>
   );
