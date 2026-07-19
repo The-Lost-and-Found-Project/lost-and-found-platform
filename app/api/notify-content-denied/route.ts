@@ -5,7 +5,7 @@ const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://lost-and-found-platform-rho.vercel.app";
+  "https://www.lostandfoundproject.org";
 
 // Sent when an admin denies a flagged prayer request from the moderation
 // queue. Gentle by design — invites the person to revise and resubmit
