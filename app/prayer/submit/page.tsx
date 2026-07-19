@@ -116,16 +116,33 @@ export default function SubmitPrayerRequestPage() {
       return;
     }
 
-    // Care team members already get an in-app notification the moment a
-    // request comes in (via a DB trigger), and a rolled-up summary email
-    // every Monday morning instead of one email per submission.
-    //
+    // Admins get a lightweight, email-only heads-up for every new request
+    // (no in-app push, and not sent to the wider care team - that broadcast
+    // was retired as noisy). The care team as a whole still sees new
+    // requests in the weekly rolled-up digest email.
+    const category = categories.find((c) => c.id === categoryId);
+    fetch("/api/notify-new-request-admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        categoryName: category?.name ?? null,
+        requestText,
+        isPublic,
+        isAnonymous,
+        contactRequested,
+      }),
+    }).catch((err) => {
+      console.error("Failed to send admin new-request notification:", err);
+    });
+
     // A separate DB trigger auto-assigns this request to the next care team
     // member in the rotation. Look that assignment up (via a narrow RPC that
     // only ever returns the assignee's id) and fire the same "you've been
     // matched" email the admin dashboard sends for manual assignments, so
     // the assignee finds out right away instead of waiting for the weekly
-    // digest.
+    // digest. This in-app notification + email is unaffected by the change
+    // above and still fires normally.
     if (newRequestId) {
       const { data: assignedTo } = await supabase.rpc(
         "get_prayer_request_assignment",
@@ -133,7 +150,6 @@ export default function SubmitPrayerRequestPage() {
       );
 
       if (assignedTo) {
-        const category = categories.find((c) => c.id === categoryId);
         fetch("/api/notify-assignment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
