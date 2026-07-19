@@ -40,25 +40,39 @@ export default function SubmitPrayerRequestPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [prefilledFromProfile, setPrefilledFromProfile] = useState(false);
+
   useEffect(() => {
-    // Pre-fill the anonymous checkbox from the signed-in user's saved
-    // preference (Settings > Submit prayers anonymously by default).
-    async function loadDefaultAnonymous() {
+    // For signed-in members, pre-fill their name/email from their profile
+    // so they don't have to re-type info we already have, and pre-fill the
+    // anonymous checkbox from their saved Settings preference.
+    async function loadSignedInDefaults() {
       const { data: userData } = await supabase.auth.getUser();
       const user = userData?.user;
       if (!user) return;
 
-      const { data } = await supabase
-        .from("user_settings")
-        .select("default_anonymous")
-        .eq("user_id", user.id)
-        .single();
+      const [{ data: profile }, { data: settings }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single(),
+        supabase
+          .from("user_settings")
+          .select("default_anonymous")
+          .eq("user_id", user.id)
+          .single(),
+      ]);
 
-      if (data?.default_anonymous) {
+      if (profile?.full_name) setName(profile.full_name);
+      if (user.email) setEmail(user.email);
+      if (profile?.full_name || user.email) setPrefilledFromProfile(true);
+
+      if (settings?.default_anonymous) {
         setIsAnonymous(true);
       }
     }
-    loadDefaultAnonymous();
+    loadSignedInDefaults();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -185,6 +199,12 @@ export default function SubmitPrayerRequestPage() {
             onChange={(e) => setName(e.target.value)}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
           />
+          {prefilledFromProfile && (
+            <p className="mt-1 text-xs text-gray-400">
+              Filled in from your profile. Edit it if this request is on
+              someone else&apos;s behalf.
+            </p>
+          )}
         </div>
 
         <div>
