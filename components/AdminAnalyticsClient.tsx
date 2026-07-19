@@ -37,7 +37,9 @@ type Props = {
   reactions: ReactionRow[];
 };
 
-const WEEKS_OF_HISTORY = 10;
+// ~13 months of weekly buckets, so admins can scroll back far enough to
+// compare this week/month against the same period a year ago.
+const WEEKS_OF_HISTORY = 56;
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
 
 // Buckets a list of ISO timestamps into weekly counts, oldest to newest,
@@ -82,21 +84,29 @@ function WeeklyBarChart({
 }) {
   const max = Math.max(1, ...data.map((d) => d.count));
   return (
-    <div className="flex items-end gap-1.5" style={{ height: 120 }}>
-      {data.map((d, i) => (
-        <div key={i} className="flex flex-1 flex-col items-center gap-1">
-          <div className="flex h-24 w-full items-end justify-center">
-            <div
-              className={`w-full max-w-[22px] rounded-t ${color}`}
-              style={{
-                height: `${Math.max(4, (d.count / max) * 96)}px`,
-              }}
-              title={`${d.label}: ${d.count}`}
-            />
+    // Horizontally scrollable rather than squeezed to fit — with 13 months
+    // of weekly bars this is far too many columns to cram into one screen
+    // width, especially on a phone, without every bar going illegibly thin.
+    <div className="overflow-x-auto pb-1">
+      <div
+        className="flex items-end gap-1.5"
+        style={{ height: 120, minWidth: data.length * 20 }}
+      >
+        {data.map((d, i) => (
+          <div key={i} className="flex w-4 shrink-0 flex-col items-center gap-1">
+            <div className="flex h-24 w-full items-end justify-center">
+              <div
+                className={`w-full max-w-[14px] rounded-t ${color}`}
+                style={{
+                  height: `${Math.max(4, (d.count / max) * 96)}px`,
+                }}
+                title={`${d.label}: ${d.count} per week`}
+              />
+            </div>
+            <span className="text-[8px] text-gray-400">{d.count}</span>
           </div>
-          <span className="text-[10px] text-gray-400">{d.count}</span>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
@@ -246,7 +256,7 @@ export default function AdminAnalyticsClient({
             Prayer requests per week
           </h2>
           <p className="mt-0.5 text-xs text-gray-400">
-            Last {WEEKS_OF_HISTORY} weeks, starting each Sunday
+            Last ~13 months, per week (scroll to compare against last year)
           </p>
           <div className="mt-4">
             <WeeklyBarChart data={requestsPerWeek} color="bg-indigo-500" />
@@ -258,7 +268,7 @@ export default function AdminAnalyticsClient({
             New members per week
           </h2>
           <p className="mt-0.5 text-xs text-gray-400">
-            Last {WEEKS_OF_HISTORY} weeks, starting each Sunday
+            Last ~13 months, per week (scroll to compare against last year)
           </p>
           <div className="mt-4">
             <WeeklyBarChart data={signupsPerWeek} color="bg-emerald-500" />
