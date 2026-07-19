@@ -37,6 +37,12 @@ export default async function MyJourneyPage() {
     .eq("user_id", user.id)
     .order("entry_date", { ascending: false });
 
+  const { data: testimony } = await supabase
+    .from("testimonies")
+    .select("content_text, created_at, updated_at")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   const categoryMap: Record<string, string> = {};
   (categories ?? []).forEach((c) => {
     categoryMap[c.id] = c.name;
@@ -50,6 +56,7 @@ export default async function MyJourneyPage() {
       requests={requests ?? []}
       categoryMap={categoryMap}
       entries={entries ?? []}
+      testimony={testimony ?? null}
     />
   );
 }
