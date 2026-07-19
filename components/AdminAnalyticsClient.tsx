@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 type PrayerRequestRow = {
   id: string;
   created_at: string;
@@ -37,26 +39,79 @@ type Props = {
   reactions: ReactionRow[];
 };
 
-// ~13 months of weekly buckets, so admins can scroll back far enough to
-// compare this week/month against the same period a year ago.
-const WEEKS_OF_HISTORY = 56;
-const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const MS_PER_WEEK = 7 * MS_PER_DAY;
 
-// Buckets a list of ISO timestamps into weekly counts, oldest to newest,
-// covering the last WEEKS_OF_HISTORY weeks (including the current one).
-function bucketByWeek(timestamps: string[]): { label: string; count: number }[] {
+type RangeKey = "all" | "5yr" | "1yr" | "1mo" | "1wk";
+type Granularity = "day" | "week";
+
+const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "5yr", label: "5yrs" },
+  { key: "1yr", label: "1yr" },
+  { key: "1mo", label: "1mo" },
+  { key: "1wk", label: "1wk" },
+];
+
+const RANGE_SUBTITLES: Record<RangeKey, string> = {
+  all: "All time, weekly",
+  "5yr": "Last 5 years, weekly",
+  "1yr": "Last 12 months, weekly",
+  "1mo": "Last 30 days, daily",
+  "1wk": "Last 7 days, daily",
+};
+
+// Resolves a range key into a concrete start timestamp + bucket granularity.
+// "All" starts from the earliest known record so the chart spans everything
+// on file, with a one-week floor so it never renders a single, empty bucket.
+function getRangeStart(
+  range: RangeKey,
+  earliest: number
+): { start: number; granularity: Granularity } {
+  const now = Date.now();
+  switch (range) {
+    case "1wk":
+      return { start: now - 7 * MS_PER_DAY, granularity: "day" };
+    case "1mo":
+      return { start: now - 30 * MS_PER_DAY, granularity: "day" };
+    case "1yr":
+      return { start: now - 365 * MS_PER_DAY, granularity: "week" };
+    case "5yr":
+      return { start: now - 5 * 365 * MS_PER_DAY, granularity: "week" };
+    case "all":
+    default:
+      return { start: Math.min(earliest, now - MS_PER_WEEK), granularity: "week" };
+  }
+}
+
+// Buckets a list of ISO timestamps into evenly-sized buckets, oldest to
+// newest, spanning from `start` through now at the given granularity.
+function bucketTimestamps(
+  timestamps: string[],
+  start: number,
+  granularity: Granularity
+): { label: string; count: number }[] {
   const now = new Date();
-  // Start of the current week (Sunday).
-  const currentWeekStart = new Date(now);
-  currentWeekStart.setHours(0, 0, 0, 0);
-  currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay());
+  const bucketMs = granularity === "day" ? MS_PER_DAY : MS_PER_WEEK;
+
+  // Align the first bucket to a clean day/week boundary.
+  const alignedStart = new Date(start);
+  alignedStart.setHours(0, 0, 0, 0);
+  if (granularity === "week") {
+    alignedStart.setDate(alignedStart.getDate() - alignedStart.getDay());
+  }
+
+  const bucketCount = Math.max(
+    1,
+    Math.ceil((now.getTime() - alignedStart.getTime()) / bucketMs) + 1
+  );
 
   const buckets: { start: number; label: string; count: number }[] = [];
-  for (let i = WEEKS_OF_HISTORY - 1; i >= 0; i--) {
-    const start = currentWeekStart.getTime() - i * MS_PER_WEEK;
-    const d = new Date(start);
+  for (let i = 0; i < bucketCount; i++) {
+    const bStart = alignedStart.getTime() + i * bucketMs;
+    const d = new Date(bStart);
     buckets.push({
-      start,
+      start: bStart,
       label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
       count: 0,
     });
@@ -64,6 +119,7 @@ function bucketByWeek(timestamps: string[]): { label: string; count: number }[] 
 
   for (const ts of timestamps) {
     const t = new Date(ts).getTime();
+    if (t < alignedStart.getTime()) continue;
     for (let i = buckets.length - 1; i >= 0; i--) {
       if (t >= buckets[i].start) {
         buckets[i].count += 1;
@@ -75,7 +131,7 @@ function bucketByWeek(timestamps: string[]): { label: string; count: number }[] 
   return buckets.map(({ label, count }) => ({ label, count }));
 }
 
-function WeeklyBarChart({
+function TimeSeriesBarChart({
   data,
   color = "bg-indigo-500",
 }: {
@@ -84,9 +140,9 @@ function WeeklyBarChart({
 }) {
   const max = Math.max(1, ...data.map((d) => d.count));
   return (
-    // Horizontally scrollable rather than squeezed to fit — with 13 months
-    // of weekly bars this is far too many columns to cram into one screen
-    // width, especially on a phone, without every bar going illegibly thin.
+    // Horizontally scrollable rather than squeezed to fit — "All" and "5yr"
+    // ranges can produce hundreds of weekly bars, far too many columns to
+    // cram into one screen width without every bar going illegibly thin.
     <div className="overflow-x-auto pb-1">
       <div
         className="flex items-end gap-1.5"
@@ -100,7 +156,7 @@ function WeeklyBarChart({
                 style={{
                   height: `${Math.max(4, (d.count / max) * 96)}px`,
                 }}
-                title={`${d.label}: ${d.count} per week`}
+                title={`${d.label}: ${d.count}`}
               />
             </div>
             <span className="text-[8px] text-gray-400">{d.count}</span>
@@ -169,12 +225,45 @@ export default function AdminAnalyticsClient({
   const totalMembers = profiles.length;
   const activeMembers = profiles.filter((p) => p.is_active !== false).length;
 
-  const requestsPerWeek = bucketByWeek(requests.map((r) => r.created_at));
-  const signupsPerWeek = bucketByWeek(profiles.map((p) => p.created_at));
-
-  const thisWeek = requestsPerWeek[requestsPerWeek.length - 1]?.count ?? 0;
-  const lastWeek = requestsPerWeek[requestsPerWeek.length - 2]?.count ?? 0;
+  // "This Week" stat card is always this-week-vs-last-week, independent of
+  // whatever range the chart toggle below is set to.
+  const statsWeekly = useMemo(
+    () =>
+      bucketTimestamps(
+        requests.map((r) => r.created_at),
+        Date.now() - 2 * MS_PER_WEEK,
+        "week"
+      ),
+    [requests]
+  );
+  const thisWeek = statsWeekly[statsWeekly.length - 1]?.count ?? 0;
+  const lastWeek = statsWeekly[statsWeekly.length - 2]?.count ?? 0;
   const weekDelta = thisWeek - lastWeek;
+
+  const [range, setRange] = useState<RangeKey>("1yr");
+
+  const earliestTimestamp = useMemo(() => {
+    const timestamps = [
+      ...requests.map((r) => r.created_at),
+      ...profiles.map((p) => p.created_at),
+    ];
+    if (timestamps.length === 0) return Date.now();
+    return Math.min(...timestamps.map((t) => new Date(t).getTime()));
+  }, [requests, profiles]);
+
+  const { start: rangeStart, granularity } = useMemo(
+    () => getRangeStart(range, earliestTimestamp),
+    [range, earliestTimestamp]
+  );
+
+  const requestsSeries = useMemo(
+    () => bucketTimestamps(requests.map((r) => r.created_at), rangeStart, granularity),
+    [requests, rangeStart, granularity]
+  );
+  const signupsSeries = useMemo(
+    () => bucketTimestamps(profiles.map((p) => p.created_at), rangeStart, granularity),
+    [profiles, rangeStart, granularity]
+  );
 
   const categoryCounts: Record<string, number> = {};
   requests.forEach((r) => {
@@ -250,28 +339,48 @@ export default function AdminAnalyticsClient({
         />
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold text-gray-900">Chart range</h2>
+        <div className="flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 p-0.5">
+          {RANGE_OPTIONS.map((opt) => (
+            <button
+              key={opt.key}
+              type="button"
+              onClick={() => setRange(opt.key)}
+              className={`rounded px-2 py-1 text-xs font-medium transition ${
+                range === opt.key
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">
-            Prayer requests per week
+            Prayer requests
           </h2>
           <p className="mt-0.5 text-xs text-gray-400">
-            Last ~13 months, per week (scroll to compare against last year)
+            {RANGE_SUBTITLES[range]}
           </p>
           <div className="mt-4">
-            <WeeklyBarChart data={requestsPerWeek} color="bg-indigo-500" />
+            <TimeSeriesBarChart data={requestsSeries} color="bg-indigo-500" />
           </div>
         </div>
 
         <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">
-            New members per week
+            New members
           </h2>
           <p className="mt-0.5 text-xs text-gray-400">
-            Last ~13 months, per week (scroll to compare against last year)
+            {RANGE_SUBTITLES[range]}
           </p>
           <div className="mt-4">
-            <WeeklyBarChart data={signupsPerWeek} color="bg-emerald-500" />
+            <TimeSeriesBarChart data={signupsSeries} color="bg-emerald-500" />
           </div>
         </div>
       </div>
