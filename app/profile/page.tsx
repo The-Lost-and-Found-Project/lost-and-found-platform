@@ -16,7 +16,7 @@ export default async function ProfilePage() {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "full_name, avatar_url, faith_story, favorite_scripture, date_of_salvation, date_of_baptism, role, preview_role"
+      "full_name, avatar_url, favorite_scripture, date_of_salvation, date_of_baptism, role, preview_role"
     )
     .eq("id", user.id)
     .single();
@@ -27,7 +27,6 @@ export default async function ProfilePage() {
       createdAt={user.created_at}
       initialFullName={profile?.full_name ?? ""}
       initialAvatarUrl={profile?.avatar_url ?? ""}
-      initialTestimony={profile?.faith_story ?? ""}
       initialFavoriteScripture={profile?.favorite_scripture ?? ""}
       initialDateOfSalvation={profile?.date_of_salvation ?? ""}
       initialDateOfBaptism={profile?.date_of_baptism ?? ""}
