@@ -22,6 +22,19 @@ export default function PrayerWallPage() {
   const [categories, setCategories] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [prayedIds, setPrayedIds] = useState<Set<string>>(new Set());
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  function toggleExpanded(id: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
 
   useEffect(() => {
     async function load() {
@@ -148,58 +161,88 @@ export default function PrayerWallPage() {
           </p>
         )}
 
-        {requests.map((r) => (
-          <div
-            key={r.id}
-            className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-gray-900">{r.request_text}</p>
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-500">
-                  <span>{r.display_name ?? "Anonymous"}</span>
-                  {r.category_id && categories[r.category_id] && (
-                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
-                      {categories[r.category_id]}
-                    </span>
-                  )}
-                  {r.status === "Answered" && (
-                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-                      Answered
-                    </span>
-                  )}
-                </div>
-              </div>
+        {requests.map((r) => {
+          const expanded = expandedIds.has(r.id);
+          const snippet =
+            r.request_text.length > 90
+              ? `${r.request_text.slice(0, 90)}...`
+              : r.request_text;
 
-              {prayedIds.has(r.id) ? (
-                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
+          return (
+            <div
+              key={r.id}
+              className="rounded-lg border border-gray-200 bg-white shadow-sm"
+            >
+              <div className="flex items-start gap-3 p-5">
+                <button
+                  type="button"
+                  onClick={() => toggleExpanded(r.id)}
+                  className="flex min-w-0 flex-1 items-start gap-3 text-left"
+                >
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2.5"
-                    className="h-4 w-4"
+                    strokeWidth="2"
+                    className={`mt-1 h-4 w-4 shrink-0 text-gray-400 transition-transform ${
+                      expanded ? "rotate-90" : ""
+                    }`}
                   >
-                    <path
-                      d="M5 13l4 4L19 7"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
+                    <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  Prayed ({r.prayer_count})
-                </span>
-              ) : (
-                <button
-                  onClick={() => handlePray(r.id)}
-                  className="shrink-0 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400"
-                >
-                  I Prayed ({r.prayer_count})
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        {r.display_name ?? "Anonymous"}
+                      </span>
+                      {r.category_id && categories[r.category_id] && (
+                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                          {categories[r.category_id]}
+                        </span>
+                      )}
+                      {r.status === "Answered" && (
+                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                          Answered
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-gray-900">
+                      {expanded ? r.request_text : snippet}
+                    </p>
+                  </div>
                 </button>
-              )}
+
+                {prayedIds.has(r.id) ? (
+                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      className="h-4 w-4"
+                    >
+                      <path
+                        d="M5 13l4 4L19 7"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    Prayed ({r.prayer_count})
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handlePray(r.id)}
+                    className="shrink-0 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400"
+                  >
+                    I Prayed ({r.prayer_count})
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
