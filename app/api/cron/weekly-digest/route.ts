@@ -6,7 +6,7 @@ const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://lost-and-found-platform-rho.vercel.app";
+  "https://www.lostandfoundproject.org";
 
 // Runs every Monday morning via Vercel Cron (see vercel.json). Sends the
 // prayer care team a single weekly summary email instead of one email per
