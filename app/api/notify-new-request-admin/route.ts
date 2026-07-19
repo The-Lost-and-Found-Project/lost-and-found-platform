@@ -6,7 +6,7 @@ const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://lost-and-found-platform-rho.vercel.app";
+  "https://www.lostandfoundproject.org";
 
 // Sent whenever a new prayer request is submitted. Admins used to get an
 // in-app notification broadcast (along with every other care team member),
