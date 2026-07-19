@@ -44,6 +44,36 @@ export default function PrayerWallPage() {
 
       setRequests((reqs as PrayerRequest[]) ?? []);
       setLoading(false);
+
+      // Figure out which requests this visitor has already prayed for, so
+      // the button can show a checkmark instead of "I Prayed" again.
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+
+      let existing: { prayer_request_id: string }[] | null = null;
+      if (user) {
+        const { data } = await supabase
+          .from("prayer_reactions")
+          .select("prayer_request_id")
+          .eq("user_id", user.id);
+        existing = data;
+      } else {
+        const anonKey = window.localStorage.getItem("lfp_anon_key");
+        if (anonKey) {
+          const { data } = await supabase
+            .from("prayer_reactions")
+            .select("prayer_request_id")
+            .eq("anon_key", anonKey);
+          existing = data;
+        }
+      }
+
+      if (existing && existing.length > 0) {
+        setPrayedIds(
+          (prev) =>
+            new Set([...prev, ...existing!.map((r) => r.prayer_request_id)])
+        );
+      }
     }
 
     load();
@@ -140,13 +170,33 @@ export default function PrayerWallPage() {
                   )}
                 </div>
               </div>
-              <button
-                onClick={() => handlePray(r.id)}
-                disabled={prayedIds.has(r.id)}
-                className="shrink-0 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400 disabled:opacity-50"
-              >
-                {prayedIds.has(r.id) ? "Prayed" : "I Prayed"} ({r.prayer_count})
-              </button>
+
+              {prayedIds.has(r.id) ? (
+                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className="h-4 w-4"
+                  >
+                    <path
+                      d="M5 13l4 4L19 7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  Prayed ({r.prayer_count})
+                </span>
+              ) : (
+                <button
+                  onClick={() => handlePray(r.id)}
+                  className="shrink-0 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400"
+                >
+                  I Prayed ({r.prayer_count})
+                </button>
+              )}
             </div>
           </div>
         ))}
