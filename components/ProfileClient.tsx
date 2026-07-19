@@ -505,7 +505,19 @@ export default function ProfileClient({
                 <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                   {field.label}
                 </p>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-gray-900">
+                <p
+                  className="mt-1 whitespace-pre-wrap text-sm text-gray-900"
+                  style={
+                    field.label === "My Testimony" && field.value
+                      ? {
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }
+                      : undefined
+                  }
+                >
                   {field.value || (
                     <span className="text-gray-400">{field.empty}</span>
                   )}
