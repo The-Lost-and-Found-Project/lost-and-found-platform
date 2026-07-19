@@ -5,7 +5,7 @@ const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://lost-and-found-platform-rho.vercel.app";
+  "https://www.lostandfoundproject.org";
 const GIVE_URL =
   "https://www.zeffy.com/en-US/donation-form/donate-to-build-god-centered-marriages";
 
