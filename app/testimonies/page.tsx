@@ -9,43 +9,47 @@ type Testimony = {
   id: string;
   content_text: string;
   created_at: string;
+  display_name: string | null;
+  is_anonymous: boolean;
 };
 
-// Collapsed by default, showing just 2 lines of the body. Tap "Read more" to
-// expand a single testimony without affecting the others.
+// Collapsed by default, showing just a snippet of the body plus who shared
+// it (or "Anonymous" if they opted out of using their name). Tap to expand.
 function TestimonyCard({ testimony }: { testimony: Testimony }) {
   const [expanded, setExpanded] = useState(false);
+  const snippet =
+    testimony.content_text.length > 90
+      ? `${testimony.content_text.slice(0, 90)}...`
+      : testimony.content_text;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-      <p
-        className="whitespace-pre-wrap text-gray-900"
-        style={
-          expanded
-            ? undefined
-            : {
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-              }
-        }
-      >
-        {testimony.content_text}
-      </p>
-      <div className="mt-3 flex items-center justify-between">
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-          Shared anonymously
-        </p>
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="text-xs font-medium text-indigo-600 hover:text-indigo-500"
+    <button
+      type="button"
+      onClick={() => setExpanded((v) => !v)}
+      className="block w-full rounded-lg border border-gray-200 bg-white p-5 text-left shadow-sm"
+    >
+      <div className="flex items-start gap-3">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className={`mt-1 h-4 w-4 shrink-0 text-gray-400 transition-transform ${
+            expanded ? "rotate-90" : ""
+          }`}
         >
-          {expanded ? "Show less" : "Read more"}
-        </button>
+          <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-gray-900">
+            {testimony.display_name ?? "Anonymous"}
+          </p>
+          <p className="mt-1 whitespace-pre-wrap text-gray-900">
+            {expanded ? testimony.content_text : snippet}
+          </p>
+        </div>
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -58,7 +62,7 @@ export default function TestimonyBoardPage() {
     async function load() {
       const { data } = await supabase
         .from("testimony_board_public")
-        .select("id, content_text, created_at")
+        .select("id, content_text, created_at, display_name, is_anonymous")
         .order("created_at", { ascending: false });
 
       setTestimonies((data as Testimony[]) ?? []);
@@ -76,7 +80,7 @@ export default function TestimonyBoardPage() {
           </h1>
           <p className="mt-2 text-gray-600">
             Stories of how God is working in the lives of people in our
-            community. All testimonies are shared anonymously.
+            community.
           </p>
         </div>
         <Link
