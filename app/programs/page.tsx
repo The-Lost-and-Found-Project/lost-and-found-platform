@@ -36,11 +36,6 @@ const programs = [
     title: "Events",
     description: "Stay up to date on upcoming ministry events.",
   },
-  {
-    href: "/admin",
-    title: "Admin",
-    description: "Tools for ministry staff to manage the platform.",
-  },
 ];
 
 export default function ProgramsPage() {
