@@ -6,7 +6,7 @@ const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://lost-and-found-platform-rho.vercel.app";
+  "https://www.lostandfoundproject.org";
 
 // Sent whenever someone creates a new account (calls supabase.auth.signUp()
 // on the login page). Notifies every admin so they know a new person has
