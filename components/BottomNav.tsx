@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const items = [
   {
     href: "/prayer",
-    label: "Prayer Wall",
+    label: "Prayer",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -43,7 +43,7 @@ const items = [
   },
   {
     href: "/praise",
-    label: "Praise Wall",
+    label: "Praise",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -69,7 +69,7 @@ const items = [
   },
   {
     href: "/my-journey",
-    label: "My Journey",
+    label: "Journey",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -109,7 +109,7 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium transition ${
+              className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition ${
                 active
                   ? "text-white"
                   : "text-indigo-100 hover:text-white"
@@ -122,7 +122,7 @@ export default function BottomNav() {
               >
                 {item.icon}
               </span>
-              <span>{item.label}</span>
+              <span className="whitespace-nowrap">{item.label}</span>
             </Link>
           );
         })}
@@ -130,7 +130,7 @@ export default function BottomNav() {
           href={GIVE_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium text-indigo-100 transition hover:text-white"
+          className="flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium text-indigo-100 transition hover:text-white"
         >
           <span className="flex h-8 w-8 items-center justify-center rounded-full">
             <svg
@@ -147,7 +147,7 @@ export default function BottomNav() {
               />
             </svg>
           </span>
-          <span>Give</span>
+          <span className="whitespace-nowrap">Give</span>
         </a>
       </div>
     </nav>

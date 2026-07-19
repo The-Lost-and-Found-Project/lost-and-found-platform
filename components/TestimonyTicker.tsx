@@ -9,20 +9,23 @@ type Testimony = {
   faith_story: string;
   updated_at: string;
   user_id: string;
+  display_name: string | null;
 };
 
 // Poll for newly saved testimonies so the ticker keeps growing over time.
 const REFRESH_INTERVAL_MS = 30000;
 
-export default function TestimonyTicker() {
+export default function TestimonyTicker({
+  emptyMessage,
+}: {
+  // When provided, an empty testimony list renders this message instead of
+  // nothing. Leave unset for places (like the landing page) where the
+  // ticker should just quietly disappear if there's nothing to show yet.
+  emptyMessage?: string;
+}) {
   const supabase = createClient();
   const [testimonies, setTestimonies] = useState<Testimony[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [sentTo, setSentTo] = useState<Set<string>>(new Set());
-  const [openKey, setOpenKey] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Record<string, string>>({});
-  const [sending, setSending] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -30,7 +33,7 @@ export default function TestimonyTicker() {
     async function load() {
       const { data } = await supabase
         .from("testimonies_public")
-        .select("id, faith_story, updated_at, user_id")
+        .select("id, faith_story, updated_at, user_id, display_name")
         .order("updated_at", { ascending: false })
         .limit(30);
 
@@ -40,26 +43,7 @@ export default function TestimonyTicker() {
       }
     }
 
-    async function loadUserAndSent() {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-      if (!user || !active) return;
-      setUserId(user.id);
-
-      const { data: sent } = await supabase
-        .from("testimony_encouragements")
-        .select("profile_id")
-        .eq("from_user_id", user.id);
-
-      if (active) {
-        setSentTo(
-          new Set((sent as { profile_id: string }[] | null ?? []).map((r) => r.profile_id))
-        );
-      }
-    }
-
     load();
-    loadUserAndSent();
     const interval = setInterval(load, REFRESH_INTERVAL_MS);
 
     return () => {
@@ -69,26 +53,17 @@ export default function TestimonyTicker() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function sendEncouragement(messageKey: string, ownerUserId: string) {
-    const message = (messages[messageKey] ?? "").trim();
-    if (!message || !userId) return;
-
-    setSending(messageKey);
-    const { error } = await supabase.from("testimony_encouragements").insert({
-      profile_id: ownerUserId,
-      from_user_id: userId,
-      message,
-    });
-
-    if (!error) {
-      setSentTo((prev) => new Set(prev).add(ownerUserId));
-      setOpenKey(null);
-    }
-    setSending(null);
+  if (loading) {
+    return null;
   }
 
-  if (loading || testimonies.length === 0) {
-    return null;
+  if (testimonies.length === 0) {
+    if (!emptyMessage) return null;
+    return (
+      <div className="mt-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <p className="text-gray-500">{emptyMessage}</p>
+      </div>
+    );
   }
 
   // Duplicated so the auto-scroll can loop seamlessly.
@@ -104,72 +79,19 @@ export default function TestimonyTicker() {
 
       <TickerScroll>
         {items.map((t, i) => {
-            const key = `${t.id}-${i}`;
-            const alreadySent = sentTo.has(t.user_id);
-            const isSelf = userId === t.user_id;
-            const isOpen = openKey === key;
+          const key = `${t.id}-${i}`;
 
-            return (
-              <div key={key} className="rounded-md bg-gray-50 px-4 py-3">
-                <p className="italic text-gray-700">
-                  &ldquo;{t.faith_story}&rdquo;
-                </p>
-
-                {!isSelf && userId && (
-                  <div className="mt-2">
-                    {alreadySent ? (
-                      <span className="text-xs font-medium text-emerald-600">
-                        💛 You sent a note of encouragement
-                      </span>
-                    ) : isOpen ? (
-                      <div className="mt-1 space-y-2">
-                        <textarea
-                          rows={2}
-                          value={messages[t.id] ?? ""}
-                          onChange={(e) =>
-                            setMessages((prev) => ({
-                              ...prev,
-                              [t.id]: e.target.value,
-                            }))
-                          }
-                          placeholder="Leave a note of thanks or encouragement..."
-                          className="block w-full rounded-md border border-gray-300 px-2 py-1.5 text-xs shadow-sm"
-                        />
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => sendEncouragement(t.id, t.user_id)}
-                            disabled={
-                              sending === t.id ||
-                              !(messages[t.id] ?? "").trim()
-                            }
-                            className="rounded-full bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
-                          >
-                            {sending === t.id ? "Sending..." : "Send"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setOpenKey(null)}
-                            className="text-xs text-gray-500 hover:text-gray-700"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setOpenKey(key)}
-                        className="text-xs font-medium text-indigo-600 hover:text-indigo-500"
-                      >
-                        Leave a note of encouragement
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          return (
+            <div key={key} className="rounded-md bg-gray-50 px-4 py-3">
+              <p className="text-xs font-semibold text-gray-900">
+                {t.display_name ?? "Anonymous"}
+              </p>
+              <p className="mt-1 italic text-gray-700">
+                &ldquo;{t.faith_story}&rdquo;
+              </p>
+            </div>
+          );
+        })}
       </TickerScroll>
     </div>
   );
