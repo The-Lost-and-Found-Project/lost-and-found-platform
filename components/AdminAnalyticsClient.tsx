@@ -240,7 +240,7 @@ export default function AdminAnalyticsClient({
   const lastWeek = statsWeekly[statsWeekly.length - 2]?.count ?? 0;
   const weekDelta = thisWeek - lastWeek;
 
-  const [range, setRange] = useState<RangeKey>("1mo");
+  const [range, setRange] = useState<RangeKey>("1wk");
 
   const earliestTimestamp = useMemo(() => {
     const timestamps = [
