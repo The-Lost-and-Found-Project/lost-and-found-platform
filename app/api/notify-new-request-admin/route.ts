@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendPushToUsers } from "@/lib/push/send";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient();
     const { data: admins, error: adminsError } = await supabase
       .from("profiles")
-      .select("email")
+      .select("id, email")
       .eq("role", "admin")
       .not("email", "is", null);
 
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
     const recipients = (admins ?? [])
       .map((a) => a.email)
       .filter((e): e is string => Boolean(e));
+    const adminIds = (admins ?? []).map((a) => a.id);
 
     if (recipients.length === 0) {
       return NextResponse.json({ success: true, skipped: "no admins" });
@@ -100,6 +102,16 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       );
     }
+
+    const pushBody =
+      typeof requestText === "string" ? requestText.slice(0, 120) : "";
+    sendPushToUsers(adminIds, {
+      title: "New prayer request submitted",
+      body: categoryName ? `${categoryName}: ${pushBody}` : pushBody,
+      url: "/admin",
+    }).catch((err) => {
+      console.error("Failed to send new-request push notification:", err);
+    });
 
     return NextResponse.json({ success: true });
   } catch (err) {
