@@ -22,7 +22,7 @@ export default async function MyJourneyPage() {
   const { data: requests } = await supabase
     .from("prayer_requests")
     .select(
-      "id, created_at, request_text, status, category_id, is_public, is_anonymous, moderation_status"
+      "id, created_at, request_text, status, category_id, is_public, is_anonymous, moderation_status, answered, answered_update, archived"
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
