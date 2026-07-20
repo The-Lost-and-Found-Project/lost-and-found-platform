@@ -19,6 +19,7 @@ type CategoryOption = { id: string; name: string };
 
 type AdminRequest = {
   id: string;
+  user_id: string | null;
   created_at: string;
   name: string;
   email: string;
@@ -165,7 +166,11 @@ export default function AdminPrayerDashboardClient({
     fetch("/api/notify-content-denied", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: request.email, name: request.name }),
+      body: JSON.stringify({
+        email: request.email,
+        name: request.name,
+        userId: request.user_id,
+      }),
     }).catch((err) => {
       console.error("Failed to send content-denied notification:", err);
     });
