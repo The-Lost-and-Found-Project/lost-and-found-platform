@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendPushToUser } from "@/lib/push/send";
+import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
@@ -16,13 +17,17 @@ const SITE_URL =
 // assignment on new submissions). Includes the full submission so the
 // assignee can contact the person directly if needed.
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  const { allowed } = checkRateLimit(`notify-assignment:${ip}`, 15, 10 * 60 * 1000);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again shortly." },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
-
-    let {
-      assigneeEmail,
-      assigneeName,
-    }: { assigneeEmail?: string; assigneeName?: string | null } = body ?? {};
 
     const {
       assigneeId,
@@ -37,20 +42,27 @@ export async function POST(request: NextRequest) {
       contactRequested,
     } = body ?? {};
 
-    // The public submission form doesn't have access to care team profiles
-    // (blocked by RLS), so it only sends the assignee's id. Look up the
-    // email/name here server-side using the service role, which bypasses RLS.
-    if (!assigneeEmail && assigneeId) {
-      const supabase = createAdminClient();
-      const { data: assignee } = await supabase
-        .from("profiles")
-        .select("email, full_name")
-        .eq("id", assigneeId)
-        .single();
-
-      assigneeEmail = assignee?.email ?? undefined;
-      assigneeName = assignee?.full_name ?? null;
+    // Both real callers (the public submission form and the admin dashboard)
+    // only ever send assigneeId. We always look up the email/name ourselves
+    // server-side with the service role — never trust a client-supplied
+    // assigneeEmail/assigneeName, which would otherwise let anyone send
+    // arbitrary content to an arbitrary address from our verified domain.
+    if (!assigneeId) {
+      return NextResponse.json(
+        { error: "Missing assigneeId" },
+        { status: 400 }
+      );
     }
+
+    const supabase = createAdminClient();
+    const { data: assignee } = await supabase
+      .from("profiles")
+      .select("email, full_name")
+      .eq("id", assigneeId)
+      .single();
+
+    const assigneeEmail = assignee?.email ?? undefined;
+    const assigneeName = assignee?.full_name ?? null;
 
     if (!assigneeEmail || !requestText) {
       return NextResponse.json(
