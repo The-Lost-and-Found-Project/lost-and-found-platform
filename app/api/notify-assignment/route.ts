@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendPushToUser } from "@/lib/push/send";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
@@ -114,6 +115,18 @@ export async function POST(request: NextRequest) {
         { error: "Failed to send assignment notification email" },
         { status: 502 }
       );
+    }
+
+    if (assigneeId) {
+      sendPushToUser(assigneeId, {
+        title: "New prayer request assigned to you",
+        body: categoryName
+          ? `${categoryName}: ${requestText.slice(0, 100)}`
+          : requestText.slice(0, 120),
+        url: "/admin",
+      }).catch((err) => {
+        console.error("Failed to send assignment push notification:", err);
+      });
     }
 
     return NextResponse.json({ success: true });
