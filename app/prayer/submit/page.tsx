@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import TurnstileWidget from "@/components/TurnstileWidget";
 
 type Category = {
   id: string;
@@ -27,6 +28,7 @@ export default function SubmitPrayerRequestPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
 
   useEffect(() => {
     async function loadCategories() {
@@ -79,7 +81,27 @@ export default function SubmitPrayerRequestPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !captchaToken) {
+      setError("Please complete the CAPTCHA challenge before submitting.");
+      return;
+    }
+
     setSubmitting(true);
+
+    const captchaCheck = await fetch("/api/verify-turnstile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: captchaToken }),
+    }).then((r) => r.json());
+
+    if (!captchaCheck.success) {
+      setError(
+        captchaCheck.error ?? "CAPTCHA verification failed. Please try again."
+      );
+      setSubmitting(false);
+      return;
+    }
 
     const { data: userData } = await supabase.auth.getUser();
     const user = userData?.user;
@@ -383,6 +405,8 @@ export default function SubmitPrayerRequestPage() {
             988, any time.
           </p>
         </div>
+
+        <TurnstileWidget onVerify={setCaptchaToken} onExpire={() => setCaptchaToken("")} />
 
         <p className="text-sm text-red-600">{error}</p>
 
