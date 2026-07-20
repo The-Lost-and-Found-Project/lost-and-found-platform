@@ -22,7 +22,7 @@ export function getClientIp(request: NextRequest): string {
  * Lightweight in-memory rate limiter, keyed per serverless instance. This is
  * intentionally simple — not a substitute for a distributed limiter like
  * Upstash — but it raises the bar against scripted abuse of public,
- * unauthenticated notify-*/send-welcome-email endpoints without adding a new
+ * unauthenticated notify- and send-welcome-email endpoints without adding a new
  * infra dependency. It complements (doesn't replace) the DB-level per-user
  * rate-limit trigger on prayer_requests/testimonies/praise_reports, which
  * catches authenticated abuse even across serverless instances.
