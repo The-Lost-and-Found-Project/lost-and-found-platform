@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
@@ -13,7 +14,26 @@ const GIVE_URL =
 // time (fired from app/auth/callback/route.ts). Distinct from Supabase's
 // built-in confirmation email — this one explains the ministry in depth and
 // makes the ask for ongoing monthly support.
+// Only ever called server-side from app/auth/callback/route.ts, never
+// directly from the browser — gated by a shared secret so it can't be used
+// as an open relay to send our "welcome" email (with its donation ask) to
+// arbitrary addresses.
 export async function POST(request: NextRequest) {
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  const providedSecret = request.headers.get("x-internal-secret");
+  if (!internalSecret || providedSecret !== internalSecret) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const ip = getClientIp(request);
+  const { allowed } = checkRateLimit(`send-welcome-email:${ip}`, 10, 10 * 60 * 1000);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again shortly." },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
     const { email, fullName } = body ?? {};
