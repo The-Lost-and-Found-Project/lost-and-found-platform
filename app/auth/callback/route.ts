@@ -25,7 +25,10 @@ export async function GET(request: Request) {
         try {
           await fetch(`${origin}/api/send-welcome-email`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              "x-internal-secret": process.env.INTERNAL_API_SECRET ?? "",
+            },
             body: JSON.stringify({ email: user.email, fullName }),
           });
         } catch (err) {
