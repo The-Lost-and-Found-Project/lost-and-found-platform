@@ -19,25 +19,34 @@ export default function NotificationBell() {
 
       setUserId(user.id);
 
-      const { count } = await supabase
-        .from("notifications")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .is("read_at", null);
-      setUnreadCount(count ?? 0);
+      async function refreshUnreadCount() {
+        const { count } = await supabase
+          .from("notifications")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .is("read_at", null);
+        setUnreadCount(count ?? 0);
+      }
 
+      await refreshUnreadCount();
+
+      // Re-derive the count from the DB on every insert/update/delete rather
+      // than incrementing/decrementing locally — that way "mark read",
+      // "delete", and "clear read" on the notifications page (and any other
+      // tab/device) always leave the bell's badge in sync, instead of only
+      // ever growing on new notifications.
       channel = supabase
         .channel(`notifications-bell-${user.id}`)
         .on(
           "postgres_changes",
           {
-            event: "INSERT",
+            event: "*",
             schema: "public",
             table: "notifications",
             filter: `user_id=eq.${user.id}`,
           },
           () => {
-            setUnreadCount((prev) => prev + 1);
+            refreshUnreadCount();
           }
         )
         .subscribe();
