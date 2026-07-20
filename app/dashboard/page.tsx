@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import PrayerWallTicker from "@/components/PrayerWallTicker";
 import ShareButton from "@/components/ShareButton";
+import PushPrompt from "@/components/PushPrompt";
 import Link from "next/link";
 
 export default async function DashboardPage() {
@@ -50,7 +51,7 @@ export default async function DashboardPage() {
               </h1>
               <p className="mt-3 text-gray-600">
                 Here&rsquo;s what&rsquo;s happening in our community today.
-                Take a moment to pray, share an encouragement, or check in on
+                Take a moment to pray, share your testimony, or check in on
                 your own journey.
               </p>
             </div>
@@ -82,6 +83,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+        <PushPrompt />
         <PrayerWallTicker />
       </section>
     </div>
