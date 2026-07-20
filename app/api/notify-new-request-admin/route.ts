@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendPushToUsers } from "@/lib/push/send";
+import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
@@ -17,6 +18,15 @@ const SITE_URL =
 // only, so leadership still has visibility into new submissions without
 // paging the whole care team.
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  const { allowed } = checkRateLimit(`notify-new-request-admin:${ip}`, 10, 10 * 60 * 1000);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again shortly." },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
     const {
