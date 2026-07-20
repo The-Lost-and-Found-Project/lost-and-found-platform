@@ -46,7 +46,7 @@ export default async function AdminPage() {
   const { data: requests } = await supabase
     .from("prayer_requests")
     .select(
-      "id, created_at, name, email, phone, preferred_contact, contact_requested, category_id, request_text, is_public, is_anonymous, status, assigned_to, follow_up_needed, follow_up_date, answered, praise_report, prayer_count, flagged, flag_reason, moderation_status"
+      "id, user_id, created_at, name, email, phone, preferred_contact, contact_requested, category_id, request_text, is_public, is_anonymous, status, assigned_to, follow_up_needed, follow_up_date, answered, praise_report, prayer_count, flagged, flag_reason, moderation_status"
     )
     .order("created_at", { ascending: false });
 
