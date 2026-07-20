@@ -235,28 +235,6 @@ export default function AdminPrayerDashboardClient({
             Manage incoming prayer requests, assignments, and follow-up.
           </p>
         </div>
-        {isAdmin && (
-          <div className="flex shrink-0 flex-wrap gap-2">
-            <a
-              href="/admin/analytics"
-              className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
-            >
-              Analytics
-            </a>
-            <a
-              href="/admin/feedback"
-              className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
-            >
-              Feedback
-            </a>
-            <a
-              href="/admin/users"
-              className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
-            >
-              Manage Users
-            </a>
-          </div>
-        )}
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">

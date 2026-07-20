@@ -19,7 +19,6 @@ const TYPE_ICON: Record<string, string> = {
   new_request: "bg-gradient-to-br from-amber-500 to-orange-500",
   prayed_for: "bg-gradient-to-br from-emerald-500 to-teal-500",
   status_change: "bg-gradient-to-br from-sky-500 to-cyan-500",
-  encouragement: "bg-gradient-to-br from-pink-500 to-rose-500",
   flagged: "bg-gradient-to-br from-amber-500 to-red-500",
   content_denied: "bg-gradient-to-br from-red-500 to-rose-600",
   content_approved: "bg-gradient-to-br from-emerald-500 to-green-600",
