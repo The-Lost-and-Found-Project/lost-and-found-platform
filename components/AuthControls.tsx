@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -100,6 +100,7 @@ export default function AuthControls() {
   const [email, setEmail] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Header (and this component) persists across client-side navigations —
   // it isn't remounted per page — so without this the menu would stay open
@@ -108,6 +109,30 @@ export default function AuthControls() {
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  // Close on any click/tap outside the menu. Using a document-level listener
+  // (rather than relying only on an invisible overlay div) so this reliably
+  // closes on touch devices too, regardless of what element happens to sit
+  // on top elsewhere on the page (e.g. the BottomNav).
+  useEffect(() => {
+    if (!open) return;
+
+    function handleOutside(e: MouseEvent | TouchEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, [open]);
 
   useEffect(() => {
     let active = true;
@@ -188,7 +213,7 @@ export default function AuthControls() {
       : baseMenuItems;
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex items-center rounded-full ring-2 ring-transparent transition hover:ring-indigo-100"
@@ -209,7 +234,6 @@ export default function AuthControls() {
 
       {open && (
         <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div className="absolute right-0 z-20 mt-2 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl ring-1 ring-black/5">
             <div className="flex items-center gap-3 border-b border-gray-100 bg-gray-50/60 px-4 py-3">
               {profile?.avatar_url ? (

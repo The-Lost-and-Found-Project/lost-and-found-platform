@@ -191,6 +191,37 @@ export default function MyJourneyClient({
     setEditSaving(true);
     setEditError("");
 
+    // Capture the before-state (still the pre-edit values in `requests` at
+    // this point) so we can describe what actually changed to whichever
+    // care team member is following up on this request.
+    const original = requests.find((r) => r.id === editingRequestId);
+    const changedParts: string[] = [];
+    if (original) {
+      if (original.request_text !== editRequestText.trim()) {
+        changedParts.push("updated the request details");
+      }
+      if ((original.category_id ?? "") !== editCategoryId) {
+        changedParts.push(
+          `changed the category to "${
+            categoryMap[editCategoryId] ?? "Uncategorized"
+          }"`
+        );
+      }
+      if (original.is_public !== editIsPublic) {
+        changedParts.push(
+          editIsPublic ? "made it visible on the Prayer Wall" : "made it private"
+        );
+      }
+      if (original.is_anonymous !== editIsAnonymous) {
+        changedParts.push(
+          editIsAnonymous ? "chose to post anonymously" : "removed anonymity"
+        );
+      }
+    }
+    const changesDescription = changedParts.length
+      ? `They ${changedParts.join(", ")}.`
+      : "";
+
     const { data, error: updateError } = await supabase
       .from("prayer_requests")
       .update({
@@ -215,6 +246,20 @@ export default function MyJourneyClient({
     setRequests((prev) =>
       prev.map((r) => (r.id === editingRequestId ? (data as PrayerRequestSummary) : r))
     );
+
+    // Let the assigned care team member know what changed (a no-op server
+    // side if the request was never assigned to anyone). Fire-and-forget so
+    // a slow or failed email never blocks the save the member is waiting on.
+    if (changedParts.length) {
+      fetch("/api/notify-prayer-edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: editingRequestId, changesDescription }),
+      }).catch((err) => {
+        console.error("Failed to send prayer-edit notification:", err);
+      });
+    }
+
     setEditingRequestId(null);
   }
 
