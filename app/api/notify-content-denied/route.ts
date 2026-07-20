@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { sendPushToUser } from "@/lib/push/send";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
@@ -13,7 +14,7 @@ const SITE_URL =
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, name } = body ?? {};
+    const { email, name, userId } = body ?? {};
 
     if (!email) {
       return NextResponse.json({ error: "Missing email" }, { status: 400 });
@@ -74,6 +75,16 @@ export async function POST(request: NextRequest) {
         { error: "Failed to send content-denied notification" },
         { status: 502 }
       );
+    }
+
+    if (userId) {
+      sendPushToUser(userId, {
+        title: "Update on your prayer request",
+        body: "We weren't able to publish your recent request as submitted. Tap for details.",
+        url: "/my-journey",
+      }).catch((err) => {
+        console.error("Failed to send content-denied push notification:", err);
+      });
     }
 
     return NextResponse.json({ success: true });
