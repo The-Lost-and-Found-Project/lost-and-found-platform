@@ -28,19 +28,46 @@ export default function PraiseSubmitClient({
       return;
     }
 
-    const { error: insertError } = await supabase
+    const { data: inserted, error: insertError } = await supabase
       .from("praise_reports")
       .insert({
         user_id: user.id,
         content_text: contentText,
         prayer_request_id: prayerRequestId || null,
-      });
+      })
+      .select("id")
+      .single();
 
     if (insertError) {
       setError(insertError.message);
       setSubmitting(false);
       return;
     }
+
+    // If this praise report is linked to a prayer request, mark that request
+    // answered so it shows up correctly on My Journey (this only touches the
+    // `answered` column, which the member is always allowed to set on their
+    // own request).
+    if (prayerRequestId) {
+      supabase
+        .from("prayer_requests")
+        .update({ answered: true })
+        .eq("id", prayerRequestId)
+        .then(() => {});
+    }
+
+    // Let the whole care team/admins know a new praise report came in so
+    // someone can review and, if it's a good fit, feature it.
+    fetch("/api/notify-new-praise-admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        praiseReportId: inserted?.id ?? null,
+        contentText,
+      }),
+    }).catch((err) => {
+      console.error("Failed to send new-praise-report admin notification:", err);
+    });
 
     setSubmitted(true);
     setSubmitting(false);

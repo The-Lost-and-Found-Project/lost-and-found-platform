@@ -119,14 +119,14 @@ export default function AdminPrayerDashboardClient({
 
     // Fire-and-forget: the in-app notification is already handled by a DB
     // trigger. This email gives the assignee the full submission so they can
-    // reach out directly if needed.
+    // reach out directly if needed. The route always looks up the assignee's
+    // email/name itself server-side from assigneeId, so we don't send it
+    // here even though we already have it locally.
     fetch("/api/notify-assignment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         assigneeId,
-        assigneeEmail: assignee.email,
-        assigneeName: assignee.full_name,
         name: request.name,
         email: request.email,
         phone: request.phone,

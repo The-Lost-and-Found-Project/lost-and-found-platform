@@ -12,6 +12,9 @@ type PrayerRequestSummary = {
   is_public: boolean;
   is_anonymous: boolean;
   moderation_status: string;
+  answered: boolean;
+  answered_update: string | null;
+  archived: boolean;
 };
 
 type JourneyEntry = {
@@ -58,6 +61,9 @@ type TimelineItem = {
   meta?: string;
   requestId?: string;
   moderationStatus?: string;
+  answered?: boolean;
+  answeredUpdate?: string | null;
+  archived?: boolean;
   link?: { href: string; label: string };
 };
 
@@ -134,6 +140,11 @@ export default function MyJourneyClient({
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState("");
 
+  const [markAnsweredId, setMarkAnsweredId] = useState<string | null>(null);
+  const [updateText, setUpdateText] = useState("");
+  const [markAnsweredSaving, setMarkAnsweredSaving] = useState(false);
+  const [markAnsweredError, setMarkAnsweredError] = useState("");
+
   const categoryOptions = useMemo(
     () => Object.entries(categoryMap).map(([id, name]) => ({ id, name })),
     [categoryMap]
@@ -205,6 +216,52 @@ export default function MyJourneyClient({
       prev.map((r) => (r.id === editingRequestId ? (data as PrayerRequestSummary) : r))
     );
     setEditingRequestId(null);
+  }
+
+  function openMarkAnswered(requestId: string) {
+    const request = requests.find((r) => r.id === requestId);
+    setMarkAnsweredId(requestId);
+    setUpdateText(request?.answered_update ?? "");
+    setMarkAnsweredError("");
+  }
+
+  function closeMarkAnswered() {
+    setMarkAnsweredId(null);
+  }
+
+  // Just posts a short update and marks the request answered — no full
+  // praise report. A member can always go back later and share a full
+  // praise report from the Praise Wall if they change their mind.
+  async function handleSaveUpdate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!markAnsweredId) return;
+
+    setMarkAnsweredSaving(true);
+    setMarkAnsweredError("");
+
+    const { data, error: updateError } = await supabase
+      .from("prayer_requests")
+      .update({
+        answered: true,
+        answered_update: updateText.trim() || null,
+      })
+      .eq("id", markAnsweredId)
+      .select(
+        "id, created_at, request_text, status, category_id, is_public, is_anonymous, moderation_status, answered, answered_update, archived"
+      )
+      .single();
+
+    setMarkAnsweredSaving(false);
+
+    if (updateError || !data) {
+      setMarkAnsweredError("Something went wrong saving that. Please try again.");
+      return;
+    }
+
+    setRequests((prev) =>
+      prev.map((r) => (r.id === markAnsweredId ? (data as PrayerRequestSummary) : r))
+    );
+    setMarkAnsweredId(null);
   }
 
   function openForm() {
@@ -299,6 +356,9 @@ export default function MyJourneyClient({
         meta: r.status,
         requestId: r.id,
         moderationStatus: r.moderation_status,
+        answered: r.answered,
+        answeredUpdate: r.answered_update,
+        archived: r.archived,
       });
     });
 
@@ -393,6 +453,16 @@ export default function MyJourneyClient({
                         Not published — please revise
                       </span>
                     )}
+                    {item.answered && (
+                      <span className="rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-medium text-violet-700">
+                        Answered
+                      </span>
+                    )}
+                    {item.archived && (
+                      <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500">
+                        Archived
+                      </span>
+                    )}
                   </div>
 
                   {hasDescription ? (
@@ -427,14 +497,36 @@ export default function MyJourneyClient({
                     <h3 className="mt-1.5 font-semibold text-gray-900">{item.title}</h3>
                   )}
 
+                  {expanded && item.answeredUpdate && (
+                    <p className="mt-2 rounded-lg bg-violet-50 px-3 py-2 text-sm text-violet-800">
+                      <span className="font-medium">Update: </span>
+                      {item.answeredUpdate}
+                    </p>
+                  )}
+
                   {expanded && item.requestId && (
-                    <button
-                      type="button"
-                      onClick={() => openEditRequest(item.requestId!)}
-                      className="mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-500"
-                    >
-                      Edit this request
-                    </button>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <button
+                        type="button"
+                        onClick={() => openEditRequest(item.requestId!)}
+                        className="text-xs font-medium text-indigo-600 hover:text-indigo-500"
+                      >
+                        Edit this request
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openMarkAnswered(item.requestId!)}
+                        className="text-xs font-medium text-violet-600 hover:text-violet-500"
+                      >
+                        {item.answered ? "Add an update" : "Mark as answered"}
+                      </button>
+                      <a
+                        href={`/praise/submit?prayer_request_id=${item.requestId}`}
+                        className="text-xs font-medium text-amber-600 hover:text-amber-500"
+                      >
+                        Share a praise report
+                      </a>
+                    </div>
                   )}
                   {expanded && !item.requestId && item.link && (
                     <a
@@ -616,6 +708,70 @@ export default function MyJourneyClient({
                   className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
                 >
                   {editSaving ? "Saving…" : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {markAnsweredId && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
+          onClick={closeMarkAnswered}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold text-gray-900">
+              {requests.find((r) => r.id === markAnsweredId)?.answered
+                ? "Add an Update"
+                : "Mark as Answered"}
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Want to share the full story? You can{" "}
+              <a
+                href={`/praise/submit?prayer_request_id=${markAnsweredId}`}
+                className="font-medium text-amber-600 hover:text-amber-500"
+              >
+                share a praise report
+              </a>{" "}
+              instead, or just leave a quick update below.
+            </p>
+
+            <form onSubmit={handleSaveUpdate} className="mt-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Update (optional)
+                </label>
+                <textarea
+                  value={updateText}
+                  onChange={(e) => setUpdateText(e.target.value)}
+                  rows={4}
+                  placeholder="What happened? A short update is great — no need for details."
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              {markAnsweredError && (
+                <p className="text-sm text-red-600">{markAnsweredError}</p>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={closeMarkAnswered}
+                  className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={markAnsweredSaving}
+                  className="rounded-full bg-violet-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-700 disabled:opacity-60"
+                >
+                  {markAnsweredSaving ? "Saving…" : "Save"}
                 </button>
               </div>
             </form>
