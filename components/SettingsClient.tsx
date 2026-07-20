@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import PushNotificationToggle from "@/components/PushNotificationToggle";
 
 type Settings = {
   email_notifications: boolean;
@@ -65,6 +66,7 @@ export default function SettingsClient({
           onChange={(v) => updateSetting("email_notifications", v)}
           busy={saving === "email_notifications"}
         />
+        <PushNotificationToggle />
         <ToggleRow
           title="Submit prayers anonymously by default"
           description='Pre-check "Hide my personal information" whenever you submit a new prayer request.'

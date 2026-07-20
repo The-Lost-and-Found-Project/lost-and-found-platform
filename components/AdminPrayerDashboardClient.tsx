@@ -123,6 +123,7 @@ export default function AdminPrayerDashboardClient({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        assigneeId,
         assigneeEmail: assignee.email,
         assigneeName: assignee.full_name,
         name: request.name,
