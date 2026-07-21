@@ -66,6 +66,7 @@ export default async function AdminPage() {
       categories={categories ?? []}
       careTeam={careTeam ?? []}
       isAdmin={effectiveRole === "admin"}
+      currentUserId={user.id}
     />
   );
 }
