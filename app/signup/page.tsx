@@ -62,15 +62,9 @@ export default function SignUpPage() {
       return;
     }
 
-    // Let admins know a new person has joined. Fire-and-forget so a slow or
-    // failed email never blocks the confirmation message the user is waiting on.
-    fetch("/api/notify-new-signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    }).catch((err) => {
-      console.error("Failed to send new signup notification:", err);
-    });
+    // Note: admins are no longer emailed individually when someone signs up.
+    // New members now show up in the weekly digest email instead
+    // (see app/api/cron/weekly-digest/route.ts).
 
     setSubmitted(true);
     setLoading(false);
