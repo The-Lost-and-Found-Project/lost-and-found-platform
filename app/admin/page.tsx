@@ -25,18 +25,17 @@ export default async function AdminPage() {
   const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
 
   // The full admin dashboard (moderation queue, reassigning requests, seeing
-  // every member's assignments) is now reserved for admins and pastors.
-  // Prayer partners (the "prayer_team" role) have their own dedicated,
-  // assignments-only page instead — send them there rather than showing them
-  // the broader admin view.
-  if (effectiveRole === "prayer_team") {
+  // every member's assignments) is now reserved for admins only. Prayer
+  // partners (the "prayer_team" role) and pastors both have their own
+  // dedicated, assignments-only page instead — send them there rather than
+  // showing them the broader admin view.
+  if (effectiveRole === "prayer_team" || effectiveRole === "pastor") {
     redirect("/prayer-assignments");
   }
 
-  const isAdminOrPastor =
-    effectiveRole === "admin" || effectiveRole === "pastor";
+  const isAdmin = effectiveRole === "admin";
 
-  if (!isAdminOrPastor) {
+  if (!isAdmin) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
         <h1 className="text-2xl font-bold text-gray-900">
@@ -72,7 +71,7 @@ export default async function AdminPage() {
       requests={requests ?? []}
       categories={categories ?? []}
       careTeam={careTeam ?? []}
-      isAdmin={effectiveRole === "admin"}
+      isAdmin={isAdmin}
       currentUserId={user.id}
     />
   );
