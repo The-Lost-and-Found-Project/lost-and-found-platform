@@ -75,26 +75,34 @@ const baseMenuItems = [
   },
 ];
 
-// Shown to anyone on the prayer care team (prayer partners, pastors, and
-// admins alike) — not just admins. It links to the same /admin dashboard,
-// which already gates access server-side by role; this just makes sure
-// prayer partners actually have a way to find it and see what's assigned
-// to them, instead of the link only appearing for the "admin" role.
-const careTeamMenuItem = {
+const shieldIcon = (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className="h-4 w-4"
+  >
+    <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" strokeLinejoin="round" />
+    <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+// Admins and pastors get the full admin dashboard (moderation, reassignment,
+// every member's requests).
+const adminCareTeamMenuItem = {
   href: "/admin",
-  label: "Prayer Care",
-  icon: (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      className="h-4 w-4"
-    >
-      <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" strokeLinejoin="round" />
-      <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
+  label: "Prayer Care Admin",
+  icon: shieldIcon,
+};
+
+// Prayer partners (the "prayer_team" role) get their own dedicated,
+// assignments-only page instead — they should only ever see requests
+// assigned to them, not the full admin dashboard.
+const prayerTeamMenuItem = {
+  href: "/prayer-assignments",
+  label: "My Prayer Assignments",
+  icon: shieldIcon,
 };
 
 export default function AuthControls() {
@@ -212,13 +220,13 @@ export default function AuthControls() {
     profile?.role === "admin" &&
     !!profile?.preview_role &&
     profile.preview_role !== "admin";
-  const isCareTeam =
-    effectiveRole === "admin" ||
-    effectiveRole === "prayer_team" ||
-    effectiveRole === "pastor";
-  const menuItems = isCareTeam
-    ? [...baseMenuItems, careTeamMenuItem]
-    : baseMenuItems;
+
+  let menuItems = baseMenuItems;
+  if (effectiveRole === "admin" || effectiveRole === "pastor") {
+    menuItems = [...baseMenuItems, adminCareTeamMenuItem];
+  } else if (effectiveRole === "prayer_team") {
+    menuItems = [...baseMenuItems, prayerTeamMenuItem];
+  }
 
   return (
     <div className="relative" ref={containerRef}>

@@ -32,6 +32,15 @@ export default function PrayerCareApplicationClient({
     currentRole
   );
 
+  // Prayer partners (the "prayer_team" role) now have their own dedicated,
+  // assignments-only page rather than the full admin dashboard — only
+  // admins and pastors use /admin.
+  const teamHomeHref = currentRole === "prayer_team" ? "/prayer-assignments" : "/admin";
+  const teamHomeLabel =
+    currentRole === "prayer_team"
+      ? "Go to My Prayer Assignments"
+      : "Go to the Prayer Care Admin Dashboard";
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -95,14 +104,13 @@ export default function PrayerCareApplicationClient({
         </h1>
         <p className="mt-4 text-gray-600">
           You&rsquo;re already part of the Prayer Care Team &mdash; thank you
-          for serving! You can jump into the Prayer Care Admin Dashboard any
-          time.
+          for serving!
         </p>
         <Link
-          href="/admin"
+          href={teamHomeHref}
           className="mt-6 inline-block text-indigo-600 hover:text-indigo-500"
         >
-          Go to the Prayer Care Admin Dashboard
+          {teamHomeLabel}
         </Link>
       </div>
     );
@@ -133,7 +141,7 @@ export default function PrayerCareApplicationClient({
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
       <h1 className="text-2xl font-bold text-gray-900">
-        Apply for the Prayer Care Team
+        Serve on the Prayer Care Team
       </h1>
       <p className="mt-2 text-gray-600">
         Thank you for your interest in serving! Take a look at what the role
