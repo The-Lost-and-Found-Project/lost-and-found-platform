@@ -24,20 +24,27 @@ export default async function AdminPage() {
   // so admins can preview the app as another role for training purposes.
   const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
 
-  const isCareTeam =
-    effectiveRole === "admin" ||
-    effectiveRole === "prayer_team" ||
-    effectiveRole === "pastor";
+  // The full admin dashboard (moderation queue, reassigning requests, seeing
+  // every member's assignments) is now reserved for admins and pastors.
+  // Prayer partners (the "prayer_team" role) have their own dedicated,
+  // assignments-only page instead — send them there rather than showing them
+  // the broader admin view.
+  if (effectiveRole === "prayer_team") {
+    redirect("/prayer-assignments");
+  }
 
-  if (!isCareTeam) {
+  const isAdminOrPastor =
+    effectiveRole === "admin" || effectiveRole === "pastor";
+
+  if (!isAdminOrPastor) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
         <h1 className="text-2xl font-bold text-gray-900">
           Access Restricted
         </h1>
         <p className="mt-4 text-gray-600">
-          This area is reserved for Community Prayer Members. If you believe
-          you should have access, please contact your ministry admin.
+          This area is reserved for prayer care team leadership. If you
+          believe you should have access, please contact your ministry admin.
         </p>
       </div>
     );
