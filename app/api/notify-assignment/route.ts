@@ -1,36 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { sendPushToUser } from "@/lib/push/send";
-import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const FROM_ADDRESS =
-  "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
+  "Lost and Found Prayer Care <prayer@updates.lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://www.lostandfoundproject.org";
+  "https://app.lostandfoundproject.org";
 
 // Sent whenever a care team member is assigned (matched) to a prayer
-// request, in addition to the in-app notification created by a DB trigger
-// (either notify_prayer_request_assigned for manual admin assignment, or
-// notify_auto_assigned_care_team_member for the automatic round-robin
-// assignment on new submissions). Includes the full submission so the
-// assignee can contact the person directly if needed.
+// request, in addition to the in-app notification created by the
+// notify_prayer_request_assigned DB trigger. Includes the full submission so
+// the assignee can contact the person directly if needed.
 export async function POST(request: NextRequest) {
-  const ip = getClientIp(request);
-  const { allowed } = checkRateLimit(`notify-assignment:${ip}`, 15, 10 * 60 * 1000);
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Please try again shortly." },
-      { status: 429 }
-    );
-  }
-
   try {
     const body = await request.json();
 
     const {
-      assigneeId,
+      assigneeEmail,
+      assigneeName,
       name,
       email,
       phone,
@@ -41,28 +28,6 @@ export async function POST(request: NextRequest) {
       isAnonymous,
       contactRequested,
     } = body ?? {};
-
-    // Both real callers (the public submission form and the admin dashboard)
-    // only ever send assigneeId. We always look up the email/name ourselves
-    // server-side with the service role — never trust a client-supplied
-    // assigneeEmail/assigneeName, which would otherwise let anyone send
-    // arbitrary content to an arbitrary address from our verified domain.
-    if (!assigneeId) {
-      return NextResponse.json(
-        { error: "Missing assigneeId" },
-        { status: 400 }
-      );
-    }
-
-    const supabase = createAdminClient();
-    const { data: assignee } = await supabase
-      .from("profiles")
-      .select("email, full_name")
-      .eq("id", assigneeId)
-      .single();
-
-    const assigneeEmail = assignee?.email ?? undefined;
-    const assigneeName = assignee?.full_name ?? null;
 
     if (!assigneeEmail || !requestText) {
       return NextResponse.json(
@@ -127,18 +92,6 @@ export async function POST(request: NextRequest) {
         { error: "Failed to send assignment notification email" },
         { status: 502 }
       );
-    }
-
-    if (assigneeId) {
-      sendPushToUser(assigneeId, {
-        title: "New prayer request assigned to you",
-        body: categoryName
-          ? `${categoryName}: ${requestText.slice(0, 100)}`
-          : requestText.slice(0, 120),
-        url: "/admin",
-      }).catch((err) => {
-        console.error("Failed to send assignment push notification:", err);
-      });
     }
 
     return NextResponse.json({ success: true });
