@@ -142,6 +142,23 @@ const adminItems = [
     ),
   },
   {
+    href: "/admin/applications",
+    label: "Applications",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-5 w-5"
+      >
+        <path d="M9 3h6a1 1 0 011 1v1H8V4a1 1 0 011-1z" strokeLinejoin="round" />
+        <rect x="5" y="5" width="14" height="16" rx="2" />
+        <path d="M9 12.5l1.8 1.8L15 10.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
     href: "/admin/feedback",
     label: "Feedback",
     icon: (
