@@ -88,7 +88,7 @@ const shieldIcon = (
   </svg>
 );
 
-// Admins and pastors get the full admin dashboard (moderation, reassignment,
+// Only admins get the full admin dashboard (moderation, reassignment,
 // every member's requests).
 const adminCareTeamMenuItem = {
   href: "/admin",
@@ -96,9 +96,9 @@ const adminCareTeamMenuItem = {
   icon: shieldIcon,
 };
 
-// Prayer partners (the "prayer_team" role) get their own dedicated,
-// assignments-only page instead — they should only ever see requests
-// assigned to them, not the full admin dashboard.
+// Prayer partners (the "prayer_team" role) and pastors both get their own
+// dedicated, assignments-only page instead — they should only ever see
+// requests assigned to them, not the full admin dashboard.
 const prayerTeamMenuItem = {
   href: "/prayer-assignments",
   label: "My Prayer Assignments",
@@ -222,9 +222,9 @@ export default function AuthControls() {
     profile.preview_role !== "admin";
 
   let menuItems = baseMenuItems;
-  if (effectiveRole === "admin" || effectiveRole === "pastor") {
+  if (effectiveRole === "admin") {
     menuItems = [...baseMenuItems, adminCareTeamMenuItem];
-  } else if (effectiveRole === "prayer_team") {
+  } else if (effectiveRole === "prayer_team" || effectiveRole === "pastor") {
     menuItems = [...baseMenuItems, prayerTeamMenuItem];
   }
 

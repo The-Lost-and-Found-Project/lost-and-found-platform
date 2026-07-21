@@ -32,14 +32,17 @@ export default function PrayerCareApplicationClient({
     currentRole
   );
 
-  // Prayer partners (the "prayer_team" role) now have their own dedicated,
-  // assignments-only page rather than the full admin dashboard — only
-  // admins and pastors use /admin.
-  const teamHomeHref = currentRole === "prayer_team" ? "/prayer-assignments" : "/admin";
-  const teamHomeLabel =
-    currentRole === "prayer_team"
-      ? "Go to My Prayer Assignments"
-      : "Go to the Prayer Care Admin Dashboard";
+  // Prayer partners (the "prayer_team" role) and pastors both have their own
+  // dedicated, assignments-only page rather than the full admin dashboard —
+  // only admins use /admin.
+  const isPrayerAssignmentsOnly =
+    currentRole === "prayer_team" || currentRole === "pastor";
+  const teamHomeHref = isPrayerAssignmentsOnly
+    ? "/prayer-assignments"
+    : "/admin";
+  const teamHomeLabel = isPrayerAssignmentsOnly
+    ? "Go to My Prayer Assignments"
+    : "Go to the Prayer Care Admin Dashboard";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
