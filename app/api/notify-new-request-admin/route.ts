@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendPushToUsers } from "@/lib/push/send";
-import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://www.lostandfoundproject.org";
+  "https://app.lostandfoundproject.org";
 
 // Sent whenever a new prayer request is submitted. Admins used to get an
 // in-app notification broadcast (along with every other care team member),
@@ -18,15 +16,6 @@ const SITE_URL =
 // only, so leadership still has visibility into new submissions without
 // paging the whole care team.
 export async function POST(request: NextRequest) {
-  const ip = getClientIp(request);
-  const { allowed } = checkRateLimit(`notify-new-request-admin:${ip}`, 10, 10 * 60 * 1000);
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Please try again shortly." },
-      { status: 429 }
-    );
-  }
-
   try {
     const body = await request.json();
     const {
@@ -57,7 +46,7 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient();
     const { data: admins, error: adminsError } = await supabase
       .from("profiles")
-      .select("id, email")
+      .select("email")
       .eq("role", "admin")
       .not("email", "is", null);
 
@@ -66,7 +55,6 @@ export async function POST(request: NextRequest) {
     const recipients = (admins ?? [])
       .map((a) => a.email)
       .filter((e): e is string => Boolean(e));
-    const adminIds = (admins ?? []).map((a) => a.id);
 
     if (recipients.length === 0) {
       return NextResponse.json({ success: true, skipped: "no admins" });
@@ -112,16 +100,6 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       );
     }
-
-    const pushBody =
-      typeof requestText === "string" ? requestText.slice(0, 120) : "";
-    sendPushToUsers(adminIds, {
-      title: "New prayer request submitted",
-      body: categoryName ? `${categoryName}: ${pushBody}` : pushBody,
-      url: "/admin",
-    }).catch((err) => {
-      console.error("Failed to send new-request push notification:", err);
-    });
 
     return NextResponse.json({ success: true });
   } catch (err) {
