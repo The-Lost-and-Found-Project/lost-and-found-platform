@@ -8,7 +8,7 @@ const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://www.lostandfoundproject.org";
+  "https://app.lostandfoundproject.org";
 
 // Sent whenever a new praise report is submitted. Unlike the flagged/decision
 // moderation notifications (which only go to whoever needs to act), this goes
