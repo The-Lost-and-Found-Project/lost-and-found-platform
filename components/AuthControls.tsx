@@ -75,9 +75,14 @@ const baseMenuItems = [
   },
 ];
 
-const adminMenuItem = {
+// Shown to anyone on the prayer care team (prayer partners, pastors, and
+// admins alike) — not just admins. It links to the same /admin dashboard,
+// which already gates access server-side by role; this just makes sure
+// prayer partners actually have a way to find it and see what's assigned
+// to them, instead of the link only appearing for the "admin" role.
+const careTeamMenuItem = {
   href: "/admin",
-  label: "Admin",
+  label: "Prayer Care",
   icon: (
     <svg
       viewBox="0 0 24 24"
@@ -207,10 +212,13 @@ export default function AuthControls() {
     profile?.role === "admin" &&
     !!profile?.preview_role &&
     profile.preview_role !== "admin";
-  const menuItems =
-    effectiveRole === "admin"
-      ? [...baseMenuItems, adminMenuItem]
-      : baseMenuItems;
+  const isCareTeam =
+    effectiveRole === "admin" ||
+    effectiveRole === "prayer_team" ||
+    effectiveRole === "pastor";
+  const menuItems = isCareTeam
+    ? [...baseMenuItems, careTeamMenuItem]
+    : baseMenuItems;
 
   return (
     <div className="relative" ref={containerRef}>

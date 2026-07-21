@@ -47,6 +47,7 @@ type Props = {
   categories: CategoryOption[];
   careTeam: CareTeamMember[];
   isAdmin?: boolean;
+  currentUserId: string;
 };
 
 // A request "needs attention" if it's sitting in moderation, has no one
@@ -66,12 +67,14 @@ export default function AdminPrayerDashboardClient({
   categories,
   careTeam,
   isAdmin,
+  currentUserId,
 }: Props) {
   const supabase = createClient();
   const [requests, setRequests] = useState<AdminRequest[]>(initialRequests);
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [flaggedOnly, setFlaggedOnly] = useState(false);
   const [attentionOnly, setAttentionOnly] = useState(true);
+  const [mineOnly, setMineOnly] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
@@ -88,6 +91,9 @@ export default function AdminPrayerDashboardClient({
     (r) => r.moderation_status === "pending"
   ).length;
   const attentionCount = requests.filter(needsAttention).length;
+  const mineCount = requests.filter(
+    (r) => r.assigned_to === currentUserId
+  ).length;
 
   function toggleExpanded(id: string) {
     setExpandedIds((prev) => {
@@ -224,7 +230,8 @@ export default function AdminPrayerDashboardClient({
   const visibleRequests = requests
     .filter((r) => (statusFilter === "All" ? true : r.status === statusFilter))
     .filter((r) => (flaggedOnly ? r.moderation_status === "pending" : true))
-    .filter((r) => (attentionOnly ? needsAttention(r) : true));
+    .filter((r) => (attentionOnly ? needsAttention(r) : true))
+    .filter((r) => (mineOnly ? r.assigned_to === currentUserId : true));
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
@@ -254,6 +261,18 @@ export default function AdminPrayerDashboardClient({
             Showing all requests — {attentionCount} need attention
           </span>
         )}
+
+        <button
+          type="button"
+          onClick={() => setMineOnly((v) => !v)}
+          className={`rounded-full px-3 py-1.5 text-sm font-medium shadow-sm transition ${
+            mineOnly
+              ? "bg-emerald-600 text-white"
+              : "border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+          }`}
+        >
+          My assignments ({mineCount})
+        </button>
 
         <label className="ml-2 text-sm font-medium text-gray-700">
           Filter by status
@@ -289,7 +308,9 @@ export default function AdminPrayerDashboardClient({
       <div className="mt-6 space-y-3">
         {visibleRequests.length === 0 && (
           <p className="text-gray-500">
-            {attentionOnly
+            {mineOnly
+              ? "Nothing is assigned to you right now."
+              : attentionOnly
               ? "Nothing needs attention right now. Nice."
               : "No prayer requests match this filter."}
           </p>
@@ -298,6 +319,7 @@ export default function AdminPrayerDashboardClient({
         {visibleRequests.map((r) => {
           const expanded = expandedIds.has(r.id);
           const assignee = careTeam.find((m) => m.id === r.assigned_to);
+          const isMine = r.assigned_to === currentUserId;
           const snippet =
             r.request_text.length > 90
               ? `${r.request_text.slice(0, 90)}...`
@@ -311,6 +333,8 @@ export default function AdminPrayerDashboardClient({
                   ? "border-amber-300 ring-1 ring-amber-100"
                   : r.moderation_status === "rejected"
                   ? "border-red-200"
+                  : isMine
+                  ? "border-emerald-300 ring-1 ring-emerald-100"
                   : "border-gray-200"
               }`}
             >
@@ -359,8 +383,15 @@ export default function AdminPrayerDashboardClient({
                         Unassigned
                       </span>
                     ) : (
-                      <span className="text-xs text-gray-400">
-                        {assignee?.full_name ?? "Assigned"}
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                          isMine
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        Assigned to {assignee?.full_name ?? "Unknown"}
+                        {isMine ? " (you)" : ""}
                       </span>
                     )}
                     {r.follow_up_needed && !r.answered && (
