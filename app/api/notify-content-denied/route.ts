@@ -1,54 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { sendPushToUser } from "@/lib/push/send";
-import { createClient } from "@/lib/supabase/server";
-import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://www.lostandfoundproject.org";
+  "https://app.lostandfoundproject.org";
 
 // Sent when an admin denies a flagged prayer request from the moderation
 // queue. Gentle by design — invites the person to revise and resubmit
 // rather than just telling them their content was rejected.
-// Only ever called from the admin-only moderation queue's deny action, so we
-// re-verify the caller is actually an admin server-side (never trust that
-// the request came from where we expect just because the client only shows
-// this button to admins).
 export async function POST(request: NextRequest) {
-  const ip = getClientIp(request);
-  const { allowed } = checkRateLimit(`notify-content-denied:${ip}`, 20, 10 * 60 * 1000);
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Please try again shortly." },
-      { status: 429 }
-    );
-  }
-
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    const { data: callerProfile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (callerProfile?.role !== "admin") {
-      return NextResponse.json({ error: "Admins only" }, { status: 403 });
-    }
-
     const body = await request.json();
-    const { email, name, userId } = body ?? {};
+    const { email, name } = body ?? {};
 
     if (!email) {
       return NextResponse.json({ error: "Missing email" }, { status: 400 });
@@ -109,16 +74,6 @@ export async function POST(request: NextRequest) {
         { error: "Failed to send content-denied notification" },
         { status: 502 }
       );
-    }
-
-    if (userId) {
-      sendPushToUser(userId, {
-        title: "Update on your prayer request",
-        body: "We weren't able to publish your recent request as submitted. Tap for details.",
-        url: "/my-journey",
-      }).catch((err) => {
-        console.error("Failed to send content-denied push notification:", err);
-      });
     }
 
     return NextResponse.json({ success: true });
