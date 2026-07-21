@@ -48,5 +48,16 @@ export default async function AdminApplicationsPage() {
     )
     .order("created_at", { ascending: false });
 
-  return <AdminApplicationsClient applications={applications ?? []} />;
+  // Supabase's generated types return the joined `applicant` relation as an
+  // array (it can't tell from the query alone that user_id is a one-to-one
+  // foreign key), but at runtime it's a single row. Normalize it here so the
+  // client component can work with a plain object.
+  const normalizedApplications = (applications ?? []).map((application) => ({
+    ...application,
+    applicant: Array.isArray(application.applicant)
+      ? application.applicant[0] ?? null
+      : application.applicant,
+  }));
+
+  return <AdminApplicationsClient applications={normalizedApplications} />;
 }
