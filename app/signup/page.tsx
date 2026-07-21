@@ -13,6 +13,7 @@ export default function SignUpPage() {
   const [phone, setPhone] = useState("");
   const [gender, setGender] = useState("");
   const [password, setPassword] = useState("");
+  const [agreedToGuidelines, setAgreedToGuidelines] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -21,6 +22,13 @@ export default function SignUpPage() {
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (!agreedToGuidelines) {
+      setError(
+        "Please agree to the community guidelines before creating an account."
+      );
+      return;
+    }
 
     if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !captchaToken) {
       setError("Please complete the CAPTCHA challenge before submitting.");
@@ -212,6 +220,27 @@ export default function SignUpPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
+            </div>
+
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <label className="flex items-start gap-2.5 text-xs leading-relaxed text-gray-600">
+                <input
+                  type="checkbox"
+                  required
+                  checked={agreedToGuidelines}
+                  onChange={(e) => setAgreedToGuidelines(e.target.checked)}
+                  className="mt-0.5 rounded border-gray-300"
+                />
+                <span>
+                  I agree to communicate respectfully in this community.
+                  I will not use harassment, threats, or aggressive language;
+                  sexual content or advances; hate speech; profanity; or
+                  other abusive language anywhere in the app. I understand
+                  that content that doesn&apos;t meet these guidelines may be
+                  edited, held for review, or removed, and repeated
+                  violations may result in losing access to my account.
+                </span>
+              </label>
             </div>
 
             <TurnstileWidget onVerify={setCaptchaToken} onExpire={() => setCaptchaToken("")} />
