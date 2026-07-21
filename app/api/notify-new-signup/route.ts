@@ -1,28 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendPushToUsers } from "@/lib/push/send";
-import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://www.lostandfoundproject.org";
+  "https://app.lostandfoundproject.org";
 
 // Sent whenever someone creates a new account (calls supabase.auth.signUp()
 // on the login page). Notifies every admin so they know a new person has
 // joined, even before that person confirms their email.
 export async function POST(request: NextRequest) {
-  const ip = getClientIp(request);
-  const { allowed } = checkRateLimit(`notify-new-signup:${ip}`, 5, 10 * 60 * 1000);
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Please try again shortly." },
-      { status: 429 }
-    );
-  }
-
   try {
     const body = await request.json();
     const { email } = body ?? {};
@@ -46,7 +35,7 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient();
     const { data: admins, error: adminsError } = await supabase
       .from("profiles")
-      .select("id, email")
+      .select("email")
       .eq("role", "admin")
       .not("email", "is", null);
 
@@ -55,7 +44,6 @@ export async function POST(request: NextRequest) {
     const recipients = (admins ?? [])
       .map((a) => a.email)
       .filter((e): e is string => Boolean(e));
-    const adminIds = (admins ?? []).map((a) => a.id);
 
     if (recipients.length === 0) {
       return NextResponse.json({ success: true, skipped: "no admins" });
@@ -94,14 +82,6 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       );
     }
-
-    sendPushToUsers(adminIds, {
-      title: "New account created",
-      body: `${email} just signed up.`,
-      url: "/admin",
-    }).catch((err) => {
-      console.error("Failed to send new-signup push notification:", err);
-    });
 
     return NextResponse.json({ success: true });
   } catch (err) {
