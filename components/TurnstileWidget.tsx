@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 declare global {
   interface Window {
@@ -51,6 +51,13 @@ function loadTurnstileScript(): Promise<void> {
 // request submission, sign up) to blunt scripted bot abuse. Renders
 // invisible-to-managed challenge depending on Cloudflare's risk scoring for
 // the visitor; most real visitors never see an interactive puzzle.
+//
+// On a flaky connection (weak signal, restrictive network, etc.) the widget
+// itself can fail to reach Cloudflare's challenge servers and gets stuck
+// showing its own "Unable to connect to website" error with no way to
+// recover short of reloading the whole page. We wire up Turnstile's
+// error-callback so we can surface a friendlier retry option instead of
+// leaving people stuck on the form.
 export default function TurnstileWidget({
   onVerify,
   onExpire,
@@ -62,6 +69,7 @@ export default function TurnstileWidget({
   const widgetIdRef = useRef<string | undefined>(undefined);
   const onVerifyRef = useRef(onVerify);
   const onExpireRef = useRef(onExpire);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     onVerifyRef.current = onVerify;
@@ -81,8 +89,12 @@ export default function TurnstileWidget({
 
       widgetIdRef.current = window.turnstile.render(el, {
         sitekey: siteKey,
-        callback: (token: string) => onVerifyRef.current(token),
+        callback: (token: string) => {
+          setHasError(false);
+          onVerifyRef.current(token);
+        },
         "expired-callback": () => onExpireRef.current?.(),
+        "error-callback": () => setHasError(true),
       });
     });
 
@@ -98,5 +110,33 @@ export default function TurnstileWidget({
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   if (!siteKey) return null;
 
-  return <div id={containerId} className="my-2" />;
+  function handleRetry() {
+    setHasError(false);
+    if (window.turnstile && widgetIdRef.current) {
+      window.turnstile.reset(widgetIdRef.current);
+    } else {
+      // Widget never finished rendering in the first place -- a reload is
+      // the only reliable way to get a clean slate.
+      window.location.reload();
+    }
+  }
+
+  return (
+    <div>
+      <div id={containerId} className="my-2" />
+      {hasError && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          The verification widget couldn&apos;t connect, which usually means
+          a weak or restricted network connection.{" "}
+          <button
+            type="button"
+            onClick={handleRetry}
+            className="font-medium underline underline-offset-2 hover:text-amber-900"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
