@@ -62,9 +62,18 @@ export default function SignUpPage() {
       return;
     }
 
-    // Note: admins are no longer emailed individually when someone signs up.
-    // New members now show up in the weekly digest email instead
-    // (see app/api/cron/weekly-digest/route.ts).
+    // Give the care team a quick push heads-up that someone new just joined.
+    // Fire-and-forget so a slow or failed push never blocks the confirmation
+    // message the user is waiting on. Admins are no longer emailed
+    // individually for this — new members also show up with full detail in
+    // the weekly digest email (see app/api/cron/weekly-digest/route.ts).
+    fetch("/api/notify-new-signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fullName }),
+    }).catch((err) => {
+      console.error("Failed to send new-member push notification:", err);
+    });
 
     setSubmitted(true);
     setLoading(false);
