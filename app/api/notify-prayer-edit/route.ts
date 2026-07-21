@@ -8,7 +8,7 @@ const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://www.lostandfoundproject.org";
+  "https://app.lostandfoundproject.org";
 
 // Sent when a member edits a prayer request that's already been assigned to
 // a care team member, so the assignee doesn't keep praying over/following up
