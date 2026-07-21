@@ -4,7 +4,7 @@ import { Resend } from "resend";
 const ADMIN_EMAIL = "chad@lostandfoundproject.org";
 const FROM_ADDRESS = "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.lostandfoundproject.org";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.lostandfoundproject.org";
 
 export async function POST(request: NextRequest) {
   try {
