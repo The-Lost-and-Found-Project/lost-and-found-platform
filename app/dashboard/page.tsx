@@ -18,11 +18,33 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name")
+    .select("full_name, role")
     .eq("id", user.id)
     .single();
 
   const firstName = profile?.full_name?.trim().split(" ")[0] || null;
+
+  // Only members who aren't already on the care team should see the
+  // invitation to apply. If they've already got a pending application, show
+  // a status note instead of the call-to-action so it doesn't look like the
+  // form is being ignored.
+  const isCareTeam =
+    profile?.role === "admin" ||
+    profile?.role === "prayer_team" ||
+    profile?.role === "pastor";
+
+  let pendingApplication = false;
+  if (!isCareTeam) {
+    const { data: application } = await supabase
+      .from("prayer_care_applications")
+      .select("status")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    pendingApplication = application?.status === "pending";
+  }
 
   return (
     <div>
@@ -84,6 +106,30 @@ export default async function DashboardPage() {
 
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
         <PushPrompt />
+
+        {!isCareTeam && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-5">
+            <div>
+              <h2 className="text-sm font-semibold text-gray-900">
+                Interested in serving on our Prayer Care Team?
+              </h2>
+              <p className="mt-1 text-sm text-gray-600">
+                {pendingApplication
+                  ? "Your application is being reviewed — we'll notify you here as soon as there's an update."
+                  : "Prayer, encouragement, and a listening ear — we'd love to have you."}
+              </p>
+            </div>
+            {!pendingApplication && (
+              <Link
+                href="/prayer-care-application"
+                className="shrink-0 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500"
+              >
+                Apply Now
+              </Link>
+            )}
+          </div>
+        )}
+
         <PrayerWallTicker />
       </section>
     </div>
