@@ -6,7 +6,11 @@ export default function ShareButton() {
   const [copied, setCopied] = useState(false);
 
   async function handleShare() {
-    const url = `${window.location.origin}/`;
+    // Always share the real custom domain, not whatever origin the page
+    // happens to be loaded from (e.g. a raw Vercel deployment URL) — those
+    // alternate hostnames aren't authorized for the Turnstile CAPTCHA and
+    // will fail for anyone who opens them.
+    const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.lostandfoundproject.org"}/`;
     const shareData = {
       title: "The Lost and Found Project",
       text: "Join our community of prayer and encouragement.",
