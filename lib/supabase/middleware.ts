@@ -11,6 +11,7 @@ const PROTECTED_PREFIXES = [
   "/settings",
   "/account",
   "/admin",
+  "/prayer-assignments",
   "/notifications",
   "/testimonies/submit",
   "/praise/submit",
