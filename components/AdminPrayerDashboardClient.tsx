@@ -14,6 +14,18 @@ const STATUS_OPTIONS = [
   "Closed",
 ];
 
+// For the "My Assignments" tab, terminal statuses are driven by the
+// Answered Prayer button rather than the dropdown, so they're left out here
+// — same convention as the standalone /prayer-assignments page.
+const MINE_STATUS_OPTIONS = [
+  "New",
+  "Assigned",
+  "Being Prayed For",
+  "Contacted",
+  "Ongoing",
+  "Follow-Up Needed",
+];
+
 type CareTeamMember = { id: string; full_name: string | null; email: string | null };
 type CategoryOption = { id: string; name: string };
 
@@ -62,6 +74,25 @@ function needsAttention(r: AdminRequest): boolean {
   );
 }
 
+// Same "New" vs "Ongoing" convention used on the standalone
+// /prayer-assignments page: New = untouched since assignment, Ongoing =
+// anything past that but not yet answered, Completed = answered is true.
+function isNewAssignment(r: AdminRequest): boolean {
+  return !r.answered && (r.status === "New" || r.status === "Assigned");
+}
+function isOngoingAssignment(r: AdminRequest): boolean {
+  return !r.answered && !isNewAssignment(r);
+}
+
+const MINE_FILTERS = [
+  { key: "all", label: "All" },
+  { key: "new", label: "New assignments" },
+  { key: "ongoing", label: "Ongoing" },
+  { key: "completed", label: "Completed" },
+] as const;
+
+type MineFilterKey = (typeof MINE_FILTERS)[number]["key"];
+
 export default function AdminPrayerDashboardClient({
   requests: initialRequests,
   categories,
@@ -71,16 +102,24 @@ export default function AdminPrayerDashboardClient({
 }: Props) {
   const supabase = createClient();
   const [requests, setRequests] = useState<AdminRequest[]>(initialRequests);
+  const [view, setView] = useState<"queue" | "mine">("queue");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [flaggedOnly, setFlaggedOnly] = useState(false);
   const [attentionOnly, setAttentionOnly] = useState(true);
-  const [mineOnly, setMineOnly] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [editCategoryId, setEditCategoryId] = useState("");
   const [editIsPublic, setEditIsPublic] = useState(true);
   const [editIsAnonymous, setEditIsAnonymous] = useState(false);
+
+  // "My Assignments" tab state — mirrors the standalone /prayer-assignments
+  // page so admins get the same experience everyone else on the care team
+  // gets, just without leaving the admin dashboard.
+  const [mineFilter, setMineFilter] = useState<MineFilterKey>("all");
+  const [answeringId, setAnsweringId] = useState<string | null>(null);
+  const [answerNote, setAnswerNote] = useState("");
+  const [answerSaving, setAnswerSaving] = useState(false);
 
   const categoryMap: Record<string, string> = {};
   categories.forEach((c) => {
@@ -91,9 +130,20 @@ export default function AdminPrayerDashboardClient({
     (r) => r.moderation_status === "pending"
   ).length;
   const attentionCount = requests.filter(needsAttention).length;
-  const mineCount = requests.filter(
-    (r) => r.assigned_to === currentUserId
-  ).length;
+
+  const mineRequests = requests.filter((r) => r.assigned_to === currentUserId);
+  const mineCounts = {
+    all: mineRequests.length,
+    new: mineRequests.filter(isNewAssignment).length,
+    ongoing: mineRequests.filter(isOngoingAssignment).length,
+    completed: mineRequests.filter((r) => r.answered).length,
+  };
+  const visibleMineRequests = mineRequests.filter((r) => {
+    if (mineFilter === "new") return isNewAssignment(r);
+    if (mineFilter === "ongoing") return isOngoingAssignment(r);
+    if (mineFilter === "completed") return r.answered;
+    return true;
+  });
 
   function toggleExpanded(id: string) {
     setExpandedIds((prev) => {
@@ -113,6 +163,32 @@ export default function AdminPrayerDashboardClient({
     );
 
     await supabase.from("prayer_requests").update(changes).eq("id", id);
+  }
+
+  function openAnsweredModal(id: string) {
+    const request = requests.find((r) => r.id === id);
+    setAnsweringId(id);
+    setAnswerNote(request?.praise_report ?? "");
+  }
+
+  function closeAnsweredModal() {
+    setAnsweringId(null);
+    setAnswerNote("");
+  }
+
+  async function confirmAnswered() {
+    if (!answeringId) return;
+    setAnswerSaving(true);
+
+    await updateRequest(answeringId, {
+      answered: true,
+      status: "Answered",
+      praise_report: answerNote.trim() || null,
+    });
+
+    setAnswerSaving(false);
+    setAnsweringId(null);
+    setAnswerNote("");
   }
 
   async function assignRequest(request: AdminRequest, assigneeId: string) {
@@ -230,8 +306,7 @@ export default function AdminPrayerDashboardClient({
   const visibleRequests = requests
     .filter((r) => (statusFilter === "All" ? true : r.status === statusFilter))
     .filter((r) => (flaggedOnly ? r.moderation_status === "pending" : true))
-    .filter((r) => (attentionOnly ? needsAttention(r) : true))
-    .filter((r) => (mineOnly ? r.assigned_to === currentUserId : true));
+    .filter((r) => (attentionOnly ? needsAttention(r) : true));
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
@@ -244,421 +319,688 @@ export default function AdminPrayerDashboardClient({
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-3">
+      <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-gray-200 pb-4">
         <button
           type="button"
-          onClick={() => setAttentionOnly((v) => !v)}
+          onClick={() => setView("queue")}
           className={`rounded-full px-3 py-1.5 text-sm font-medium shadow-sm transition ${
-            attentionOnly
-              ? "bg-indigo-600 text-white"
-              : "border border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+            view === "queue"
+              ? "bg-gray-900 text-white"
+              : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
           }`}
         >
-          Needs attention{attentionOnly ? ` (${attentionCount})` : ""}
+          Full Queue
         </button>
-        {!attentionOnly && (
-          <span className="text-xs text-gray-400">
-            Showing all requests — {attentionCount} need attention
-          </span>
-        )}
-
         <button
           type="button"
-          onClick={() => setMineOnly((v) => !v)}
+          onClick={() => setView("mine")}
           className={`rounded-full px-3 py-1.5 text-sm font-medium shadow-sm transition ${
-            mineOnly
+            view === "mine"
               ? "bg-emerald-600 text-white"
               : "border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
           }`}
         >
-          My assignments ({mineCount})
+          My Assignments ({mineCounts.all})
         </button>
-
-        <label className="ml-2 text-sm font-medium text-gray-700">
-          Filter by status
-        </label>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm"
-        >
-          <option value="All">All</option>
-          {STATUS_OPTIONS.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-
-        {isAdmin && (
-          <button
-            type="button"
-            onClick={() => setFlaggedOnly((v) => !v)}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium shadow-sm transition ${
-              flaggedOnly
-                ? "bg-amber-500 text-white"
-                : "border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100"
-            }`}
-          >
-            Flagged for review{pendingCount > 0 ? ` (${pendingCount})` : ""}
-          </button>
-        )}
       </div>
 
-      <div className="mt-6 space-y-3">
-        {visibleRequests.length === 0 && (
-          <p className="text-gray-500">
-            {mineOnly
-              ? "Nothing is assigned to you right now."
-              : attentionOnly
-              ? "Nothing needs attention right now. Nice."
-              : "No prayer requests match this filter."}
-          </p>
-        )}
-
-        {visibleRequests.map((r) => {
-          const expanded = expandedIds.has(r.id);
-          const assignee = careTeam.find((m) => m.id === r.assigned_to);
-          const isMine = r.assigned_to === currentUserId;
-          const snippet =
-            r.request_text.length > 90
-              ? `${r.request_text.slice(0, 90)}...`
-              : r.request_text;
-
-          return (
-            <div
-              key={r.id}
-              className={`rounded-lg border bg-white shadow-sm ${
-                r.moderation_status === "pending"
-                  ? "border-amber-300 ring-1 ring-amber-100"
-                  : r.moderation_status === "rejected"
-                  ? "border-red-200"
-                  : isMine
-                  ? "border-emerald-300 ring-1 ring-emerald-100"
-                  : "border-gray-200"
+      {view === "queue" ? (
+        <>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setAttentionOnly((v) => !v)}
+              className={`rounded-full px-3 py-1.5 text-sm font-medium shadow-sm transition ${
+                attentionOnly
+                  ? "bg-indigo-600 text-white"
+                  : "border border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
               }`}
             >
+              Needs attention{attentionOnly ? ` (${attentionCount})` : ""}
+            </button>
+            {!attentionOnly && (
+              <span className="text-xs text-gray-400">
+                Showing all requests — {attentionCount} need attention
+              </span>
+            )}
+
+            <label className="ml-2 text-sm font-medium text-gray-700">
+              Filter by status
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm"
+            >
+              <option value="All">All</option>
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+
+            {isAdmin && (
               <button
                 type="button"
-                onClick={() => toggleExpanded(r.id)}
-                className="flex w-full items-start gap-3 px-4 py-3 text-left"
+                onClick={() => setFlaggedOnly((v) => !v)}
+                className={`rounded-full px-3 py-1.5 text-sm font-medium shadow-sm transition ${
+                  flaggedOnly
+                    ? "bg-amber-500 text-white"
+                    : "border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                }`}
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className={`mt-1 h-4 w-4 shrink-0 text-gray-400 transition-transform ${
-                    expanded ? "rotate-90" : ""
+                Flagged for review{pendingCount > 0 ? ` (${pendingCount})` : ""}
+              </button>
+            )}
+          </div>
+
+          <div className="mt-6 space-y-3">
+            {visibleRequests.length === 0 && (
+              <p className="text-gray-500">
+                {attentionOnly
+                  ? "Nothing needs attention right now. Nice."
+                  : "No prayer requests match this filter."}
+              </p>
+            )}
+
+            {visibleRequests.map((r) => {
+              const expanded = expandedIds.has(r.id);
+              const assignee = careTeam.find((m) => m.id === r.assigned_to);
+              const isMine = r.assigned_to === currentUserId;
+              const snippet =
+                r.request_text.length > 90
+                  ? `${r.request_text.slice(0, 90)}...`
+                  : r.request_text;
+
+              return (
+                <div
+                  key={r.id}
+                  className={`rounded-lg border bg-white shadow-sm ${
+                    r.moderation_status === "pending"
+                      ? "border-amber-300 ring-1 ring-amber-100"
+                      : r.moderation_status === "rejected"
+                      ? "border-red-200"
+                      : isMine
+                      ? "border-emerald-300 ring-1 ring-emerald-100"
+                      : "border-gray-200"
                   }`}
                 >
-                  <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(r.id)}
+                    className="flex w-full items-start gap-3 px-4 py-3 text-left"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className={`mt-1 h-4 w-4 shrink-0 text-gray-400 transition-transform ${
+                        expanded ? "rotate-90" : ""
+                      }`}
+                    >
+                      <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span className="text-sm font-medium text-gray-900">
-                      {r.name}
-                    </span>
-                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                      {r.status}
-                    </span>
-                    {r.category_id && categoryMap[r.category_id] && (
-                      <span className="text-xs text-gray-400">
-                        {categoryMap[r.category_id]}
-                      </span>
-                    )}
-                    {r.moderation_status === "pending" && (
-                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
-                        Needs review
-                      </span>
-                    )}
-                    {r.moderation_status === "rejected" && (
-                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
-                        Denied
-                      </span>
-                    )}
-                    {!r.assigned_to ? (
-                      <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-500">
-                        Unassigned
-                      </span>
-                    ) : (
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          isMine
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        Assigned to {assignee?.full_name ?? "Unknown"}
-                        {isMine ? " (you)" : ""}
-                      </span>
-                    )}
-                    {r.follow_up_needed && !r.answered && (
-                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
-                        Follow-up
-                      </span>
-                    )}
-                    {r.answered && (
-                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600">
-                        Answered
-                      </span>
-                    )}
-                  </div>
-                  {!expanded && (
-                    <p className="mt-1 truncate text-sm text-gray-500">
-                      {snippet}
-                    </p>
-                  )}
-                </div>
-              </button>
-
-              {expanded && (
-                <div className="border-t border-gray-100 px-5 pb-5 pt-4">
-                  {r.moderation_status === "pending" && (
-                    <div className="mb-3 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
-                      Flagged for review{r.flag_reason ? `: ${r.flag_reason}` : ""}
-                    </div>
-                  )}
-                  {r.moderation_status === "rejected" && (
-                    <div className="mb-3 rounded-md bg-red-50 px-3 py-2 text-xs font-medium text-red-600">
-                      Denied &mdash; hidden from the public Prayer Wall.
-                    </div>
-                  )}
-
-                  <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
-                      {editingId === r.id ? (
-                        <div className="space-y-3">
-                          <textarea
-                            rows={4}
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
-                          />
-                          <div className="flex flex-wrap items-center gap-3">
-                            <select
-                              value={editCategoryId}
-                              onChange={(e) => setEditCategoryId(e.target.value)}
-                              className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
-                            >
-                              <option value="">No category</option>
-                              {categories.map((c) => (
-                                <option key={c.id} value={c.id}>
-                                  {c.name}
-                                </option>
-                              ))}
-                            </select>
-                            <label className="flex items-center gap-1.5 text-xs text-gray-700">
-                              <input
-                                type="checkbox"
-                                checked={editIsPublic}
-                                onChange={(e) => setEditIsPublic(e.target.checked)}
-                                className="rounded border-gray-300"
-                              />
-                              Public
-                            </label>
-                            <label className="flex items-center gap-1.5 text-xs text-gray-700">
-                              <input
-                                type="checkbox"
-                                checked={editIsAnonymous}
-                                onChange={(e) =>
-                                  setEditIsAnonymous(e.target.checked)
-                                }
-                                className="rounded border-gray-300"
-                              />
-                              Anonymous on wall
-                            </label>
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => saveEdit(r.id)}
-                              className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-500"
-                            >
-                              Save
-                            </button>
-                            <button
-                              type="button"
-                              onClick={cancelEdit}
-                              className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-gray-900">{r.request_text}</p>
-                      )}
-
-                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
-                        <span>{r.name}</span>
-                        <a
-                          href={`mailto:${r.email}`}
-                          className="text-indigo-600 hover:text-indigo-500"
-                        >
-                          {r.email}
-                        </a>
-                        {r.phone && <span>{r.phone}</span>}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span className="text-sm font-medium text-gray-900">
+                          {r.name}
+                        </span>
+                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                          {r.status}
+                        </span>
                         {r.category_id && categoryMap[r.category_id] && (
-                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                          <span className="text-xs text-gray-400">
                             {categoryMap[r.category_id]}
                           </span>
                         )}
-                        <span className="text-xs text-gray-400">
-                          {r.is_public ? "Public" : "Private"}
-                          {r.is_anonymous ? " · Anonymous on wall" : ""}
-                        </span>
-                        {r.contact_requested && (
-                          <span className="text-xs text-amber-600">
-                            Wants contact
-                            {r.preferred_contact ? ` (${r.preferred_contact})` : ""}
+                        {r.moderation_status === "pending" && (
+                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                            Needs review
                           </span>
                         )}
-                        <span className="text-xs text-gray-400">
-                          {r.prayer_count} prayed
-                        </span>
+                        {r.moderation_status === "rejected" && (
+                          <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+                            Denied
+                          </span>
+                        )}
+                        {!r.assigned_to ? (
+                          <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-500">
+                            Unassigned
+                          </span>
+                        ) : (
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                              isMine
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            Assigned to {assignee?.full_name ?? "Unknown"}
+                            {isMine ? " (you)" : ""}
+                          </span>
+                        )}
+                        {r.follow_up_needed && !r.answered && (
+                          <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
+                            Follow-up
+                          </span>
+                        )}
+                        {r.answered && (
+                          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600">
+                            Answered
+                          </span>
+                        )}
+                      </div>
+                      {!expanded && (
+                        <p className="mt-1 truncate text-sm text-gray-500">
+                          {snippet}
+                        </p>
+                      )}
+                    </div>
+                  </button>
+
+                  {expanded && (
+                    <div className="border-t border-gray-100 px-5 pb-5 pt-4">
+                      {r.moderation_status === "pending" && (
+                        <div className="mb-3 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
+                          Flagged for review{r.flag_reason ? `: ${r.flag_reason}` : ""}
+                        </div>
+                      )}
+                      {r.moderation_status === "rejected" && (
+                        <div className="mb-3 rounded-md bg-red-50 px-3 py-2 text-xs font-medium text-red-600">
+                          Denied &mdash; hidden from the public Prayer Wall.
+                        </div>
+                      )}
+
+                      <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                          {editingId === r.id ? (
+                            <div className="space-y-3">
+                              <textarea
+                                rows={4}
+                                value={editText}
+                                onChange={(e) => setEditText(e.target.value)}
+                                className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
+                              />
+                              <div className="flex flex-wrap items-center gap-3">
+                                <select
+                                  value={editCategoryId}
+                                  onChange={(e) => setEditCategoryId(e.target.value)}
+                                  className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
+                                >
+                                  <option value="">No category</option>
+                                  {categories.map((c) => (
+                                    <option key={c.id} value={c.id}>
+                                      {c.name}
+                                    </option>
+                                  ))}
+                                </select>
+                                <label className="flex items-center gap-1.5 text-xs text-gray-700">
+                                  <input
+                                    type="checkbox"
+                                    checked={editIsPublic}
+                                    onChange={(e) => setEditIsPublic(e.target.checked)}
+                                    className="rounded border-gray-300"
+                                  />
+                                  Public
+                                </label>
+                                <label className="flex items-center gap-1.5 text-xs text-gray-700">
+                                  <input
+                                    type="checkbox"
+                                    checked={editIsAnonymous}
+                                    onChange={(e) =>
+                                      setEditIsAnonymous(e.target.checked)
+                                    }
+                                    className="rounded border-gray-300"
+                                  />
+                                  Anonymous on wall
+                                </label>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => saveEdit(r.id)}
+                                  className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-500"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={cancelEdit}
+                                  className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-gray-900">{r.request_text}</p>
+                          )}
+
+                          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
+                            <span>{r.name}</span>
+                            <a
+                              href={`mailto:${r.email}`}
+                              className="text-indigo-600 hover:text-indigo-500"
+                            >
+                              {r.email}
+                            </a>
+                            {r.phone && <span>{r.phone}</span>}
+                            {r.category_id && categoryMap[r.category_id] && (
+                              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                                {categoryMap[r.category_id]}
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-400">
+                              {r.is_public ? "Public" : "Private"}
+                              {r.is_anonymous ? " · Anonymous on wall" : ""}
+                            </span>
+                            {r.contact_requested && (
+                              <span className="text-xs text-amber-600">
+                                Wants contact
+                                {r.preferred_contact ? ` (${r.preferred_contact})` : ""}
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-400">
+                              {r.prayer_count} prayed
+                            </span>
+                          </div>
+
+                          {isAdmin && editingId !== r.id && (
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                onClick={() => startEdit(r)}
+                                className="rounded-md border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                              >
+                                Edit
+                              </button>
+                              {r.moderation_status === "pending" ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => approveRequest(r.id)}
+                                    className="rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-emerald-500"
+                                  >
+                                    Approve
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => denyRequest(r)}
+                                    className="rounded-md bg-red-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-red-500"
+                                  >
+                                    Deny
+                                  </button>
+                                </>
+                              ) : (
+                                !r.flagged && (
+                                  <button
+                                    type="button"
+                                    onClick={() => manualFlag(r.id)}
+                                    className="rounded-md border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 shadow-sm hover:bg-amber-100"
+                                  >
+                                    Flag for review
+                                  </button>
+                                )
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex shrink-0 flex-col items-end gap-2">
+                          <select
+                            value={r.status}
+                            onChange={(e) =>
+                              updateRequest(r.id, { status: e.target.value })
+                            }
+                            className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
+                          >
+                            {STATUS_OPTIONS.map((s) => (
+                              <option key={s} value={s}>
+                                {s}
+                              </option>
+                            ))}
+                          </select>
+
+                          <select
+                            value={r.assigned_to ?? ""}
+                            onChange={(e) => assignRequest(r, e.target.value)}
+                            className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
+                          >
+                            <option value="">Unassigned</option>
+                            {careTeam.map((m) => (
+                              <option key={m.id} value={m.id}>
+                                {m.full_name ?? "Unnamed"}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
 
-                      {isAdmin && editingId !== r.id && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => startEdit(r)}
-                            className="rounded-md border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-                          >
-                            Edit
-                          </button>
-                          {r.moderation_status === "pending" ? (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => approveRequest(r.id)}
-                                className="rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-emerald-500"
-                              >
-                                Approve
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => denyRequest(r)}
-                                className="rounded-md bg-red-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-red-500"
-                              >
-                                Deny
-                              </button>
-                            </>
-                          ) : (
-                            !r.flagged && (
-                              <button
-                                type="button"
-                                onClick={() => manualFlag(r.id)}
-                                className="rounded-md border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 shadow-sm hover:bg-amber-100"
-                              >
-                                Flag for review
-                              </button>
-                            )
+                      <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 text-sm">
+                        <label className="flex items-center gap-2 text-gray-700">
+                          <input
+                            type="checkbox"
+                            checked={r.follow_up_needed}
+                            onChange={(e) =>
+                              updateRequest(r.id, {
+                                follow_up_needed: e.target.checked,
+                              })
+                            }
+                            className="rounded border-gray-300"
+                          />
+                          Follow-up needed
+                        </label>
+
+                        {r.follow_up_needed && (
+                          <input
+                            type="date"
+                            value={r.follow_up_date ?? ""}
+                            onChange={(e) =>
+                              updateRequest(r.id, {
+                                follow_up_date: e.target.value || null,
+                              })
+                            }
+                            className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
+                          />
+                        )}
+
+                        <label className="flex items-center gap-2 text-gray-700">
+                          <input
+                            type="checkbox"
+                            checked={r.answered}
+                            onChange={(e) =>
+                              updateRequest(r.id, {
+                                answered: e.target.checked,
+                                status: e.target.checked ? "Answered" : r.status,
+                              })
+                            }
+                            className="rounded border-gray-300"
+                          />
+                          Answered
+                        </label>
+                      </div>
+
+                      {r.answered && (
+                        <div className="mt-3">
+                          <label className="block text-xs font-medium text-gray-500">
+                            Praise report
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={r.praise_report ?? ""}
+                            onChange={(e) =>
+                              updatePraiseReportLocal(r.id, e.target.value)
+                            }
+                            onBlur={(e) =>
+                              updateRequest(r.id, { praise_report: e.target.value })
+                            }
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            <p className="w-full text-sm text-gray-600 sm:w-auto sm:mr-2">
+              The prayer requests currently assigned to you — same view every
+              care team member gets.
+            </p>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {MINE_FILTERS.map((f) => (
+              <button
+                key={f.key}
+                type="button"
+                onClick={() => setMineFilter(f.key)}
+                className={`rounded-full px-3 py-1.5 text-sm font-medium shadow-sm transition ${
+                  mineFilter === f.key
+                    ? "bg-indigo-600 text-white"
+                    : "border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                }`}
+              >
+                {f.label} ({mineCounts[f.key]})
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-6 space-y-3">
+            {visibleMineRequests.length === 0 && (
+              <p className="text-gray-500">
+                {mineFilter === "all"
+                  ? "Nothing is assigned to you right now."
+                  : "No assignments match this filter."}
+              </p>
+            )}
+
+            {visibleMineRequests.map((r) => {
+              const expanded = expandedIds.has(r.id);
+              const snippet =
+                r.request_text.length > 90
+                  ? `${r.request_text.slice(0, 90)}...`
+                  : r.request_text;
+
+              return (
+                <div
+                  key={r.id}
+                  className={`rounded-lg border bg-white shadow-sm ${
+                    r.answered ? "border-emerald-200" : "border-gray-200"
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(r.id)}
+                    className="flex w-full items-start gap-3 px-4 py-3 text-left"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className={`mt-1 h-4 w-4 shrink-0 text-gray-400 transition-transform ${
+                        expanded ? "rotate-90" : ""
+                      }`}
+                    >
+                      <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span className="text-sm font-medium text-gray-900">
+                          {r.name}
+                        </span>
+                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                          {r.status}
+                        </span>
+                        {r.category_id && categoryMap[r.category_id] && (
+                          <span className="text-xs text-gray-400">
+                            {categoryMap[r.category_id]}
+                          </span>
+                        )}
+                        {r.follow_up_needed && !r.answered && (
+                          <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
+                            Follow-up
+                          </span>
+                        )}
+                        {r.answered && (
+                          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600">
+                            Answered
+                          </span>
+                        )}
+                      </div>
+                      {!expanded && (
+                        <p className="mt-1 truncate text-sm text-gray-500">
+                          {snippet}
+                        </p>
+                      )}
+                    </div>
+                  </button>
+
+                  {expanded && (
+                    <div className="border-t border-gray-100 px-5 pb-5 pt-4">
+                      <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-gray-900">{r.request_text}</p>
+
+                          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
+                            <span>{r.name}</span>
+                            <a
+                              href={`mailto:${r.email}`}
+                              className="text-indigo-600 hover:text-indigo-500"
+                            >
+                              {r.email}
+                            </a>
+                            {r.phone && <span>{r.phone}</span>}
+                            {r.category_id && categoryMap[r.category_id] && (
+                              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                                {categoryMap[r.category_id]}
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-400">
+                              {r.is_public ? "Public" : "Private"}
+                              {r.is_anonymous ? " · Anonymous on wall" : ""}
+                            </span>
+                            {r.contact_requested && (
+                              <span className="text-xs text-amber-600">
+                                Wants contact
+                                {r.preferred_contact ? ` (${r.preferred_contact})` : ""}
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-400">
+                              {r.prayer_count} prayed
+                            </span>
+                          </div>
+
+                          {r.answered && r.praise_report && (
+                            <div className="mt-3 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                              {r.praise_report}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex shrink-0 flex-col items-end gap-2">
+                          {!r.answered && (
+                            <select
+                              value={r.status}
+                              onChange={(e) =>
+                                updateRequest(r.id, { status: e.target.value })
+                              }
+                              className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
+                            >
+                              {MINE_STATUS_OPTIONS.map((s) => (
+                                <option key={s} value={s}>
+                                  {s}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+
+                          {!r.answered && (
+                            <button
+                              type="button"
+                              onClick={() => openAnsweredModal(r.id)}
+                              className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500"
+                            >
+                              Answered Prayer
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {!r.answered && (
+                        <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 text-sm">
+                          <label className="flex items-center gap-2 text-gray-700">
+                            <input
+                              type="checkbox"
+                              checked={r.follow_up_needed}
+                              onChange={(e) =>
+                                updateRequest(r.id, {
+                                  follow_up_needed: e.target.checked,
+                                })
+                              }
+                              className="rounded border-gray-300"
+                            />
+                            Follow-up needed
+                          </label>
+
+                          {r.follow_up_needed && (
+                            <input
+                              type="date"
+                              value={r.follow_up_date ?? ""}
+                              onChange={(e) =>
+                                updateRequest(r.id, {
+                                  follow_up_date: e.target.value || null,
+                                })
+                              }
+                              className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
+                            />
                           )}
                         </div>
                       )}
                     </div>
-
-                    <div className="flex shrink-0 flex-col items-end gap-2">
-                      <select
-                        value={r.status}
-                        onChange={(e) =>
-                          updateRequest(r.id, { status: e.target.value })
-                        }
-                        className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
-                      >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-
-                      <select
-                        value={r.assigned_to ?? ""}
-                        onChange={(e) => assignRequest(r, e.target.value)}
-                        className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
-                      >
-                        <option value="">Unassigned</option>
-                        {careTeam.map((m) => (
-                          <option key={m.id} value={m.id}>
-                            {m.full_name ?? "Unnamed"}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 text-sm">
-                    <label className="flex items-center gap-2 text-gray-700">
-                      <input
-                        type="checkbox"
-                        checked={r.follow_up_needed}
-                        onChange={(e) =>
-                          updateRequest(r.id, {
-                            follow_up_needed: e.target.checked,
-                          })
-                        }
-                        className="rounded border-gray-300"
-                      />
-                      Follow-up needed
-                    </label>
-
-                    {r.follow_up_needed && (
-                      <input
-                        type="date"
-                        value={r.follow_up_date ?? ""}
-                        onChange={(e) =>
-                          updateRequest(r.id, {
-                            follow_up_date: e.target.value || null,
-                          })
-                        }
-                        className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
-                      />
-                    )}
-
-                    <label className="flex items-center gap-2 text-gray-700">
-                      <input
-                        type="checkbox"
-                        checked={r.answered}
-                        onChange={(e) =>
-                          updateRequest(r.id, {
-                            answered: e.target.checked,
-                            status: e.target.checked ? "Answered" : r.status,
-                          })
-                        }
-                        className="rounded border-gray-300"
-                      />
-                      Answered
-                    </label>
-                  </div>
-
-                  {r.answered && (
-                    <div className="mt-3">
-                      <label className="block text-xs font-medium text-gray-500">
-                        Praise report
-                      </label>
-                      <textarea
-                        rows={2}
-                        value={r.praise_report ?? ""}
-                        onChange={(e) =>
-                          updatePraiseReportLocal(r.id, e.target.value)
-                        }
-                        onBlur={(e) =>
-                          updateRequest(r.id, { praise_report: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
-                      />
-                    </div>
                   )}
                 </div>
-              )}
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {answeringId && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
+          onClick={closeAnsweredModal}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold text-gray-900">
+              Mark this prayer as answered
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              This moves the assignment to Completed. You can leave a quick
+              note about how it went — totally optional.
+            </p>
+
+            <textarea
+              value={answerNote}
+              onChange={(e) => setAnswerNote(e.target.value)}
+              rows={4}
+              placeholder="Any update you'd like to remember (optional)..."
+              className="mt-4 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={closeAnsweredModal}
+                className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmAnswered}
+                disabled={answerSaving}
+                className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 disabled:opacity-60"
+              >
+                {answerSaving ? "Saving..." : "Confirm Answered"}
+              </button>
             </div>
-          );
-        })}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
