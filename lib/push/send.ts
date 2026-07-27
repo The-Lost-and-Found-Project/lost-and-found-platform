@@ -39,6 +39,23 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
 
   if (!subs || subs.length === 0) return;
 
+  // Include the member's current unread count with every push so the
+  // service worker can set the PWA's home-screen app badge (the "red
+  // circle") the moment a push arrives, even if the app isn't open. This is
+  // Android/desktop Chrome only — iOS Safari/PWA doesn't support the
+  // Badging API yet, so members on iPhone just won't see a badge.
+  const { count: unreadCount } = await supabase
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .is("read_at", null);
+
+  // This send.ts call runs from the notification-created webhook, which
+  // fires after the triggering INSERT into notifications has already
+  // committed — so this count already reflects the new notification, no
+  // manual +1 needed.
+  const payloadWithBadge = { ...payload, badgeCount: unreadCount ?? 0 };
+
   await Promise.all(
     subs.map(async (sub) => {
       try {
@@ -47,7 +64,7 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
             endpoint: sub.endpoint,
             keys: { p256dh: sub.p256dh, auth: sub.auth_key },
           },
-          JSON.stringify(payload)
+          JSON.stringify(payloadWithBadge)
         );
       } catch (err) {
         const statusCode = (err as { statusCode?: number })?.statusCode;
