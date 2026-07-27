@@ -26,6 +26,7 @@ type Props = {
 export default function AdminUsersClient({ users: initialUsers, currentUserId }: Props) {
   const [users, setUsers] = useState<UserRow[]>(initialUsers);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   async function handleRoleChange(userId: string, role: string) {
@@ -80,13 +81,38 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
     }
   }
 
+  async function handleDelete(userId: string) {
+    setError("");
+    setPendingId(userId);
+
+    try {
+      const res = await fetch("/api/admin/users/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        setError(body?.error ?? "Failed to delete user");
+      } else {
+        setUsers((prev) => prev.filter((u) => u.id !== userId));
+      }
+    } catch {
+      setError("Failed to delete user");
+    } finally {
+      setPendingId(null);
+      setConfirmingId(null);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Manage Users</h1>
           <p className="mt-2 text-gray-600">
-            Promote members to the care team, or deactivate an account.
+            Promote members to the care team, deactivate an account, or
+            permanently delete one.
           </p>
         </div>
         <a
@@ -104,7 +130,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
       )}
 
       {/* Table layout for wider screens — narrow phones use the stacked
-          cards below instead, since 5 columns of user data doesn't fit a
+          cards below instead, since columns of user data don't fit a
           phone-width viewport without forcing horizontal scrolling. */}
       <div className="mt-6 hidden overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm sm:block">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -115,12 +141,14 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
               <th className="px-4 py-3 text-left font-medium text-gray-500">Joined</th>
               <th className="px-4 py-3 text-left font-medium text-gray-500">Role</th>
               <th className="px-4 py-3 text-left font-medium text-gray-500">Status</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {users.map((u) => {
               const isSelf = u.id === currentUserId;
               const isPending = pendingId === u.id;
+              const isConfirming = confirmingId === u.id;
               return (
                 <tr key={u.id} className={u.is_active ? "" : "bg-gray-50 opacity-60"}>
                   <td className="px-4 py-3 text-gray-900">
@@ -177,6 +205,38 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                       <option value="deactivated">Deactivate</option>
                     </select>
                   </td>
+                  <td className="px-4 py-3">
+                    {isSelf ? null : isConfirming ? (
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        <span className="text-xs text-gray-500">Delete?</span>
+                        <button
+                          type="button"
+                          disabled={isPending}
+                          onClick={() => handleDelete(u.id)}
+                          className="rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                        >
+                          {isPending ? "Deleting…" : "Confirm"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isPending}
+                          onClick={() => setConfirmingId(null)}
+                          className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => setConfirmingId(u.id)}
+                        className="text-xs font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </td>
                 </tr>
               );
             })}
@@ -189,6 +249,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
         {users.map((u) => {
           const isSelf = u.id === currentUserId;
           const isPending = pendingId === u.id;
+          const isConfirming = confirmingId === u.id;
           return (
             <div
               key={u.id}
@@ -247,6 +308,43 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                   <option value="deactivated">Deactivate</option>
                 </select>
               </div>
+
+              {!isSelf && (
+                <div className="mt-3">
+                  {isConfirming ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500">
+                        Permanently delete this account?
+                      </span>
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleDelete(u.id)}
+                        className="rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                      >
+                        {isPending ? "Deleting…" : "Confirm"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => setConfirmingId(null)}
+                        className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => setConfirmingId(u.id)}
+                      className="text-xs font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
+                    >
+                      Delete account
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
@@ -254,8 +352,8 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
 
       {isSelfNoteVisible(users, currentUserId) && (
         <p className="mt-4 text-xs text-gray-400">
-          You can't change your own role or deactivate your own account from
-          this page — have another admin do it if needed.
+          You can't change your own role, deactivate, or delete your own
+          account from this page — have another admin do it if needed.
         </p>
       )}
     </div>
