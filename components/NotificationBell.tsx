@@ -26,7 +26,22 @@ export default function NotificationBell() {
           .select("id", { count: "exact", head: true })
           .eq("user_id", uid)
           .is("read_at", null);
-        setUnreadCount(count ?? 0);
+        const next = count ?? 0;
+        setUnreadCount(next);
+
+        // Keep the PWA's home-screen app icon badge (the "red circle") in
+        // sync too, not just this in-app bell — covers cases where the
+        // count changes while the app is open (marking read, deleting,
+        // realtime updates from another device) that a push notification
+        // alone wouldn't catch. Android/desktop Chrome installs only; iOS
+        // Safari/PWA has no Badging API and silently no-ops here.
+        if ("setAppBadge" in navigator) {
+          if (next > 0) {
+            navigator.setAppBadge(next).catch(() => {});
+          } else {
+            navigator.clearAppBadge().catch(() => {});
+          }
+        }
       }
 
       await refreshUnreadCount();

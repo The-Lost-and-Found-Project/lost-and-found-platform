@@ -192,6 +192,12 @@ export default function AuthControls() {
 
   async function handleSignOut() {
     await supabase.auth.signOut();
+    // Clear the home-screen app badge on sign-out — otherwise a shared or
+    // handed-down device could keep showing a stale unread count for
+    // whoever signs in next, before their own count has loaded.
+    if ("clearAppBadge" in navigator) {
+      navigator.clearAppBadge().catch(() => {});
+    }
     setOpen(false);
     router.push("/");
     router.refresh();
