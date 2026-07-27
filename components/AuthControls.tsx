@@ -229,7 +229,11 @@ export default function AuthControls() {
 
   let menuItems = baseMenuItems;
   if (effectiveRole === "admin") {
-    menuItems = [...baseMenuItems, adminCareTeamMenuItem];
+    // Admins get both: the full moderation/oversight dashboard, and the
+    // same assignments-only view everyone else on the care team uses for
+    // their own requests — keeps /admin itself free of personal to-do
+    // clutter.
+    menuItems = [...baseMenuItems, adminCareTeamMenuItem, prayerTeamMenuItem];
   } else if (effectiveRole === "prayer_team" || effectiveRole === "pastor") {
     menuItems = [...baseMenuItems, prayerTeamMenuItem];
   }
