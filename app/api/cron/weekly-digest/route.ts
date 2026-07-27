@@ -16,12 +16,17 @@ const MIN_HOURS_BETWEEN_SENDS = 96; // 4 days
 
 // Runs every Monday morning via Vercel Cron (see vercel.json). Sends the
 // prayer care team a single weekly summary email instead of one email per
-// submission, and rolls up new member signups (previously their own
-// per-signup email via /api/notify-new-signup, retired in favor of this
-// digest so admins aren't pinged individually every time someone joins).
-// Protected by CRON_SECRET so it can't be triggered by anyone else, and
-// guarded by weekly_digest_log so it can only actually send once per week
-// even if triggered more than once.
+// submission. Rolls up new member signups, new prayer requests, new
+// testimonies, and new praise reports — all of which used to (or still
+// could) trigger their own individual "broadcast" email. Those per-item
+// admin/care-team emails have been retired one by one in favor of this
+// digest (new-signup email retired first, then new-request-admin and
+// new-praise-admin), since real-time visibility into new content is now
+// handled by in-app notifications + push (see the notify_new_* DB triggers
+// and the notification-created webhook), and a same-second email on top of
+// that was just noise. Protected by CRON_SECRET so it can't be triggered by
+// anyone else, and guarded by weekly_digest_log so it can only actually send
+// once per week even if triggered more than once.
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -84,6 +89,29 @@ export async function GET(request: NextRequest) {
 
     if (newMembersError) throw newMembersError;
 
+    // Testimonies and praise reports only count/show once they've cleared
+    // moderation — a pending or flagged item isn't "new shareable content"
+    // yet, it's still awaiting a decision, so it stays out of the digest
+    // until it's approved (consistent with what members see on the public
+    // Testimony Board / Praise Wall).
+    const { data: testimonies, error: testimoniesError } = await supabase
+      .from("testimonies")
+      .select("id, created_at, content_text, is_anonymous, display_name")
+      .eq("moderation_status", "approved")
+      .gte("created_at", sevenDaysAgo)
+      .order("created_at", { ascending: false });
+
+    if (testimoniesError) throw testimoniesError;
+
+    const { data: praiseReports, error: praiseReportsError } = await supabase
+      .from("praise_reports")
+      .select("id, created_at, content_text")
+      .eq("moderation_status", "approved")
+      .gte("created_at", sevenDaysAgo)
+      .order("created_at", { ascending: false });
+
+    if (praiseReportsError) throw praiseReportsError;
+
     const { data: careTeam, error: careTeamError } = await supabase
       .from("profiles")
       .select("email, full_name")
@@ -105,6 +133,8 @@ export async function GET(request: NextRequest) {
 
     const count = requests?.length ?? 0;
     const memberCount = newMembers?.length ?? 0;
+    const testimonyCount = testimonies?.length ?? 0;
+    const praiseCount = praiseReports?.length ?? 0;
     const today = new Date();
     const rangeStart = new Date(sevenDaysAgo);
     const dateFmt = (d: Date) =>
@@ -154,13 +184,53 @@ export async function GET(request: NextRequest) {
             })
             .join("");
 
+    const testimoniesHtml =
+      testimonyCount === 0
+        ? `<p style="color:#555;">No new testimonies were approved this week.</p>`
+        : (testimonies ?? [])
+            .map((t) => {
+              const submittedBy = t.is_anonymous
+                ? "Anonymous"
+                : t.display_name ?? "A member";
+              const snippet =
+                t.content_text.length > 160
+                  ? `${t.content_text.slice(0, 160)}...`
+                  : t.content_text;
+              return `
+                <div style="border-left:3px solid #ec4899;margin:12px 0;padding:8px 14px;background:#f9fafb;border-radius:4px;">
+                  <p style="margin:0 0 4px 0;color:#111;">${snippet}</p>
+                  <p style="margin:0;font-size:13px;color:#666;">${submittedBy}</p>
+                </div>
+              `;
+            })
+            .join("");
+
+    const praiseHtml =
+      praiseCount === 0
+        ? `<p style="color:#555;">No new praise reports were approved this week.</p>`
+        : (praiseReports ?? [])
+            .map((p) => {
+              const snippet =
+                p.content_text.length > 160
+                  ? `${p.content_text.slice(0, 160)}...`
+                  : p.content_text;
+              return `
+                <div style="border-left:3px solid #f59e0b;margin:12px 0;padding:8px 14px;background:#f9fafb;border-radius:4px;">
+                  <p style="margin:0;color:#111;">${snippet}</p>
+                </div>
+              `;
+            })
+            .join("");
+
     const html = `
       <div style="font-family: sans-serif; font-size: 15px; color: #111;">
         <h2 style="margin-bottom: 4px;">Weekly Prayer Care Digest</h2>
         <p style="color: #555; margin-top: 0;">
           ${dateFmt(rangeStart)} – ${dateFmt(today)} · ${count} new request${
       count === 1 ? "" : "s"
-    } · ${memberCount} new member${memberCount === 1 ? "" : "s"}
+    } · ${memberCount} new member${memberCount === 1 ? "" : "s"} · ${testimonyCount} new testimon${
+      testimonyCount === 1 ? "y" : "ies"
+    } · ${praiseCount} new praise report${praiseCount === 1 ? "" : "s"}
         </p>
 
         <h3 style="margin: 24px 0 4px 0;">New Prayer Requests</h3>
@@ -168,6 +238,12 @@ export async function GET(request: NextRequest) {
 
         <h3 style="margin: 24px 0 4px 0;">New Members</h3>
         ${newMembersHtml}
+
+        <h3 style="margin: 24px 0 4px 0;">New Testimonies</h3>
+        ${testimoniesHtml}
+
+        <h3 style="margin: 24px 0 4px 0;">New Praise Reports</h3>
+        ${praiseHtml}
 
         <p style="margin-top: 24px;">
           <a href="${SITE_URL}/admin" style="color: #4f46e5;">
@@ -210,6 +286,8 @@ export async function GET(request: NextRequest) {
       success: true,
       count,
       memberCount,
+      testimonyCount,
+      praiseCount,
       recipients: recipients.length,
     });
   } catch (err) {
