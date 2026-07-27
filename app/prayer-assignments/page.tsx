@@ -50,7 +50,7 @@ export default async function PrayerAssignmentsPage() {
   const { data: requests } = await supabase
     .from("prayer_requests")
     .select(
-      "id, created_at, name, email, phone, preferred_contact, contact_requested, category_id, request_text, is_public, is_anonymous, status, follow_up_needed, follow_up_date, answered, praise_report, prayer_count"
+      "id, created_at, name, email, phone, preferred_contact, contact_requested, category_id, request_text, is_public, is_anonymous, status, follow_up_needed, follow_up_date, answered, praise_report, prayer_count, last_action_at, action_contacted_at, action_prayed_at, action_update_sent_at"
     )
     .eq("assigned_to", user.id)
     .order("created_at", { ascending: false });
