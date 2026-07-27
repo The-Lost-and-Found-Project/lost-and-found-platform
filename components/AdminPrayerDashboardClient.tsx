@@ -112,6 +112,8 @@ export default function AdminPrayerDashboardClient({
   const [editCategoryId, setEditCategoryId] = useState("");
   const [editIsPublic, setEditIsPublic] = useState(true);
   const [editIsAnonymous, setEditIsAnonymous] = useState(false);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // "My Assignments" tab state — mirrors the standalone /prayer-assignments
   // page so admins get the same experience everyone else on the care team
@@ -277,6 +279,24 @@ export default function AdminPrayerDashboardClient({
 
   function cancelEdit() {
     setEditingId(null);
+  }
+
+  async function handleDeleteRequest(id: string) {
+    setDeletingId(id);
+    const res = await fetch("/api/admin/prayer-requests/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestId: id }),
+    });
+    setDeletingId(null);
+    setConfirmingDeleteId(null);
+
+    if (res.ok) {
+      setRequests((prev) => prev.filter((r) => r.id !== id));
+    } else {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "Something went wrong deleting this request.");
+    }
   }
 
   async function saveEdit(id: string) {
@@ -644,6 +664,36 @@ export default function AdminPrayerDashboardClient({
                                     Flag for review
                                   </button>
                                 )
+                              )}
+                              {confirmingDeleteId === r.id ? (
+                                <span className="flex items-center gap-2 text-xs">
+                                  <span className="font-medium text-red-600">
+                                    Delete this request?
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteRequest(r.id)}
+                                    disabled={deletingId === r.id}
+                                    className="rounded-md bg-red-600 px-3 py-1 font-medium text-white shadow-sm hover:bg-red-500 disabled:opacity-60"
+                                  >
+                                    {deletingId === r.id ? "Deleting…" : "Confirm"}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setConfirmingDeleteId(null)}
+                                    className="rounded-md border border-gray-300 px-3 py-1 font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                                  >
+                                    Cancel
+                                  </button>
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setConfirmingDeleteId(r.id)}
+                                  className="rounded-md border border-red-300 bg-red-50 px-3 py-1 text-xs font-medium text-red-700 shadow-sm hover:bg-red-100"
+                                >
+                                  Delete
+                                </button>
                               )}
                             </div>
                           )}
