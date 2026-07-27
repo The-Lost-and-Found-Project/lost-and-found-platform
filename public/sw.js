@@ -18,6 +18,22 @@ self.addEventListener("push", (event) => {
     // above rather than failing to show anything at all.
   }
 
+  // Also update the PWA's home-screen app icon badge (the little red
+  // circle with an unread count) via the Badging API, so members can tell
+  // they have something waiting without opening the app. Supported on
+  // Android/desktop Chrome installs only — iOS Safari/PWA has no Badging
+  // API, so this silently no-ops there. badgeCount is the member's total
+  // unread count at send time (see lib/push/send.ts), not just "+1", so it
+  // stays accurate even if several pushes land close together.
+  const badgeCount = typeof data.badgeCount === "number" ? data.badgeCount : null;
+  if (badgeCount !== null && "setAppBadge" in self.navigator) {
+    if (badgeCount > 0) {
+      self.navigator.setAppBadge(badgeCount).catch(() => {});
+    } else {
+      self.navigator.clearAppBadge().catch(() => {});
+    }
+  }
+
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
