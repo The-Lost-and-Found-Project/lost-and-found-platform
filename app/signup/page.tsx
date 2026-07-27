@@ -70,18 +70,12 @@ export default function SignUpPage() {
       return;
     }
 
-    // Give the care team a quick push heads-up that someone new just joined.
-    // Fire-and-forget so a slow or failed push never blocks the confirmation
-    // message the user is waiting on. Admins are no longer emailed
-    // individually for this — new members also show up with full detail in
-    // the weekly digest email (see app/api/cron/weekly-digest/route.ts).
-    fetch("/api/notify-new-signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fullName }),
-    }).catch((err) => {
-      console.error("Failed to send new-member push notification:", err);
-    });
+    // Admins and pastors now find out about this automatically — the
+    // notify_new_member_trigger DB trigger creates an in-app notification
+    // (and, via the notification-created webhook, a push notification too)
+    // the moment a new profile row is created. New members also still show
+    // up with full detail in the weekly digest (see
+    // app/api/cron/weekly-digest/route.ts).
 
     setSubmitted(true);
     setLoading(false);
