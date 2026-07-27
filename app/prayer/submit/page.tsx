@@ -138,25 +138,13 @@ export default function SubmitPrayerRequestPage() {
       return;
     }
 
-    // Admins get a lightweight, email-only heads-up for every new request
-    // (no in-app push, and not sent to the wider care team - that broadcast
-    // was retired as noisy). The care team as a whole still sees new
-    // requests in the weekly rolled-up digest email.
-    const category = categories.find((c) => c.id === categoryId);
-    fetch("/api/notify-new-request-admin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        categoryName: category?.name ?? null,
-        requestText,
-        isPublic,
-        isAnonymous,
-        contactRequested,
-      }),
-    }).catch((err) => {
-      console.error("Failed to send admin new-request notification:", err);
-    });
+    // Admins (and pastors) now find out about this automatically — the
+    // notify_new_prayer_request_trigger DB trigger creates an in-app
+    // notification (and, via the notification-created webhook, a push
+    // notification too) the moment a public request is approved. The old
+    // instant admin-only email for this was retired in favor of the weekly
+    // digest (see app/api/cron/weekly-digest/route.ts), which already lists
+    // every new request from the past week.
 
     // A separate DB trigger auto-assigns this request to the next care team
     // member in the rotation. Look that assignment up (via a narrow RPC that
@@ -165,6 +153,7 @@ export default function SubmitPrayerRequestPage() {
     // the assignee finds out right away instead of waiting for the weekly
     // digest. This in-app notification + email is unaffected by the change
     // above and still fires normally.
+    const category = categories.find((c) => c.id === categoryId);
     if (newRequestId) {
       const { data: assignedTo } = await supabase.rpc(
         "get_prayer_request_assignment",
