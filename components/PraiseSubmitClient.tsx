@@ -28,15 +28,11 @@ export default function PraiseSubmitClient({
       return;
     }
 
-    const { data: inserted, error: insertError } = await supabase
-      .from("praise_reports")
-      .insert({
-        user_id: user.id,
-        content_text: contentText,
-        prayer_request_id: prayerRequestId || null,
-      })
-      .select("id")
-      .single();
+    const { error: insertError } = await supabase.from("praise_reports").insert({
+      user_id: user.id,
+      content_text: contentText,
+      prayer_request_id: prayerRequestId || null,
+    });
 
     if (insertError) {
       setError(insertError.message);
@@ -56,18 +52,13 @@ export default function PraiseSubmitClient({
         .then(() => {});
     }
 
-    // Let the whole care team/admins know a new praise report came in so
-    // someone can review and, if it's a good fit, feature it.
-    fetch("/api/notify-new-praise-admin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        praiseReportId: inserted?.id ?? null,
-        contentText,
-      }),
-    }).catch((err) => {
-      console.error("Failed to send new-praise-report admin notification:", err);
-    });
+    // Care team + admins now find out about this automatically — the
+    // notify_new_praise_report_trigger DB trigger creates in-app
+    // notifications for them (and, via the notification-created webhook,
+    // a push notification too) the moment this row is inserted / approved.
+    // The old instant admin email for this was retired in favor of the
+    // weekly digest (see app/api/cron/weekly-digest/route.ts), which now
+    // includes a "New Praise Reports" section.
 
     setSubmitted(true);
     setSubmitting(false);
