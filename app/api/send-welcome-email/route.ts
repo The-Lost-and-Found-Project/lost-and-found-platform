@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
@@ -11,13 +12,19 @@ const GIVE_URL =
   "https://www.zeffy.com/en-US/donation-form/donate-to-build-god-centered-marriages";
 
 // Sent exactly once, right after someone confirms their email for the first
-// time (fired from app/auth/callback/route.ts). Distinct from Supabase's
-// built-in confirmation email — this one explains the ministry in depth and
-// makes the ask for ongoing monthly support.
-// Only ever called server-side from app/auth/callback/route.ts, never
-// directly from the browser — gated by a shared secret so it can't be used
-// as an open relay to send our "welcome" email (with its donation ask) to
-// arbitrary addresses.
+// time. Distinct from Supabase's built-in confirmation email — this one
+// explains the ministry in depth and makes the ask for ongoing monthly
+// support.
+// Only ever called server-side — gated by a shared secret so it can't be
+// used as an open relay to send our "welcome" email (with its donation ask)
+// to arbitrary addresses. Two independent triggers call this route for
+// redundancy: app/auth/callback/route.ts (the common case, right after a
+// user's confirmation link exchange succeeds) and a Postgres trigger on
+// auth.users that fires whenever email_confirmed_at is set (a safety net —
+// Supabase marks the account confirmed even if the browser that clicks the
+// confirmation link is different from the one that signed up, which makes
+// the callback's code exchange fail silently). Because both can fire for
+// the same user, mark_welcome_email_sent() below makes this idempotent.
 export async function POST(request: NextRequest) {
   const internalSecret = process.env.INTERNAL_API_SECRET;
   const providedSecret = request.headers.get("x-internal-secret");
@@ -40,6 +47,20 @@ export async function POST(request: NextRequest) {
 
     if (!email) {
       return NextResponse.json({ error: "Missing email" }, { status: 400 });
+    }
+
+    // Atomically claim the "send the welcome email" slot for this user. If
+    // another call already claimed it (or the profile can't be found),
+    // treat this as a successful no-op rather than sending a duplicate.
+    const admin = createAdminClient();
+    const { data: shouldSend, error: rpcError } = await admin.rpc(
+      "mark_welcome_email_sent",
+      { p_email: email }
+    );
+    if (rpcError) {
+      console.error("mark_welcome_email_sent error:", rpcError);
+    } else if (!shouldSend) {
+      return NextResponse.json({ success: true, skipped: true });
     }
 
     const apiKey = process.env.RESEND_API_KEY;
