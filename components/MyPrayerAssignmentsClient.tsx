@@ -3,15 +3,6 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-const STATUS_OPTIONS = [
-  "New",
-  "Assigned",
-  "Being Prayed For",
-  "Contacted",
-  "Ongoing",
-  "Follow-Up Needed",
-];
-
 type CategoryOption = { id: string; name: string };
 
 type AssignedRequest = {
@@ -32,6 +23,10 @@ type AssignedRequest = {
   answered: boolean;
   praise_report: string | null;
   prayer_count: number;
+  last_action_at: string;
+  action_contacted_at: string | null;
+  action_prayed_at: string | null;
+  action_update_sent_at: string | null;
 };
 
 type Props = {
@@ -39,12 +34,41 @@ type Props = {
   categories: CategoryOption[];
 };
 
-// "New" = hasn't been touched yet since assignment. "Ongoing" = actively
-// being worked (any status past New/Assigned). "Completed" is driven purely
-// by the Answered Prayer action, not by the status dropdown, since that's
-// the one unambiguous signal that the assignment is done.
+// The fixed set of action items every assignment gets. "Contact the
+// requester" only actually shows up for a given request when they asked to
+// be contacted (contact_requested) — everyone always gets the other two.
+type ActionKey = "action_contacted_at" | "action_prayed_at" | "action_update_sent_at";
+
+const ACTION_ITEMS: {
+  key: ActionKey;
+  label: string;
+  // If set, only relevant when this predicate is true for the request.
+  showIf?: (r: AssignedRequest) => boolean;
+}[] = [
+  {
+    key: "action_contacted_at",
+    label: "Reached out to the requester",
+    showIf: (r) => r.contact_requested,
+  },
+  { key: "action_prayed_at", label: "Prayed for this request" },
+  { key: "action_update_sent_at", label: "Sent them an update" },
+];
+
+function actionItemsFor(r: AssignedRequest) {
+  return ACTION_ITEMS.filter((item) => !item.showIf || item.showIf(r));
+}
+
+// "New" = no action items checked off yet. "Ongoing" = at least one action
+// taken but not yet answered. "Completed" is driven purely by the Answered
+// Prayer action, since that's the one unambiguous signal the assignment is
+// done.
 function isNew(r: AssignedRequest): boolean {
-  return !r.answered && (r.status === "New" || r.status === "Assigned");
+  return (
+    !r.answered &&
+    !r.action_contacted_at &&
+    !r.action_prayed_at &&
+    !r.action_update_sent_at
+  );
 }
 function isOngoing(r: AssignedRequest): boolean {
   return !r.answered && !isNew(r);
@@ -107,6 +131,18 @@ export default function MyPrayerAssignmentsClient({
       prev.map((r) => (r.id === id ? { ...r, ...changes } : r))
     );
     await supabase.from("prayer_requests").update(changes).eq("id", id);
+  }
+
+  // Checking an action item stamps it done and bumps last_action_at so the
+  // Admin dashboard's "days since last action" resets to zero. Unchecking
+  // just clears the timestamp for that item — it doesn't touch
+  // last_action_at, since undoing a mistake isn't a new action taken.
+  async function toggleAction(r: AssignedRequest, key: ActionKey) {
+    const isDone = Boolean(r[key]);
+    const changes: Partial<AssignedRequest> = isDone
+      ? { [key]: null }
+      : { [key]: new Date().toISOString(), last_action_at: new Date().toISOString() };
+    await updateRequest(r.id, changes);
   }
 
   function openAnsweredModal(id: string) {
@@ -208,7 +244,7 @@ export default function MyPrayerAssignmentsClient({
                       {r.name}
                     </span>
                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                      {r.status}
+                      {r.answered ? "Answered" : isNew(r) ? "New" : "In progress"}
                     </span>
                     {r.category_id && categoryMap[r.category_id] && (
                       <span className="text-xs text-gray-400">
@@ -278,22 +314,6 @@ export default function MyPrayerAssignmentsClient({
 
                     <div className="flex shrink-0 flex-col items-end gap-2">
                       {!r.answered && (
-                        <select
-                          value={r.status}
-                          onChange={(e) =>
-                            updateRequest(r.id, { status: e.target.value })
-                          }
-                          className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
-                        >
-                          {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>
-                              {s}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-
-                      {!r.answered && (
                         <button
                           type="button"
                           onClick={() => openAnsweredModal(r.id)}
@@ -304,6 +324,35 @@ export default function MyPrayerAssignmentsClient({
                       )}
                     </div>
                   </div>
+
+                  {!r.answered && (
+                    <div className="mt-4 border-t border-gray-100 pt-4">
+                      <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                        Action checklist
+                      </p>
+                      <div className="mt-2 space-y-2">
+                        {actionItemsFor(r).map((item) => {
+                          const done = Boolean(r[item.key]);
+                          return (
+                            <label
+                              key={item.key}
+                              className="flex items-center gap-2 text-sm text-gray-700"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={done}
+                                onChange={() => toggleAction(r, item.key)}
+                                className="rounded border-gray-300"
+                              />
+                              <span className={done ? "text-gray-400 line-through" : ""}>
+                                {item.label}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {!r.answered && (
                     <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 text-sm">
