@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <prayer@updates.lostandfoundproject.org>";
@@ -9,31 +10,65 @@ const SITE_URL =
 
 // Sent whenever a care team member is assigned (matched) to a prayer
 // request, in addition to the in-app notification created by the
-// notify_prayer_request_assigned DB trigger. Includes the full submission so
-// the assignee can contact the person directly if needed.
+// notify_prayer_request_assigned DB trigger. Has two legitimate callers:
+// the admin dashboard's manual reassignment, and the public submission
+// form's auto-assignment follow-up (which may be an anonymous, signed-out
+// submitter — so this route can't simply require an authenticated admin).
+//
+// Instead of trusting the caller for the recipient or email content, this
+// route only ever accepts a requestId and looks everything else up itself
+// via the service-role client: the assignee, and the request's own
+// name/email/category/text. That means a caller can't use this endpoint to
+// send an email to an arbitrary address or with arbitrary content — at
+// most they can (re)trigger the real assignment email for a request that
+// genuinely has an assignee in the database.
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const { requestId } = body ?? {};
 
-    const {
-      assigneeEmail,
-      assigneeName,
-      name,
-      email,
-      phone,
-      preferredContact,
-      categoryName,
-      requestText,
-      isPublic,
-      isAnonymous,
-      contactRequested,
-    } = body ?? {};
+    if (!requestId) {
+      return NextResponse.json({ error: "Missing requestId" }, { status: 400 });
+    }
 
-    if (!assigneeEmail || !requestText) {
+    const admin = createAdminClient();
+
+    const { data: prayerRequest } = await admin
+      .from("prayer_requests")
+      .select(
+        "name, email, phone, preferred_contact, contact_requested, category_id, request_text, is_public, is_anonymous, assigned_to"
+      )
+      .eq("id", requestId)
+      .single();
+
+    if (!prayerRequest?.assigned_to) {
       return NextResponse.json(
-        { error: "Missing assignee email or request text" },
-        { status: 400 }
+        { error: "Request not found or has no assignee" },
+        { status: 404 }
       );
+    }
+
+    const { data: assignee } = await admin
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", prayerRequest.assigned_to)
+      .single();
+
+    if (!assignee?.email) {
+      return NextResponse.json(
+        { error: "Assignee not found or has no email on file" },
+        { status: 404 }
+      );
+    }
+
+    let categoryName: string | null = null;
+    if (prayerRequest.category_id) {
+      const { data: category } = await admin
+        .from("prayer_categories")
+        .select("name")
+        .eq("id", prayerRequest.category_id)
+        .single();
+      categoryName = category?.name ?? null;
     }
 
     const apiKey = process.env.RESEND_API_KEY;
@@ -47,11 +82,22 @@ export async function POST(request: NextRequest) {
 
     const resend = new Resend(apiKey);
 
+    const {
+      name,
+      email,
+      phone,
+      preferred_contact: preferredContact,
+      contact_requested: contactRequested,
+      request_text: requestText,
+      is_public: isPublic,
+      is_anonymous: isAnonymous,
+    } = prayerRequest;
+
     const html = `
       <div style="font-family: sans-serif; font-size: 15px; color: #111;">
         <h2 style="margin-bottom: 4px;">You've been matched with a prayer request</h2>
         <p style="color: #555; margin-top: 0;">
-          Hi ${assigneeName ?? "there"}, you've been assigned to follow up on this request.
+          Hi ${assignee.full_name ?? "there"}, you've been assigned to follow up on this request.
           ${categoryName ? `<br/>Category: <strong>${categoryName}</strong>` : ""}
         </p>
         <blockquote style="border-left: 3px solid #6366f1; margin: 16px 0; padding-left: 12px; color: #222;">
@@ -81,7 +127,7 @@ export async function POST(request: NextRequest) {
 
     const { error } = await resend.emails.send({
       from: FROM_ADDRESS,
-      to: assigneeEmail,
+      to: assignee.email,
       subject: "You've been matched with a prayer request",
       html,
     });
