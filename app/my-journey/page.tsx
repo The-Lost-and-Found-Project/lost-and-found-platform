@@ -2,7 +2,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import MyJourneyClient from "@/components/MyJourneyClient";
 
-export default async function MyJourneyPage() {
+export default async function MyJourneyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkin?: string }>;
+}) {
+  const { checkin } = await searchParams;
   const supabase = await createClient();
 
   const {
@@ -22,7 +27,7 @@ export default async function MyJourneyPage() {
   const { data: requests } = await supabase
     .from("prayer_requests")
     .select(
-      "id, created_at, request_text, status, category_id, is_public, is_anonymous, moderation_status, answered, answered_update, archived"
+      "id, created_at, request_text, status, category_id, is_public, is_anonymous, moderation_status, answered, answered_update, archived, last_action_at, checkin_notified_at"
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
@@ -57,6 +62,7 @@ export default async function MyJourneyPage() {
       categoryMap={categoryMap}
       entries={entries ?? []}
       testimony={testimony ?? null}
+      checkinRequestId={checkin ?? null}
     />
   );
 }
