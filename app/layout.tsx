@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
+import RotationStatusModal from "@/components/RotationStatusModal";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -22,6 +23,7 @@ export default function RootLayout({
         <Header />
         <main className="pb-24">{children}</main>
         <BottomNav />
+        <RotationStatusModal />
       </body>
     </html>
   );
