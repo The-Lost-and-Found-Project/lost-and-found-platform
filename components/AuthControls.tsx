@@ -58,6 +58,27 @@ const baseMenuItems = [
     ),
   },
   {
+    href: "/trivia",
+    label: "Bible Trivia",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-4 w-4"
+      >
+        <circle cx="12" cy="12" r="9" />
+        <path
+          d="M9.5 9.3a2.5 2.5 0 114.5 1.5c-.6.7-1.5 1-1.5 2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="12" cy="16.7" r="0.9" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
     href: "/settings",
     label: "Settings",
     icon: (
