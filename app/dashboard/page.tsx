@@ -107,6 +107,24 @@ export default async function DashboardPage() {
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
         <PushPrompt />
 
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-5">
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900">
+              Daily Devotions
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
+              A 7-day devotional journey — Scripture, teaching, and prayer to
+              start your day rooted in God&rsquo;s Word.
+            </p>
+          </div>
+          <Link
+            href="/devotions"
+            className="shrink-0 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500"
+          >
+            Start Reading
+          </Link>
+        </div>
+
         {!isCareTeam && (
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-5">
             <div>
