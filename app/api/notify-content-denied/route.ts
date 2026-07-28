@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { createClient } from "@/lib/supabase/server";
 
 const FROM_ADDRESS =
   "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
@@ -10,8 +11,32 @@ const SITE_URL =
 // Sent when an admin denies a flagged prayer request from the moderation
 // queue. Gentle by design — invites the person to revise and resubmit
 // rather than just telling them their content was rejected.
+//
+// Only ever called from the admin dashboard's deny button, which itself is
+// only rendered for admins on the server-gated /admin page — so this route
+// re-verifies the caller is an admin here too, rather than trusting that
+// the request only ever comes from that button.
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const { data: callerProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (callerProfile?.role !== "admin") {
+      return NextResponse.json({ error: "Admins only" }, { status: 403 });
+    }
+
     const body = await request.json();
     const { email, name } = body ?? {};
 
@@ -29,6 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     const resend = new Resend(apiKey);
+
     const firstName =
       typeof name === "string" && name.trim() ? name.trim().split(" ")[0] : "friend";
 
