@@ -125,6 +125,24 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-5">
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900">
+              Bible Trivia Challenge
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Test your Bible knowledge, learn Scripture, and see how you
+              stack up across six categories.
+            </p>
+          </div>
+          <Link
+            href="/trivia"
+            className="shrink-0 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500"
+          >
+            Play Now
+          </Link>
+        </div>
+
         {!isCareTeam && (
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-5">
             <div>
