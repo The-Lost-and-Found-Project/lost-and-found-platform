@@ -26,8 +26,11 @@ export default function AdminFeedbackClient({
 }) {
   const supabase = createClient();
   const [messages, setMessages] = useState<FeedbackMessage[]>(initialMessages);
+  // Defaults to "new" so admins land on the unread queue first, instead of
+  // the full All list (which buries new feedback under everything already
+  // reviewed/archived).
   const [filter, setFilter] = useState<"All" | "new" | "reviewed" | "archived">(
-    "All"
+    "new"
   );
 
   const newCount = messages.filter((m) => m.status === "new").length;
@@ -40,7 +43,6 @@ export default function AdminFeedbackClient({
     setMessages((prev) =>
       prev.map((m) => (m.id === id ? { ...m, status } : m))
     );
-
     await supabase.from("feedback_messages").update({ status }).eq("id", id);
   }
 
@@ -112,8 +114,8 @@ export default function AdminFeedbackClient({
                   m.status === "new"
                     ? "bg-indigo-100 text-indigo-700"
                     : m.status === "reviewed"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-600"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-100 text-gray-600"
                 }`}
               >
                 {STATUS_LABELS[m.status] ?? m.status}

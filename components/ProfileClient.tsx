@@ -110,6 +110,7 @@ export default function ProfileClient({
 
   const [saving, setSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
+
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState("");
 
@@ -261,6 +262,13 @@ export default function ProfileClient({
     }
 
     setSavingPreview(false);
+
+    // AuthControls (the header dropdown) persists across client-side
+    // navigations and only refetches the profile on mount or auth-state
+    // change, so without this it would keep showing the old role/menu and
+    // "Previewing as..." banner until a full page reload. This event lets
+    // it refetch immediately instead.
+    window.dispatchEvent(new Event("lf:profile-updated"));
   }
 
   // Self-service rotation controls for prayer care team members. Starting
