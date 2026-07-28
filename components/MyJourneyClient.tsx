@@ -15,6 +15,8 @@ type PrayerRequestSummary = {
   answered: boolean;
   answered_update: string | null;
   archived: boolean;
+  last_action_at?: string;
+  checkin_notified_at?: string | null;
 };
 
 type JourneyEntry = {
@@ -40,6 +42,7 @@ type Props = {
   categoryMap: Record<string, string>;
   entries: JourneyEntry[];
   testimony: Testimony;
+  checkinRequestId?: string | null;
 };
 
 type TimelineKind =
@@ -119,12 +122,18 @@ export default function MyJourneyClient({
   categoryMap,
   entries: initialEntries,
   testimony,
+  checkinRequestId = null,
 }: Props) {
   const supabase = createClient();
   const [entries, setEntries] = useState(initialEntries);
   const [requests, setRequests] = useState(initialRequests);
   const [showForm, setShowForm] = useState(false);
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(
+    checkinRequestId ? new Set([`prayer-${checkinRequestId}`]) : new Set()
+  );
+  const [checkinDismissed, setCheckinDismissed] = useState(false);
+  const [checkinBusy, setCheckinBusy] = useState(false);
+  const [checkinConfirmingRemove, setCheckinConfirmingRemove] = useState(false);
   const [entryType, setEntryType] = useState<JourneyEntry["entry_type"]>("bible_reading");
   const [entryDate, setEntryDate] = useState(todayInputValue());
   const [title, setTitle] = useState("");
@@ -307,6 +316,61 @@ export default function MyJourneyClient({
       prev.map((r) => (r.id === markAnsweredId ? (data as PrayerRequestSummary) : r))
     );
     setMarkAnsweredId(null);
+  }
+
+  // The four check-in responses surfaced when a member arrives via the
+  // 7-day check-in nudge (?checkin=<id> — see notify-stale-assignments
+  // cron). All are plain client-side updates under the existing
+  // submitter-owns-their-row RLS policy, same as the inline edit/mark
+  // answered flows above.
+  async function handleCheckinStillNeedPrayer(requestId: string) {
+    setCheckinBusy(true);
+    const nowIso = new Date().toISOString();
+    await supabase
+      .from("prayer_requests")
+      .update({ last_action_at: nowIso, checkin_notified_at: null })
+      .eq("id", requestId);
+    setRequests((prev) =>
+      prev.map((r) =>
+        r.id === requestId
+          ? { ...r, last_action_at: nowIso, checkin_notified_at: null }
+          : r
+      )
+    );
+    setCheckinBusy(false);
+    setCheckinDismissed(true);
+  }
+
+  async function handleCheckinRemove(requestId: string) {
+    setCheckinBusy(true);
+    const { data, error: removeError } = await supabase
+      .from("prayer_requests")
+      .update({ archived: true })
+      .eq("id", requestId)
+      .select(
+        "id, created_at, request_text, status, category_id, is_public, is_anonymous, moderation_status, answered, answered_update, archived"
+      )
+      .single();
+    setCheckinBusy(false);
+
+    if (removeError || !data) return;
+
+    setRequests((prev) =>
+      prev.map((r) => (r.id === requestId ? { ...r, ...(data as PrayerRequestSummary) } : r))
+    );
+    setCheckinConfirmingRemove(false);
+    setCheckinDismissed(true);
+
+    // Fire-and-forget — lets the assigned prayer partner know they can stop
+    // following up. A slow or failed notification never blocks the archive
+    // the member is waiting on.
+    fetch("/api/notify-request-removed", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestId }),
+    }).catch((err) => {
+      console.error("Failed to send request-removed notification:", err);
+    });
   }
 
   function openForm() {
@@ -548,6 +612,73 @@ export default function MyJourneyClient({
                       {item.answeredUpdate}
                     </p>
                   )}
+
+                  {expanded &&
+                    item.requestId &&
+                    item.requestId === checkinRequestId &&
+                    !checkinDismissed && (
+                      <div className="mt-3 rounded-lg border border-indigo-200 bg-indigo-50 p-3">
+                        <p className="text-sm font-medium text-indigo-900">
+                          Checking in — how's this request going?
+                        </p>
+                        <p className="mt-0.5 text-xs text-indigo-700">
+                          It's been about a week since the last update. Let us know what's next.
+                        </p>
+                        {checkinConfirmingRemove ? (
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <span className="text-xs text-indigo-900">
+                              Remove this request? Your prayer partner will be notified.
+                            </span>
+                            <button
+                              type="button"
+                              disabled={checkinBusy}
+                              onClick={() => handleCheckinRemove(item.requestId!)}
+                              className="rounded-md bg-red-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                            >
+                              {checkinBusy ? "Removing…" : "Yes, remove it"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCheckinConfirmingRemove(false)}
+                              className="rounded-md border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              disabled={checkinBusy}
+                              onClick={() => handleCheckinStillNeedPrayer(item.requestId!)}
+                              className="rounded-md bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+                            >
+                              Still need prayer
+                            </button>
+                            <a
+                              href={`/praise/submit?prayer_request_id=${item.requestId}`}
+                              className="rounded-md bg-amber-500 px-2.5 py-1 text-xs font-medium text-white hover:bg-amber-400"
+                            >
+                              It was answered!
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => openEditRequest(item.requestId!)}
+                              className="rounded-md border border-indigo-300 bg-white px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100"
+                            >
+                              Update my request
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCheckinConfirmingRemove(true)}
+                              className="rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                            >
+                              Remove it
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                   {expanded && item.requestId && (
                     <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
