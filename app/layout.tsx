@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import RotationStatusModal from "@/components/RotationStatusModal";
+import UpdateNotifier from "@/components/UpdateNotifier";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -24,6 +25,7 @@ export default function RootLayout({
         <main className="pb-24">{children}</main>
         <BottomNav />
         <RotationStatusModal />
+        <UpdateNotifier />
       </body>
     </html>
   );
