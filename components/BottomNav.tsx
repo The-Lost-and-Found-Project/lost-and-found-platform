@@ -196,6 +196,26 @@ const adminItems = [
       </svg>
     ),
   },
+  {
+    href: "/admin/trivia",
+    label: "Trivia",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-5 w-5"
+      >
+        <circle cx="12" cy="11" r="8" />
+        <path
+          d="M9.5 9.2a2.5 2.5 0 013.9-2 2.3 2.3 0 01.4 3.3c-.6.7-1.8 1-1.8 2.5"
+          strokeLinecap="round"
+        />
+        <circle cx="12" cy="16" r="0.6" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
 ];
 
 const GIVE_URL =
