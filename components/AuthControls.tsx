@@ -73,6 +73,27 @@ const baseMenuItems = [
       </svg>
     ),
   },
+  {
+    href: "/help",
+    label: "Help",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-4 w-4"
+      >
+        <circle cx="12" cy="12" r="9" />
+        <path
+          d="M9.5 9.5a2.5 2.5 0 114 2c-.6.5-1.5 1-1.5 2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="12" cy="17" r="0.9" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
 ];
 
 const shieldIcon = (
@@ -129,7 +150,6 @@ export default function AuthControls() {
   // on top elsewhere on the page (e.g. the BottomNav).
   useEffect(() => {
     if (!open) return;
-
     function handleOutside(e: MouseEvent | TouchEvent) {
       if (
         containerRef.current &&
@@ -138,7 +158,6 @@ export default function AuthControls() {
         setOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleOutside);
     document.addEventListener("touchstart", handleOutside);
     return () => {
@@ -149,11 +168,9 @@ export default function AuthControls() {
 
   useEffect(() => {
     let active = true;
-
     async function load() {
       const { data } = await supabase.auth.getUser();
       const user = data?.user;
-
       if (!user) {
         if (active) {
           setEmail(null);
@@ -162,27 +179,21 @@ export default function AuthControls() {
         }
         return;
       }
-
       if (active) setEmail(user.email ?? null);
-
       const { data: profileData } = await supabase
         .from("profiles")
         .select("full_name, avatar_url, role, preview_role")
         .eq("id", user.id)
         .single();
-
       if (active) {
         setProfile((profileData as Profile) ?? null);
         setLoading(false);
       }
     }
-
     load();
-
     const { data: listener } = supabase.auth.onAuthStateChange(() => {
       load();
     });
-
     return () => {
       active = false;
       listener.subscription.unsubscribe();
@@ -220,7 +231,6 @@ export default function AuthControls() {
 
   const displayName = profile?.full_name?.trim() || email;
   const initial = displayName.charAt(0).toUpperCase() || "?";
-
   const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
   const isPreviewing =
     profile?.role === "admin" &&
