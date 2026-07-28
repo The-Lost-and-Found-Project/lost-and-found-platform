@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import TurnstileWidget from "@/components/TurnstileWidget";
 
 export default function SignUpPage() {
+  const router = useRouter();
   const supabase = createClient();
 
   const [fullName, setFullName] = useState("");
@@ -18,6 +20,22 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
+
+  // If someone is already signed in and lands on /signup (e.g. an old
+  // bookmark, a shared link, or just hitting back), send them straight to
+  // their dashboard instead of showing them a sign-up form they don't need.
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (active && data?.user) {
+        router.replace("/dashboard");
+      }
+    });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
@@ -76,7 +94,6 @@ export default function SignUpPage() {
     // the moment a new profile row is created. New members also still show
     // up with full detail in the weekly digest (see
     // app/api/cron/weekly-digest/route.ts).
-
     setSubmitted(true);
     setLoading(false);
   }
