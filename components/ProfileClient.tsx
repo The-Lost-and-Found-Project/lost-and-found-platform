@@ -16,6 +16,9 @@ type Props = {
   initialDateOfBaptism: string;
   isRealAdmin?: boolean;
   initialPreviewRole?: string;
+  isCareTeamMember?: boolean;
+  initialRotationStatus?: string;
+  initialReinstatementRequestedAt?: string | null;
 };
 
 const PREVIEW_OPTIONS: {
@@ -75,12 +78,22 @@ export default function ProfileClient({
   initialDateOfBaptism,
   isRealAdmin = false,
   initialPreviewRole = "",
+  isCareTeamMember = false,
+  initialRotationStatus = "active",
+  initialReinstatementRequestedAt = null,
 }: Props) {
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [previewRole, setPreviewRole] = useState(initialPreviewRole);
   const [savingPreview, setSavingPreview] = useState(false);
+
+  const [rotationStatus, setRotationStatus] = useState(initialRotationStatus);
+  const [reinstatementRequestedAt, setReinstatementRequestedAt] = useState(
+    initialReinstatementRequestedAt
+  );
+  const [rotationBusy, setRotationBusy] = useState(false);
+  const [rotationError, setRotationError] = useState("");
 
   const [isEditing, setIsEditing] = useState(false);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
@@ -248,6 +261,69 @@ export default function ProfileClient({
     }
 
     setSavingPreview(false);
+  }
+
+  // Self-service rotation controls for prayer care team members. Starting
+  // a sabbatical or unpausing immediately reflects in rotationStatus so the
+  // UI updates without waiting on a page reload.
+  async function handleSabbaticalToggle(action: "start" | "end") {
+    setRotationError("");
+    setRotationBusy(true);
+    try {
+      const res = await fetch("/api/rotation/sabbatical", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const resBody = await res.json();
+      if (!res.ok) {
+        setRotationError(resBody?.error ?? "Failed to update your rotation status");
+      } else {
+        setRotationStatus(action === "start" ? "paused_sabbatical" : "active");
+      }
+    } catch {
+      setRotationError("Failed to update your rotation status");
+    } finally {
+      setRotationBusy(false);
+    }
+  }
+
+  async function handleUnpause() {
+    setRotationError("");
+    setRotationBusy(true);
+    try {
+      const res = await fetch("/api/rotation/unpause", { method: "POST" });
+      const resBody = await res.json();
+      if (!res.ok) {
+        setRotationError(resBody?.error ?? "Failed to unpause your account");
+      } else {
+        setRotationStatus("active");
+      }
+    } catch {
+      setRotationError("Failed to unpause your account");
+    } finally {
+      setRotationBusy(false);
+    }
+  }
+
+  async function handleRequestReinstatement() {
+    setRotationError("");
+    setRotationBusy(true);
+    try {
+      const res = await fetch("/api/rotation/request-reinstatement", {
+        method: "POST",
+      });
+      const resBody = await res.json();
+      if (!res.ok) {
+        setRotationError(resBody?.error ?? "Failed to request reinstatement");
+      } else {
+        setReinstatementRequestedAt(new Date().toISOString());
+      }
+    } catch {
+      setRotationError("Failed to request reinstatement");
+    } finally {
+      setRotationBusy(false);
+    }
   }
 
   const avatarImage = avatarUrl ? (
@@ -495,6 +571,95 @@ export default function ProfileClient({
           )}
         </form>
       </div>
+
+      {isCareTeamMember && (
+        <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="text-sm font-semibold text-gray-900">
+            Prayer Rotation
+          </h2>
+          <p className="mt-1 text-xs text-gray-500">
+            Control whether you&apos;re currently receiving new prayer
+            request assignments. You can still use every other part of the
+            app as a regular member no matter your status here.
+          </p>
+
+          {rotationError && (
+            <p className="mt-3 text-xs text-red-600">{rotationError}</p>
+          )}
+
+          <div className="mt-4">
+            {rotationStatus === "active" && (
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                  Active in rotation
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleSabbaticalToggle("start")}
+                  disabled={rotationBusy}
+                  className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {rotationBusy ? "Updating..." : "Start a Sabbatical"}
+                </button>
+              </div>
+            )}
+
+            {rotationStatus === "paused_sabbatical" && (
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+                  On sabbatical — paused from new assignments
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleSabbaticalToggle("end")}
+                  disabled={rotationBusy}
+                  className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
+                >
+                  {rotationBusy ? "Updating..." : "End Sabbatical & Resume"}
+                </button>
+              </div>
+            )}
+
+            {rotationStatus === "paused_neglect" && (
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
+                  Paused — no recent activity on an assignment
+                </span>
+                <button
+                  type="button"
+                  onClick={handleUnpause}
+                  disabled={rotationBusy}
+                  className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
+                >
+                  {rotationBusy ? "Updating..." : "Unpause My Account"}
+                </button>
+              </div>
+            )}
+
+            {rotationStatus === "inactive" && (
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700">
+                  Inactive
+                </span>
+                {reinstatementRequestedAt ? (
+                  <span className="text-xs text-gray-500">
+                    Reinstatement requested — waiting on admin approval.
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleRequestReinstatement}
+                    disabled={rotationBusy}
+                    className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
+                  >
+                    {rotationBusy ? "Requesting..." : "Request Reinstatement"}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">

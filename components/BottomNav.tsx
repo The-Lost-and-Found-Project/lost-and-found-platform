@@ -159,6 +159,23 @@ const adminItems = [
     ),
   },
   {
+    href: "/admin/content",
+    label: "Content",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-5 w-5"
+      >
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+        <path d="M8 9h8M8 13h5" strokeLinecap="round" />
+        <path d="M8.5 17.5l3-2 3 2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
     href: "/admin/feedback",
     label: "Feedback",
     icon: (

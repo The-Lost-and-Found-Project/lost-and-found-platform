@@ -16,6 +16,8 @@ type UserRow = {
   role: string | null;
   is_active: boolean;
   created_at: string;
+  rotation_status?: string | null;
+  reinstatement_requested_at?: string | null;
 };
 
 type Props = {
@@ -105,6 +107,39 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
     }
   }
 
+  async function handleApproveReinstatement(userId: string) {
+    setError("");
+    setPendingId(userId);
+
+    try {
+      const res = await fetch("/api/admin/users/approve-reinstatement", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        setError(body?.error ?? "Failed to approve reinstatement");
+      } else {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === userId
+              ? { ...u, rotation_status: "active", reinstatement_requested_at: null }
+              : u
+          )
+        );
+      }
+    } catch {
+      setError("Failed to approve reinstatement");
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  const pendingReinstatements = users.filter(
+    (u) => u.rotation_status === "inactive" && u.reinstatement_requested_at
+  );
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -127,6 +162,41 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
         <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
           {error}
         </p>
+      )}
+
+      {pendingReinstatements.length > 0 && (
+        <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <h2 className="text-sm font-semibold text-amber-900">
+            Pending Reinstatement Requests
+          </h2>
+          <p className="mt-1 text-xs text-amber-700">
+            These members were marked inactive after being paused for 30+
+            days and have asked to be reinstated to the prayer rotation.
+          </p>
+          <div className="mt-3 space-y-2">
+            {pendingReinstatements.map((u) => {
+              const isPending = pendingId === u.id;
+              return (
+                <div
+                  key={u.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-white px-3 py-2 shadow-sm"
+                >
+                  <span className="text-sm text-gray-900">
+                    {u.full_name ?? u.email ?? "Unnamed"}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => handleApproveReinstatement(u.id)}
+                    className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
+                  >
+                    {isPending ? "Approving..." : "Approve Reinstatement"}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {/* Table layout for wider screens — narrow phones use the stacked
