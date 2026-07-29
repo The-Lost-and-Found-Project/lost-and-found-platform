@@ -27,6 +27,24 @@ grant execute on function public.is_care_team() to anon, authenticated;
 grant execute on function public.get_prayer_request_assignment(uuid) to anon, authenticated;
 grant execute on function public.get_quiz_questions(text, integer) to authenticated;
 
+-- RLS controls which profile row a member may update, but table-level UPDATE
+-- grants would otherwise let them change privileged columns on that row
+-- (including role and rotation status) through the Data API. Keep ordinary
+-- profile editing available while reserving authorization and rotation state
+-- for trusted server routes that use the service role.
+revoke update on table public.profiles from public, anon, authenticated;
+grant update (
+  full_name,
+  faith_story,
+  favorite_scripture,
+  avatar_url,
+  date_of_salvation,
+  date_of_baptism,
+  preview_role,
+  gender,
+  phone
+) on table public.profiles to authenticated;
+
 -- An authenticated reaction must belong to the caller. Anonymous reactions
 -- must carry an anonymous-browser key and no user id.
 drop policy if exists reactions_insert_anyone on public.prayer_reactions;
