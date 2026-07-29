@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 
 type CategoryOption = { id: string; name: string };
 
@@ -87,13 +86,13 @@ export default function MyPrayerAssignmentsClient({
   requests: initialRequests,
   categories,
 }: Props) {
-  const supabase = createClient();
   const [requests, setRequests] = useState<AssignedRequest[]>(initialRequests);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [answeringId, setAnsweringId] = useState<string | null>(null);
   const [answerNote, setAnswerNote] = useState("");
   const [answerSaving, setAnswerSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const categoryMap: Record<string, string> = {};
   categories.forEach((c) => {
@@ -127,10 +126,37 @@ export default function MyPrayerAssignmentsClient({
   }
 
   async function updateRequest(id: string, changes: Partial<AssignedRequest>) {
+    const previous = requests.find((r) => r.id === id);
+    if (!previous) return false;
+
+    setSaveError("");
     setRequests((prev) =>
       prev.map((r) => (r.id === id ? { ...r, ...changes } : r))
     );
-    await supabase.from("prayer_requests").update(changes).eq("id", id);
+
+    try {
+      const response = await fetch("/api/prayer-assignments/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: id, changes }),
+      });
+      const body = await response.json();
+
+      if (!response.ok) {
+        throw new Error(body?.error ?? "Failed to save assignment");
+      }
+      return true;
+    } catch (error) {
+      setRequests((prev) =>
+        prev.map((r) => (r.id === id ? previous : r))
+      );
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Failed to save assignment. Please try again."
+      );
+      return false;
+    }
   }
 
   // Checking an action item stamps it done and bumps last_action_at so the
@@ -160,13 +186,14 @@ export default function MyPrayerAssignmentsClient({
     if (!answeringId) return;
     setAnswerSaving(true);
 
-    await updateRequest(answeringId, {
+    const saved = await updateRequest(answeringId, {
       answered: true,
       status: "Answered",
       praise_report: answerNote.trim() || null,
     });
 
     setAnswerSaving(false);
+    if (!saved) return;
     setAnsweringId(null);
     setAnswerNote("");
   }
@@ -180,6 +207,11 @@ export default function MyPrayerAssignmentsClient({
         The prayer requests currently assigned to you. Only you can see this
         list.
       </p>
+      {saveError && (
+        <p role="alert" className="mt-3 text-sm text-red-600">
+          {saveError}
+        </p>
+      )}
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
         {FILTERS.map((f) => (
