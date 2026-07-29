@@ -91,3 +91,27 @@ test("signed-in users can reach role-aware help manuals from the account menu", 
   assert.match(helpSource, /effectiveRole === "pastor"/);
   assert.match(helpSource, /showAdminGuide=\{effectiveRole === "admin"\}/);
 });
+
+test("requester removal archives through an authenticated server route", async () => {
+  const clientSource = await readFile(
+    path.join(root, "components", "MyJourneyClient.tsx"),
+    "utf8"
+  );
+  const routeSource = await readFile(
+    path.join(root, "app", "api", "notify-request-removed", "route.ts"),
+    "utf8"
+  );
+
+  assert.match(
+    clientSource,
+    /fetch\("\/api\/notify-request-removed"[\s\S]*JSON\.stringify\(\{\s*requestId\s*\}\)/
+  );
+  assert.doesNotMatch(
+    clientSource,
+    /\.from\("prayer_requests"\)[\s\S]*\.update\(\{\s*archived:\s*true\s*\}\)/
+  );
+  assert.match(routeSource, /auth\.getUser\(\)/);
+  assert.match(routeSource, /prayerRequest\.user_id !== user\.id/);
+  assert.match(routeSource, /\.update\(\{\s*archived:\s*true\s*\}\)/);
+  assert.match(routeSource, /\.eq\("user_id", user\.id\)/);
+});
