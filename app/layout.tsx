@@ -21,8 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen bg-gray-50 font-sans text-gray-900 antialiased">
+        <a className="skip-link" href="#main-content">
+          Skip to main content
+        </a>
         <Header />
-        <main className="pb-24">{children}</main>
+        <main id="main-content" className="pb-24" tabIndex={-1}>
+          {children}
+        </main>
         <BottomNav />
         <RotationStatusModal />
         <UpdateNotifier />
