@@ -134,6 +134,7 @@ export default function MyJourneyClient({
   const [checkinDismissed, setCheckinDismissed] = useState(false);
   const [checkinBusy, setCheckinBusy] = useState(false);
   const [checkinConfirmingRemove, setCheckinConfirmingRemove] = useState(false);
+  const [checkinError, setCheckinError] = useState("");
   const [entryType, setEntryType] = useState<JourneyEntry["entry_type"]>("bible_reading");
   const [entryDate, setEntryDate] = useState(todayInputValue());
   const [title, setTitle] = useState("");
@@ -343,34 +344,31 @@ export default function MyJourneyClient({
 
   async function handleCheckinRemove(requestId: string) {
     setCheckinBusy(true);
-    const { data, error: removeError } = await supabase
-      .from("prayer_requests")
-      .update({ archived: true })
-      .eq("id", requestId)
-      .select(
-        "id, created_at, request_text, status, category_id, is_public, is_anonymous, moderation_status, answered, answered_update, archived"
-      )
-      .single();
-    setCheckinBusy(false);
-
-    if (removeError || !data) return;
-
-    setRequests((prev) =>
-      prev.map((r) => (r.id === requestId ? { ...r, ...(data as PrayerRequestSummary) } : r))
-    );
-    setCheckinConfirmingRemove(false);
-    setCheckinDismissed(true);
-
-    // Fire-and-forget — lets the assigned prayer partner know they can stop
-    // following up. A slow or failed notification never blocks the archive
-    // the member is waiting on.
-    fetch("/api/notify-request-removed", {
+    setCheckinError("");
+    const response = await fetch("/api/notify-request-removed", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ requestId }),
-    }).catch((err) => {
-      console.error("Failed to send request-removed notification:", err);
     });
+    const result = await response.json().catch(() => ({}));
+    setCheckinBusy(false);
+
+    if (!response.ok || !result.request) {
+      setCheckinError(
+        result.error ?? "Something went wrong removing the request. Please try again."
+      );
+      return;
+    }
+
+    setRequests((prev) =>
+      prev.map((r) =>
+        r.id === requestId
+          ? { ...r, ...(result.request as PrayerRequestSummary) }
+          : r
+      )
+    );
+    setCheckinConfirmingRemove(false);
+    setCheckinDismissed(true);
   }
 
   function openForm() {
@@ -624,6 +622,11 @@ export default function MyJourneyClient({
                         <p className="mt-0.5 text-xs text-indigo-700">
                           It's been about a week since the last update. Let us know what's next.
                         </p>
+                        {checkinError && (
+                          <p className="mt-2 text-xs font-medium text-red-600">
+                            {checkinError}
+                          </p>
+                        )}
                         {checkinConfirmingRemove ? (
                           <div className="mt-2 flex flex-wrap items-center gap-2">
                             <span className="text-xs text-indigo-900">
