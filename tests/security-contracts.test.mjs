@@ -1,0 +1,61 @@
+import assert from "node:assert/strict";
+import { readFile, readdir } from "node:fs/promises";
+import path from "node:path";
+import test from "node:test";
+
+const root = process.cwd();
+
+async function routeFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const nested = await Promise.all(
+    entries.map(async (entry) => {
+      const fullPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) return routeFiles(fullPath);
+      return entry.name === "route.ts" ? [fullPath] : [];
+    })
+  );
+  return nested.flat();
+}
+
+test("all admin routes using the service role verify the caller is an admin", async () => {
+  const files = await routeFiles(path.join(root, "app", "api", "admin"));
+
+  for (const file of files) {
+    const source = await readFile(file, "utf8");
+    if (!source.includes("createAdminClient")) continue;
+
+    assert.match(source, /auth\.getUser\(\)/, `${file} must authenticate`);
+    assert.match(
+      source,
+      /callerProfile\?\.role !== "admin"/,
+      `${file} must verify the admin role`
+    );
+  }
+});
+
+test("every cron route verifies the Vercel cron bearer secret", async () => {
+  const files = await routeFiles(path.join(root, "app", "api", "cron"));
+  assert.ok(files.length > 0, "expected cron routes");
+
+  for (const file of files) {
+    const source = await readFile(file, "utf8");
+    assert.match(source, /authorization/, `${file} must read authorization`);
+    assert.match(source, /CRON_SECRET/, `${file} must require CRON_SECRET`);
+    assert.match(source, /status:\s*401/, `${file} must reject invalid callers`);
+  }
+});
+
+test("service-role credentials never appear in public environment variables", async () => {
+  const source = await readFile(path.join(root, ".env.example"), "utf8");
+  assert.doesNotMatch(source, /NEXT_PUBLIC_[A-Z0-9_]*SERVICE_ROLE/);
+  assert.match(source, /^SUPABASE_SERVICE_ROLE_KEY=$/m);
+});
+
+test("Coming Soon programs remain intentionally inactive", async () => {
+  const source = await readFile(path.join(root, "app", "programs", "page.tsx"), "utf8");
+
+  for (const program of ["Studies", "Mentoring", "Events"]) {
+    assert.match(source, new RegExp(`title: "${program}"`));
+  }
+  assert.match(source, /const comingSoon =/);
+});
