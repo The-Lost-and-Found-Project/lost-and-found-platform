@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/notify-stale-assignments",
       "schedule": "30 13 * * *"
+    },
+    {
+      "path": "/api/cron/publish-devotion-week",
+      "schedule": "0 14 * * *"
     }
   ]
 }
