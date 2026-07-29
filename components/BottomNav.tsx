@@ -216,6 +216,25 @@ const adminItems = [
       </svg>
     ),
   },
+  {
+    href: "/admin/devotions",
+    label: "Devotions",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-5 w-5"
+      >
+        <path
+          d="M12 6.5c-1.2-1.4-3-2-4.8-1.6C5.4 5.3 4 6.9 4 8.8c0 3.6 4.6 6.3 8 9.2 3.4-2.9 8-5.6 8-9.2 0-1.9-1.4-3.5-3.2-3.9-1.8-.4-3.6.2-4.8 1.6z"
+          strokeLinejoin="round"
+        />
+        <path d="M9 9.5h6M9 12h4" strokeLinecap="round" />
+      </svg>
+    ),
+  },
 ];
 
 const GIVE_URL =
