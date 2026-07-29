@@ -135,3 +135,24 @@ test("linked praise reports can only answer the requester's own prayer", async (
   );
   assert.match(routeSource, /\.update\(\{\s*answered:\s*true\s*\}\)/);
 });
+
+test("prayer assignment updates are server-authorized and restricted to the assignee", async () => {
+  const clientSource = await readFile(
+    path.join(root, "components", "MyPrayerAssignmentsClient.tsx"),
+    "utf8"
+  );
+  const routeSource = await readFile(
+    path.join(root, "app", "api", "prayer-assignments", "update", "route.ts"),
+    "utf8"
+  );
+
+  assert.match(routeSource, /\.eq\("assigned_to", user\.id\)/);
+  assert.match(routeSource, /ALLOWED_FIELDS/);
+  assert.match(routeSource, /\.eq\("archived", false\)/);
+  assert.match(clientSource, /fetch\("\/api\/prayer-assignments\/update"/);
+  assert.doesNotMatch(
+    clientSource,
+    /from\("prayer_requests"\)\.update\(changes\)/
+  );
+  assert.match(clientSource, /setRequests\(\(prev\) =>[\s\S]*previous/);
+});
