@@ -59,3 +59,35 @@ test("Coming Soon programs remain intentionally inactive", async () => {
   }
   assert.match(source, /const comingSoon =/);
 });
+
+test("prayer submission sends the request ID to the assignment notifier", async () => {
+  const source = await readFile(
+    path.join(root, "app", "prayer", "submit", "page.tsx"),
+    "utf8"
+  );
+
+  assert.match(
+    source,
+    /fetch\("\/api\/notify-assignment"[\s\S]*JSON\.stringify\(\{\s*requestId:\s*newRequestId\s*\}\)/,
+    "assignment notification must identify the saved prayer request"
+  );
+  assert.doesNotMatch(
+    source,
+    /JSON\.stringify\(\{[\s\S]*assigneeId:/,
+    "the client must not send trusted assignment or prayer details"
+  );
+});
+
+test("signed-in users can reach role-aware help manuals from the account menu", async () => {
+  const menuSource = await readFile(
+    path.join(root, "components", "AuthControls.tsx"),
+    "utf8"
+  );
+  const helpSource = await readFile(path.join(root, "app", "help", "page.tsx"), "utf8");
+
+  assert.match(menuSource, /href:\s*"\/help"/);
+  assert.match(menuSource, /label:\s*"Help & User Manuals"/);
+  assert.match(helpSource, /effectiveRole === "prayer_team"/);
+  assert.match(helpSource, /effectiveRole === "pastor"/);
+  assert.match(helpSource, /showAdminGuide=\{effectiveRole === "admin"\}/);
+});

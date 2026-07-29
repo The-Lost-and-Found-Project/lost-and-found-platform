@@ -153,7 +153,6 @@ export default function SubmitPrayerRequestPage() {
     // the assignee finds out right away instead of waiting for the weekly
     // digest. This in-app notification + email is unaffected by the change
     // above and still fires normally.
-    const category = categories.find((c) => c.id === categoryId);
     if (newRequestId) {
       const { data: assignedTo } = await supabase.rpc(
         "get_prayer_request_assignment",
@@ -164,18 +163,7 @@ export default function SubmitPrayerRequestPage() {
         fetch("/api/notify-assignment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            assigneeId: assignedTo,
-            name,
-            email,
-            phone,
-            preferredContact,
-            categoryName: category?.name ?? null,
-            requestText,
-            isPublic,
-            isAnonymous,
-            contactRequested,
-          }),
+          body: JSON.stringify({ requestId: newRequestId }),
         }).catch((err) => {
           console.error("Failed to send assignment notification:", err);
         });

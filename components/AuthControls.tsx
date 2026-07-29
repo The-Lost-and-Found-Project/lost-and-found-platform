@@ -79,6 +79,28 @@ const baseMenuItems = [
     ),
   },
   {
+    href: "/help",
+    label: "Help & User Manuals",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-4 w-4"
+      >
+        <path
+          d="M4 5.5A2.5 2.5 0 016.5 3H11a3 3 0 013 3v15a3 3 0 00-3-3H6.5A2.5 2.5 0 004 20.5v-15z"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M20 5.5A2.5 2.5 0 0017.5 3H14v18a3 3 0 013-3h.5a2.5 2.5 0 012.5 2.5v-15z"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
     href: "/settings",
     label: "Settings",
     icon: (
