@@ -13,6 +13,12 @@ const DAYS_PER_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 // than once per day even if the run gets triggered twice.
 const MIN_HOURS_BETWEEN_REMINDERS = 20;
 
+// How many weeks need to remain queued (beyond the currently published one)
+// before Chad gets a "running low" nudge. Chad asked to be proactively
+// warned once the queue starts running out, rather than finding out only
+// when it's already empty.
+const LOW_QUEUE_THRESHOLD = 2;
+
 // Runs daily via Vercel Cron (see vercel.json). Drives the weekly devotion
 // rotation Chad asked for: "the previous one stays but collapsed... each
 // week when the new one is published I should receive the next one for
@@ -36,6 +42,14 @@ const MIN_HOURS_BETWEEN_REMINDERS = 20;
 //     never been notified (review_notified_at is null) send the normal
 //     "up next for your review" notice now, so he gets it as early as
 //     possible rather than waiting for the overdue path.
+//
+// On top of that rotation logic, every run also checks how many weeks are
+// still queued up beyond the current one. If that count drops to
+// LOW_QUEUE_THRESHOLD (or the queue is completely empty), Chad gets a
+// separate "queue running low" nudge -- deduped once/day via
+// low_queue_notified_at on whichever queued week currently has the highest
+// week_number (or on the current week itself if the queue is empty) -- so
+// the queue never silently runs dry without him knowing to ask for more.
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -61,25 +75,6 @@ export async function GET(request: NextRequest) {
         skipped: "No published devotion week found -- nothing to advance",
       });
     }
-
-    const { data: target, error: targetError } = await supabase
-      .from("devotion_weeks")
-      .select("id, week_number, title, status, review_notified_at")
-      .eq("week_number", currentWeek.week_number + 1)
-      .maybeSingle();
-
-    if (targetError) throw targetError;
-
-    if (!target) {
-      return NextResponse.json({
-        success: true,
-        skipped: `No week ${currentWeek.week_number + 1} queued yet -- nothing to notify about`,
-      });
-    }
-
-    const hoursSincePublish =
-      (Date.now() - new Date(currentWeek.published_at).getTime()) / (60 * 60 * 1000);
-    const dueToAdvance = hoursSincePublish >= DAYS_PER_WEEK_MS / (60 * 60 * 1000);
 
     const apiKey = process.env.RESEND_API_KEY;
     const resend = apiKey ? new Resend(apiKey) : null;
@@ -114,6 +109,83 @@ export async function GET(request: NextRequest) {
         }
       }
     }
+
+    // --- Low-queue check: runs every time, independent of the rotation case below ---
+    const { data: upcomingWeeks, error: upcomingError } = await supabase
+      .from("devotion_weeks")
+      .select("id, week_number, low_queue_notified_at")
+      .gt("week_number", currentWeek.week_number)
+      .order("week_number", { ascending: false });
+
+    if (upcomingError) throw upcomingError;
+
+    const remainingCount = upcomingWeeks?.length ?? 0;
+    let lowQueueNotified = false;
+
+    if (remainingCount <= LOW_QUEUE_THRESHOLD) {
+      // Dedupe against whichever queued week has the highest week_number,
+      // or the current published week if the queue is completely empty.
+      const dedupeRow = remainingCount > 0 ? upcomingWeeks![0] : currentWeek;
+      const lastLowQueueNotice = (dedupeRow as { low_queue_notified_at?: string | null })
+        .low_queue_notified_at;
+      const hoursSinceLowQueueNotice = lastLowQueueNotice
+        ? (Date.now() - new Date(lastLowQueueNotice).getTime()) / (60 * 60 * 1000)
+        : Infinity;
+
+      if (hoursSinceLowQueueNotice >= MIN_HOURS_BETWEEN_REMINDERS) {
+        const body =
+          remainingCount === 0
+            ? `There are no more devotion weeks queued after Week ${currentWeek.week_number}. Ask Claude to write more weeks so the queue doesn't run dry.`
+            : `Only ${remainingCount} devotion week${remainingCount === 1 ? "" : "s"} left in the queue after Week ${currentWeek.week_number}. Consider asking Claude to write more so you always have time to review before they publish.`;
+
+        await notifyAdmins(
+          remainingCount === 0 ? "Devotion queue is empty" : "Devotion queue is running low",
+          body,
+          remainingCount === 0
+            ? "Devotions: queue is empty -- ask for more weeks"
+            : "Devotions: queue running low",
+          `
+            <div style="font-family: sans-serif; font-size: 15px; color: #111;">
+              <h2 style="margin-bottom: 4px;">
+                ${remainingCount === 0 ? "The devotion queue is empty" : "The devotion queue is running low"}
+              </h2>
+              <p style="color: #555; margin-top: 0;">${body}</p>
+              <p style="margin-top: 24px;">
+                <a href="${SITE_URL}/admin/devotions" style="color: #4f46e5;">View the devotions queue</a>
+              </p>
+            </div>
+          `
+        );
+
+        await supabase
+          .from("devotion_weeks")
+          .update({ low_queue_notified_at: new Date().toISOString() })
+          .eq("id", dedupeRow.id);
+
+        lowQueueNotified = true;
+      }
+    }
+
+    const { data: target, error: targetError } = await supabase
+      .from("devotion_weeks")
+      .select("id, week_number, title, status, review_notified_at")
+      .eq("week_number", currentWeek.week_number + 1)
+      .maybeSingle();
+
+    if (targetError) throw targetError;
+
+    if (!target) {
+      return NextResponse.json({
+        success: true,
+        skipped: `No week ${currentWeek.week_number + 1} queued yet -- nothing to notify about`,
+        lowQueueNotified,
+        remainingCount,
+      });
+    }
+
+    const hoursSincePublish =
+      (Date.now() - new Date(currentWeek.published_at).getTime()) / (60 * 60 * 1000);
+    const dueToAdvance = hoursSincePublish >= DAYS_PER_WEEK_MS / (60 * 60 * 1000);
 
     // --- Case 1: due to advance, and the next week is ready ---
     if (dueToAdvance && target.status === "approved") {
@@ -161,6 +233,8 @@ export async function GET(request: NextRequest) {
         success: true,
         published: `Week ${target.week_number}: ${target.title}`,
         notifiedAboutNextWeek: notified,
+        lowQueueNotified,
+        remainingCount,
       });
     }
 
@@ -174,6 +248,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
           success: true,
           skipped: `Week ${target.week_number} is overdue for review but was already reminded recently`,
+          lowQueueNotified,
+          remainingCount,
         });
       }
 
@@ -204,6 +280,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         skipped: `Week ${target.week_number} not yet approved -- sent overdue reminder`,
+        lowQueueNotified,
+        remainingCount,
       });
     }
 
@@ -236,12 +314,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         skipped: "Not yet time to advance -- sent initial review notice for the upcoming week",
+        lowQueueNotified,
+        remainingCount,
       });
     }
 
     return NextResponse.json({
       success: true,
       skipped: "Not yet time to advance, and upcoming week already notified",
+      lowQueueNotified,
+      remainingCount,
     });
   } catch (err) {
     console.error("publish-devotion-week error:", err);
