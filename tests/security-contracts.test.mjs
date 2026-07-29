@@ -115,3 +115,23 @@ test("requester removal archives through an authenticated server route", async (
   assert.match(routeSource, /\.update\(\{\s*archived:\s*true\s*\}\)/);
   assert.match(routeSource, /\.eq\("user_id", user\.id\)/);
 });
+
+test("linked praise reports can only answer the requester's own prayer", async () => {
+  const clientSource = await readFile(
+    path.join(root, "components", "PraiseSubmitClient.tsx"),
+    "utf8"
+  );
+  const routeSource = await readFile(
+    path.join(root, "app", "api", "praise-reports", "submit", "route.ts"),
+    "utf8"
+  );
+
+  assert.match(clientSource, /fetch\("\/api\/praise-reports\/submit"/);
+  assert.doesNotMatch(clientSource, /\.from\("prayer_requests"\)/);
+  assert.match(routeSource, /auth\.getUser\(\)/);
+  assert.match(
+    routeSource,
+    /\.from\("prayer_requests"\)[\s\S]*\.eq\("id", prayerRequestId\)[\s\S]*\.eq\("user_id", user\.id\)/
+  );
+  assert.match(routeSource, /\.update\(\{\s*answered:\s*true\s*\}\)/);
+});

@@ -1,14 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-
 export default function PraiseSubmitClient({
   prayerRequestId,
 }: {
   prayerRequestId?: string | null;
 }) {
-  const supabase = createClient();
   const [contentText, setContentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -19,37 +16,20 @@ export default function PraiseSubmitClient({
     setError("");
     setSubmitting(true);
 
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
-
-    if (!user) {
-      setError("You need to be signed in to share a praise report.");
-      setSubmitting(false);
-      return;
-    }
-
-    const { error: insertError } = await supabase.from("praise_reports").insert({
-      user_id: user.id,
-      content_text: contentText,
-      prayer_request_id: prayerRequestId || null,
+    const response = await fetch("/api/praise-reports/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contentText,
+        prayerRequestId: prayerRequestId || null,
+      }),
     });
+    const result = await response.json().catch(() => ({}));
 
-    if (insertError) {
-      setError(insertError.message);
+    if (!response.ok) {
+      setError(result.error ?? "Something went wrong sharing your praise report.");
       setSubmitting(false);
       return;
-    }
-
-    // If this praise report is linked to a prayer request, mark that request
-    // answered so it shows up correctly on My Journey (this only touches the
-    // `answered` column, which the member is always allowed to set on their
-    // own request).
-    if (prayerRequestId) {
-      supabase
-        .from("prayer_requests")
-        .update({ answered: true })
-        .eq("id", prayerRequestId)
-        .then(() => {});
     }
 
     // Care team + admins now find out about this automatically — the
