@@ -41,6 +41,9 @@ See `.env.example` for the full list. In short:
 
 ## Notes for contributors
 
+- Run `npm run check` before opening a pull request. The same lint,
+  TypeScript, security-contract test, and production-build gate runs in
+  GitHub Actions.
 - Admin-privileged writes go through server API routes that re-verify the caller's role and use a service-role Supabase client — avoid adding new direct client-side writes to sensitive tables from admin-only components.
 - Prayer request moderation actions (approve/deny/flag/edit/assign/mark-answered) are routed through `app/api/admin/prayer-requests/update/route.ts`, which allowlists which columns can be changed.
 - RLS policies enforce access at the database level; see the `supabase/` folder for the current tracked copy.
