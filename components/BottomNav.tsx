@@ -253,17 +253,29 @@ export default function BottomNav() {
 
   return (
     <nav
+      aria-label={inAdmin ? "Administration" : "Primary"}
       className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-r from-indigo-600 to-violet-600 shadow-[0_-4px_16px_rgba(79,70,229,0.25)]"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="mx-auto flex max-w-md items-stretch justify-around divide-x divide-white/20">
+      <div
+        className={`mx-auto flex items-stretch ${
+          inAdmin
+            ? "max-w-4xl snap-x snap-mandatory overflow-x-auto"
+            : "max-w-md justify-around divide-x divide-white/20"
+        }`}
+      >
         {items.map((item) => {
-          const active = pathname === item.href;
+          const active =
+            pathname === item.href ||
+            (item.href !== "/admin" && pathname.startsWith(`${item.href}/`));
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition ${
+              aria-current={active ? "page" : undefined}
+              className={`flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition ${
+                inAdmin ? "min-w-20 flex-none snap-start px-3" : "flex-1"
+              } ${
                 active
                   ? "text-white"
                   : "text-indigo-100 hover:text-white"
