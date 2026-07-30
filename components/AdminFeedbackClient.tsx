@@ -69,13 +69,17 @@ export default function AdminFeedbackClient({
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <label className="text-sm font-medium text-gray-700">
+        <label
+          htmlFor="feedback-status-filter"
+          className="text-sm font-medium text-gray-700"
+        >
           Filter by status
         </label>
         <select
+          id="feedback-status-filter"
           value={filter}
           onChange={(e) => setFilter(e.target.value as typeof filter)}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm"
+          className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
         >
           <option value="All">All</option>
           <option value="new">New</option>
@@ -129,24 +133,30 @@ export default function AdminFeedbackClient({
             <div className="mt-4 flex flex-wrap gap-2">
               {m.status !== "reviewed" && (
                 <button
+                  type="button"
+                  aria-label={`Mark feedback from ${m.name || m.email || "anonymous user"} reviewed`}
                   onClick={() => updateStatus(m.id, "reviewed")}
-                  className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                  className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
                 >
                   Mark Reviewed
                 </button>
               )}
               {m.status !== "archived" && (
                 <button
+                  type="button"
+                  aria-label={`Archive feedback from ${m.name || m.email || "anonymous user"}`}
                   onClick={() => updateStatus(m.id, "archived")}
-                  className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                  className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
                 >
                   Archive
                 </button>
               )}
               {m.status !== "new" && (
                 <button
+                  type="button"
+                  aria-label={`Mark feedback from ${m.name || m.email || "anonymous user"} unread`}
                   onClick={() => updateStatus(m.id, "new")}
-                  className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                  className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
                 >
                   Mark Unread
                 </button>
