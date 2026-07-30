@@ -48,6 +48,30 @@ test("admin audio writes are authorized, validated, and server-side", async () =
   assert.doesNotMatch(route, /NEXT_PUBLIC_[A-Z_]*SERVICE/);
 });
 
+test("AI narration is generated server-side and saved as versioned audio", async () => {
+  const route = await source(
+    "app/api/admin/devotions/audio/generate/route.ts"
+  );
+  const manager = await source("components/DevotionAudioManager.tsx");
+  const player = await source("components/DevotionAudioPlayer.tsx");
+  const env = await source(".env.example");
+
+  assert.match(route, /callerProfile\?\.role !== "admin"/);
+  assert.match(route, /process\.env\.OPENAI_API_KEY/);
+  assert.doesNotMatch(route, /NEXT_PUBLIC_OPENAI/);
+  assert.match(route, /https:\/\/api\.openai\.com\/v1\/audio\/speech/);
+  assert.match(route, /gpt-4o-mini-tts-2025-12-15/);
+  assert.match(route, /MAX_NARRATION_CHARACTERS = 4096/);
+  assert.match(route, /getDevotionContentVersion\(day\)/);
+  assert.match(route, /generated_at: generatedAt/);
+  assert.match(route, /contentType: "audio\/mpeg"/);
+  assert.match(manager, /Generate AI audio/);
+  assert.match(manager, /does not use or imitate your[\s\S]*voice/);
+  assert.match(player, /AI-generated voice:/);
+  assert.match(env, /^OPENAI_API_KEY=$/m);
+  assert.doesNotMatch(env, /NEXT_PUBLIC_OPENAI_API_KEY/);
+});
+
 test("the migration provides versioned metadata, RLS, and a constrained bucket", async () => {
   const migration = await source(
     "supabase/migrations/20260730153407_devotion_listen_mode.sql"

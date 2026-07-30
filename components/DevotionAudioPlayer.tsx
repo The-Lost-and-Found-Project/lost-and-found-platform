@@ -5,6 +5,10 @@ import type { DevotionAudio } from "@/lib/devotion-types";
 
 const PLAYBACK_SPEEDS = [0.75, 1, 1.25, 1.5, 2];
 
+function formatVoiceName(voice: string) {
+  return voice.charAt(0).toUpperCase() + voice.slice(1);
+}
+
 export default function DevotionAudioPlayer({
   audio,
   devotionTitle,
@@ -91,7 +95,11 @@ export default function DevotionAudioPlayer({
           <h4 className="text-sm font-semibold text-gray-900">Listen</h4>
           <p className="text-xs text-gray-600">
             Audio devotion
-            {audio.voice ? ` · Voice: ${audio.voice}` : ""}
+            {audio.voice
+              ? audio.generated_at
+                ? ` · AI-generated voice: ${formatVoiceName(audio.voice)}`
+                : ` · Narrator: ${audio.voice}`
+              : ""}
           </p>
         </div>
       </div>
