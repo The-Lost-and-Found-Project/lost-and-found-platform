@@ -33,6 +33,29 @@ test("all admin routes using the service role verify the caller is an admin", as
   }
 });
 
+test("non-admin page requests leave the admin navigation area", async () => {
+  const adminPages = [
+    "page.tsx",
+    "analytics/page.tsx",
+    "applications/page.tsx",
+    "content/page.tsx",
+    "devotions/page.tsx",
+    "feedback/page.tsx",
+    "trivia/page.tsx",
+    "users/page.tsx",
+  ];
+
+  for (const relativePath of adminPages) {
+    const file = path.join(root, "app", "admin", relativePath);
+    const source = await readFile(file, "utf8");
+    assert.match(
+      source,
+      /if \((?:!isAdmin|effectiveRole !== "admin")\) \{\s*redirect\("\/dashboard"\);\s*\}/,
+      `${file} must redirect ordinary members away from admin navigation`
+    );
+  }
+});
+
 test("every cron route verifies the Vercel cron bearer secret", async () => {
   const files = await routeFiles(path.join(root, "app", "api", "cron"));
   assert.ok(files.length > 0, "expected cron routes");

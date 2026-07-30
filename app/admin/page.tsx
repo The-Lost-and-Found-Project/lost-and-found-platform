@@ -36,17 +36,7 @@ export default async function AdminPage() {
   const isAdmin = effectiveRole === "admin";
 
   if (!isAdmin) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Access Restricted
-        </h1>
-        <p className="mt-4 text-gray-600">
-          This area is reserved for prayer care team leadership. If you
-          believe you should have access, please contact your ministry admin.
-        </p>
-      </div>
-    );
+    redirect("/dashboard");
   }
 
   const { data: requests } = await supabase

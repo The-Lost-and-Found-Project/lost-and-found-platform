@@ -25,17 +25,7 @@ export default async function AdminTriviaPage() {
   // Managing quiz content (adding categories, approving AI-authored
   // questions) is admin-only, same restriction as Manage Users / Content.
   if (effectiveRole !== "admin") {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Access Restricted
-        </h1>
-        <p className="mt-4 text-gray-600">
-          This area is reserved for Community Admins. If you believe you
-          should have access, please contact your ministry admin.
-        </p>
-      </div>
-    );
+    redirect("/dashboard");
   }
 
   const { data: categories } = await supabase
