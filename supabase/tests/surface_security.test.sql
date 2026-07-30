@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(15);
+select plan(17);
 
 create table public.prayer_requests (
   id uuid primary key default gen_random_uuid(),
@@ -90,20 +90,37 @@ create table public.prayer_reactions (
   id uuid primary key default gen_random_uuid(),
   prayer_request_id uuid not null,
   user_id uuid,
-  anon_key text
+  anon_key text,
+  activity_type text not null default 'prayed',
+  client_request_id uuid not null,
+  source text not null default 'prayer_wall',
+  metadata jsonb not null default '{}'::jsonb
 );
 
 alter table public.prayer_reactions enable row level security;
-grant insert, select on public.prayer_reactions to anon, authenticated;
+grant insert on public.prayer_reactions to anon;
+grant insert, select on public.prayer_reactions to authenticated;
 
 create policy reactions_insert_valid_identity
 on public.prayer_reactions
 for insert
 to anon, authenticated
 with check (
-  (auth.uid() is not null and user_id = auth.uid() and anon_key is null)
-  or
-  (auth.uid() is null and user_id is null and nullif(btrim(anon_key), '') is not null)
+  activity_type = 'prayed'
+  and client_request_id is not null
+  and (
+    (
+      (select auth.uid()) is not null
+      and user_id = (select auth.uid())
+      and anon_key is null
+    )
+    or
+    (
+      (select auth.uid()) is null
+      and user_id is null
+      and nullif(btrim(anon_key), '') is not null
+    )
+  )
 );
 
 alter table public.prayer_reactions
@@ -112,6 +129,15 @@ alter table public.prayer_reactions
     or
     (user_id is null and nullif(btrim(anon_key), '') is not null)
   );
+
+create unique index prayer_reactions_client_request_id_key
+  on public.prayer_reactions (client_request_id);
+
+create policy prayer_activities_select_own
+on public.prayer_reactions
+for select
+to authenticated
+using (user_id = (select auth.uid()));
 
 select results_eq(
   $$select roles from pg_policies
@@ -147,6 +173,22 @@ select matches(
   'the reaction identity constraint requires exactly one valid identity'
 );
 
+select ok(
+  not has_table_privilege('anon', 'public.prayer_reactions', 'SELECT'),
+  'anonymous visitors cannot enumerate prayer activity identities'
+);
+
+select ok(
+  exists (
+    select 1
+    from pg_indexes
+    where schemaname = 'public'
+      and tablename = 'prayer_reactions'
+      and indexname = 'prayer_reactions_client_request_id_key'
+  ),
+  'client request IDs are unique for idempotent retries'
+);
+
 select set_config(
   'request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-000000000201","role":"authenticated"}',
@@ -156,10 +198,11 @@ set local role authenticated;
 
 select lives_ok(
   $$insert into public.prayer_reactions
-    (prayer_request_id, user_id)
+    (prayer_request_id, user_id, client_request_id)
     values (
       '00000000-0000-0000-0000-000000000301',
-      '00000000-0000-0000-0000-000000000201'
+      '00000000-0000-0000-0000-000000000201',
+      '00000000-0000-4000-8000-000000000501'
     )$$,
   'a signed-in member can record their own reaction'
 );
@@ -170,10 +213,11 @@ set local role anon;
 
 select lives_ok(
   $$insert into public.prayer_reactions
-    (prayer_request_id, anon_key)
+    (prayer_request_id, anon_key, client_request_id)
     values (
       '00000000-0000-0000-0000-000000000302',
-      'browser-identity'
+      'browser-identity',
+      '00000000-0000-4000-8000-000000000502'
     )$$,
   'an anonymous visitor can react with a nonblank browser identity'
 );

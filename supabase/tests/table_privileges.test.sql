@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(21);
 
 create table public.devotion_weeks (id uuid primary key);
 create table public.prayer_categories (id uuid primary key);
@@ -26,7 +26,6 @@ revoke truncate, references, trigger on all tables in schema public
 grant select on table
   public.devotion_weeks,
   public.prayer_categories,
-  public.prayer_reactions,
   public.prayer_wall_public
 to anon;
 grant insert on table public.prayer_requests, public.prayer_reactions to anon;
@@ -58,8 +57,10 @@ select ok(has_table_privilege('anon', 'public.prayer_requests', 'INSERT'),
   'anonymous visitors can submit prayer requests');
 select ok(not has_table_privilege('anon', 'public.prayer_requests', 'UPDATE'),
   'anonymous visitors cannot update prayer requests');
-select ok(has_table_privilege('anon', 'public.prayer_reactions', 'SELECT, INSERT'),
-  'anonymous visitors can read and add reactions');
+select ok(has_table_privilege('anon', 'public.prayer_reactions', 'INSERT'),
+  'anonymous visitors can add prayer activity');
+select ok(not has_table_privilege('anon', 'public.prayer_reactions', 'SELECT'),
+  'anonymous visitors cannot enumerate prayer activity identities');
 select ok(not has_table_privilege('anon', 'public.profiles', 'SELECT'),
   'anonymous visitors cannot read profiles');
 select ok(not has_table_privilege('anon', 'public.weekly_digest_log', 'SELECT'),

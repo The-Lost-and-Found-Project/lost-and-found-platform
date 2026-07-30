@@ -42,9 +42,13 @@ on public.prayer_reactions
 for insert
 to anon, authenticated
 with check (
-  (auth.uid() is not null and user_id = auth.uid() and anon_key is null)
+  activity_type = 'prayed'
+  and client_request_id is not null
+  and (
+  ((select auth.uid()) is not null and user_id = (select auth.uid()) and anon_key is null)
   or
-  (auth.uid() is null and user_id is null and nullif(btrim(anon_key), '') is not null)
+  ((select auth.uid()) is null and user_id is null and nullif(btrim(anon_key), '') is not null)
+  )
 );
 
 alter table public.prayer_reactions
@@ -55,6 +59,18 @@ alter table public.prayer_reactions
     or
     (user_id is null and nullif(btrim(anon_key), '') is not null)
   );
+
+drop policy if exists reactions_select_all on public.prayer_reactions;
+drop policy if exists prayer_activities_select_own_or_care_team
+  on public.prayer_reactions;
+create policy prayer_activities_select_own_or_care_team
+on public.prayer_reactions
+for select
+to authenticated
+using (
+  user_id = (select auth.uid())
+  or (select public.is_care_team())
+);
 
 -- Public buckets already serve object URLs without a broad SELECT policy.
 -- Keep owner SELECT access because Storage upserts require SELECT + UPDATE.
@@ -89,7 +105,6 @@ revoke truncate, references, trigger on all tables in schema public
 grant select on table
   public.devotion_weeks,
   public.prayer_categories,
-  public.prayer_reactions,
   public.prayer_wall_public,
   public.praise_wall_public,
   public.testimonies_public

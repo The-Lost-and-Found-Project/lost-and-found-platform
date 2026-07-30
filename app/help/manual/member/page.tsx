@@ -19,7 +19,7 @@ const sections: ManualSection[] = [
   {
     title: "Praying for Others",
     paragraphs: [
-      "The Prayer Wall shows requests from the community. Tap \"I Prayed\" on any request to let the person know someone lifted them up — it turns into a checkmark once you have.",
+      "The Prayer Wall shows requests from the community. Tap \"Pray\" whenever you intentionally pray for a request. Each prayer is recorded, and the button remains available if you pray for that request again later.",
     ],
   },
   {
