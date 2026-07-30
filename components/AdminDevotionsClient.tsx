@@ -158,7 +158,13 @@ export default function AdminDevotionsClient({
       </p>
 
       {error && (
-        <p className="mt-4 rounded-md bg-rose-50 px-4 py-2 text-sm text-rose-700">{error}</p>
+        <p
+          role="alert"
+          aria-live="assertive"
+          className="mt-4 rounded-md bg-rose-50 px-4 py-2 text-sm text-rose-700"
+        >
+          {error}
+        </p>
       )}
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -167,8 +173,9 @@ export default function AdminDevotionsClient({
             <button
               key={s}
               type="button"
+              aria-pressed={statusFilter === s}
               onClick={() => setStatusFilter(s)}
-              className={`rounded-full px-3 py-1 text-sm font-medium capitalize ${
+              className={`min-h-11 rounded-full px-3 py-2 text-sm font-medium capitalize ${
                 statusFilter === s
                   ? "bg-indigo-600 text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -196,6 +203,8 @@ export default function AdminDevotionsClient({
             >
               <button
                 type="button"
+                aria-expanded={isOpen}
+                aria-controls={`devotion-week-${week.id}`}
                 onClick={() => toggleExpand(week)}
                 className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
               >
@@ -236,11 +245,18 @@ export default function AdminDevotionsClient({
               </button>
 
               {isOpen && draft && (
-                <div className="border-t border-gray-100 px-5 pb-5 pt-4">
-                  <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <div
+                  id={`devotion-week-${week.id}`}
+                  className="border-t border-gray-100 px-5 pb-5 pt-4"
+                >
+                  <label
+                    htmlFor={`week-title-${week.id}`}
+                    className="block text-xs font-semibold uppercase tracking-wide text-gray-500"
+                  >
                     Week Title
                   </label>
                   <input
+                    id={`week-title-${week.id}`}
                     type="text"
                     value={draft.title}
                     onChange={(e) =>
@@ -261,8 +277,14 @@ export default function AdminDevotionsClient({
 
                         <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
                           <div>
-                            <label className="block text-xs font-medium text-gray-500">Title</label>
+                            <label
+                              htmlFor={`day-title-${week.id}-${d.day}`}
+                              className="block text-xs font-medium text-gray-500"
+                            >
+                              Title
+                            </label>
                             <input
+                              id={`day-title-${week.id}-${d.day}`}
                               type="text"
                               value={d.title}
                               onChange={(e) =>
@@ -278,10 +300,14 @@ export default function AdminDevotionsClient({
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-medium text-gray-500">
+                            <label
+                              htmlFor={`verse-ref-${week.id}-${d.day}`}
+                              className="block text-xs font-medium text-gray-500"
+                            >
                               Verse Reference
                             </label>
                             <input
+                              id={`verse-ref-${week.id}-${d.day}`}
                               type="text"
                               value={d.verseRef}
                               onChange={(e) =>
@@ -309,10 +335,14 @@ export default function AdminDevotionsClient({
                           ] as const
                         ).map(([field, label]) => (
                           <div key={field} className="mt-3">
-                            <label className="block text-xs font-medium text-gray-500">
+                            <label
+                              htmlFor={`${field}-${week.id}-${d.day}`}
+                              className="block text-xs font-medium text-gray-500"
+                            >
                               {label}
                             </label>
                             <textarea
+                              id={`${field}-${week.id}-${d.day}`}
                               value={d[field]}
                               onChange={(e) =>
                                 setDrafts((prev) => ({
@@ -332,10 +362,14 @@ export default function AdminDevotionsClient({
                         ))}
 
                         <div className="mt-3">
-                          <label className="block text-xs font-medium text-gray-500">
+                          <label
+                            htmlFor={`reflection-${week.id}-${d.day}`}
+                            className="block text-xs font-medium text-gray-500"
+                          >
                             Reflection Questions (one per line)
                           </label>
                           <textarea
+                            id={`reflection-${week.id}-${d.day}`}
                             value={d.reflectionQuestions.join("\n")}
                             onChange={(e) =>
                               setDrafts((prev) => ({
@@ -364,7 +398,7 @@ export default function AdminDevotionsClient({
                       type="button"
                       disabled={busyId === week.id}
                       onClick={() => saveContent(week)}
-                      className="rounded-full bg-gray-900 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-50"
+                      className="min-h-11 rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-50"
                     >
                       Save Changes
                     </button>
@@ -374,7 +408,7 @@ export default function AdminDevotionsClient({
                         type="button"
                         disabled={busyId === week.id}
                         onClick={() => setStatus(week, "pending")}
-                        className="rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50"
+                        className="min-h-11 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50"
                       >
                         Submit for Review
                       </button>
@@ -385,7 +419,7 @@ export default function AdminDevotionsClient({
                         type="button"
                         disabled={busyId === week.id}
                         onClick={() => setStatus(week, "approved")}
-                        className="rounded-full bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
+                        className="min-h-11 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
                       >
                         Approve
                       </button>
@@ -396,7 +430,7 @@ export default function AdminDevotionsClient({
                         type="button"
                         disabled={busyId === week.id}
                         onClick={() => setStatus(week, "rejected")}
-                        className="rounded-full bg-rose-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-rose-500 disabled:opacity-50"
+                        className="min-h-11 rounded-full bg-rose-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-rose-500 disabled:opacity-50"
                       >
                         Reject
                       </button>
@@ -407,7 +441,7 @@ export default function AdminDevotionsClient({
                         type="button"
                         disabled={busyId === week.id}
                         onClick={() => setStatus(week, "pending")}
-                        className="rounded-full bg-gray-200 px-4 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-300 disabled:opacity-50"
+                        className="min-h-11 rounded-full bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-300 disabled:opacity-50"
                       >
                         Move Back to Pending
                       </button>
@@ -418,7 +452,7 @@ export default function AdminDevotionsClient({
                         type="button"
                         disabled={busyId === week.id}
                         onClick={() => deleteWeek(week)}
-                        className="ml-auto rounded-full border border-rose-200 px-4 py-1.5 text-sm font-medium text-rose-600 hover:bg-rose-50 disabled:opacity-50"
+                        className="min-h-11 rounded-full border border-rose-200 px-4 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 disabled:opacity-50 sm:ml-auto"
                       >
                         Delete
                       </button>
