@@ -1,3 +1,4 @@
+/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
 "use client";
 
 import { useMemo, useState } from "react";
@@ -404,6 +405,9 @@ export default function AdminDevotionsClient({
                           weekId={week.id}
                           day={d}
                           contentVersion={week.content_versions[d.day]}
+                          canGenerateAudio={
+                            week.status === "approved" || week.status === "published"
+                          }
                           audio={
                             week.audio.find((item) => item.day_number === d.day) ?? null
                           }
