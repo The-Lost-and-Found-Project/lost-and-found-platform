@@ -147,27 +147,18 @@ export default function SubmitPrayerRequestPage() {
     // every new request from the past week.
 
     // A separate DB trigger auto-assigns this request to the next care team
-    // member in the rotation. Look that assignment up (via a narrow RPC that
-    // only ever returns the assignee's id) and fire the same "you've been
-    // matched" email the admin dashboard sends for manual assignments, so
-    // the assignee finds out right away instead of waiting for the weekly
-    // digest. This in-app notification + email is unaffected by the change
-    // above and still fires normally.
+    // member in the rotation. Ask the trusted server route to look up the
+    // assignment and send the same "you've been matched" email the admin
+    // dashboard sends for manual assignments. The browser never needs direct
+    // access to the assignment lookup function or protected request details.
     if (newRequestId) {
-      const { data: assignedTo } = await supabase.rpc(
-        "get_prayer_request_assignment",
-        { request_id: newRequestId }
-      );
-
-      if (assignedTo) {
-        fetch("/api/notify-assignment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ requestId: newRequestId }),
-        }).catch((err) => {
-          console.error("Failed to send assignment notification:", err);
-        });
-      }
+      fetch("/api/notify-assignment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: newRequestId }),
+      }).catch((err) => {
+        console.error("Failed to send assignment notification:", err);
+      });
     }
 
     setSubmitted(true);

@@ -76,6 +76,11 @@ test("prayer submission sends the request ID to the assignment notifier", async 
     /JSON\.stringify\(\{[\s\S]*assigneeId:/,
     "the client must not send trusted assignment or prayer details"
   );
+  assert.doesNotMatch(
+    source,
+    /\.rpc\(\s*"get_prayer_request_assignment"/,
+    "the browser must not call the protected assignment lookup function"
+  );
 });
 
 test("signed-in users can reach role-aware help manuals from the account menu", async () => {
