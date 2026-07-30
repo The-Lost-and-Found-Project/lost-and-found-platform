@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import AdminDevotionsClient from "@/components/AdminDevotionsClient";
 import { getEffectiveRole } from "@/lib/effective-role";
+import { getDevotionContentVersion } from "@/lib/devotion-content-version";
+import type { DevotionAudio, DevotionDay } from "@/lib/devotion-types";
 
 export default async function AdminDevotionsPage() {
   const supabase = await createClient();
@@ -35,5 +38,29 @@ export default async function AdminDevotionsPage() {
     )
     .order("week_number");
 
-  return <AdminDevotionsClient weeks={weeks ?? []} />;
+  const admin = createAdminClient();
+  const { data: audio, error: audioError } = await admin
+    .from("devotion_audio")
+    .select(
+      "id, devotion_week_id, day_number, audio_url, storage_path, audio_duration_seconds, voice, narration_text, content_version, audio_version, generated_at, generation_status, updated_at"
+    );
+
+  if (audioError) {
+    console.error("admin devotion audio load error:", audioError);
+  }
+
+  const weeksWithAudio = (weeks ?? []).map((week) => ({
+    ...week,
+    content_versions: Object.fromEntries(
+      (week.days as DevotionDay[]).map((day) => [
+        day.day,
+        getDevotionContentVersion(day),
+      ])
+    ),
+    audio: ((audio ?? []) as DevotionAudio[]).filter(
+      (item) => item.devotion_week_id === week.id
+    ),
+  }));
+
+  return <AdminDevotionsClient weeks={weeksWithAudio} />;
 }

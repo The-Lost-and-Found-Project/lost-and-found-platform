@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getDevotionContentVersion } from "@/lib/devotion-content-version";
+import type { DevotionDay } from "@/lib/devotion-types";
+
+function withContentVersions<T extends { days: unknown }>(week: T) {
+  const days = Array.isArray(week.days) ? (week.days as DevotionDay[]) : [];
+  return {
+    ...week,
+    content_versions: Object.fromEntries(
+      days.map((day) => [day.day, getDevotionContentVersion(day)])
+    ),
+  };
+}
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -87,7 +99,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) throw error;
-    return NextResponse.json({ week: data });
+    return NextResponse.json({ week: withContentVersions(data) });
   } catch (err) {
     console.error("admin devotion weeks POST error:", err);
     return NextResponse.json(
@@ -160,7 +172,7 @@ export async function PATCH(request: NextRequest) {
       .single();
 
     if (error) throw error;
-    return NextResponse.json({ week: data });
+    return NextResponse.json({ week: withContentVersions(data) });
   } catch (err) {
     console.error("admin devotion weeks PATCH error:", err);
     return NextResponse.json(

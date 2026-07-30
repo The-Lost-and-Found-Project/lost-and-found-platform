@@ -90,6 +90,19 @@ set file_size_limit = 5242880,
     allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp']
 where id = 'avatars';
 
+update storage.buckets
+set public = true,
+    file_size_limit = 52428800,
+    allowed_mime_types = array[
+      'audio/mpeg',
+      'audio/mp4',
+      'audio/ogg',
+      'audio/wav',
+      'audio/x-wav',
+      'audio/webm'
+    ]
+where id = 'devotion-audio';
+
 -- Supabase's historical default grants gave every Data API role every table
 -- privilege, including TRUNCATE, TRIGGER, and REFERENCES. Make browser access
 -- opt-in and match it to the operations the app actually performs. RLS remains
@@ -103,6 +116,7 @@ revoke truncate, references, trigger on all tables in schema public
 -- submit a prayer request or reaction. They never receive base-table reads for
 -- prayer, praise, testimony, profile, or internal operations.
 grant select on table
+  public.devotion_audio,
   public.devotion_weeks,
   public.prayer_categories,
   public.prayer_wall_public,
@@ -114,6 +128,7 @@ grant insert on table public.prayer_requests, public.prayer_reactions to anon;
 -- Signed-in application workflows. These grants permit an operation class;
 -- table RLS and column grants still determine the allowed rows and fields.
 grant select on table
+  public.devotion_audio,
   public.devotion_weeks,
   public.feedback_messages,
   public.journey_entries,
