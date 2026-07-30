@@ -152,14 +152,18 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
         </div>
         <a
           href="/admin"
-          className="shrink-0 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+          className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-indigo-600 hover:text-indigo-500"
         >
           Back to Prayer Care Admin
         </a>
       </div>
 
       {error && (
-        <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p
+          role="alert"
+          aria-live="assertive"
+          className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+        >
           {error}
         </p>
       )}
@@ -176,6 +180,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
           <div className="mt-3 space-y-2">
             {pendingReinstatements.map((u) => {
               const isPending = pendingId === u.id;
+              const accessibleName = u.full_name ?? u.email ?? "unnamed user";
               return (
                 <div
                   key={u.id}
@@ -186,9 +191,10 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                   </span>
                   <button
                     type="button"
+                    aria-label={`Approve reinstatement for ${accessibleName}`}
                     disabled={isPending}
                     onClick={() => handleApproveReinstatement(u.id)}
-                    className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
+                    className="min-h-11 rounded-md bg-emerald-600 px-3 py-2 text-xs font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
                   >
                     {isPending ? "Approving..." : "Approve Reinstatement"}
                   </button>
@@ -219,6 +225,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
               const isSelf = u.id === currentUserId;
               const isPending = pendingId === u.id;
               const isConfirming = confirmingId === u.id;
+              const accessibleName = u.full_name ?? u.email ?? "unnamed user";
               return (
                 <tr key={u.id} className={u.is_active ? "" : "bg-gray-50 opacity-60"}>
                   <td className="px-4 py-3 text-gray-900">
@@ -246,10 +253,11 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                   </td>
                   <td className="px-4 py-3">
                     <select
+                      aria-label={`Role for ${accessibleName}`}
                       value={u.role ?? "member"}
                       disabled={isSelf || isPending}
                       onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                      className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                      className="min-h-11 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {ROLE_OPTIONS.map((r) => (
                         <option key={r.value} value={r.value}>
@@ -260,12 +268,13 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                   </td>
                   <td className="px-4 py-3">
                     <select
+                      aria-label={`Account status for ${accessibleName}`}
                       value={u.is_active ? "active" : "deactivated"}
                       disabled={isSelf || isPending}
                       onChange={(e) =>
                         handleActiveToggle(u.id, e.target.value === "active")
                       }
-                      className={`rounded-md border px-2 py-1 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50 ${
+                      className={`min-h-11 rounded-md border px-2 py-2 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50 ${
                         u.is_active
                           ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                           : "border-red-200 bg-red-50 text-red-700"
@@ -281,17 +290,19 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                         <span className="text-xs text-gray-500">Delete?</span>
                         <button
                           type="button"
+                          aria-label={`Confirm deletion of ${accessibleName}`}
                           disabled={isPending}
                           onClick={() => handleDelete(u.id)}
-                          className="rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                          className="min-h-11 rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
                         >
                           {isPending ? "Deleting…" : "Confirm"}
                         </button>
                         <button
                           type="button"
+                          aria-label={`Cancel deletion of ${accessibleName}`}
                           disabled={isPending}
                           onClick={() => setConfirmingId(null)}
-                          className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                          className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50"
                         >
                           Cancel
                         </button>
@@ -299,9 +310,10 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                     ) : (
                       <button
                         type="button"
+                        aria-label={`Delete account for ${accessibleName}`}
                         disabled={isPending}
                         onClick={() => setConfirmingId(u.id)}
-                        className="text-xs font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
+                        className="min-h-11 px-2 text-xs font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
                       >
                         Delete
                       </button>
@@ -320,6 +332,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
           const isSelf = u.id === currentUserId;
           const isPending = pendingId === u.id;
           const isConfirming = confirmingId === u.id;
+          const accessibleName = u.full_name ?? u.email ?? "unnamed user";
           return (
             <div
               key={u.id}
@@ -351,10 +364,11 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
 
               <div className="mt-3 flex flex-wrap gap-2">
                 <select
+                  aria-label={`Role for ${accessibleName}`}
                   value={u.role ?? "member"}
                   disabled={isSelf || isPending}
                   onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                  className="min-w-0 flex-1 rounded-md border border-gray-300 px-2 py-1.5 text-sm shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+                  className="min-h-11 min-w-0 flex-1 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {ROLE_OPTIONS.map((r) => (
                     <option key={r.value} value={r.value}>
@@ -363,12 +377,13 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                   ))}
                 </select>
                 <select
+                  aria-label={`Account status for ${accessibleName}`}
                   value={u.is_active ? "active" : "deactivated"}
                   disabled={isSelf || isPending}
                   onChange={(e) =>
                     handleActiveToggle(u.id, e.target.value === "active")
                   }
-                  className={`min-w-0 flex-1 rounded-md border px-2 py-1.5 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50 ${
+                  className={`min-h-11 min-w-0 flex-1 rounded-md border px-2 py-2 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50 ${
                     u.is_active
                       ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                       : "border-red-200 bg-red-50 text-red-700"
@@ -388,17 +403,19 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                       </span>
                       <button
                         type="button"
+                        aria-label={`Confirm deletion of ${accessibleName}`}
                         disabled={isPending}
                         onClick={() => handleDelete(u.id)}
-                        className="rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                        className="min-h-11 rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
                       >
                         {isPending ? "Deleting…" : "Confirm"}
                       </button>
                       <button
                         type="button"
+                        aria-label={`Cancel deletion of ${accessibleName}`}
                         disabled={isPending}
                         onClick={() => setConfirmingId(null)}
-                        className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                        className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50"
                       >
                         Cancel
                       </button>
@@ -406,9 +423,10 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                   ) : (
                     <button
                       type="button"
+                      aria-label={`Delete account for ${accessibleName}`}
                       disabled={isPending}
                       onClick={() => setConfirmingId(u.id)}
-                      className="text-xs font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
+                      className="min-h-11 px-2 text-xs font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
                     >
                       Delete account
                     </button>
