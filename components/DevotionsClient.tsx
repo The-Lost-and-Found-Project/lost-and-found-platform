@@ -1,38 +1,29 @@
 "use client";
 
 import { useState } from "react";
-
-type Devotion = {
-  day: number;
-  title: string;
-  verseRef: string;
-  teaser: string;
-  scripture: string;
-  teachingPoint: string;
-  story: string;
-  application: string;
-  reflectionQuestions: string[];
-  prayer: string;
-};
-
-type Week = {
-  id: string;
-  week_number: number;
-  title: string;
-  days: Devotion[];
-  published_at: string | null;
-};
+import DevotionAudioPlayer from "@/components/DevotionAudioPlayer";
+import type { DevotionAudio, DevotionDay, DevotionWeek } from "@/lib/devotion-types";
 
 // Renders one week's 7 days as an accordion of cards, styled to match the
 // rest of the app (indigo/violet accents, white cards with a subtle border
 // — the same language used by TestimonyTicker and PrayerWallTicker).
-function DayAccordion({ days, defaultOpenDay }: { days: Devotion[]; defaultOpenDay: number | null }) {
+function DayAccordion({
+  days,
+  audio,
+  defaultOpenDay,
+}: {
+  days: DevotionDay[];
+  audio: DevotionAudio[];
+  defaultOpenDay: number | null;
+}) {
   const [openDay, setOpenDay] = useState<number | null>(defaultOpenDay);
 
   return (
     <div className="space-y-4">
       {days.map((d) => {
         const isOpen = openDay === d.day;
+        const devotionAudio =
+          audio.find((item) => item.day_number === d.day) ?? null;
 
         return (
           <div
@@ -71,7 +62,17 @@ function DayAccordion({ days, defaultOpenDay }: { days: Devotion[]; defaultOpenD
 
             {isOpen && (
               <div className="border-t border-gray-100 px-5 pb-5 pt-4">
-                <div className="rounded-md border-l-4 border-indigo-300 bg-indigo-50/60 px-4 py-3">
+                <DevotionAudioPlayer
+                  key={
+                    devotionAudio
+                      ? `${devotionAudio.id}:${devotionAudio.audio_version}`
+                      : `unavailable:${d.day}`
+                  }
+                  audio={devotionAudio}
+                  devotionTitle={d.title}
+                />
+
+                <div className="mt-4 rounded-md border-l-4 border-indigo-300 bg-indigo-50/60 px-4 py-3">
                   <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
                     Scripture
                   </p>
@@ -120,7 +121,7 @@ function DayAccordion({ days, defaultOpenDay }: { days: Devotion[]; defaultOpenD
 // A past week, collapsed to just its title "for those who may have missed
 // it" per Chad's spec -- expands in place to the same day accordion as the
 // current week when clicked.
-function ArchivedWeek({ week }: { week: Week }) {
+function ArchivedWeek({ week }: { week: DevotionWeek }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -152,14 +153,18 @@ function ArchivedWeek({ week }: { week: Week }) {
 
       {expanded && (
         <div className="border-t border-gray-100 px-5 pb-5 pt-4">
-          <DayAccordion days={week.days} defaultOpenDay={null} />
+          <DayAccordion
+            days={week.days}
+            audio={week.audio ?? []}
+            defaultOpenDay={null}
+          />
         </div>
       )}
     </div>
   );
 }
 
-export default function DevotionsClient({ weeks }: { weeks: Week[] }) {
+export default function DevotionsClient({ weeks }: { weeks: DevotionWeek[] }) {
   if (weeks.length === 0) {
     return (
       <p className="mt-6 text-sm text-gray-500">
@@ -180,7 +185,11 @@ export default function DevotionsClient({ weeks }: { weeks: Week[] }) {
       </div>
 
       <div className="mt-4">
-        <DayAccordion days={currentWeek.days} defaultOpenDay={1} />
+        <DayAccordion
+          days={currentWeek.days}
+          audio={currentWeek.audio ?? []}
+          defaultOpenDay={1}
+        />
       </div>
 
       {pastWeeks.length > 0 && (

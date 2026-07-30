@@ -1,19 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import DevotionAudioManager from "@/components/DevotionAudioManager";
+import type { DevotionAudio, DevotionDay } from "@/lib/devotion-types";
 
-type Day = {
-  day: number;
-  title: string;
-  verseRef: string;
-  teaser: string;
-  scripture: string;
-  teachingPoint: string;
-  story: string;
-  application: string;
-  reflectionQuestions: string[];
-  prayer: string;
-};
+type Day = DevotionDay;
 
 type Week = {
   id: string;
@@ -25,6 +16,8 @@ type Week = {
   published_at: string | null;
   reviewed_at: string | null;
   created_at: string;
+  audio: DevotionAudio[];
+  content_versions: Record<number, string>;
 };
 
 type StatusFilter = Week["status"] | "all";
@@ -105,7 +98,11 @@ export default function AdminDevotionsClient({
         setError(responseBody.error ?? "Something went wrong");
         return;
       }
-      setWeeks((prev) => prev.map((w) => (w.id === id ? responseBody.week : w)));
+      setWeeks((prev) =>
+        prev.map((week) =>
+          week.id === id ? { ...responseBody.week, audio: week.audio } : week
+        )
+      );
     } catch {
       setError("Failed to save changes");
     } finally {
@@ -121,6 +118,19 @@ export default function AdminDevotionsClient({
 
   async function setStatus(week: Week, status: Week["status"]) {
     await patchWeek(week.id, { status });
+  }
+
+  function updateAudio(weekId: string, dayNumber: number, audio: DevotionAudio | null) {
+    setWeeks((previous) =>
+      previous.map((week) => {
+        if (week.id !== weekId) return week;
+        const withoutDay = week.audio.filter((item) => item.day_number !== dayNumber);
+        return {
+          ...week,
+          audio: audio ? [...withoutDay, audio] : withoutDay,
+        };
+      })
+    );
   }
 
   async function deleteWeek(week: Week) {
@@ -389,6 +399,16 @@ export default function AdminDevotionsClient({
                             className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
                           />
                         </div>
+
+                        <DevotionAudioManager
+                          weekId={week.id}
+                          day={d}
+                          contentVersion={week.content_versions[d.day]}
+                          audio={
+                            week.audio.find((item) => item.day_number === d.day) ?? null
+                          }
+                          onChange={(audio) => updateAudio(week.id, d.day, audio)}
+                        />
                       </div>
                     ))}
                   </div>
