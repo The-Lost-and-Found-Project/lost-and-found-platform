@@ -95,7 +95,7 @@ export default function AdminContentClient({
         <h1 className="text-2xl font-bold text-gray-900">Manage Content</h1>
         <Link
           href="/admin"
-          className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+          className="inline-flex min-h-11 items-center text-sm font-medium text-indigo-600 hover:text-indigo-500"
         >
           Back to Requests
         </Link>
@@ -106,7 +106,11 @@ export default function AdminContentClient({
       </p>
 
       {error && (
-        <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p
+          role="alert"
+          aria-live="assertive"
+          className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700"
+        >
           {error}
         </p>
       )}
@@ -122,6 +126,7 @@ export default function AdminContentClient({
           {testimonies.map((t) => {
             const isConfirming = confirmingId === t.id;
             const isPending = pendingId === t.id;
+            const author = authorLabel(t.author, t.is_anonymous);
             return (
               <div
                 key={t.id}
@@ -130,7 +135,7 @@ export default function AdminContentClient({
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-900">
-                      {authorLabel(t.author, t.is_anonymous)}
+                      {author}
                     </p>
                     <p className="mt-1 text-sm text-gray-600 whitespace-pre-wrap">
                       {t.content_text}
@@ -141,26 +146,32 @@ export default function AdminContentClient({
                   </div>
                   <div className="shrink-0">
                     {isConfirming ? (
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center justify-end gap-2">
                         <span className="text-xs text-gray-500">Delete?</span>
                         <button
+                          type="button"
+                          aria-label={`Confirm deletion of ${author}'s testimony`}
                           onClick={() => handleDeleteTestimony(t.id)}
                           disabled={isPending}
-                          className="rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                          className="min-h-11 rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
                         >
                           {isPending ? "..." : "Yes"}
                         </button>
                         <button
+                          type="button"
+                          aria-label={`Cancel deletion of ${author}'s testimony`}
                           onClick={() => setConfirmingId(null)}
-                          className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                          className="min-h-11 rounded-md bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-200"
                         >
                           Cancel
                         </button>
                       </div>
                     ) : (
                       <button
+                        type="button"
+                        aria-label={`Delete ${author}'s testimony`}
                         onClick={() => setConfirmingId(t.id)}
-                        className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
+                        className="min-h-11 rounded-md bg-gray-100 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50"
                       >
                         Delete
                       </button>
@@ -184,6 +195,7 @@ export default function AdminContentClient({
           {praiseReports.map((p) => {
             const isConfirming = confirmingId === p.id;
             const isPending = pendingId === p.id;
+            const author = authorLabel(p.author);
             return (
               <div
                 key={p.id}
@@ -192,7 +204,7 @@ export default function AdminContentClient({
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-900">
-                      {authorLabel(p.author)}
+                      {author}
                     </p>
                     <p className="mt-1 text-sm text-gray-600 whitespace-pre-wrap">
                       {p.content_text}
@@ -203,26 +215,32 @@ export default function AdminContentClient({
                   </div>
                   <div className="shrink-0">
                     {isConfirming ? (
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center justify-end gap-2">
                         <span className="text-xs text-gray-500">Delete?</span>
                         <button
+                          type="button"
+                          aria-label={`Confirm deletion of ${author}'s praise report`}
                           onClick={() => handleDeletePraiseReport(p.id)}
                           disabled={isPending}
-                          className="rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                          className="min-h-11 rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
                         >
                           {isPending ? "..." : "Yes"}
                         </button>
                         <button
+                          type="button"
+                          aria-label={`Cancel deletion of ${author}'s praise report`}
                           onClick={() => setConfirmingId(null)}
-                          className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                          className="min-h-11 rounded-md bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-200"
                         >
                           Cancel
                         </button>
                       </div>
                     ) : (
                       <button
+                        type="button"
+                        aria-label={`Delete ${author}'s praise report`}
                         onClick={() => setConfirmingId(p.id)}
-                        className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
+                        className="min-h-11 rounded-md bg-gray-100 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50"
                       >
                         Delete
                       </button>
