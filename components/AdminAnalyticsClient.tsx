@@ -341,13 +341,18 @@ export default function AdminAnalyticsClient({
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-sm font-semibold text-gray-900">Chart range</h2>
-        <div className="flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 p-0.5">
+        <div
+          role="group"
+          aria-label="Chart range"
+          className="flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 p-0.5"
+        >
           {RANGE_OPTIONS.map((opt) => (
             <button
               key={opt.key}
               type="button"
+              aria-pressed={range === opt.key}
               onClick={() => setRange(opt.key)}
-              className={`rounded px-2 py-1 text-xs font-medium transition ${
+              className={`min-h-11 rounded px-3 py-2 text-xs font-medium transition ${
                 range === opt.key
                   ? "bg-indigo-600 text-white shadow-sm"
                   : "text-gray-600 hover:bg-gray-200"
