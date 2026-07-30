@@ -148,23 +148,32 @@ export default function PushNotificationToggle() {
         <button
           type="button"
           role="switch"
+          aria-label="Push notifications"
           aria-checked={enabled}
           disabled={busy || support === "checking"}
           onClick={() => (enabled ? handleDisable() : handleEnable())}
-          className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition disabled:opacity-60 ${
-            enabled
-              ? "bg-gradient-to-r from-indigo-600 to-violet-600"
-              : "bg-gray-200"
-          }`}
+          className="relative -my-2 h-11 w-11 shrink-0 disabled:opacity-60"
         >
           <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
-              enabled ? "left-5" : "left-0.5"
+            className={`absolute inset-x-0 top-2.5 h-6 rounded-full transition ${
+              enabled
+                ? "bg-gradient-to-r from-indigo-600 to-violet-600"
+                : "bg-gray-200"
             }`}
-          />
+          >
+            <span
+              className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+                enabled ? "left-5" : "left-0.5"
+              }`}
+            />
+          </span>
         </button>
       </div>
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {error && (
+        <p role="alert" aria-live="polite" className="mt-2 text-xs text-red-600">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
