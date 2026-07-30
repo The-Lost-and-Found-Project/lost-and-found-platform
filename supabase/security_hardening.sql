@@ -34,24 +34,6 @@ alter function public.is_care_team() set search_path = '';
 alter function public.get_quiz_questions(text, integer) set search_path = '';
 alter function public.set_updated_at() set search_path = '';
 
--- RLS controls which profile row a member may update, but table-level UPDATE
--- grants would otherwise let them change privileged columns on that row
--- (including role and rotation status) through the Data API. Keep ordinary
--- profile editing available while reserving authorization and rotation state
--- for trusted server routes that use the service role.
-revoke update on table public.profiles from public, anon, authenticated;
-grant update (
-  full_name,
-  faith_story,
-  favorite_scripture,
-  avatar_url,
-  date_of_salvation,
-  date_of_baptism,
-  preview_role,
-  gender,
-  phone
-) on table public.profiles to authenticated;
-
 -- An authenticated reaction must belong to the caller. Anonymous reactions
 -- must carry an anonymous-browser key and no user id.
 drop policy if exists reactions_insert_anyone on public.prayer_reactions;
@@ -91,5 +73,114 @@ update storage.buckets
 set file_size_limit = 5242880,
     allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp']
 where id = 'avatars';
+
+-- Supabase's historical default grants gave every Data API role every table
+-- privilege, including TRUNCATE, TRIGGER, and REFERENCES. Make browser access
+-- opt-in and match it to the operations the app actually performs. RLS remains
+-- the second layer that restricts which rows each caller may reach.
+revoke all privileges on all tables in schema public
+  from public, anon, authenticated;
+revoke truncate, references, trigger on all tables in schema public
+  from service_role;
+
+-- Anonymous visitors can read only public projections/reference data and can
+-- submit a prayer request or reaction. They never receive base-table reads for
+-- prayer, praise, testimony, profile, or internal operations.
+grant select on table
+  public.devotion_weeks,
+  public.prayer_categories,
+  public.prayer_reactions,
+  public.prayer_wall_public,
+  public.praise_wall_public,
+  public.testimonies_public
+to anon;
+grant insert on table public.prayer_requests, public.prayer_reactions to anon;
+
+-- Signed-in application workflows. These grants permit an operation class;
+-- table RLS and column grants still determine the allowed rows and fields.
+grant select on table
+  public.devotion_weeks,
+  public.feedback_messages,
+  public.journey_entries,
+  public.notifications,
+  public.praise_reports,
+  public.prayer_care_applications,
+  public.prayer_categories,
+  public.prayer_reactions,
+  public.prayer_requests,
+  public.profiles,
+  public.push_subscriptions,
+  public.quiz_attempts,
+  public.testimonies,
+  public.trivia_categories,
+  public.trivia_questions,
+  public.user_settings,
+  public.prayer_wall_public,
+  public.praise_wall_public,
+  public.testimonies_public
+to authenticated;
+
+grant insert on table
+  public.feedback_messages,
+  public.journey_entries,
+  public.prayer_care_applications,
+  public.prayer_reactions,
+  public.prayer_requests,
+  public.push_subscriptions,
+  public.quiz_attempts,
+  public.testimonies,
+  public.user_settings
+to authenticated;
+
+grant update on table
+  public.feedback_messages,
+  public.journey_entries,
+  public.notifications,
+  public.praise_reports,
+  public.prayer_requests,
+  public.push_subscriptions,
+  public.testimonies,
+  public.user_settings
+to authenticated;
+
+grant delete on table
+  public.journey_entries,
+  public.notifications,
+  public.push_subscriptions
+to authenticated;
+
+-- RLS controls which profile row a member may update, while column grants
+-- reserve authorization and rotation state for trusted service-role routes.
+grant update (
+  full_name,
+  faith_story,
+  favorite_scripture,
+  avatar_url,
+  date_of_salvation,
+  date_of_baptism,
+  preview_role,
+  gender,
+  phone
+) on table public.profiles to authenticated;
+
+-- Trusted server routes need ordinary CRUD, not database-definition powers.
+grant select, insert, update, delete on all tables in schema public
+  to service_role;
+
+-- Future public-schema objects start private for browser roles. Trusted server
+-- routes retain CRUD and sequence access; new browser workflows must opt in.
+alter default privileges for role postgres in schema public
+  revoke all privileges on tables from public, anon, authenticated;
+alter default privileges for role postgres in schema public
+  revoke all privileges on sequences from public, anon, authenticated;
+alter default privileges for role postgres in schema public
+  grant select, insert, update, delete on tables to service_role;
+alter default privileges for role postgres in schema public
+  grant usage, select on sequences to service_role;
+
+revoke all privileges on all sequences in schema public
+  from public, anon, authenticated;
+grant usage, select on all sequences in schema public
+  to service_role;
 
 commit;
