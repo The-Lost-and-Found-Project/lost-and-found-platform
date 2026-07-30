@@ -195,15 +195,16 @@ export default function SubmitPrayerRequestPage() {
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="prayer-name" className="block text-sm font-medium text-gray-700">
             Your Name
           </label>
           <input
+            id="prayer-name"
             type="text"
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+            className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
           />
           {prefilledFromProfile && (
             <p className="mt-1 text-xs text-gray-400">
@@ -214,39 +215,42 @@ export default function SubmitPrayerRequestPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="prayer-email" className="block text-sm font-medium text-gray-700">
             Email
           </label>
           <input
+            id="prayer-email"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+            className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="prayer-phone" className="block text-sm font-medium text-gray-700">
             Phone Number (optional)
           </label>
           <input
+            id="prayer-phone"
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+            className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="prayer-category" className="block text-sm font-medium text-gray-700">
             Prayer Category
           </label>
           <select
+            id="prayer-category"
             required
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+            className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
           >
             <option value="">Select a category</option>
             {categories.map((c) => (
@@ -258,15 +262,16 @@ export default function SubmitPrayerRequestPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="prayer-request" className="block text-sm font-medium text-gray-700">
             Your Prayer Request
           </label>
           <textarea
+            id="prayer-request"
             required
             rows={5}
             value={requestText}
             onChange={(e) => setRequestText(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+            className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
           />
           <p className="mt-1 text-xs text-gray-500">
             Out of respect for others&apos; privacy, please avoid including
@@ -311,13 +316,14 @@ export default function SubmitPrayerRequestPage() {
 
         {contactRequested && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label htmlFor="preferred-contact" className="block text-sm font-medium text-gray-700">
               How would you like to be contacted?
             </label>
             <select
+              id="preferred-contact"
               value={preferredContact}
               onChange={(e) => setPreferredContact(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+              className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
             >
               <option value="">Select an option</option>
               <option value="Email">Email</option>
@@ -329,13 +335,14 @@ export default function SubmitPrayerRequestPage() {
 
         {contactRequested && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label htmlFor="preferred-care-gender" className="block text-sm font-medium text-gray-700">
               Preferred care team gender (optional)
             </label>
             <select
+              id="preferred-care-gender"
               value={preferredCareGender}
               onChange={(e) => setPreferredCareGender(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+              className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
             >
               <option value="">No preference</option>
               <option value="male">Male</option>
@@ -376,12 +383,16 @@ export default function SubmitPrayerRequestPage() {
 
         <TurnstileWidget onVerify={setCaptchaToken} onExpire={() => setCaptchaToken("")} />
 
-        <p className="text-sm text-red-600">{error}</p>
+        {error && (
+          <p role="alert" aria-live="polite" className="text-sm text-red-600">
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400 disabled:opacity-50"
+          className="min-h-11 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400 disabled:opacity-50"
         >
           {submitting ? "Sending..." : "Send My Prayer Request"}
         </button>
