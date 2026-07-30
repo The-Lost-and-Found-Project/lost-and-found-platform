@@ -377,13 +377,19 @@ export default function ProfileClient({
             {avatarImage}
             <div>
               {isEditing ? (
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Add your name"
-                  className="block rounded-md border border-gray-300 px-2 py-1 text-sm font-medium text-gray-900 shadow-sm"
-                />
+                <div>
+                  <label htmlFor="profile-full-name" className="sr-only">
+                    Full name
+                  </label>
+                  <input
+                    id="profile-full-name"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Add your name"
+                    className="block min-h-11 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-900 shadow-sm"
+                  />
+                </div>
               ) : (
                 <p className="text-sm font-medium text-gray-900">
                   {fullName || "Add your name"}
@@ -395,11 +401,21 @@ export default function ProfileClient({
 
           <div className="flex items-center gap-3">
             {justSaved && !isEditing && (
-              <span className="text-sm text-green-600">Saved.</span>
+              <span
+                role="status"
+                aria-live="polite"
+                className="text-sm text-green-600"
+              >
+                Saved.
+              </span>
             )}
 
             {isRealAdmin && !isEditing && (
-              <div className="flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 p-0.5">
+              <div
+                role="group"
+                aria-label="Preview the app as"
+                className="flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 p-0.5"
+              >
                 {PREVIEW_OPTIONS.map((option) => {
                   const isSelected = (previewRole || "") === option.value;
                   return (
@@ -407,9 +423,10 @@ export default function ProfileClient({
                       key={option.value || "admin"}
                       type="button"
                       title={option.description}
+                      aria-pressed={isSelected}
                       disabled={savingPreview}
                       onClick={() => handlePreviewChange(option.value)}
-                      className={`rounded px-2 py-1 text-xs font-medium transition disabled:opacity-50 ${
+                      className={`min-h-11 rounded px-3 py-2 text-xs font-medium transition disabled:opacity-50 ${
                         isSelected
                           ? "bg-indigo-600 text-white shadow-sm"
                           : "text-gray-600 hover:bg-gray-200"
@@ -428,7 +445,7 @@ export default function ProfileClient({
                   type="button"
                   onClick={handleCancel}
                   disabled={saving}
-                  className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
+                  className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -436,7 +453,7 @@ export default function ProfileClient({
                   type="submit"
                   form="profile-form"
                   disabled={saving}
-                  className="rounded-md bg-amber-500 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-amber-400 disabled:opacity-50"
+                  className="min-h-11 rounded-md bg-amber-500 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400 disabled:opacity-50"
                 >
                   {saving ? "Saving..." : "Save"}
                 </button>
@@ -445,7 +462,7 @@ export default function ProfileClient({
               <button
                 type="button"
                 onClick={handleEdit}
-                className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+                className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
               >
                 Edit
               </button>
@@ -465,12 +482,16 @@ export default function ProfileClient({
 
         {isEditing && (
           <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="profile-picture"
+              className="block text-sm font-medium text-gray-700"
+            >
               Profile picture
             </label>
             <div className="mt-2 flex items-center gap-3">
               <input
                 ref={fileInputRef}
+                id="profile-picture"
                 type="file"
                 accept="image/*"
                 onChange={handleAvatarChange}
@@ -480,7 +501,7 @@ export default function ProfileClient({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
+                className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
               >
                 {uploadingAvatar
                   ? "Uploading..."
@@ -493,14 +514,20 @@ export default function ProfileClient({
                   type="button"
                   onClick={handleRemoveAvatar}
                   disabled={uploadingAvatar}
-                  className="text-sm font-medium text-red-600 transition hover:text-red-500 disabled:opacity-50"
+                  className="min-h-11 px-2 text-sm font-medium text-red-600 transition hover:text-red-500 disabled:opacity-50"
                 >
                   Remove
                 </button>
               )}
             </div>
             {avatarError && (
-              <p className="mt-1 text-xs text-red-600">{avatarError}</p>
+              <p
+                role="alert"
+                aria-live="assertive"
+                className="mt-1 text-xs text-red-600"
+              >
+                {avatarError}
+              </p>
             )}
             <p className="mt-1 text-xs text-gray-500">JPG or PNG, up to 5MB.</p>
           </div>
@@ -514,39 +541,51 @@ export default function ProfileClient({
           {isEditing ? (
             <div className="space-y-5 py-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="favorite-scripture"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Favorite Bible Verse
                 </label>
                 <input
+                  id="favorite-scripture"
                   type="text"
                   value={favoriteScripture}
                   onChange={(e) => setFavoriteScripture(e.target.value)}
                   placeholder="e.g. Philippians 4:13"
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+                  className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
                 />
               </div>
 
               <div className="flex flex-wrap gap-5">
                 <div className="flex-1 min-w-[10rem]">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="date-of-salvation"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Date of Salvation
                   </label>
                   <input
+                    id="date-of-salvation"
                     type="date"
                     value={dateOfSalvation}
                     onChange={(e) => setDateOfSalvation(e.target.value)}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+                    className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
                   />
                 </div>
                 <div className="flex-1 min-w-[10rem]">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="date-of-baptism"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Date of Baptism
                   </label>
                   <input
+                    id="date-of-baptism"
                     type="date"
                     value={dateOfBaptism}
                     onChange={(e) => setDateOfBaptism(e.target.value)}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+                    className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
                   />
                 </div>
               </div>
@@ -592,7 +631,13 @@ export default function ProfileClient({
           </p>
 
           {rotationError && (
-            <p className="mt-3 text-xs text-red-600">{rotationError}</p>
+            <p
+              role="alert"
+              aria-live="assertive"
+              className="mt-3 text-xs text-red-600"
+            >
+              {rotationError}
+            </p>
           )}
 
           <div className="mt-4">
@@ -605,7 +650,7 @@ export default function ProfileClient({
                   type="button"
                   onClick={() => handleSabbaticalToggle("start")}
                   disabled={rotationBusy}
-                  className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
+                  className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
                 >
                   {rotationBusy ? "Updating..." : "Start a Sabbatical"}
                 </button>
@@ -621,7 +666,7 @@ export default function ProfileClient({
                   type="button"
                   onClick={() => handleSabbaticalToggle("end")}
                   disabled={rotationBusy}
-                  className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
+                  className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
                 >
                   {rotationBusy ? "Updating..." : "End Sabbatical & Resume"}
                 </button>
@@ -637,7 +682,7 @@ export default function ProfileClient({
                   type="button"
                   onClick={handleUnpause}
                   disabled={rotationBusy}
-                  className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
+                  className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
                 >
                   {rotationBusy ? "Updating..." : "Unpause My Account"}
                 </button>
@@ -658,7 +703,7 @@ export default function ProfileClient({
                     type="button"
                     onClick={handleRequestReinstatement}
                     disabled={rotationBusy}
-                    className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
+                    className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
                   >
                     {rotationBusy ? "Requesting..." : "Request Reinstatement"}
                   </button>
@@ -681,7 +726,7 @@ export default function ProfileClient({
           </div>
           <Link
             href="/testimonies/submit"
-            className="shrink-0 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+            className="min-h-11 shrink-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
           >
             Testimony Board →
           </Link>
@@ -698,7 +743,7 @@ export default function ProfileClient({
           </div>
           <Link
             href="/account"
-            className="shrink-0 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+            className="min-h-11 shrink-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
           >
             Account →
           </Link>
