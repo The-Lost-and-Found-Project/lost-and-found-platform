@@ -93,14 +93,18 @@ export default function AdminApplicationsClient({
         </div>
         <a
           href="/admin"
-          className="shrink-0 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+          className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-indigo-600 hover:text-indigo-500"
         >
           Back to Prayer Care Admin
         </a>
       </div>
 
       {error && (
-        <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p
+          role="alert"
+          aria-live="assertive"
+          className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+        >
           {error}
         </p>
       )}
@@ -175,19 +179,26 @@ export default function AdminApplicationsClient({
 
                 {isDenying ? (
                   <div className="mt-4 space-y-2">
+                    <label
+                      htmlFor={`deny-note-${app.id}`}
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Optional note for the applicant
+                    </label>
                     <textarea
+                      id={`deny-note-${app.id}`}
                       rows={2}
                       value={denyNote}
                       onChange={(e) => setDenyNote(e.target.value)}
                       placeholder="Optional note to include for the applicant..."
-                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
+                      className="block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
                     />
                     <div className="flex gap-2">
                       <button
                         type="button"
                         disabled={isPending}
                         onClick={() => decide(app.id, "denied", denyNote.trim() || undefined)}
-                        className="rounded-full bg-red-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-red-500 disabled:opacity-50"
+                        className="min-h-11 rounded-full bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-500 disabled:opacity-50"
                       >
                         {isPending ? "Submitting..." : "Confirm Deny"}
                       </button>
@@ -197,7 +208,7 @@ export default function AdminApplicationsClient({
                           setDenyNoteFor(null);
                           setDenyNote("");
                         }}
-                        className="rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                        className="min-h-11 rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
                       >
                         Cancel
                       </button>
@@ -209,7 +220,7 @@ export default function AdminApplicationsClient({
                       type="button"
                       disabled={isPending}
                       onClick={() => decide(app.id, "approved")}
-                      className="rounded-full bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
+                      className="min-h-11 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
                     >
                       {isPending ? "Submitting..." : "Approve"}
                     </button>
@@ -217,7 +228,7 @@ export default function AdminApplicationsClient({
                       type="button"
                       disabled={isPending}
                       onClick={() => setDenyNoteFor(app.id)}
-                      className="rounded-full border border-red-200 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      className="min-h-11 rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
                     >
                       Deny
                     </button>
@@ -234,14 +245,16 @@ export default function AdminApplicationsClient({
           <button
             type="button"
             onClick={() => setShowReviewed((v) => !v)}
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+            aria-expanded={showReviewed}
+            aria-controls="reviewed-applications"
+            className="min-h-11 px-2 text-sm font-medium text-indigo-600 hover:text-indigo-500"
           >
             {showReviewed ? "Hide" : "Show"} reviewed applications (
             {reviewed.length})
           </button>
 
           {showReviewed && (
-            <div className="mt-4 space-y-3">
+            <div id="reviewed-applications" className="mt-4 space-y-3">
               {reviewed.map((app) => (
                 <div
                   key={app.id}
