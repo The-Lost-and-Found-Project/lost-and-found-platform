@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { UNREAD_COUNT_CHANGED_EVENT } from "@/lib/notifications/unread-count";
 
 export default function NotificationBell() {
   const supabase = createClient();
@@ -11,6 +12,35 @@ export default function NotificationBell() {
 
   useEffect(() => {
     let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    function applyUnreadCount(next: number) {
+      setUnreadCount(next);
+
+      // Keep the installed app's icon badge synchronized with the in-app
+      // bell. Unsupported browsers simply skip this block.
+      if ("setAppBadge" in navigator) {
+        if (next > 0) {
+          navigator.setAppBadge(next).catch(() => {});
+        } else {
+          navigator.clearAppBadge().catch(() => {});
+        }
+      }
+    }
+
+    function handleUnreadCountChanged(event: Event) {
+      const next = (
+        event as CustomEvent<{ unreadCount?: number }>
+      ).detail?.unreadCount;
+
+      if (typeof next === "number" && Number.isFinite(next)) {
+        applyUnreadCount(Math.max(0, next));
+      }
+    }
+
+    window.addEventListener(
+      UNREAD_COUNT_CHANGED_EVENT,
+      handleUnreadCountChanged
+    );
 
     async function init() {
       const { data } = await supabase.auth.getUser();
@@ -26,22 +56,7 @@ export default function NotificationBell() {
           .select("id", { count: "exact", head: true })
           .eq("user_id", uid)
           .is("read_at", null);
-        const next = count ?? 0;
-        setUnreadCount(next);
-
-        // Keep the PWA's home-screen app icon badge (the "red circle") in
-        // sync too, not just this in-app bell — covers cases where the
-        // count changes while the app is open (marking read, deleting,
-        // realtime updates from another device) that a push notification
-        // alone wouldn't catch. Android/desktop Chrome installs only; iOS
-        // Safari/PWA has no Badging API and silently no-ops here.
-        if ("setAppBadge" in navigator) {
-          if (next > 0) {
-            navigator.setAppBadge(next).catch(() => {});
-          } else {
-            navigator.clearAppBadge().catch(() => {});
-          }
-        }
+        applyUnreadCount(count ?? 0);
       }
 
       await refreshUnreadCount();
@@ -71,6 +86,10 @@ export default function NotificationBell() {
     init();
 
     return () => {
+      window.removeEventListener(
+        UNREAD_COUNT_CHANGED_EVENT,
+        handleUnreadCountChanged
+      );
       if (channel) supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
