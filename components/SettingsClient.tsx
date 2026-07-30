@@ -168,20 +168,25 @@ function ToggleRow({
       <button
         type="button"
         role="switch"
+        aria-label={title}
         aria-checked={checked}
         disabled={busy}
         onClick={() => onChange(!checked)}
-        className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition disabled:opacity-60 ${
-          checked
-            ? "bg-gradient-to-r from-indigo-600 to-violet-600"
-            : "bg-gray-200"
-        }`}
+        className="relative -my-2 h-11 w-11 shrink-0 disabled:opacity-60"
       >
         <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
-            checked ? "left-5" : "left-0.5"
+          className={`absolute inset-x-0 top-2.5 h-6 rounded-full transition ${
+            checked
+              ? "bg-gradient-to-r from-indigo-600 to-violet-600"
+              : "bg-gray-200"
           }`}
-        />
+        >
+          <span
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+              checked ? "left-5" : "left-0.5"
+            }`}
+          />
+        </span>
       </button>
     </div>
   );
