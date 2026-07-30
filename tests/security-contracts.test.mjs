@@ -50,7 +50,7 @@ test("non-admin page requests leave the admin navigation area", async () => {
     const source = await readFile(file, "utf8");
     assert.match(
       source,
-      /if \\((?:!isAdmin|effectiveRole !== "admin")\\) \\{\\s*redirect\\("\\/dashboard"\\);\\s*\\}/,
+      /if \((?:!isAdmin|effectiveRole !== "admin")\) \{\s*redirect\("\/dashboard"\);\s*\}/,
       `${file} must redirect ordinary members away from admin navigation`
     );
   }
