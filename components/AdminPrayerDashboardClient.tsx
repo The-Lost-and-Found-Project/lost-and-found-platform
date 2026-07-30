@@ -266,8 +266,9 @@ export default function AdminPrayerDashboardClient({
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <button
             type="button"
+            aria-pressed={attentionOnly}
             onClick={() => setAttentionOnly((v) => !v)}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium shadow-sm transition ${
+            className={`min-h-11 rounded-full px-3 py-2 text-sm font-medium shadow-sm transition ${
               attentionOnly
                 ? "bg-indigo-600 text-white"
                 : "border border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
@@ -281,13 +282,17 @@ export default function AdminPrayerDashboardClient({
             </span>
           )}
 
-          <label className="ml-2 text-sm font-medium text-gray-700">
+          <label
+            htmlFor="admin-status-filter"
+            className="ml-2 text-sm font-medium text-gray-700"
+          >
             Filter by status
           </label>
           <select
+            id="admin-status-filter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm"
+            className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
           >
             <option value="All">All</option>
             {STATUS_OPTIONS.map((s) => (
@@ -300,8 +305,9 @@ export default function AdminPrayerDashboardClient({
           {isAdmin && (
             <button
               type="button"
+              aria-pressed={flaggedOnly}
               onClick={() => setFlaggedOnly((v) => !v)}
-              className={`rounded-full px-3 py-1.5 text-sm font-medium shadow-sm transition ${
+              className={`min-h-11 rounded-full px-3 py-2 text-sm font-medium shadow-sm transition ${
                 flaggedOnly
                   ? "bg-amber-500 text-white"
                   : "border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100"
@@ -345,8 +351,10 @@ export default function AdminPrayerDashboardClient({
               >
                 <button
                   type="button"
+                  aria-expanded={expanded}
+                  aria-controls={`prayer-request-${r.id}`}
                   onClick={() => toggleExpanded(r.id)}
-                  className="flex w-full items-start gap-3 px-4 py-3 text-left"
+                  className="flex min-h-11 w-full items-start gap-3 px-4 py-3 text-left"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -436,7 +444,10 @@ export default function AdminPrayerDashboardClient({
                 </button>
 
                 {expanded && (
-                  <div className="border-t border-gray-100 px-5 pb-5 pt-4">
+                  <div
+                    id={`prayer-request-${r.id}`}
+                    className="border-t border-gray-100 px-5 pb-5 pt-4"
+                  >
                     {r.moderation_status === "pending" && (
                       <div className="mb-3 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
                         Flagged for review{r.flag_reason ? `: ${r.flag_reason}` : ""}
@@ -452,7 +463,14 @@ export default function AdminPrayerDashboardClient({
                       <div className="min-w-0 flex-1">
                         {editingId === r.id ? (
                           <div className="space-y-3">
+                            <label
+                              htmlFor={`request-text-${r.id}`}
+                              className="block text-xs font-medium text-gray-700"
+                            >
+                              Prayer request
+                            </label>
                             <textarea
+                              id={`request-text-${r.id}`}
                               rows={4}
                               value={editText}
                               onChange={(e) => setEditText(e.target.value)}
@@ -460,9 +478,10 @@ export default function AdminPrayerDashboardClient({
                             />
                             <div className="flex flex-wrap items-center gap-3">
                               <select
+                                aria-label={`Category for ${r.name}'s prayer request`}
                                 value={editCategoryId}
                                 onChange={(e) => setEditCategoryId(e.target.value)}
-                                className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
+                                className="min-h-11 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm"
                               >
                                 <option value="">No category</option>
                                 {categories.map((c) => (
@@ -471,7 +490,7 @@ export default function AdminPrayerDashboardClient({
                                   </option>
                                 ))}
                               </select>
-                              <label className="flex items-center gap-1.5 text-xs text-gray-700">
+                              <label className="flex min-h-11 items-center gap-1.5 text-xs text-gray-700">
                                 <input
                                   type="checkbox"
                                   checked={editIsPublic}
@@ -480,7 +499,7 @@ export default function AdminPrayerDashboardClient({
                                 />
                                 Public
                               </label>
-                              <label className="flex items-center gap-1.5 text-xs text-gray-700">
+                              <label className="flex min-h-11 items-center gap-1.5 text-xs text-gray-700">
                                 <input
                                   type="checkbox"
                                   checked={editIsAnonymous}
@@ -496,14 +515,14 @@ export default function AdminPrayerDashboardClient({
                               <button
                                 type="button"
                                 onClick={() => saveEdit(r.id)}
-                                className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-500"
+                                className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-xs font-medium text-white shadow-sm hover:bg-indigo-500"
                               >
                                 Save
                               </button>
                               <button
                                 type="button"
                                 onClick={cancelEdit}
-                                className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                                className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
                               >
                                 Cancel
                               </button>
@@ -546,8 +565,9 @@ export default function AdminPrayerDashboardClient({
                           <div className="mt-3 flex flex-wrap gap-2">
                             <button
                               type="button"
+                              aria-label={`Edit ${r.name}'s prayer request`}
                               onClick={() => startEdit(r)}
-                              className="rounded-md border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                              className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
                             >
                               Edit
                             </button>
@@ -556,14 +576,14 @@ export default function AdminPrayerDashboardClient({
                                 <button
                                   type="button"
                                   onClick={() => approveRequest(r.id)}
-                                  className="rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-emerald-500"
+                                  className="min-h-11 rounded-md bg-emerald-600 px-3 py-2 text-xs font-medium text-white shadow-sm hover:bg-emerald-500"
                                 >
                                   Approve
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => denyRequest(r)}
-                                  className="rounded-md bg-red-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-red-500"
+                                  className="min-h-11 rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white shadow-sm hover:bg-red-500"
                                 >
                                   Deny
                                 </button>
@@ -573,7 +593,7 @@ export default function AdminPrayerDashboardClient({
                                 <button
                                   type="button"
                                   onClick={() => manualFlag(r.id)}
-                                  className="rounded-md border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 shadow-sm hover:bg-amber-100"
+                                  className="min-h-11 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 shadow-sm hover:bg-amber-100"
                                 >
                                   Flag for review
                                 </button>
@@ -588,14 +608,14 @@ export default function AdminPrayerDashboardClient({
                                   type="button"
                                   onClick={() => handleDeleteRequest(r.id)}
                                   disabled={deletingId === r.id}
-                                  className="rounded-md bg-red-600 px-3 py-1 font-medium text-white shadow-sm hover:bg-red-500 disabled:opacity-60"
+                                  className="min-h-11 rounded-md bg-red-600 px-3 py-2 font-medium text-white shadow-sm hover:bg-red-500 disabled:opacity-60"
                                 >
                                   {deletingId === r.id ? "Deleting…" : "Confirm"}
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => setConfirmingDeleteId(null)}
-                                  className="rounded-md border border-gray-300 px-3 py-1 font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                                  className="min-h-11 rounded-md border border-gray-300 px-3 py-2 font-medium text-gray-700 shadow-sm hover:bg-gray-50"
                                 >
                                   Cancel
                                 </button>
@@ -603,8 +623,9 @@ export default function AdminPrayerDashboardClient({
                             ) : (
                               <button
                                 type="button"
+                                aria-label={`Delete ${r.name}'s prayer request`}
                                 onClick={() => setConfirmingDeleteId(r.id)}
-                                className="rounded-md border border-red-300 bg-red-50 px-3 py-1 text-xs font-medium text-red-700 shadow-sm hover:bg-red-100"
+                                className="min-h-11 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 shadow-sm hover:bg-red-100"
                               >
                                 Delete
                               </button>
@@ -615,11 +636,12 @@ export default function AdminPrayerDashboardClient({
 
                       <div className="flex shrink-0 flex-col items-end gap-2">
                         <select
+                          aria-label={`Status for ${r.name}'s prayer request`}
                           value={r.status}
                           onChange={(e) =>
                             updateRequest(r.id, { status: e.target.value })
                           }
-                          className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
+                          className="min-h-11 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm"
                         >
                           {STATUS_OPTIONS.map((s) => (
                             <option key={s} value={s}>
@@ -628,9 +650,10 @@ export default function AdminPrayerDashboardClient({
                           ))}
                         </select>
                         <select
+                          aria-label={`Assignee for ${r.name}'s prayer request`}
                           value={r.assigned_to ?? ""}
                           onChange={(e) => assignRequest(r, e.target.value)}
-                          className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
+                          className="min-h-11 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm"
                         >
                           <option value="">Unassigned</option>
                           {careTeam.map((m) => (
@@ -643,7 +666,7 @@ export default function AdminPrayerDashboardClient({
                     </div>
 
                     <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 text-sm">
-                      <label className="flex items-center gap-2 text-gray-700">
+                      <label className="flex min-h-11 items-center gap-2 text-gray-700">
                         <input
                           type="checkbox"
                           checked={r.follow_up_needed}
@@ -658,6 +681,7 @@ export default function AdminPrayerDashboardClient({
                       </label>
                       {r.follow_up_needed && (
                         <input
+                          aria-label={`Follow-up date for ${r.name}'s prayer request`}
                           type="date"
                           value={r.follow_up_date ?? ""}
                           onChange={(e) =>
@@ -665,10 +689,10 @@ export default function AdminPrayerDashboardClient({
                               follow_up_date: e.target.value || null,
                             })
                           }
-                          className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
+                          className="min-h-11 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm"
                         />
                       )}
-                      <label className="flex items-center gap-2 text-gray-700">
+                      <label className="flex min-h-11 items-center gap-2 text-gray-700">
                         <input
                           type="checkbox"
                           checked={r.answered}
@@ -686,10 +710,14 @@ export default function AdminPrayerDashboardClient({
 
                     {r.answered && (
                       <div className="mt-3">
-                        <label className="block text-xs font-medium text-gray-500">
+                        <label
+                          htmlFor={`praise-report-${r.id}`}
+                          className="block text-xs font-medium text-gray-500"
+                        >
                           Praise report
                         </label>
                         <textarea
+                          id={`praise-report-${r.id}`}
                           rows={2}
                           value={r.praise_report ?? ""}
                           onChange={(e) =>
