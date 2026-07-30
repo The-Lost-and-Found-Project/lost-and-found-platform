@@ -129,10 +129,11 @@ export default function TestimonySubmitClient() {
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="testimony" className="block text-sm font-medium text-gray-700">
             Your Testimony
           </label>
           <textarea
+            id="testimony"
             required
             rows={8}
             value={contentText}
@@ -176,12 +177,16 @@ export default function TestimonySubmitClient() {
           </p>
         </div>
 
-        <p className="text-sm text-red-600">{error}</p>
+        {error && (
+          <p role="alert" aria-live="polite" className="text-sm text-red-600">
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400 disabled:opacity-50"
+          className="min-h-11 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400 disabled:opacity-50"
         >
           {submitting
             ? "Saving..."
