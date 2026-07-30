@@ -74,7 +74,7 @@ test("AI narration is generated server-side and saved as versioned audio", async
 
 test("the migration provides versioned metadata, RLS, and a constrained bucket", async () => {
   const migration = await source(
-    "supabase/migrations/20260730153407_devotion_listen_mode.sql"
+    "supabase/migrations/20260730154343_devotion_listen_mode.sql"
   );
 
   for (const field of [
