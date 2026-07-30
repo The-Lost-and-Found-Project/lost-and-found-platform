@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -17,12 +17,18 @@ type PrayerRequest = {
 type Category = { id: string; name: string };
 
 export default function PrayerWallPage() {
-  const supabase = createClient();
   const [requests, setRequests] = useState<PrayerRequest[]>([]);
   const [categories, setCategories] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
-  const [prayedIds, setPrayedIds] = useState<Set<string>>(new Set());
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const [confirmedIds, setConfirmedIds] = useState<Set<string>>(new Set());
+  const [prayerErrors, setPrayerErrors] = useState<Record<string, string>>({});
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const inFlightIds = useRef<Set<string>>(new Set());
+  const retryKeys = useRef<Map<string, string>>(new Map());
+  const confirmationTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
+    new Map()
+  );
 
   function toggleExpanded(id: string) {
     setExpandedIds((prev) => {
@@ -38,6 +44,7 @@ export default function PrayerWallPage() {
 
   useEffect(() => {
     async function load() {
+      const supabase = createClient();
       const { data: cats } = await supabase
         .from("prayer_categories")
         .select("id, name");
@@ -57,39 +64,16 @@ export default function PrayerWallPage() {
 
       setRequests((reqs as PrayerRequest[]) ?? []);
       setLoading(false);
-
-      // Figure out which requests this visitor has already prayed for, so
-      // the button can show a checkmark instead of "I Prayed" again.
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-
-      let existing: { prayer_request_id: string }[] | null = null;
-      if (user) {
-        const { data } = await supabase
-          .from("prayer_reactions")
-          .select("prayer_request_id")
-          .eq("user_id", user.id);
-        existing = data;
-      } else {
-        const anonKey = window.localStorage.getItem("lfp_anon_key");
-        if (anonKey) {
-          const { data } = await supabase
-            .from("prayer_reactions")
-            .select("prayer_request_id")
-            .eq("anon_key", anonKey);
-          existing = data;
-        }
-      }
-
-      if (existing && existing.length > 0) {
-        setPrayedIds(
-          (prev) =>
-            new Set([...prev, ...existing!.map((r) => r.prayer_request_id)])
-        );
-      }
     }
 
     load();
+  }, []);
+
+  useEffect(() => {
+    const timers = confirmationTimers.current;
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer));
+    };
   }, []);
 
   function getAnonKey() {
@@ -102,34 +86,82 @@ export default function PrayerWallPage() {
   }
 
   async function handlePray(requestId: string) {
-    if (prayedIds.has(requestId)) return;
+    if (inFlightIds.current.has(requestId)) return;
 
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
+    inFlightIds.current.add(requestId);
+    setPendingIds((prev) => new Set(prev).add(requestId));
+    setPrayerErrors((prev) => {
+      const next = { ...prev };
+      delete next[requestId];
+      return next;
+    });
 
-    const payload: {
-      prayer_request_id: string;
-      user_id?: string;
-      anon_key?: string;
-    } = {
-      prayer_request_id: requestId,
-    };
+    try {
+      const clientRequestId =
+        retryKeys.current.get(requestId) ?? crypto.randomUUID();
+      retryKeys.current.set(requestId, clientRequestId);
 
-    if (user) {
-      payload.user_id = user.id;
-    } else {
-      payload.anon_key = getAnonKey();
-    }
+      const response = await fetch("/api/prayer-activities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requestId,
+          clientRequestId,
+          anonKey: getAnonKey(),
+        }),
+      });
 
-    const { error } = await supabase.from("prayer_reactions").insert(payload);
+      const result = (await response.json()) as {
+        prayerCount?: number | null;
+        error?: string;
+      };
 
-    if (!error) {
-      setPrayedIds((prev) => new Set(prev).add(requestId));
+      if (!response.ok) {
+        throw new Error(result.error ?? "Prayer activity request failed");
+      }
+
       setRequests((prev) =>
         prev.map((r) =>
-          r.id === requestId ? { ...r, prayer_count: r.prayer_count + 1 } : r
+          r.id === requestId
+            ? {
+                ...r,
+                prayer_count:
+                  typeof result.prayerCount === "number"
+                    ? result.prayerCount
+                    : r.prayer_count + 1,
+              }
+            : r
         )
       );
+      retryKeys.current.delete(requestId);
+
+      setConfirmedIds((prev) => new Set(prev).add(requestId));
+      const existingTimer = confirmationTimers.current.get(requestId);
+      if (existingTimer) clearTimeout(existingTimer);
+      confirmationTimers.current.set(
+        requestId,
+        setTimeout(() => {
+          setConfirmedIds((prev) => {
+            const next = new Set(prev);
+            next.delete(requestId);
+            return next;
+          });
+          confirmationTimers.current.delete(requestId);
+        }, 1800)
+      );
+    } catch (error) {
+      console.error("Failed to record prayer activity:", error);
+      setPrayerErrors((prev) => ({
+        ...prev,
+        [requestId]: "We couldn't record your prayer. Please try again.",
+      }));
+    } finally {
+      inFlightIds.current.delete(requestId);
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(requestId);
+        return next;
+      });
     }
   }
 
@@ -163,6 +195,11 @@ export default function PrayerWallPage() {
 
         {requests.map((r) => {
           const expanded = expandedIds.has(r.id);
+          const pending = pendingIds.has(r.id);
+          const confirmed = confirmedIds.has(r.id);
+          const prayerLabel = `${r.prayer_count} ${
+            r.prayer_count === 1 ? "prayer" : "prayers"
+          }`;
           const snippet =
             r.request_text.length > 90
               ? `${r.request_text.slice(0, 90)}...`
@@ -213,32 +250,39 @@ export default function PrayerWallPage() {
                   </div>
                 </button>
 
-                {prayedIds.has(r.id) ? (
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      className="h-4 w-4"
-                    >
-                      <path
-                        d="M5 13l4 4L19 7"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    Prayed ({r.prayer_count})
-                  </span>
-                ) : (
+                <div className="shrink-0 text-right">
                   <button
                     onClick={() => handlePray(r.id)}
-                    className="shrink-0 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400"
+                    disabled={pending}
+                    aria-label={`${
+                      confirmed ? "Prayer recorded for" : "Pray for"
+                    } ${r.display_name ?? "this request"}. ${prayerLabel}`}
+                    className={`min-h-11 rounded-md px-4 py-2 text-sm font-medium shadow-sm disabled:cursor-wait disabled:opacity-70 ${
+                      confirmed
+                        ? "bg-green-100 text-green-800"
+                        : "bg-amber-500 text-white hover:bg-amber-400"
+                    }`}
                   >
-                    I Prayed ({r.prayer_count})
+                    {pending
+                      ? "Recording..."
+                      : confirmed
+                        ? "Prayer recorded"
+                        : "Pray"}
                   </button>
-                )}
+                  <p className="mt-1 text-xs text-gray-600">{prayerLabel}</p>
+                  {prayerErrors[r.id] && (
+                    <p
+                      role="alert"
+                      aria-live="polite"
+                      className="mt-2 max-w-48 text-sm text-red-700"
+                    >
+                      {prayerErrors[r.id]}
+                    </p>
+                  )}
+                  <span className="sr-only" role="status" aria-live="polite">
+                    {confirmed ? `Prayer recorded. ${prayerLabel}.` : ""}
+                  </span>
+                </div>
               </div>
             </div>
           );
