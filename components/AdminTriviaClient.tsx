@@ -328,7 +328,11 @@ export default function AdminTriviaClient({
       </div>
 
       {error && (
-        <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p
+          role="alert"
+          aria-live="assertive"
+          className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+        >
           {error}
         </p>
       )}
@@ -346,7 +350,7 @@ export default function AdminTriviaClient({
               });
               setShowCategoryForm(true);
             }}
-            className="rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-500"
+            className="min-h-11 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500"
           >
             + Add Category
           </button>
@@ -359,8 +363,11 @@ export default function AdminTriviaClient({
           >
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-xs font-medium text-gray-700">Name</label>
+                <label htmlFor="trivia-category-name" className="text-xs font-medium text-gray-700">
+                  Name
+                </label>
                 <input
+                  id="trivia-category-name"
                   required
                   value={categoryForm.name}
                   onChange={(e) =>
@@ -370,10 +377,11 @@ export default function AdminTriviaClient({
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-700">
+                <label htmlFor="trivia-category-order" className="text-xs font-medium text-gray-700">
                   Sort Order
                 </label>
                 <input
+                  id="trivia-category-order"
                   type="number"
                   value={categoryForm.sortOrder}
                   onChange={(e) =>
@@ -387,10 +395,11 @@ export default function AdminTriviaClient({
               </div>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-700">
+              <label htmlFor="trivia-category-description" className="text-xs font-medium text-gray-700">
                 Description
               </label>
               <textarea
+                id="trivia-category-description"
                 required
                 rows={2}
                 value={categoryForm.description}
@@ -400,7 +409,7 @@ export default function AdminTriviaClient({
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
               />
             </div>
-            <label className="flex items-center gap-2 text-sm text-gray-700">
+            <label className="flex min-h-11 items-center gap-2 text-sm text-gray-700">
               <input
                 type="checkbox"
                 checked={categoryForm.isActive}
@@ -414,7 +423,7 @@ export default function AdminTriviaClient({
               <button
                 type="submit"
                 disabled={savingCategory}
-                className="rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50"
+                className="min-h-11 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50"
               >
                 {savingCategory ? "Saving..." : categoryForm.id ? "Save Changes" : "Create Category"}
               </button>
@@ -424,7 +433,7 @@ export default function AdminTriviaClient({
                   setShowCategoryForm(false);
                   setCategoryForm(EMPTY_CATEGORY_FORM);
                 }}
-                className="rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                className="min-h-11 rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -451,8 +460,9 @@ export default function AdminTriviaClient({
                   </div>
                   <button
                     type="button"
+                    aria-label={`Edit ${c.name} category`}
                     onClick={() => startEditCategory(c)}
-                    className="shrink-0 text-xs font-medium text-indigo-600 hover:text-indigo-500"
+                    className="min-h-11 shrink-0 px-2 text-xs font-medium text-indigo-600 hover:text-indigo-500"
                   >
                     Edit
                   </button>
@@ -488,7 +498,7 @@ export default function AdminTriviaClient({
           <button
             type="button"
             onClick={startNewQuestion}
-            className="rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-500"
+            className="min-h-11 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500"
           >
             + Add Question
           </button>
@@ -496,9 +506,10 @@ export default function AdminTriviaClient({
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <select
+            aria-label="Filter questions by category"
             value={selectedCategoryId}
             onChange={(e) => setSelectedCategoryId(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm"
+            className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
           >
             <option value="all">All Categories</option>
             {categories.map((c) => (
@@ -514,8 +525,9 @@ export default function AdminTriviaClient({
                 <button
                   key={s}
                   type="button"
+                  aria-pressed={statusFilter === s}
                   onClick={() => setStatusFilter(s)}
-                  className={`rounded-full px-3 py-1 font-medium capitalize transition ${
+                  className={`min-h-11 rounded-full px-3 py-2 font-medium capitalize transition ${
                     statusFilter === s
                       ? "bg-white text-indigo-700 shadow-sm"
                       : "text-gray-500 hover:text-gray-700"
@@ -532,7 +544,7 @@ export default function AdminTriviaClient({
               type="button"
               onClick={bulkApprove}
               disabled={bulkBusy}
-              className="rounded-full bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
+              className="min-h-11 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
             >
               {bulkBusy
                 ? "Approving..."
@@ -547,8 +559,11 @@ export default function AdminTriviaClient({
             className="mt-4 space-y-3 rounded-lg border border-indigo-100 bg-indigo-50/40 p-4"
           >
             <div>
-              <label className="text-xs font-medium text-gray-700">Category</label>
+              <label htmlFor="trivia-question-category" className="text-xs font-medium text-gray-700">
+                Category
+              </label>
               <select
+                id="trivia-question-category"
                 required
                 value={questionForm.categoryId}
                 onChange={(e) =>
@@ -567,8 +582,11 @@ export default function AdminTriviaClient({
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-700">Question</label>
+              <label htmlFor="trivia-question-text" className="text-xs font-medium text-gray-700">
+                Question
+              </label>
               <textarea
+                id="trivia-question-text"
                 required
                 rows={2}
                 value={questionForm.question}
@@ -581,7 +599,7 @@ export default function AdminTriviaClient({
             <div className="grid gap-2 sm:grid-cols-2">
               {(["choice1", "choice2", "choice3", "choice4"] as const).map(
                 (key, i) => (
-                  <label key={key} className="flex items-center gap-2">
+                  <label key={key} className="flex min-h-11 items-center gap-2">
                     <input
                       type="radio"
                       name="correctIndex"
@@ -609,10 +627,11 @@ export default function AdminTriviaClient({
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-xs font-medium text-gray-700">
+                <label htmlFor="trivia-scripture-reference" className="text-xs font-medium text-gray-700">
                   Scripture Reference
                 </label>
                 <input
+                  id="trivia-scripture-reference"
                   required
                   value={questionForm.ref}
                   onChange={(e) =>
@@ -623,10 +642,11 @@ export default function AdminTriviaClient({
               </div>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-700">
+              <label htmlFor="trivia-explanatory-note" className="text-xs font-medium text-gray-700">
                 Explanatory Note
               </label>
               <textarea
+                id="trivia-explanatory-note"
                 required
                 rows={2}
                 value={questionForm.note}
@@ -640,7 +660,7 @@ export default function AdminTriviaClient({
               <button
                 type="submit"
                 disabled={savingQuestion}
-                className="rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50"
+                className="min-h-11 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50"
               >
                 {savingQuestion
                   ? "Saving..."
@@ -655,7 +675,7 @@ export default function AdminTriviaClient({
                   setQuestionForm(EMPTY_QUESTION_FORM);
                   setBusyId(null);
                 }}
-                className="rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                className="min-h-11 rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
               >
                 Cancel
               </button>
