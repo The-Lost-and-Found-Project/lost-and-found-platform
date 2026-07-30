@@ -24,8 +24,17 @@ $$;
 
 -- Remove only the operational alerts that were previously delivered to
 -- non-admin accounts. Member-facing notification types are left untouched.
-delete from public.notifications n
-using public.profiles recipient
-where n.user_id = recipient.id
-  and n.type = 'new_member'
-  and recipient.role <> 'admin';
+-- This repository's tracked migrations begin after the legacy production
+-- schema, so fresh local/CI databases may not have these tables yet.
+do $migration$
+begin
+  if to_regclass('public.notifications') is not null
+     and to_regclass('public.profiles') is not null then
+    delete from public.notifications n
+    using public.profiles recipient
+    where n.user_id = recipient.id
+      and n.type = 'new_member'
+      and recipient.role <> 'admin';
+  end if;
+end;
+$migration$;

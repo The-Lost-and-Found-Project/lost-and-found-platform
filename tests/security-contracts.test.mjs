@@ -96,6 +96,11 @@ test("new-member operational notifications are admin-only", async () => {
   );
   assert.match(migrationSource, /n\.type = 'new_member'/);
   assert.match(migrationSource, /recipient\.role <> 'admin'/);
+  assert.match(
+    migrationSource,
+    /to_regclass\('public\.notifications'\) is not null/
+  );
+  assert.match(migrationSource, /to_regclass\('public\.profiles'\) is not null/);
   assert.match(buildInfoSource, /VERCEL_GIT_COMMIT_SHA/);
   assert.doesNotMatch(buildInfoSource, /callerProfile/);
 });
@@ -120,6 +125,11 @@ test("care-team notifications use the assignments-only destination", async () =>
     /n\.type in \('assigned', 'prayer_care_application_approved'\)/
   );
   assert.match(migrationSource, /n\.title = 'New prayer request submitted'/);
+  assert.match(
+    migrationSource,
+    /to_regclass\('public\.notifications'\) is not null/
+  );
+  assert.match(migrationSource, /to_regclass\('public\.profiles'\) is not null/);
 });
 
 test("Coming Soon programs remain intentionally inactive", async () => {

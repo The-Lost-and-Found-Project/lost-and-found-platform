@@ -113,20 +113,29 @@ begin
 end;
 $$;
 
-update public.notifications n
-set link = '/prayer-assignments'
-from public.profiles recipient
-where n.user_id = recipient.id
-  and recipient.role <> 'admin'
-  and n.link = '/admin'
-  and n.type in ('assigned', 'prayer_care_application_approved');
+-- This repository's tracked migrations begin after the legacy production
+-- schema, so fresh local/CI databases may not have these tables yet.
+do $migration$
+begin
+  if to_regclass('public.notifications') is not null
+     and to_regclass('public.profiles') is not null then
+    update public.notifications n
+    set link = '/prayer-assignments'
+    from public.profiles recipient
+    where n.user_id = recipient.id
+      and recipient.role <> 'admin'
+      and n.link = '/admin'
+      and n.type in ('assigned', 'prayer_care_application_approved');
 
--- This obsolete care-team broadcast exposed an admin-only destination and
--- has been superseded by direct assignment notifications.
-delete from public.notifications n
-using public.profiles recipient
-where n.user_id = recipient.id
-  and recipient.role <> 'admin'
-  and n.link = '/admin'
-  and n.type = 'new_request'
-  and n.title = 'New prayer request submitted';
+    -- This obsolete care-team broadcast exposed an admin-only destination and
+    -- has been superseded by direct assignment notifications.
+    delete from public.notifications n
+    using public.profiles recipient
+    where n.user_id = recipient.id
+      and recipient.role <> 'admin'
+      and n.link = '/admin'
+      and n.type = 'new_request'
+      and n.title = 'New prayer request submitted';
+  end if;
+end;
+$migration$;
