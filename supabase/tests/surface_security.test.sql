@@ -274,7 +274,7 @@ alter function public.set_updated_at() set search_path = '';
 
 select ok(
   (
-    select proconfig::text collate "C" = '{search_path=}'::text collate "C"
+    select proconfig[1] collate "C" = 'search_path=""'::text collate "C"
     from pg_proc
     where oid = 'public.is_care_team()'::regprocedure
   ),
@@ -283,7 +283,7 @@ select ok(
 
 select ok(
   (
-    select proconfig::text collate "C" = '{search_path=}'::text collate "C"
+    select proconfig[1] collate "C" = 'search_path=""'::text collate "C"
     from pg_proc
     where oid = 'public.get_quiz_questions(text,integer)'::regprocedure
   ),
@@ -292,7 +292,7 @@ select ok(
 
 select ok(
   (
-    select proconfig::text collate "C" = '{search_path=}'::text collate "C"
+    select proconfig[1] collate "C" = 'search_path=""'::text collate "C"
     from pg_proc
     where oid = 'public.set_updated_at()'::regprocedure
   ),
