@@ -63,9 +63,17 @@ test("AI narration is generated server-side and saved as versioned audio", async
   assert.match(route, /gpt-4o-mini-tts-2025-12-15/);
   assert.match(route, /MAX_NARRATION_CHARACTERS = 4096/);
   assert.match(route, /getDevotionContentVersion\(day\)/);
+  assert.match(route, /\.select\("id, days, status"\)/);
+  assert.match(
+    route,
+    /week\.status !== "approved" && week\.status !== "published"/
+  );
+  assert.match(route, /Approve the devotional before generating its audio/);
   assert.match(route, /generated_at: generatedAt/);
   assert.match(route, /contentType: "audio\/mpeg"/);
   assert.match(manager, /Generate AI audio/);
+  assert.match(manager, /disabled=\{busy \|\| narrationIsTooLong \|\| !canGenerateAudio\}/);
+  assert.match(manager, /Approve this devotional before generating AI audio/);
   assert.match(manager, /does not use or imitate your[\s\S]*voice/);
   assert.match(player, /AI-generated voice:/);
   assert.match(env, /^OPENAI_API_KEY=$/m);

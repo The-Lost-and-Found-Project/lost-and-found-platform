@@ -34,12 +34,14 @@ export default function DevotionAudioManager({
   weekId,
   day,
   contentVersion,
+  canGenerateAudio,
   audio,
   onChange,
 }: {
   weekId: string;
   day: DevotionDay;
   contentVersion: string;
+  canGenerateAudio: boolean;
   audio: DevotionAudio | null;
   onChange: (audio: DevotionAudio | null) => void;
 }) {
@@ -63,6 +65,10 @@ export default function DevotionAudioManager({
     narrationText.trim().length > MAX_NARRATION_CHARACTERS;
 
   async function generate() {
+    if (!canGenerateAudio) {
+      setError("Approve the devotional before generating its audio.");
+      return;
+    }
     if (narrationText.trim().length < 40) {
       setError("Review and complete the narration script first.");
       return;
@@ -252,13 +258,18 @@ export default function DevotionAudioManager({
         </label>
         <button
           type="button"
-          disabled={busy || narrationIsTooLong}
+          disabled={busy || narrationIsTooLong || !canGenerateAudio}
           onClick={generate}
           className="min-h-11 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {busy ? "Working…" : audio ? "Regenerate AI audio" : "Generate AI audio"}
         </button>
       </div>
+      {!canGenerateAudio && (
+        <p className="mt-2 text-xs font-medium text-amber-700">
+          Approve this devotional before generating AI audio.
+        </p>
+      )}
       <p className="mt-2 text-xs text-gray-500">
         This creates a synthetic voice recording. It does not use or imitate your
         voice.

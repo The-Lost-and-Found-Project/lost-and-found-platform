@@ -116,12 +116,18 @@ export async function POST(request: NextRequest) {
     const admin = createAdminClient();
     const { data: week, error: weekError } = await admin
       .from("devotion_weeks")
-      .select("id, days")
+      .select("id, days, status")
       .eq("id", weekId)
       .single();
 
     if (weekError || !week) {
       return NextResponse.json({ error: "Devotion week not found" }, { status: 404 });
+    }
+    if (week.status !== "approved" && week.status !== "published") {
+      return NextResponse.json(
+        { error: "Approve the devotional before generating its audio." },
+        { status: 409 }
+      );
     }
 
     const day = findDay(week.days, dayNumber);
