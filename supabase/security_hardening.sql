@@ -21,10 +21,15 @@ using (moderation_status = 'approved');
 -- granting public profile access would expose substantially more information.
 
 -- Trigger helpers and server-only RPCs should not be public REST endpoints.
--- The two functions below are intentionally retained for current public flows.
+-- Remove PostgreSQL's default PUBLIC execute privilege for both existing and
+-- future app functions. Service-role grants remain intact for trusted routes.
 revoke execute on all functions in schema public from public, anon, authenticated;
+alter default privileges for role postgres in schema public
+  revoke execute on functions from public, anon, authenticated;
+
+-- These are the only functions called by browser roles. is_care_team() is
+-- also used by RLS policies; quiz questions are available to signed-in users.
 grant execute on function public.is_care_team() to anon, authenticated;
-grant execute on function public.get_prayer_request_assignment(uuid) to anon, authenticated;
 grant execute on function public.get_quiz_questions(text, integer) to authenticated;
 
 -- RLS controls which profile row a member may update, but table-level UPDATE
