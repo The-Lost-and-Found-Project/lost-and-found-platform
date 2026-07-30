@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type MouseEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { announceUnreadCount } from "@/lib/notifications/unread-count";
 
 type Notification = {
   id: string;
@@ -32,6 +34,7 @@ export default function NotificationsClient({
   initialNotifications: Notification[];
 }) {
   const supabase = createClient();
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>(
     initialNotifications
   );
@@ -87,27 +90,65 @@ export default function NotificationsClient({
     if (unreadIds.length === 0) return;
 
     const now = new Date().toISOString();
-    setNotifications((prev) =>
-      prev.map((n) => (n.read_at ? n : { ...n, read_at: now }))
-    );
-
-    await supabase
+    const { error } = await supabase
       .from("notifications")
       .update({ read_at: now })
       .in("id", unreadIds);
+
+    if (!error) {
+      setNotifications((prev) =>
+        prev.map((n) => (n.read_at ? n : { ...n, read_at: now }))
+      );
+      announceUnreadCount(0);
+    }
   }
 
-  async function markOneRead(id: string) {
+  async function markOneRead(notification: Notification) {
+    if (notification.read_at) return;
+
     const now = new Date().toISOString();
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read_at: n.read_at ?? now } : n))
-    );
-    await supabase.from("notifications").update({ read_at: now }).eq("id", id);
+    const { error } = await supabase
+      .from("notifications")
+      .update({ read_at: now })
+      .eq("id", notification.id);
+
+    if (!error) {
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notification.id ? { ...n, read_at: n.read_at ?? now } : n
+        )
+      );
+      announceUnreadCount(unreadCount - 1);
+    }
+  }
+
+  async function openNotification(
+    event: MouseEvent<HTMLAnchorElement>,
+    notification: Notification
+  ) {
+    const isModifiedClick =
+      event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+
+    if (isModifiedClick) {
+      void markOneRead(notification);
+      return;
+    }
+
+    event.preventDefault();
+    await markOneRead(notification);
+    router.push(notification.link ?? "/notifications");
   }
 
   async function deleteOne(id: string) {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    await supabase.from("notifications").delete().eq("id", id);
+    const deletedNotification = notifications.find((n) => n.id === id);
+    const { error } = await supabase.from("notifications").delete().eq("id", id);
+
+    if (!error) {
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      if (deletedNotification && !deletedNotification.read_at) {
+        announceUnreadCount(unreadCount - 1);
+      }
+    }
   }
 
   async function clearRead() {
@@ -193,7 +234,7 @@ export default function NotificationsClient({
           >
             <Link
               href={n.link ?? "#"}
-              onClick={() => markOneRead(n.id)}
+              onClick={(event) => void openNotification(event, n)}
               className="flex min-w-0 flex-1 items-start gap-3"
             >
               <span

@@ -107,6 +107,26 @@ export default async function DashboardPage() {
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
         <PushPrompt />
 
+        {isCareTeam && (
+          <div className="mb-6 grid grid-cols-1 items-center gap-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-5 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <div>
+              <h2 className="text-sm font-semibold text-gray-900">
+                My Prayer Assignments
+              </h2>
+              <p className="mt-1 text-sm text-gray-600">
+                View the prayer requests entrusted to you, record care
+                updates, and keep each person covered in prayer.
+              </p>
+            </div>
+            <Link
+              href="/prayer-assignments"
+              className="justify-self-start rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 sm:justify-self-end"
+            >
+              View Assignments
+            </Link>
+          </div>
+        )}
+
         <div className="mb-6 grid grid-cols-1 items-center gap-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-5 sm:grid-cols-[minmax(0,1fr)_auto]">
           <div>
             <h2 className="text-sm font-semibold text-gray-900">

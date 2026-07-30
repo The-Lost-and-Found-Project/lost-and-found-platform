@@ -74,6 +74,64 @@ test("service-role credentials never appear in public environment variables", as
   assert.match(source, /^SUPABASE_SERVICE_ROLE_KEY=$/m);
 });
 
+test("new-member operational notifications are admin-only", async () => {
+  const migrationSource = await readFile(
+    path.join(
+      root,
+      "supabase",
+      "migrations",
+      "20260730163402_admin_only_member_notifications.sql"
+    ),
+    "utf8"
+  );
+  const buildInfoSource = await readFile(
+    path.join(root, "app", "api", "build-info", "route.ts"),
+    "utf8"
+  );
+
+  assert.match(migrationSource, /where prof\.role = 'admin'/);
+  assert.doesNotMatch(
+    migrationSource,
+    /prof\.role in \('admin','pastor','prayer_team'\)/
+  );
+  assert.match(migrationSource, /n\.type = 'new_member'/);
+  assert.match(migrationSource, /recipient\.role <> 'admin'/);
+  assert.match(
+    migrationSource,
+    /to_regclass\('public\.notifications'\) is not null/
+  );
+  assert.match(migrationSource, /to_regclass\('public\.profiles'\) is not null/);
+  assert.match(buildInfoSource, /VERCEL_GIT_COMMIT_SHA/);
+  assert.doesNotMatch(buildInfoSource, /callerProfile/);
+});
+
+test("care-team notifications use the assignments-only destination", async () => {
+  const migrationSource = await readFile(
+    path.join(
+      root,
+      "supabase",
+      "migrations",
+      "20260730163629_role_appropriate_notification_links.sql"
+    ),
+    "utf8"
+  );
+
+  assert.match(migrationSource, /public\.notify_auto_assigned_care_team_member/);
+  assert.match(migrationSource, /public\.notify_prayer_request_assigned/);
+  assert.match(migrationSource, /public\.notify_prayer_care_application_decision/);
+  assert.match(migrationSource, /'\/prayer-assignments'/);
+  assert.match(
+    migrationSource,
+    /n\.type in \('assigned', 'prayer_care_application_approved'\)/
+  );
+  assert.match(migrationSource, /n\.title = 'New prayer request submitted'/);
+  assert.match(
+    migrationSource,
+    /to_regclass\('public\.notifications'\) is not null/
+  );
+  assert.match(migrationSource, /to_regclass\('public\.profiles'\) is not null/);
+});
+
 test("Coming Soon programs remain intentionally inactive", async () => {
   const source = await readFile(path.join(root, "app", "programs", "page.tsx"), "utf8");
 
