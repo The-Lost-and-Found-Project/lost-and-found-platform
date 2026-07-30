@@ -272,27 +272,30 @@ alter function public.is_care_team() set search_path = '';
 alter function public.get_quiz_questions(text, integer) set search_path = '';
 alter function public.set_updated_at() set search_path = '';
 
-select results_eq(
-  $$select coalesce(proconfig, array[]::text[])
+select ok(
+  (
+    select proconfig::text collate "C" = '{search_path=}'::text collate "C"
     from pg_proc
-    where oid = 'public.is_care_team()'::regprocedure$$,
-  $$values (array['search_path=']::text[])$$,
+    where oid = 'public.is_care_team()'::regprocedure
+  ),
   'is_care_team has an immutable empty search path'
 );
 
-select results_eq(
-  $$select coalesce(proconfig, array[]::text[])
+select ok(
+  (
+    select proconfig::text collate "C" = '{search_path=}'::text collate "C"
     from pg_proc
-    where oid = 'public.get_quiz_questions(text,integer)'::regprocedure$$,
-  $$values (array['search_path=']::text[])$$,
+    where oid = 'public.get_quiz_questions(text,integer)'::regprocedure
+  ),
   'get_quiz_questions has an immutable empty search path'
 );
 
-select results_eq(
-  $$select coalesce(proconfig, array[]::text[])
+select ok(
+  (
+    select proconfig::text collate "C" = '{search_path=}'::text collate "C"
     from pg_proc
-    where oid = 'public.set_updated_at()'::regprocedure$$,
-  $$values (array['search_path=']::text[])$$,
+    where oid = 'public.set_updated_at()'::regprocedure
+  ),
   'set_updated_at has an immutable empty search path'
 );
 
