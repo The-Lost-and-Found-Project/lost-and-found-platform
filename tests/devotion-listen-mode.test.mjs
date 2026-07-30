@@ -76,6 +76,9 @@ test("the migration provides versioned metadata, RLS, and a constrained bucket",
   const migration = await source(
     "supabase/migrations/20260730154343_devotion_listen_mode.sql"
   );
+  const indexMigration = await source(
+    "supabase/migrations/20260730171600_index_devotion_audio_created_by.sql"
+  );
 
   for (const field of [
     "audio_url",
@@ -98,6 +101,11 @@ test("the migration provides versioned metadata, RLS, and a constrained bucket",
   assert.match(migration, /52428800/);
   assert.match(migration, /'audio\/mpeg'/);
   assert.doesNotMatch(migration, /grant (insert|update|delete).*devotion_audio.*anon/i);
+  assert.match(indexMigration, /devotion_audio_created_by_idx/);
+  assert.match(
+    indexMigration,
+    /to_regclass\('public\.devotion_audio'\) is null/
+  );
 });
 
 test("narration text uses spoken transitions instead of raw field concatenation", async () => {
