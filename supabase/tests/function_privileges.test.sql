@@ -86,14 +86,18 @@ select ok(
   'trusted server routes retain maintenance function access'
 );
 
-create function public.future_server_only_function()
-returns boolean
-language sql
-as $$ select true; $$;
-
 select ok(
-  not has_function_privilege('authenticated', 'public.future_server_only_function()', 'EXECUTE'),
-  'new functions are private by default'
+  not exists (
+    select 1
+    from pg_default_acl d
+    cross join lateral aclexplode(d.defaclacl) a
+    where d.defaclrole = 'postgres'::regrole
+      and d.defaclnamespace = 'public'::regnamespace
+      and d.defaclobjtype = 'f'
+      and a.privilege_type = 'EXECUTE'
+      and a.grantee in (0, 'anon'::regrole, 'authenticated'::regrole)
+  ),
+  'postgres function defaults do not grant browser-role execution'
 );
 
 select * from finish();
