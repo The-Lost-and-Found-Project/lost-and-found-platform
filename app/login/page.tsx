@@ -5,6 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+function getSafeDestination() {
+  const requested = new URLSearchParams(window.location.search).get("next");
+  return requested?.startsWith("/") &&
+    !requested.startsWith("//") &&
+    !requested.includes("\\")
+    ? requested
+    : "/dashboard";
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
@@ -21,7 +30,7 @@ export default function LoginPage() {
     let active = true;
     supabase.auth.getUser().then(({ data }) => {
       if (active && data?.user) {
-        router.replace("/dashboard");
+        router.replace(getSafeDestination());
       }
     });
     return () => {
@@ -46,7 +55,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push(getSafeDestination());
     router.refresh();
   }
 
