@@ -51,6 +51,7 @@ export default function VerseInsightPanel({
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const graphHref = `/emmaus/admin/graph?reference=${encodeURIComponent(verse.reference)}&translation=${translation}`;
 
   useEffect(() => {
     let cancelled = false;
@@ -145,6 +146,12 @@ export default function VerseInsightPanel({
           {verse.text}
         </blockquote>
 
+        <div className="mt-4">
+          <Link href={graphHref} className="inline-flex rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white">
+            Explore visual Scripture graph →
+          </Link>
+        </div>
+
         <section className="mt-8">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-xl font-bold text-gray-950">Scripture Connections</h3>
@@ -158,7 +165,7 @@ export default function VerseInsightPanel({
             {connections.map(({ edge, node }) => {
               const target = parseReference(node.reference_label);
               const targetHref = target
-                ? `/emmaus/admin/import?book=${encodeURIComponent(target.book)}&chapter=${target.chapter}&translation=${translation}`
+                ? `/emmaus/admin/graph?reference=${encodeURIComponent(node.reference_label)}&translation=${translation}`
                 : null;
 
               return (
@@ -177,7 +184,7 @@ export default function VerseInsightPanel({
                   )}
                   {targetHref && (
                     <Link href={targetHref} className="mt-4 inline-flex rounded-full border border-indigo-300 px-4 py-2 text-sm font-semibold text-indigo-700">
-                      Open connected passage →
+                      Explore this connection →
                     </Link>
                   )}
                 </article>
