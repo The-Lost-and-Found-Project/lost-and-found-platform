@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AdminPrayerDashboardClient from "@/components/AdminPrayerDashboardClient";
@@ -57,12 +58,43 @@ export default async function AdminPage() {
     .in("role", ["admin", "prayer_team", "pastor"]);
 
   return (
-    <AdminPrayerDashboardClient
-      requests={requests ?? []}
-      categories={categories ?? []}
-      careTeam={careTeam ?? []}
-      isAdmin={isAdmin}
-      currentUserId={user.id}
-    />
+    <main className="min-h-screen bg-slate-50">
+      <section className="border-b border-indigo-100 bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 text-white">
+        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">
+              The Lost and Found Project
+            </p>
+            <h1 className="mt-2 text-2xl font-black sm:text-3xl">Admin Command Center</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-indigo-100/75">
+              Prayer administration remains below. Emmaus founder tools are now available from this dashboard.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/emmaus/admin/dashboard"
+              className="rounded-full bg-amber-400 px-5 py-2.5 text-sm font-black text-slate-950 shadow-lg transition hover:bg-amber-300"
+            >
+              Open Emmaus Founder Studio →
+            </Link>
+            <Link
+              href="/emmaus/discovery/demo"
+              className="rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/15"
+            >
+              Preview Learner Experience
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <AdminPrayerDashboardClient
+        requests={requests ?? []}
+        categories={categories ?? []}
+        careTeam={careTeam ?? []}
+        isAdmin={isAdmin}
+        currentUserId={user.id}
+      />
+    </main>
   );
 }
