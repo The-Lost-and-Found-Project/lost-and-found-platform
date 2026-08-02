@@ -1,4 +1,16 @@
-export type SupportedBibleTranslation = "KJV" | "WEB";
+export type SupportedBibleTranslation = "KJV" | "WEB" | "BSB" | "ASV" | "BBE" | "YLT";
+
+export const supportedBibleTranslations: Array<{
+  value: SupportedBibleTranslation;
+  label: string;
+}> = [
+  { value: "KJV", label: "KJV — King James Version" },
+  { value: "WEB", label: "WEB — World English Bible" },
+  { value: "BSB", label: "BSB — Berean Standard Bible" },
+  { value: "ASV", label: "ASV — American Standard Version" },
+  { value: "BBE", label: "BBE — Bible in Basic English" },
+  { value: "YLT", label: "YLT — Young's Literal Translation" },
+];
 
 export type BibleVerse = {
   number: number;
@@ -23,6 +35,10 @@ const API_BASE = "https://bible.helloao.org/api";
 const translationIds: Record<SupportedBibleTranslation, string> = {
   KJV: "ENGKJV",
   WEB: "ENGWEBP",
+  BSB: "BSB",
+  ASV: "ENGASV",
+  BBE: "ENGBBE",
+  YLT: "ENGYLT",
 };
 
 const bookIds: Record<string, string> = {
@@ -64,7 +80,7 @@ export async function getBibleChapter(input: {
 
   const response = await fetch(url, { next: { revalidate: 60 * 60 * 24 * 7 } });
   if (!response.ok) {
-    throw new Error(`Bible provider returned ${response.status} for ${input.book} ${chapter}.`);
+    throw new Error(`Bible provider returned ${response.status} for ${input.translation} ${input.book} ${chapter}.`);
   }
 
   const payload = (await response.json()) as ApiChapterResponse;
@@ -81,7 +97,7 @@ export async function getBibleChapter(input: {
     .filter((verse) => verse.text.length > 0);
 
   if (!verses.length) {
-    throw new Error(`No verse text was returned for ${bookName} ${chapter}.`);
+    throw new Error(`No verse text was returned for ${bookName} ${chapter} in ${input.translation}.`);
   }
 
   return {
@@ -97,7 +113,7 @@ export async function getBibleChapter(input: {
 }
 
 export function isSupportedTranslation(value: string): value is SupportedBibleTranslation {
-  return value === "KJV" || value === "WEB";
+  return supportedBibleTranslations.some((translation) => translation.value === value);
 }
 
 function getBookId(book: string) {
