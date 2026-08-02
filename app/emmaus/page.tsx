@@ -6,7 +6,7 @@ const paths = [
   {
     title: "Begin John 1",
     description: "Read, observe, follow a Thread, reflect, and pray through the opening of John’s Gospel.",
-    href: "/emmaus/john-1",
+    href: "/emmaus/discover/john-1",
     status: "Ready",
   },
   {
