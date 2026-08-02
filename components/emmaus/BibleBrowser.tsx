@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import VerseInsightPanel from "@/components/emmaus/VerseInsightPanel";
 
 type Testament = "Old Testament" | "New Testament";
 type BibleBook = { name: string; chapters: number; testament: Testament };
@@ -29,6 +30,7 @@ export default function BibleBrowser() {
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [chapterData, setChapterData] = useState<ChapterResponse | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  const [focusedVerse, setFocusedVerse] = useState<Verse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -45,6 +47,7 @@ export default function BibleBrowser() {
   useEffect(() => {
     const controller = new AbortController();
     setSelectedKeys(new Set());
+    setFocusedVerse(null);
 
     async function loadChapter() {
       setLoading(true);
@@ -109,7 +112,7 @@ export default function BibleBrowser() {
       <aside className="self-start rounded-3xl border border-gray-200 bg-white p-5 shadow-sm xl:sticky xl:top-6">
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-indigo-700">Emmaus Bible Library</p>
         <h1 className="mt-1 text-3xl font-bold text-gray-950">Browse Scripture</h1>
-        <p className="mt-2 text-sm leading-6 text-gray-600">Select verses to create a Discovery directly from the Bible text.</p>
+        <p className="mt-2 text-sm leading-6 text-gray-600">Select verses for a Discovery, or open Insights to explore the Scripture Graph.</p>
         <label className="mt-6 block"><span className="text-sm font-semibold text-gray-800">Translation</span><select value={translation} onChange={(event) => setTranslation(event.target.value as Translation)} className={inputClass}><option value="KJV">KJV — King James Version</option><option value="WEB">WEB — World English Bible</option></select></label>
         <div className="mt-5 grid grid-cols-2 gap-2">{(["Old Testament", "New Testament"] as Testament[]).map((item) => <button key={item} type="button" onClick={() => setTestament(item)} className={`rounded-xl px-3 py-2 text-sm font-semibold ${testament === item ? "bg-indigo-600 text-white" : "border border-gray-200 bg-white text-gray-700"}`}>{item === "Old Testament" ? "Old" : "New"}</button>)}</div>
         <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search books" className={`${inputClass} mt-4`} />
@@ -125,7 +128,18 @@ export default function BibleBrowser() {
           {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
           {chapterData && <div className="space-y-3">{chapterData.verses.map((verse) => {
             const selected = selectedKeys.has(verse.canonicalKey);
-            return <button key={verse.canonicalKey} type="button" onClick={() => toggleVerse(verse.canonicalKey)} aria-pressed={selected} className={`w-full rounded-2xl border p-4 text-left shadow-sm transition ${selected ? "border-indigo-500 bg-indigo-100 ring-2 ring-indigo-200" : "border-white/80 bg-white hover:border-indigo-300"}`}><div className="flex gap-3"><span className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border text-xs font-bold ${selected ? "border-indigo-600 bg-indigo-600 text-white" : "border-gray-300 text-gray-500"}`}>{selected ? "✓" : verse.number}</span><div><p className="text-base leading-8 text-gray-800">{verse.text}</p><code className="mt-2 block text-xs text-gray-400">{verse.canonicalKey}</code></div></div></button>;
+            return <article key={verse.canonicalKey} className={`rounded-2xl border p-4 shadow-sm transition ${selected ? "border-indigo-500 bg-indigo-100 ring-2 ring-indigo-200" : "border-white/80 bg-white hover:border-indigo-300"}`}>
+              <div className="flex gap-3">
+                <button type="button" onClick={() => toggleVerse(verse.canonicalKey)} aria-pressed={selected} aria-label={`${selected ? "Deselect" : "Select"} ${verse.reference}`} className={`mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-xs font-bold ${selected ? "border-indigo-600 bg-indigo-600 text-white" : "border-gray-300 text-gray-500 hover:border-indigo-400"}`}>{selected ? "✓" : verse.number}</button>
+                <div className="min-w-0 flex-1">
+                  <p className="text-base leading-8 text-gray-800">{verse.text}</p>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                    <code className="text-xs text-gray-400">{verse.canonicalKey}</code>
+                    <button type="button" onClick={() => setFocusedVerse(verse)} className="rounded-full border border-indigo-300 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-50">View Insights</button>
+                  </div>
+                </div>
+              </div>
+            </article>;
           })}<p className="pt-2 text-xs text-gray-500">Source: {chapterData.source}</p></div>}
         </div>
 
@@ -133,6 +147,8 @@ export default function BibleBrowser() {
       </section>
 
       {selectedVerses.length > 0 && <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-indigo-200 bg-white/95 p-4 shadow-2xl backdrop-blur"><div><p className="font-bold text-gray-950">{selectedVerses.length} verse{selectedVerses.length === 1 ? "" : "s"} selected</p><p className="text-sm text-gray-500">{selectedVerses[0].reference}{selectedVerses.length > 1 ? ` – ${selectedVerses[selectedVerses.length - 1].reference}` : ""}</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => setSelectedKeys(new Set())} className="rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700">Clear</button><button type="button" onClick={createDiscovery} className="rounded-full bg-indigo-600 px-5 py-2 text-sm font-semibold text-white">Create Discovery</button></div></div>}
+
+      {focusedVerse && <VerseInsightPanel verse={focusedVerse} book={selectedBook.name} chapter={selectedChapter} onClose={() => setFocusedVerse(null)} />}
     </div>
   );
 }
