@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import VerseInsightPanel from "@/components/emmaus/VerseInsightPanel";
 
 type Testament = "Old Testament" | "New Testament";
@@ -23,6 +23,8 @@ const books: BibleBook[] = [
 ].map(([name, chapters, testament]) => ({ name: name as string, chapters: chapters as number, testament: testament as Testament }));
 
 export default function BibleBrowser() {
+  const chapterSectionRef = useRef<HTMLElement | null>(null);
+  const passageSectionRef = useRef<HTMLDivElement | null>(null);
   const [translation, setTranslation] = useState<Translation>("KJV");
   const [testament, setTestament] = useState<Testament>("New Testament");
   const [query, setQuery] = useState("");
@@ -70,9 +72,22 @@ export default function BibleBrowser() {
     return () => controller.abort();
   }, [translation, selectedBook, selectedChapter]);
 
+  function scrollToSection(element: HTMLElement | null) {
+    window.requestAnimationFrame(() => {
+      element?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
   function chooseBook(book: BibleBook) {
     setSelectedBook(book);
     setSelectedChapter(1);
+    setQuery("");
+    scrollToSection(chapterSectionRef.current);
+  }
+
+  function chooseChapter(chapter: number) {
+    setSelectedChapter(chapter);
+    scrollToSection(passageSectionRef.current);
   }
 
   function toggleVerse(key: string) {
@@ -109,21 +124,28 @@ export default function BibleBrowser() {
 
   return (
     <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
+      <nav className="sticky top-2 z-40 col-span-full flex gap-2 overflow-x-auto rounded-2xl border border-indigo-100 bg-white/95 p-2 shadow-lg backdrop-blur xl:hidden" aria-label="Bible navigation steps">
+        <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="shrink-0 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">1. Book</button>
+        <button type="button" onClick={() => scrollToSection(chapterSectionRef.current)} className="shrink-0 rounded-full border border-indigo-200 px-4 py-2 text-sm font-semibold text-indigo-700">2. Chapter</button>
+        <button type="button" onClick={() => scrollToSection(passageSectionRef.current)} className="shrink-0 rounded-full border border-indigo-200 px-4 py-2 text-sm font-semibold text-indigo-700">3. Read</button>
+      </nav>
+
       <aside className="self-start rounded-3xl border border-gray-200 bg-white p-5 shadow-sm xl:sticky xl:top-6">
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-indigo-700">Emmaus Bible Library</p>
         <h1 className="mt-1 text-3xl font-bold text-gray-950">Browse Scripture</h1>
-        <p className="mt-2 text-sm leading-6 text-gray-600">Select verses for a Discovery, or open Insights to explore the Scripture Graph.</p>
+        <p className="mt-2 text-sm leading-6 text-gray-600">Choose a book, then Emmaus will move you directly to its chapters.</p>
         <label className="mt-6 block"><span className="text-sm font-semibold text-gray-800">Translation</span><select value={translation} onChange={(event) => setTranslation(event.target.value as Translation)} className={inputClass}><option value="KJV">KJV — King James Version</option><option value="WEB">WEB — World English Bible</option></select></label>
         <div className="mt-5 grid grid-cols-2 gap-2">{(["Old Testament", "New Testament"] as Testament[]).map((item) => <button key={item} type="button" onClick={() => setTestament(item)} className={`rounded-xl px-3 py-2 text-sm font-semibold ${testament === item ? "bg-indigo-600 text-white" : "border border-gray-200 bg-white text-gray-700"}`}>{item === "Old Testament" ? "Old" : "New"}</button>)}</div>
         <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search books" className={`${inputClass} mt-4`} />
-        <div className="mt-4 max-h-[32rem] space-y-1 overflow-auto pr-1">{visibleBooks.map((book) => <button key={book.name} type="button" onClick={() => chooseBook(book)} className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${selectedBook.name === book.name ? "bg-indigo-50 font-semibold text-indigo-800" : "text-gray-700 hover:bg-gray-50"}`}><span>{book.name}</span><span className="text-xs text-gray-400">{book.chapters}</span></button>)}</div>
+        <div className="mt-4 max-h-[32rem] space-y-1 overflow-auto pr-1">{visibleBooks.map((book) => <button key={book.name} type="button" onClick={() => chooseBook(book)} className={`flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm transition ${selectedBook.name === book.name ? "bg-indigo-50 font-semibold text-indigo-800" : "text-gray-700 hover:bg-gray-50"}`}><span>{book.name}</span><span className="flex items-center gap-2 text-xs text-gray-400"><span>{book.chapters} ch.</span><span aria-hidden="true">→</span></span></button>)}</div>
       </aside>
 
-      <section className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
-        <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-700">{selectedBook.testament}</p><h2 className="mt-1 text-4xl font-bold text-gray-950">{selectedBook.name} {selectedChapter}</h2><p className="mt-2 text-gray-600">{chapterData?.translationName || translation}</p></div><span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700">{translation}</span></div>
-        <div className="mt-8 grid grid-cols-5 gap-2 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12">{Array.from({ length: selectedBook.chapters }, (_, index) => index + 1).map((chapter) => <button key={chapter} type="button" onClick={() => setSelectedChapter(chapter)} className={`aspect-square rounded-xl border text-sm font-semibold transition ${selectedChapter === chapter ? "border-indigo-600 bg-indigo-600 text-white" : "border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50"}`}>{chapter}</button>)}</div>
+      <section ref={chapterSectionRef} className="scroll-mt-24 rounded-3xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
+        <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-700">Step 2 · Choose a chapter</p><h2 className="mt-1 text-4xl font-bold text-gray-950">{selectedBook.name}</h2><p className="mt-2 text-gray-600">Tap a chapter and Emmaus will move to the passage.</p></div><span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700">{translation}</span></div>
+        <div className="mt-8 grid grid-cols-5 gap-2 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12">{Array.from({ length: selectedBook.chapters }, (_, index) => index + 1).map((chapter) => <button key={chapter} type="button" onClick={() => chooseChapter(chapter)} className={`aspect-square rounded-xl border text-sm font-semibold transition ${selectedChapter === chapter ? "border-indigo-600 bg-indigo-600 text-white" : "border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50"}`}>{chapter}</button>)}</div>
 
-        <div className="mt-8 rounded-3xl border border-indigo-200 bg-indigo-50/50 p-5 sm:p-7">
+        <div ref={passageSectionRef} className="mt-8 scroll-mt-24 rounded-3xl border border-indigo-200 bg-indigo-50/50 p-5 sm:p-7">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-700">Step 3 · Read and explore</p><h3 className="mt-1 text-2xl font-bold text-gray-950">{selectedBook.name} {selectedChapter}</h3></div><button type="button" onClick={() => scrollToSection(chapterSectionRef.current)} className="rounded-full border border-indigo-300 bg-white px-3 py-1.5 text-xs font-semibold text-indigo-700">Change chapter</button></div>
           {loading && <p className="text-gray-600">Loading {selectedBook.name} {selectedChapter}...</p>}
           {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
           {chapterData && <div className="space-y-3">{chapterData.verses.map((verse) => {
@@ -148,7 +170,7 @@ export default function BibleBrowser() {
 
       {selectedVerses.length > 0 && <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-indigo-200 bg-white/95 p-4 shadow-2xl backdrop-blur"><div><p className="font-bold text-gray-950">{selectedVerses.length} verse{selectedVerses.length === 1 ? "" : "s"} selected</p><p className="text-sm text-gray-500">{selectedVerses[0].reference}{selectedVerses.length > 1 ? ` – ${selectedVerses[selectedVerses.length - 1].reference}` : ""}</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => setSelectedKeys(new Set())} className="rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700">Clear</button><button type="button" onClick={createDiscovery} className="rounded-full bg-indigo-600 px-5 py-2 text-sm font-semibold text-white">Create Discovery</button></div></div>}
 
-      {focusedVerse && <VerseInsightPanel verse={focusedVerse} book={selectedBook.name} chapter={selectedChapter} onClose={() => setFocusedVerse(null)} />}
+      {focusedVerse && <VerseInsightPanel verse={focusedVerse} book={selectedBook.name} chapter={selectedChapter} translation={translation} onClose={() => setFocusedVerse(null)} />}
     </div>
   );
 }
