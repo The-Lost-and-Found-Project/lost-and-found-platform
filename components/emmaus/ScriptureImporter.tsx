@@ -5,19 +5,28 @@ import { createClient } from "@/lib/supabase/client";
 
 type TranslationCode = "KJV" | "WEB";
 type ParsedVerse = { verse: number; text: string; referenceKey: string; label: string };
+type ScriptureImporterProps = {
+  initialBook?: string;
+  initialChapter?: number;
+  initialTranslation?: TranslationCode;
+};
 
 const translations: Record<TranslationCode, { label: string; note: string }> = {
   KJV: { label: "King James Version", note: "Public domain in the United States." },
   WEB: { label: "World English Bible", note: "Public domain modern-English translation." },
 };
 
-export default function ScriptureImporter() {
+export default function ScriptureImporter({
+  initialBook = "John",
+  initialChapter = 1,
+  initialTranslation = "KJV",
+}: ScriptureImporterProps) {
   const supabase = useMemo(() => createClient(), []);
-  const [book, setBook] = useState("John");
-  const [chapter, setChapter] = useState(1);
-  const [translation, setTranslation] = useState<TranslationCode>("KJV");
-  const [passage, setPassage] = useState("1 In the beginning was the Word...\n2 The same was in the beginning with God.");
-  const [status, setStatus] = useState("Paste a public-domain passage to begin.");
+  const [book, setBook] = useState(initialBook);
+  const [chapter, setChapter] = useState(initialChapter);
+  const [translation, setTranslation] = useState<TranslationCode>(initialTranslation);
+  const [passage, setPassage] = useState("");
+  const [status, setStatus] = useState(`Ready for ${initialBook} ${initialChapter} in ${initialTranslation}. Paste verified public-domain text to begin.`);
   const [importing, setImporting] = useState(false);
 
   const verses = useMemo(() => parseVerses(book, chapter, passage), [book, chapter, passage]);
@@ -101,7 +110,7 @@ export default function ScriptureImporter() {
         </Field>
 
         <Field label="Passage text" hint="Use one verse per line, beginning with the verse number.">
-          <textarea value={passage} onChange={(event) => setPassage(event.target.value)} rows={14} className={inputClass} />
+          <textarea value={passage} onChange={(event) => setPassage(event.target.value)} rows={14} placeholder={`1 Paste ${book} ${chapter}:1 here...\n2 Continue with verse 2...`} className={inputClass} />
         </Field>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -130,7 +139,7 @@ export default function ScriptureImporter() {
               </div>
               <p className="mt-2 text-sm leading-6 text-gray-700">{verse.text}</p>
             </article>
-          )) : <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">No valid verses parsed.</div>}
+          )) : <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">Paste verse text to preview {book} {chapter}.</div>}
         </div>
 
         <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-gray-700">
