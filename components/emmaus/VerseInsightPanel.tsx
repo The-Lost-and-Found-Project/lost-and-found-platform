@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -35,10 +36,17 @@ type VerseInsightPanelProps = {
   verse: Verse;
   book: string;
   chapter: number;
+  translation?: "KJV" | "WEB";
   onClose: () => void;
 };
 
-export default function VerseInsightPanel({ verse, book, chapter, onClose }: VerseInsightPanelProps) {
+export default function VerseInsightPanel({
+  verse,
+  book,
+  chapter,
+  translation = "KJV",
+  onClose,
+}: VerseInsightPanelProps) {
   const supabase = useMemo(() => createClient(), []);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -147,22 +155,34 @@ export default function VerseInsightPanel({ verse, book, chapter, onClose }: Ver
           {!loading && message && <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-gray-700">{message}</div>}
 
           <div className="mt-4 space-y-4">
-            {connections.map(({ edge, node }) => (
-              <article key={edge.id} className="rounded-2xl border border-gray-200 p-5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-semibold capitalize text-indigo-800">{edge.relationship_type}</span>
-                  <h4 className="font-bold text-gray-950">{node.reference_label}</h4>
-                </div>
-                {node.text_content && <p className="mt-3 text-sm leading-6 text-gray-700">{node.text_content}</p>}
-                {(edge.summary || node.summary) && <p className="mt-3 text-sm leading-6 text-gray-600">{edge.summary || node.summary}</p>}
-                {edge.discovery_question && (
-                  <div className="mt-4 rounded-xl bg-amber-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">Discovery question</p>
-                    <p className="mt-1 text-sm leading-6 text-gray-700">{edge.discovery_question}</p>
+            {connections.map(({ edge, node }) => {
+              const target = parseReference(node.reference_label);
+              const targetHref = target
+                ? `/emmaus/admin/import?book=${encodeURIComponent(target.book)}&chapter=${target.chapter}&translation=${translation}`
+                : null;
+
+              return (
+                <article key={edge.id} className="rounded-2xl border border-gray-200 p-5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-semibold capitalize text-indigo-800">{edge.relationship_type}</span>
+                    <h4 className="font-bold text-gray-950">{node.reference_label}</h4>
                   </div>
-                )}
-              </article>
-            ))}
+                  {node.text_content && <p className="mt-3 text-sm leading-6 text-gray-700">{node.text_content}</p>}
+                  {(edge.summary || node.summary) && <p className="mt-3 text-sm leading-6 text-gray-600">{edge.summary || node.summary}</p>}
+                  {edge.discovery_question && (
+                    <div className="mt-4 rounded-xl bg-amber-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">Discovery question</p>
+                      <p className="mt-1 text-sm leading-6 text-gray-700">{edge.discovery_question}</p>
+                    </div>
+                  )}
+                  {targetHref && (
+                    <Link href={targetHref} className="mt-4 inline-flex rounded-full border border-indigo-300 px-4 py-2 text-sm font-semibold text-indigo-700">
+                      Open connected passage →
+                    </Link>
+                  )}
+                </article>
+              );
+            })}
           </div>
         </section>
 
@@ -173,4 +193,12 @@ export default function VerseInsightPanel({ verse, book, chapter, onClose }: Ver
       </aside>
     </div>
   );
+}
+
+function parseReference(reference: string): { book: string; chapter: number } | null {
+  const match = reference.trim().match(/^(.+?)\s+(\d+)(?::\d+(?:[-–]\d+)?)?$/);
+  if (!match) return null;
+  const chapter = Number(match[2]);
+  if (!Number.isInteger(chapter) || chapter < 1 || chapter > 150) return null;
+  return { book: match[1].trim(), chapter };
 }
