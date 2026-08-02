@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import EmmausBottomNav from "@/components/emmaus/EmmausBottomNav";
 
 export default async function EmmausLayout({
   children,
@@ -15,17 +16,10 @@ export default async function EmmausLayout({
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  // Emmaus is founder-only during development. All routes nested beneath
-  // /emmaus inherit this server-side authorization check.
-  if (profile?.role !== "admin") {
-    redirect("/dashboard");
-  }
-
-  return children;
+  return (
+    <div className="min-h-screen pb-24 lg:pb-0">
+      {children}
+      <EmmausBottomNav />
+    </div>
+  );
 }
