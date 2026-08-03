@@ -42,22 +42,33 @@ export default function AuthControls() {
 
   useEffect(() => {
     if (!open) return;
+
     function closeOutside(event: MouseEvent | TouchEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) setOpen(false);
     }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+
     document.addEventListener("mousedown", closeOutside);
     document.addEventListener("touchstart", closeOutside);
+    document.addEventListener("keydown", closeOnEscape);
+
     return () => {
       document.removeEventListener("mousedown", closeOutside);
       document.removeEventListener("touchstart", closeOutside);
+      document.removeEventListener("keydown", closeOnEscape);
     };
   }, [open]);
 
   useEffect(() => {
     let active = true;
+
     async function load() {
       const { data } = await supabase.auth.getUser();
       const user = data.user;
+
       if (!user) {
         if (active) {
           setEmail(null);
@@ -66,20 +77,24 @@ export default function AuthControls() {
         }
         return;
       }
+
       const { data: profileData } = await supabase
         .from("profiles")
         .select("full_name, avatar_url, role, preview_role")
         .eq("id", user.id)
         .single();
+
       if (active) {
         setEmail(user.email ?? null);
         setProfile((profileData as Profile) ?? null);
         setLoading(false);
       }
     }
+
     load();
     const { data: listener } = supabase.auth.onAuthStateChange(load);
     window.addEventListener("lf:profile-updated", load);
+
     return () => {
       active = false;
       listener.subscription.unsubscribe();
@@ -114,7 +129,14 @@ export default function AuthControls() {
 
   return (
     <div className="relative" ref={containerRef}>
-      <button onClick={() => setOpen((value) => !value)} className="flex items-center rounded-full ring-2 ring-transparent transition hover:ring-indigo-100" aria-label="Account menu" aria-expanded={open}>
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="flex items-center rounded-full ring-2 ring-transparent transition hover:ring-indigo-100 focus-visible:ring-indigo-500"
+        aria-label="Account menu"
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
         {profile?.avatar_url ? (
           <img src={profile.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover ring-2 ring-white shadow-md" />
         ) : (
@@ -123,33 +145,52 @@ export default function AuthControls() {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-3 w-72 overflow-hidden rounded-3xl border border-slate-200 bg-white/96 shadow-2xl backdrop-blur-xl">
-          <div className="flex items-center gap-3 border-b border-slate-100 bg-slate-50/80 px-4 py-4">
-            {profile?.avatar_url ? <img src={profile.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" /> : <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 font-black text-white">{initial}</span>}
+        <div
+          role="menu"
+          aria-label="Account options"
+          className="absolute right-0 z-[100] mt-3 w-[min(18rem,calc(100vw-1rem))] overflow-hidden rounded-3xl border border-slate-300 bg-white text-slate-950 shadow-[0_24px_80px_rgba(15,23,42,0.35)] ring-1 ring-black/5"
+        >
+          <div className="flex items-center gap-3 border-b border-slate-200 bg-slate-50 px-4 py-4">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover ring-1 ring-slate-200" />
+            ) : (
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 font-black text-white">{initial}</span>
+            )}
             <div className="min-w-0">
               <p className="truncate font-black text-slate-950">{profile?.full_name?.trim() || "Add your name"}</p>
-              <p className="truncate text-xs text-slate-500">{email}</p>
+              <p className="truncate text-xs font-medium text-slate-600">{email}</p>
             </div>
           </div>
 
           {isPreviewing && (
-            <div className="border-b border-amber-100 bg-amber-50 px-4 py-2.5 text-xs font-bold text-amber-800">
-              Previewing as {ROLE_LABELS[effectiveRole]}. <Link href="/profile" className="underline">End preview</Link>
+            <div className="border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-xs font-bold text-amber-900">
+              Previewing as {ROLE_LABELS[effectiveRole]}. <Link href="/profile" className="underline underline-offset-2">End preview</Link>
             </div>
           )}
 
-          <div className="p-2">
+          <div className="bg-white p-2">
             {[...accountItems, ...roleItems].map((item) => (
-              <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-indigo-50 hover:text-indigo-800">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100" aria-hidden="true">{item.icon}</span>
-                {item.label}
+              <Link
+                key={item.href}
+                href={item.href}
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="flex min-h-11 items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-indigo-900 focus-visible:bg-indigo-50 focus-visible:text-indigo-900"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-800" aria-hidden="true">{item.icon}</span>
+                <span>{item.label}</span>
               </Link>
             ))}
           </div>
 
-          <div className="border-t border-slate-100 p-2">
-            <button type="button" onClick={signOut} className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-bold text-rose-700 transition hover:bg-rose-50">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-50" aria-hidden="true">↪</span>
+          <div className="border-t border-slate-200 bg-white p-2">
+            <button
+              type="button"
+              role="menuitem"
+              onClick={signOut}
+              className="flex min-h-11 w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-black text-rose-700 transition hover:bg-rose-50 focus-visible:bg-rose-50"
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-rose-100 bg-rose-50" aria-hidden="true">↪</span>
               Sign Out
             </button>
           </div>
