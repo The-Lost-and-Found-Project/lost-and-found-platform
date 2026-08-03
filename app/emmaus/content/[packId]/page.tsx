@@ -9,7 +9,6 @@ export default async function EmmausContentPackPage({
 }) {
   const { packId } = await params;
   const pack = getEmmausContentPack(packId);
-
   if (!pack) notFound();
 
   return (
@@ -37,57 +36,46 @@ export default async function EmmausContentPackPage({
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
         <section>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-700">Verse-level content</p>
-          <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Discoveries</h2>
-          <div className="mt-7 space-y-6">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-700">Interactive studies</p>
+          <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Choose a discovery</h2>
+          <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600">Each discovery guides you through prayer, observation, probing questions, optional clues, application, journaling, and a closing response.</p>
+
+          <div className="mt-7 grid gap-6 lg:grid-cols-2">
             {pack.discoveries.map((discovery, index) => (
-              <article key={discovery.id} className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl">
+              <article key={discovery.id} className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl">
                 <div className="border-b border-slate-200 bg-slate-50/80 p-6 sm:p-8">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <p className="text-xs font-black uppercase tracking-[0.16em] text-indigo-700">Discovery {index + 1} • {discovery.passage}</p>
                       <h3 className="mt-2 text-3xl font-black tracking-tight text-slate-950">{discovery.title}</h3>
-                      <p className="mt-3 max-w-3xl leading-7 text-slate-600">{discovery.subtitle}</p>
                     </div>
-                    <div className="flex flex-wrap gap-2 text-xs font-black uppercase tracking-[0.12em]">
-                      <span className="rounded-full bg-white px-3 py-1.5 text-slate-600 ring-1 ring-slate-200">{discovery.estimatedMinutes} min</span>
-                      <span className="rounded-full bg-indigo-50 px-3 py-1.5 text-indigo-700 ring-1 ring-indigo-100">{discovery.defaultDepth}</span>
+                    <span className="rounded-full bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.12em] text-slate-600 ring-1 ring-slate-200">{discovery.estimatedMinutes} min</span>
+                  </div>
+                  <p className="mt-4 leading-7 text-slate-600">{discovery.subtitle}</p>
+                </div>
+
+                <div className="flex flex-1 flex-col p-6 sm:p-8">
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <Summary title="Opening question" text={discovery.openingQuestion} />
+                    <Summary title="Application" text={discovery.applicationPrompt} />
+                  </div>
+
+                  <div className="mt-6">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Skills practiced</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {discovery.skillFocus.map((skill) => (
+                        <span key={skill} className="rounded-full bg-indigo-50 px-3 py-1.5 text-sm font-bold capitalize text-indigo-700 ring-1 ring-indigo-100">{skill}</span>
+                      ))}
                     </div>
                   </div>
-                </div>
 
-                <div className="grid gap-8 p-6 sm:p-8 xl:grid-cols-2">
-                  <ContentBlock title="Opening Question">
-                    <p>{discovery.openingQuestion}</p>
-                  </ContentBlock>
-                  <ContentBlock title="Learning Objectives">
-                    <BulletList items={discovery.objectives} />
-                  </ContentBlock>
-                  <ContentBlock title="Probing Questions">
-                    <BulletList items={discovery.probingQuestions} />
-                  </ContentBlock>
-                  <ContentBlock title="Guided Clues">
-                    <BulletList items={discovery.clues} />
-                  </ContentBlock>
-                  <ContentBlock title="Application">
-                    <p>{discovery.applicationPrompt}</p>
-                  </ContentBlock>
-                  <ContentBlock title="Journal Prompt">
-                    <p>{discovery.journalPrompt}</p>
-                  </ContentBlock>
-                </div>
-
-                <div className="grid gap-4 border-t border-slate-200 bg-indigo-50/50 p-6 sm:grid-cols-2 sm:p-8">
-                  <PrayerCard label="Opening Prayer" text={discovery.openingPrayer} />
-                  <PrayerCard label="Closing Prayer" text={discovery.closingPrayer} />
-                </div>
-
-                <div className="border-t border-slate-200 p-6 sm:p-8">
-                  <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Knowledge Graph Connections</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {discovery.graphConnectionIds.map((id) => (
-                      <span key={id} className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-sm font-bold text-violet-800">{id}</span>
-                    ))}
+                  <div className="mt-auto pt-8">
+                    <Link
+                      href={`/emmaus/content/${pack.id}/discovery/${discovery.id}`}
+                      className="flex min-h-12 w-full items-center justify-center rounded-full bg-indigo-600 px-5 py-3 font-black text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-200"
+                    >
+                      Start Discovery →
+                    </Link>
                   </div>
                 </div>
               </article>
@@ -124,35 +112,28 @@ export default async function EmmausContentPackPage({
           </div>
 
           <div className="space-y-8">
-            <section>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-700">Facilitator support</p>
-              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Mentor Guide</h2>
-              <div className="mt-6 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl sm:p-8">
-                <GuideSection title="Watch For" items={pack.mentorGuide.watchFor} />
-                <GuideSection title="Conversation Prompts" items={pack.mentorGuide.conversationPrompts} />
-                <GuideSection title="Prayer Prompts" items={pack.mentorGuide.prayerPrompts} />
-              </div>
-            </section>
+            <GuideCard title="Mentor Guide" sections={[
+              { title: "Watch For", items: pack.mentorGuide.watchFor },
+              { title: "Conversation Prompts", items: pack.mentorGuide.conversationPrompts },
+              { title: "Prayer Prompts", items: pack.mentorGuide.prayerPrompts },
+            ]} />
 
-            <section>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-700">Group experience</p>
-              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">{pack.groupGuide.sessionMinutes}-Minute Group Guide</h2>
-              <div className="mt-6 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl sm:p-8">
-                <div className="space-y-4">
-                  {pack.groupGuide.flow.map((step, index) => (
-                    <div key={`${step.segment}-${index}`} className="grid gap-3 rounded-2xl border border-slate-200 p-4 sm:grid-cols-[auto_1fr]">
-                      <span className="flex h-10 min-w-10 items-center justify-center rounded-xl bg-indigo-50 px-2 text-sm font-black text-indigo-700">{step.minutes}m</span>
-                      <div>
-                        <p className="font-black text-slate-950">{step.segment}</p>
-                        <p className="mt-1 leading-6 text-slate-600">{step.instructions}</p>
-                      </div>
+            <GuideCard title={`${pack.groupGuide.sessionMinutes}-Minute Group Guide`} sections={[
+              { title: "Discussion Questions", items: pack.groupGuide.discussionQuestions },
+              { title: "Leader Guardrails", items: pack.groupGuide.leaderGuardrails },
+            ]}>
+              <div className="space-y-3">
+                {pack.groupGuide.flow.map((step, index) => (
+                  <div key={`${step.segment}-${index}`} className="grid gap-3 rounded-2xl border border-slate-200 p-4 sm:grid-cols-[auto_1fr]">
+                    <span className="flex h-10 min-w-10 items-center justify-center rounded-xl bg-indigo-50 px-2 text-sm font-black text-indigo-700">{step.minutes}m</span>
+                    <div>
+                      <p className="font-black text-slate-950">{step.segment}</p>
+                      <p className="mt-1 leading-6 text-slate-600">{step.instructions}</p>
                     </div>
-                  ))}
-                </div>
-                <GuideSection title="Discussion Questions" items={pack.groupGuide.discussionQuestions} />
-                <GuideSection title="Leader Guardrails" items={pack.groupGuide.leaderGuardrails} />
+                  </div>
+                ))}
               </div>
-            </section>
+            </GuideCard>
           </div>
         </section>
       </div>
@@ -164,18 +145,31 @@ function Metric({ value, label }: { value: number; label: string }) {
   return <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 text-center"><p className="text-2xl font-black">{value}</p><p className="mt-1 text-xs text-indigo-100/60">{label}</p></div>;
 }
 
-function ContentBlock({ title, children }: { title: string; children: React.ReactNode }) {
-  return <section><h4 className="text-sm font-black uppercase tracking-[0.14em] text-indigo-700">{title}</h4><div className="mt-3 leading-7 text-slate-700">{children}</div></section>;
+function Summary({ title, text }: { title: string; text: string }) {
+  return <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-black uppercase tracking-[0.14em] text-indigo-700">{title}</p><p className="mt-2 leading-6 text-slate-700">{text}</p></div>;
 }
 
-function BulletList({ items }: { items: string[] }) {
-  return <ul className="space-y-2">{items.map((item) => <li key={item} className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-amber-400" aria-hidden="true" /><span>{item}</span></li>)}</ul>;
-}
-
-function PrayerCard({ label, text }: { label: string; text: string }) {
-  return <div className="rounded-2xl border border-indigo-100 bg-white p-5"><p className="text-xs font-black uppercase tracking-[0.14em] text-indigo-700">{label}</p><p className="mt-3 italic leading-7 text-slate-700">{text}</p></div>;
-}
-
-function GuideSection({ title, items }: { title: string; items: string[] }) {
-  return <section className="mt-7 first:mt-0"><h3 className="text-lg font-black text-slate-950">{title}</h3><div className="mt-3"><BulletList items={items} /></div></section>;
+function GuideCard({ title, sections, children }: { title: string; sections: Array<{ title: string; items: string[] }>; children?: React.ReactNode }) {
+  return (
+    <section>
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-700">Facilitator support</p>
+      <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">{title}</h2>
+      <div className="mt-6 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl sm:p-8">
+        {children}
+        {sections.map((section) => (
+          <div key={section.title} className="mt-7 first:mt-0">
+            <h3 className="text-lg font-black text-slate-950">{section.title}</h3>
+            <ul className="mt-3 space-y-2">
+              {section.items.map((item) => (
+                <li key={item} className="flex gap-3 leading-7 text-slate-700">
+                  <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-amber-400" aria-hidden="true" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
