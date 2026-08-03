@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import EmmausBottomNav from "@/components/emmaus/EmmausBottomNav";
 
+const EMMAUS_FOUNDER_EMAIL = "admin@lostandfoundproject.org";
+
 export default async function EmmausLayout({
   children,
 }: {
@@ -14,6 +16,10 @@ export default async function EmmausLayout({
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (user.email?.toLowerCase() !== EMMAUS_FOUNDER_EMAIL) {
+    redirect("/dashboard");
   }
 
   return (
