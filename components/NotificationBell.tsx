@@ -15,32 +15,18 @@ export default function NotificationBell() {
 
     function applyUnreadCount(next: number) {
       setUnreadCount(next);
-
-      // Keep the installed app's icon badge synchronized with the in-app
-      // bell. Unsupported browsers simply skip this block.
       if ("setAppBadge" in navigator) {
-        if (next > 0) {
-          navigator.setAppBadge(next).catch(() => {});
-        } else {
-          navigator.clearAppBadge().catch(() => {});
-        }
+        if (next > 0) navigator.setAppBadge(next).catch(() => {});
+        else navigator.clearAppBadge().catch(() => {});
       }
     }
 
     function handleUnreadCountChanged(event: Event) {
-      const next = (
-        event as CustomEvent<{ unreadCount?: number }>
-      ).detail?.unreadCount;
-
-      if (typeof next === "number" && Number.isFinite(next)) {
-        applyUnreadCount(Math.max(0, next));
-      }
+      const next = (event as CustomEvent<{ unreadCount?: number }>).detail?.unreadCount;
+      if (typeof next === "number" && Number.isFinite(next)) applyUnreadCount(Math.max(0, next));
     }
 
-    window.addEventListener(
-      UNREAD_COUNT_CHANGED_EVENT,
-      handleUnreadCountChanged
-    );
+    window.addEventListener(UNREAD_COUNT_CHANGED_EVENT, handleUnreadCountChanged);
 
     async function init() {
       const { data } = await supabase.auth.getUser();
@@ -60,36 +46,20 @@ export default function NotificationBell() {
       }
 
       await refreshUnreadCount();
-
-      // Re-derive the count from the DB on every insert/update/delete rather
-      // than incrementing/decrementing locally — that way "mark read",
-      // "delete", and "clear read" on the notifications page (and any other
-      // tab/device) always leave the bell's badge in sync, instead of only
-      // ever growing on new notifications.
       channel = supabase
         .channel(`notifications-bell-${uid}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "notifications",
-            filter: `user_id=eq.${uid}`,
-          },
-          () => {
-            refreshUnreadCount();
-          }
-        )
+        .on("postgres_changes", {
+          event: "*",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${uid}`,
+        }, refreshUnreadCount)
         .subscribe();
     }
 
     init();
-
     return () => {
-      window.removeEventListener(
-        UNREAD_COUNT_CHANGED_EVENT,
-        handleUnreadCountChanged
-      );
+      window.removeEventListener(UNREAD_COUNT_CHANGED_EVENT, handleUnreadCountChanged);
       if (channel) supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -97,26 +67,21 @@ export default function NotificationBell() {
 
   if (!userId) return null;
 
+  const ariaLabel = unreadCount > 0
+    ? `Notifications, ${unreadCount} unread`
+    : "Notifications, none unread";
+
   return (
     <Link
       href="/notifications"
-      className="relative rounded-full p-2 text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
-      aria-label="Notifications"
+      className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:text-indigo-700 hover:shadow-md focus-visible:text-indigo-700"
+      aria-label={ariaLabel}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        className="h-5 w-5"
-      >
-        <path
-          fillRule="evenodd"
-          d="M12 2a6 6 0 00-6 6v3.586l-1.707 1.707A1 1 0 005 15h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6zM10 18a2 2 0 104 0h-4z"
-          clipRule="evenodd"
-        />
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
+        <path fillRule="evenodd" d="M12 2a6 6 0 00-6 6v3.586l-1.707 1.707A1 1 0 005 15h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6zM10 18a2 2 0 104 0h-4z" clipRule="evenodd" />
       </svg>
       {unreadCount > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-rose-600 px-1 text-[10px] font-black text-white shadow-sm" aria-hidden="true">
           {unreadCount > 9 ? "9+" : unreadCount}
         </span>
       )}
