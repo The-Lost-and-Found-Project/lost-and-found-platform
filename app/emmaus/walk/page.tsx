@@ -47,7 +47,10 @@ export default async function EmmausWalkPage() {
               <p className="mt-4 text-xl leading-8 text-indigo-100/80">Where should you continue in Scripture today?</p>
             </div>
             {profile?.role === "admin" && (
-              <Link href="/emmaus/admin/dashboard" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold">Founder Studio</Link>
+              <div className="flex flex-wrap gap-2">
+                <Link href="/emmaus/inspect/john-1-1" className="rounded-full bg-amber-300 px-4 py-2 text-sm font-black text-slate-950">Review John 1:1</Link>
+                <Link href="/emmaus/admin/dashboard" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold">Founder Studio</Link>
+              </div>
             )}
           </div>
         </header>
