@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import FounderGraphBuilder from "@/components/emmaus/FounderGraphBuilder";
 import FounderGraphNavigator from "@/components/emmaus/FounderGraphNavigator";
+import FounderGraphLayoutTools from "@/components/emmaus/FounderGraphLayoutTools";
 
 export default async function EmmausFounderGraphBuilderPage() {
   const supabase = await createClient();
@@ -25,7 +26,7 @@ export default async function EmmausFounderGraphBuilderPage() {
             <div className="max-w-4xl">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Emmaus Founder Studio</p>
               <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">Build the Scripture graph visually.</h1>
-              <p className="mt-4 text-lg leading-8 text-indigo-100/70">Create and arrange nodes, draw relationships, document evidence, monitor graph health, and publish connections directly into the learner-facing Knowledge Graph.</p>
+              <p className="mt-4 text-lg leading-8 text-indigo-100/70">Create and arrange nodes, draw relationships, document evidence, monitor graph health, apply intelligent layouts, and publish connections directly into the learner-facing Knowledge Graph.</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Link href="/emmaus/admin/graph" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black text-white">Preview Explorer</Link>
@@ -35,6 +36,7 @@ export default async function EmmausFounderGraphBuilderPage() {
         </header>
 
         <FounderGraphNavigator />
+        <FounderGraphLayoutTools />
         <FounderGraphBuilder />
       </div>
     </main>
