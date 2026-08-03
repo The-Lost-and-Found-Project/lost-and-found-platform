@@ -43,17 +43,51 @@ export default async function DevotionsPage() {
     }),
   }));
 
-  return (
-    <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-      <h1 className="text-2xl font-bold text-gray-900">Daily Devotions</h1>
-      <p className="mt-2 text-gray-600">
-        Start your day rooted in God&rsquo;s Word, encouraged by truth, and
-        reminded that you are never too far gone for God&rsquo;s grace. A new
-        week publishes every week -- work through the current one below in
-        any order, or revisit a past week further down.
-      </p>
+  const currentWeek = weeksWithAudio[0];
+  const currentTitle = currentWeek?.title || "A fresh week in God's Word";
+  const availableDays = currentWeek?.days.length ?? 0;
 
-      <DevotionsClient weeks={weeksWithAudio} />
-    </div>
+  return (
+    <main className="lfp-page pb-20">
+      <section className="relative overflow-hidden bg-slate-950 text-white">
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_85%_10%,rgba(124,58,237,0.32),transparent_32rem),radial-gradient(circle_at_10%_100%,rgba(245,190,67,0.2),transparent_28rem)]" />
+        <div className="lfp-shell relative py-14 sm:py-20">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Daily Devotions</p>
+          <h1 className="mt-4 max-w-4xl text-4xl font-black tracking-tight sm:text-6xl">Begin with Scripture. Carry truth into the rest of your day.</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">Each seven-day journey combines Scripture, practical teaching, reflection, and prayer. Move through the current week in order or return to a previous devotion whenever you need it.</p>
+
+          <div className="mt-9 grid gap-4 sm:grid-cols-3">
+            <DevotionStat label="Current journey" value={currentTitle} />
+            <DevotionStat label="Days available" value={String(availableDays)} />
+            <DevotionStat label="Published weeks" value={String(weeksWithAudio.length)} />
+          </div>
+        </div>
+      </section>
+
+      <div className="lfp-shell py-10 sm:py-14">
+        <section className="grid gap-5 md:grid-cols-3">
+          <DevotionValue icon="📖" title="Read" text="Begin with the biblical text and let the teaching remain anchored to what Scripture actually says." />
+          <DevotionValue icon="🧭" title="Reflect" text="Use the daily question and relatable teaching to connect truth with real life." />
+          <DevotionValue icon="🙏" title="Respond" text="Close with prayer and one clear point of obedience, trust, or surrender." />
+        </section>
+
+        <section className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-white/92 p-5 shadow-2xl sm:p-8">
+          <div className="mb-8 max-w-3xl">
+            <p className="lfp-eyebrow">Devotional library</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Choose where to begin</h2>
+            <p className="mt-3 text-lg leading-8 text-slate-600">The newest published week appears first. Audio remains available wherever a current narration has been generated.</p>
+          </div>
+          <DevotionsClient weeks={weeksWithAudio} />
+        </section>
+      </div>
+    </main>
   );
+}
+
+function DevotionStat({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-5 backdrop-blur"><p className="line-clamp-2 text-xl font-black">{value}</p><p className="mt-2 text-sm text-indigo-100/60">{label}</p></div>;
+}
+
+function DevotionValue({ icon, title, text }: { icon: string; title: string; text: string }) {
+  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
 }
