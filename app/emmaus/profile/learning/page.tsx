@@ -1,249 +1,165 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getEmmausDiscovery } from "@/lib/emmaus/content-packs/registry";
 
-type Dimension = "literacy" | "observation" | "connections" | "context" | "theology" | "application";
-type SignalType = "assessment" | "discovery" | "rabbit_trail" | "workspace" | "journal";
+const SKILLS = ["observe", "context", "connect", "probe", "test", "theology", "reflect", "apply"] as const;
+type Skill = (typeof SKILLS)[number];
 
-type DimensionScore = {
-  score: number;
-  confidence: number;
-  evidence: number;
-  trend: number;
+type ProgressRow = {
+  discovery_id: string;
+  responses: Record<string, string> | null;
+  revealed_clues: number;
+  is_completed: boolean;
 };
 
-type LearningSignal = {
-  id: string;
-  type: SignalType;
-  label: string;
-  occurredAt: string;
-  impacts: Partial<Record<Dimension, number>>;
+const meta: Record<Skill, { label: string; description: string }> = {
+  observe: { label: "Observation", description: "Noticing words, structure, repetition, contrast, and explicit claims." },
+  context: { label: "Context", description: "Reading verses within their literary, historical, and canonical setting." },
+  connect: { label: "Connections", description: "Tracing cross-references, themes, echoes, and related passages." },
+  probe: { label: "Questioning", description: "Asking careful questions that expose assumptions and deepen attention." },
+  test: { label: "Testing", description: "Checking conclusions against the text and the wider witness of Scripture." },
+  theology: { label: "Theology", description: "Forming text-supported conclusions about God, Christ, humanity, and redemption." },
+  reflect: { label: "Reflection", description: "Recognizing how Scripture addresses motives, fears, beliefs, and worship." },
+  apply: { label: "Application", description: "Turning understanding into specific obedience and faithful practice." },
 };
 
-type LearningProfile = {
-  dimensions: Record<Dimension, DimensionScore>;
-  signals: LearningSignal[];
-  recommendedDepth: "Foundational" | "Growing" | "Deep";
-  updatedAt: string;
-};
+export default async function LearningProfilePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-const labels: Record<Dimension, string> = {
-  literacy: "Bible Familiarity",
-  observation: "Observation",
-  connections: "Biblical Connections",
-  context: "Historical Context",
-  theology: "Theological Understanding",
-  application: "Application",
-};
+  const [{ data: profile }, { data: rows }] = await Promise.all([
+    supabase.from("profiles").select("full_name").eq("id", user.id).single(),
+    supabase
+      .from("emmaus_discovery_progress")
+      .select("discovery_id, responses, revealed_clues, is_completed")
+      .eq("user_id", user.id),
+  ]);
 
-const defaultProfile: LearningProfile = {
-  dimensions: {
-    literacy: { score: 62, confidence: 55, evidence: 2, trend: 0 },
-    observation: { score: 74, confidence: 68, evidence: 3, trend: 4 },
-    connections: { score: 58, confidence: 52, evidence: 2, trend: 2 },
-    context: { score: 42, confidence: 40, evidence: 1, trend: 0 },
-    theology: { score: 70, confidence: 63, evidence: 2, trend: 3 },
-    application: { score: 66, confidence: 61, evidence: 2, trend: 1 },
-  },
-  signals: [],
-  recommendedDepth: "Growing",
-  updatedAt: new Date().toISOString(),
-};
+  const progress = (rows ?? []) as ProgressRow[];
+  const scores = Object.fromEntries(SKILLS.map((skill) => [skill, 0])) as Record<Skill, number>;
+  const exposure = Object.fromEntries(SKILLS.map((skill) => [skill, 0])) as Record<Skill, number>;
 
-const demonstrationSignals: LearningSignal[] = [
-  {
-    id: "john-observation",
-    type: "workspace",
-    label: "Recorded five observations from John 1:1",
-    occurredAt: new Date().toISOString(),
-    impacts: { observation: 5, theology: 1 },
-  },
-  {
-    id: "logos-trail",
-    type: "rabbit_trail",
-    label: "Completed The Word — Logos Rabbit Trail",
-    occurredAt: new Date().toISOString(),
-    impacts: { connections: 5, theology: 3, context: 1 },
-  },
-  {
-    id: "john-journal",
-    type: "journal",
-    label: "Journaled a specific response to Christ's eternal identity",
-    occurredAt: new Date().toISOString(),
-    impacts: { application: 4, theology: 1 },
-  },
-];
+  let totalResponses = 0;
+  let totalWords = 0;
+  let totalClues = 0;
 
-export default function LearningProfilePage() {
-  const storageKey = "emmaus-living-learning-profile-v1";
-  const [profile, setProfile] = useState<LearningProfile>(defaultProfile);
-  const [message, setMessage] = useState("");
+  for (const row of progress) {
+    const resolved = getEmmausDiscovery(row.discovery_id);
+    if (!resolved) continue;
 
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(storageKey);
-      const assessment = window.localStorage.getItem("emmaus-assessment-profile");
-      if (saved) {
-        setProfile(JSON.parse(saved) as LearningProfile);
-        return;
-      }
-      if (assessment) {
-        const parsed = JSON.parse(assessment) as { profile?: Array<{ dimension: Dimension; score: number; confidenceScore?: number }>; recommendedDepth?: LearningProfile["recommendedDepth"] };
-        const assessmentProfile = parsed.profile;
-        if (assessmentProfile) {
-          setProfile((current) => ({
-            ...current,
-            recommendedDepth: parsed.recommendedDepth ?? current.recommendedDepth,
-            dimensions: assessmentProfile.reduce((acc, item) => {
-              acc[item.dimension] = {
-                score: item.score,
-                confidence: Math.round((item.confidenceScore ?? 1) * 50),
-                evidence: 1,
-                trend: 0,
-              };
-              return acc;
-            }, { ...current.dimensions }),
-          }));
-        }
-      }
-    } catch {
-      window.localStorage.removeItem(storageKey);
+    const responses = row.responses ?? {};
+    const values = Object.values(responses).filter((value) => value?.trim());
+    const words = values.join(" ").trim().split(/\s+/).filter(Boolean).length;
+    const engagement = Math.min(1, 0.35 + values.length * 0.1 + words / 500);
+    const completion = row.is_completed ? 1 : 0.55;
+    const independence = Math.max(0.72, 1 - row.revealed_clues * 0.05);
+    const evidence = engagement * completion * independence;
+
+    totalResponses += values.length;
+    totalWords += words;
+    totalClues += row.revealed_clues;
+
+    for (const item of resolved.discovery.skillFocus) {
+      if (!SKILLS.includes(item as Skill)) continue;
+      exposure[item as Skill] += 1;
+      scores[item as Skill] += evidence;
     }
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify(profile));
-  }, [profile]);
-
-  const ordered = useMemo(() => {
-    return (Object.keys(profile.dimensions) as Dimension[])
-      .map((dimension) => ({ dimension, ...profile.dimensions[dimension] }))
-      .sort((a, b) => b.score - a.score);
-  }, [profile]);
-
-  const strengths = ordered.slice(0, 2);
-  const growth = [...ordered].reverse().slice(0, 2);
-  const average = Math.round(ordered.reduce((sum, item) => sum + item.score, 0) / ordered.length);
-
-  function applySignal(signal: LearningSignal) {
-    setProfile((current) => {
-      if (current.signals.some((item) => item.id === signal.id)) return current;
-      const nextDimensions = { ...current.dimensions };
-      (Object.entries(signal.impacts) as Array<[Dimension, number]>).forEach(([dimension, impact]) => {
-        const before = nextDimensions[dimension];
-        const nextScore = Math.min(100, Math.round((before.score * before.evidence + Math.min(100, before.score + impact * 4)) / (before.evidence + 1)));
-        nextDimensions[dimension] = {
-          score: nextScore,
-          confidence: Math.min(100, before.confidence + impact * 2),
-          evidence: before.evidence + 1,
-          trend: nextScore - before.score,
-        };
-      });
-      const nextAverage = Object.values(nextDimensions).reduce((sum, item) => sum + item.score, 0) / Object.keys(nextDimensions).length;
-      return {
-        dimensions: nextDimensions,
-        signals: [signal, ...current.signals].slice(0, 20),
-        recommendedDepth: nextAverage >= 78 ? "Deep" : nextAverage >= 52 ? "Growing" : "Foundational",
-        updatedAt: new Date().toISOString(),
-      };
-    });
-    setMessage("Learning profile updated from new study evidence.");
-    window.setTimeout(() => setMessage(""), 2200);
   }
 
-  function resetProfile() {
-    setProfile(defaultProfile);
-    window.localStorage.removeItem(storageKey);
-    setMessage("Profile reset to demonstration data.");
-  }
+  const skills = SKILLS.map((skill) => ({
+    skill,
+    ...meta[skill],
+    exposure: exposure[skill],
+    percentage: exposure[skill] ? Math.min(100, Math.round((scores[skill] / exposure[skill]) * 100)) : 0,
+  }));
+
+  const evidenced = skills.filter((item) => item.exposure > 0);
+  const strongest = [...evidenced].sort((a, b) => b.percentage - a.percentage)[0];
+  const growth = [...evidenced].sort((a, b) => a.percentage - b.percentage)[0];
+  const completed = progress.filter((item) => item.is_completed).length;
+  const averageWords = totalResponses ? Math.round(totalWords / totalResponses) : 0;
+  const firstName = profile?.full_name?.trim().split(" ")[0] || "friend";
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 px-4 py-8 text-white sm:px-6 sm:py-12">
-      <div className="mx-auto max-w-6xl">
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 pb-28 text-white lg:pb-12">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
         <header className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur sm:p-9">
-          <div className="flex flex-wrap items-start justify-between gap-5">
-            <div className="max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">Your Emmaus Journey</p>
-              <h1 className="mt-3 text-4xl font-black sm:text-6xl">Living Learning Profile</h1>
-              <p className="mt-4 text-lg leading-8 text-indigo-100/75">A changing picture of how you engage Scripture. It guides Emmaus without ranking your spiritual maturity.</p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Link href="/emmaus/assessment" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold">Retake Assessment</Link>
-              <Link href="/emmaus/discovery/demo" className="rounded-full bg-amber-300 px-4 py-2 text-sm font-black text-slate-950">Continue Walking</Link>
-            </div>
-          </div>
-          <div className="mt-7 grid gap-3 sm:grid-cols-3">
-            <Stat label="Recommended depth" value={profile.recommendedDepth} />
-            <Stat label="Profile average" value={`${average}%`} />
-            <Stat label="Study evidence" value={`${Object.values(profile.dimensions).reduce((sum, item) => sum + item.evidence, 0)} signals`} />
-          </div>
+          <Link href="/emmaus/walk" className="text-sm font-black text-amber-300">← Back to Walk</Link>
+          <p className="mt-7 text-xs font-black uppercase tracking-[0.2em] text-indigo-300">Emmaus Learning Profile</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">How you are learning, {firstName}.</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">This profile uses your actual discovery work to identify study strengths and growth opportunities. It is not a measure of spiritual maturity.</p>
         </header>
 
-        {message && <div className="mt-5 rounded-2xl border border-emerald-300/30 bg-emerald-400/10 p-4 text-center font-semibold text-emerald-200">{message}</div>}
+        <section className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Metric value={completed} label="Completed discoveries" />
+          <Metric value={totalResponses} label="Written responses" />
+          <Metric value={averageWords} label="Average words" />
+          <Metric value={totalClues} label="Clues used" />
+        </section>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
-          <section className="rounded-[2rem] bg-white p-6 text-slate-900 shadow-2xl sm:p-9">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-indigo-700">Current profile</p>
-            <h2 className="mt-2 text-3xl font-black">How Emmaus currently understands your study needs</h2>
+        <section className="mt-8 grid gap-5 lg:grid-cols-2">
+          <Insight eyebrow="Current strength" title={strongest?.label ?? "More evidence needed"} description={strongest?.description ?? "Complete an interactive discovery to begin building the profile."} />
+          <Insight eyebrow="Growth opportunity" title={growth?.label ?? "More evidence needed"} description={growth ? `Emmaus can recommend discoveries that provide more practice in ${growth.label.toLowerCase()}.` : "The profile becomes more useful as your completed work grows."} />
+        </section>
 
-            <div className="mt-7 space-y-5">
-              {ordered.map((item) => (
-                <div key={item.dimension} className="rounded-2xl border border-slate-200 p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div><h3 className="font-black">{labels[item.dimension]}</h3><p className="mt-1 text-sm text-slate-500">{describe(item.score)} · {item.evidence} evidence point{item.evidence === 1 ? "" : "s"}</p></div>
-                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${item.trend > 0 ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"}`}>{item.trend > 0 ? `+${item.trend}` : "Stable"}</span>
+        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 sm:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Skill evidence</p>
+          <h2 className="mt-2 text-3xl font-black">Your study pattern</h2>
+          <p className="mt-3 max-w-3xl text-indigo-100/65">Percentages reflect completion, written engagement, and independent work within discoveries that exercise each skill.</p>
+
+          <div className="mt-7 grid gap-5 md:grid-cols-2">
+            {skills.map((item) => (
+              <article key={item.skill} className="rounded-3xl border border-white/10 bg-black/20 p-5">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <h3 className="text-xl font-black">{item.label}</h3>
+                    <p className="mt-2 text-sm leading-6 text-indigo-100/60">{item.description}</p>
                   </div>
-                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-indigo-600" style={{ width: `${item.score}%` }} /></div>
-                  <div className="mt-3 flex justify-between text-xs text-slate-500"><span>Demonstrated understanding: {item.score}%</span><span>Confidence: {item.confidence}%</span></div>
+                  <span className="text-2xl font-black text-amber-300">{item.percentage}%</span>
                 </div>
-              ))}
-            </div>
+                <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full bg-amber-300" style={{ width: `${item.percentage}%` }} />
+                </div>
+                <p className="mt-3 text-xs font-bold text-indigo-100/45">Evidence from {item.exposure} {item.exposure === 1 ? "discovery" : "discoveries"}</p>
+              </article>
+            ))}
+          </div>
+        </section>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              <ProfileGroup title="Current strengths" items={strengths} />
-              <ProfileGroup title="Growth invitations" items={growth} />
+        <section className="mt-8 grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 sm:p-8">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-300">How Emmaus will adapt</p>
+            <h2 className="mt-2 text-3xl font-black">Guidance that changes as you grow</h2>
+            <div className="mt-6 space-y-4">
+              <Adaptation title="Fewer unnecessary clues" text="Strong independent engagement allows future discoveries to begin with less scaffolding." />
+              <Adaptation title="Deeper follow-up questions" text="Consistent observation and testing can unlock questions requiring synthesis across passages." />
+              <Adaptation title="Targeted recommendations" text="Emmaus can recommend discoveries that strengthen less-practiced skills without ignoring your strongest interests." />
+              <Adaptation title="No spiritual ranking" text="This profile evaluates study behavior only. It does not measure faithfulness, wisdom, holiness, or closeness to God." />
             </div>
-          </section>
+          </div>
 
-          <aside className="space-y-5">
-            <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-300">Demonstrate adaptation</p>
-              <h2 className="mt-2 text-2xl font-black">Add study evidence</h2>
-              <p className="mt-3 text-sm leading-6 text-indigo-100/65">These sample signals model how completed Discoveries, Rabbit Trails, workspaces, and journals will update the profile.</p>
-              <div className="mt-5 space-y-3">
-                {demonstrationSignals.map((signal) => {
-                  const used = profile.signals.some((item) => item.id === signal.id);
-                  return <button key={signal.id} type="button" disabled={used} onClick={() => applySignal(signal)} className="w-full rounded-2xl border border-white/10 bg-black/20 p-4 text-left transition hover:border-amber-300/40 disabled:opacity-45"><p className="text-xs font-bold uppercase tracking-[0.12em] text-indigo-300">{signal.type.replace("_", " ")}</p><p className="mt-2 font-semibold">{signal.label}</p><p className="mt-2 text-xs text-indigo-100/50">{used ? "Already applied" : "Apply to profile →"}</p></button>;
-                })}
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-300">Recent evidence</p>
-              <h2 className="mt-2 text-2xl font-black">What shaped this profile</h2>
-              <div className="mt-5 space-y-4">
-                {profile.signals.length ? profile.signals.map((signal) => <div key={signal.id} className="border-l-2 border-indigo-400/40 pl-4"><p className="font-semibold">{signal.label}</p><p className="mt-1 text-xs text-indigo-100/45">{new Date(signal.occurredAt).toLocaleString()}</p></div>) : <p className="text-sm leading-6 text-indigo-100/60">Complete the assessment or add study evidence to begin building your history.</p>}
-              </div>
-              <button type="button" onClick={resetProfile} className="mt-6 w-full rounded-full border border-white/20 px-4 py-2.5 text-sm font-semibold">Reset demonstration</button>
-            </div>
-          </aside>
-        </div>
+          <div className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 sm:p-8">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">Next faithful step</p>
+            <h2 className="mt-3 text-2xl font-black">Practice through Scripture.</h2>
+            <p className="mt-3 leading-7 text-amber-50/75">A learning profile becomes meaningful through continued attention to God's Word. Choose another reviewed discovery and let the evidence grow naturally.</p>
+            <Link href="/emmaus/admin/bible" className="mt-6 inline-flex rounded-full bg-amber-300 px-5 py-3 font-black text-slate-950 shadow-lg">Choose a Discovery →</Link>
+          </div>
+        </section>
       </div>
     </main>
   );
 }
 
-function describe(score: number) {
-  if (score >= 80) return "Strong";
-  if (score >= 55) return "Growing";
-  return "Developing";
+function Metric({ value, label }: { value: number; label: string }) {
+  return <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 shadow-xl"><p className="text-3xl font-black text-amber-300">{value}</p><p className="mt-2 font-black">{label}</p></div>;
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-2xl border border-white/10 bg-black/20 p-5"><p className="text-2xl font-black">{value}</p><p className="mt-1 text-sm text-indigo-100/55">{label}</p></div>;
+function Insight({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
+  return <article className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-xl sm:p-8"><p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-300">{eyebrow}</p><h2 className="mt-3 text-3xl font-black">{title}</h2><p className="mt-3 leading-7 text-indigo-100/65">{description}</p></article>;
 }
 
-function ProfileGroup({ title, items }: { title: string; items: Array<{ dimension: Dimension; score: number }> }) {
-  return <div className="rounded-3xl border border-slate-200 p-5"><h3 className="text-xl font-black">{title}</h3><div className="mt-4 space-y-3">{items.map((item) => <div key={item.dimension} className="rounded-2xl bg-slate-50 p-4"><p className="font-bold">{labels[item.dimension]}</p><p className="mt-1 text-sm text-slate-500">{describe(item.score)}</p></div>)}</div></div>;
+function Adaptation({ title, text }: { title: string; text: string }) {
+  return <div className="rounded-2xl border border-white/10 bg-black/20 p-4"><h3 className="font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-indigo-100/60">{text}</p></div>;
 }
