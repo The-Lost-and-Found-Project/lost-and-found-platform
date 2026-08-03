@@ -90,11 +90,12 @@ export default function LearningProfilePage() {
       }
       if (assessment) {
         const parsed = JSON.parse(assessment) as { profile?: Array<{ dimension: Dimension; score: number; confidenceScore?: number }>; recommendedDepth?: LearningProfile["recommendedDepth"] };
-        if (parsed.profile) {
+        const assessmentProfile = parsed.profile;
+        if (assessmentProfile) {
           setProfile((current) => ({
             ...current,
             recommendedDepth: parsed.recommendedDepth ?? current.recommendedDepth,
-            dimensions: parsed.profile.reduce((acc, item) => {
+            dimensions: assessmentProfile.reduce((acc, item) => {
               acc[item.dimension] = {
                 score: item.score,
                 confidence: Math.round((item.confidenceScore ?? 1) * 50),
