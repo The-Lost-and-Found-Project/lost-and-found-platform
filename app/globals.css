@@ -2,13 +2,105 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --lfp-navy: 15 23 42;
+  --lfp-indigo: 79 70 229;
+  --lfp-violet: 124 58 237;
+  --lfp-gold: 245 190 67;
+  --lfp-cream: 250 248 244;
+  --lfp-muted: 100 116 139;
+  --lfp-radius-card: 1.75rem;
+  --lfp-shadow-card: 0 24px 60px rgb(15 23 42 / 0.1);
+}
+
 html {
   scroll-behavior: smooth;
 }
 
+body {
+  background: rgb(248 250 252);
+}
+
 :focus-visible {
-  outline: 3px solid rgb(79 70 229);
+  outline: 3px solid rgb(var(--lfp-indigo));
   outline-offset: 3px;
+}
+
+.lfp-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 90% 0%, rgb(224 231 255 / 0.7), transparent 34rem),
+    radial-gradient(circle at 0% 35%, rgb(254 243 199 / 0.5), transparent 28rem),
+    linear-gradient(to bottom, rgb(248 250 252), rgb(255 255 255));
+}
+
+.lfp-shell {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+.lfp-eyebrow {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--lfp-indigo));
+}
+
+.lfp-card {
+  border: 1px solid rgb(226 232 240 / 0.9);
+  border-radius: var(--lfp-radius-card);
+  background: rgb(255 255 255 / 0.9);
+  box-shadow: var(--lfp-shadow-card);
+  backdrop-filter: blur(18px);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.lfp-card:hover {
+  transform: translateY(-3px);
+  border-color: rgb(199 210 254);
+  box-shadow: 0 30px 70px rgb(15 23 42 / 0.14);
+}
+
+.lfp-button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.7rem 1.15rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 800;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.lfp-button:hover {
+  transform: translateY(-1px);
+}
+
+.lfp-button-primary {
+  color: white;
+  background: linear-gradient(135deg, rgb(var(--lfp-indigo)), rgb(var(--lfp-violet)));
+  box-shadow: 0 12px 26px rgb(79 70 229 / 0.24);
+}
+
+.lfp-button-primary:hover {
+  box-shadow: 0 16px 34px rgb(79 70 229 / 0.32);
+}
+
+.lfp-button-secondary {
+  color: rgb(51 65 85);
+  border: 1px solid rgb(226 232 240);
+  background: rgb(255 255 255 / 0.9);
+  box-shadow: 0 8px 20px rgb(15 23 42 / 0.07);
+}
+
+.lfp-button-secondary:hover {
+  background: white;
 }
 
 .skip-link {
@@ -27,6 +119,12 @@ html {
 
 .skip-link:focus {
   transform: translateY(0);
+}
+
+@media (min-width: 640px) {
+  .lfp-shell {
+    padding-inline: 1.5rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
