@@ -7,8 +7,8 @@ const items = [
   { href: "/emmaus/walk", label: "Walk", icon: "🏠" },
   { href: "/emmaus/admin/bible", label: "Bible", icon: "📖" },
   { href: "/emmaus/admin/graph", label: "Explore", icon: "🔍" },
-  { href: "/prayer", label: "Prayer", icon: "🙏" },
-  { href: "/profile", label: "Me", icon: "👤" },
+  { href: "/emmaus/prayer", label: "Prayer", icon: "🙏" },
+  { href: "/emmaus/me", label: "Me", icon: "👤" },
 ];
 
 export default function EmmausBottomNav() {
