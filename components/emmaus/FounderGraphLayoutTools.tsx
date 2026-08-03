@@ -2,29 +2,26 @@
 
 import { useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import {
+  createGraphLayout,
+  getOrphanNodeIds,
+  type GraphLayoutMode,
+  type GraphLayoutNode,
+  type GraphLayoutEdge,
+} from "@/lib/emmaus/graph-layout";
 
-type GraphNode = {
-  id: string;
-  node_type: string;
-  title: string;
+type GraphNodeRow = GraphLayoutNode & {
   status: string;
   metadata: Record<string, unknown> | null;
 };
 
-type GraphEdge = {
-  source_node_id: string;
-  target_node_id: string;
+type GraphEdgeRow = GraphLayoutEdge & {
   status: string;
 };
 
-type Position = { x: number; y: number };
-type LayoutMode = "grid" | "hierarchical" | "radial";
-
-const GRID = 24;
-
 export default function FounderGraphLayoutTools() {
   const supabase = useMemo(() => createClient(), []);
-  const [mode, setMode] = useState<LayoutMode>("hierarchical");
+  const [mode, setMode] = useState<GraphLayoutMode>("hierarchical");
   const [scope, setScope] = useState<"active" | "published" | "all">("active");
   const [spacing, setSpacing] = useState(1);
   const [working, setWorking] = useState(false);
@@ -44,7 +41,10 @@ export default function FounderGraphLayoutTools() {
 
     const [{ data: nodeRows, error: nodeError }, { data: edgeRows, error: edgeError }] = await Promise.all([
       nodeQuery,
-      supabase.from("emmaus_graph_edges").select("source_node_id,target_node_id,status").neq("status", "archived"),
+      supabase
+        .from("emmaus_graph_edges")
+        .select("source_node_id,target_node_id,status")
+        .neq("status", "archived"),
     ]);
 
     if (nodeError || edgeError) {
@@ -53,9 +53,9 @@ export default function FounderGraphLayoutTools() {
       return;
     }
 
-    const nodes = (nodeRows ?? []) as GraphNode[];
+    const nodes = (nodeRows ?? []) as GraphNodeRow[];
     const nodeIds = new Set(nodes.map((node) => node.id));
-    const edges = ((edgeRows ?? []) as GraphEdge[]).filter(
+    const edges = ((edgeRows ?? []) as GraphEdgeRow[]).filter(
       (edge) => nodeIds.has(edge.source_node_id) && nodeIds.has(edge.target_node_id),
     );
 
@@ -65,13 +65,14 @@ export default function FounderGraphLayoutTools() {
       return;
     }
 
-    const positions =
-      mode === "radial"
-        ? createRadialLayout(nodes, spacing)
-        : mode === "hierarchical"
-          ? createHierarchicalLayout(nodes, edges, spacing)
-          : createGridLayout(nodes, spacing);
+    const positions = createGraphLayout(mode, nodes, edges, {
+      spacing,
+      gridSize: 24,
+      originX: 72,
+      originY: 72,
+    });
 
+    const orphanCount = getOrphanNodeIds(nodes, edges).length;
     setMessage(`Saving ${mode} layout for ${nodes.length} nodes...`);
 
     const results = await Promise.all(
@@ -99,7 +100,9 @@ export default function FounderGraphLayoutTools() {
       return;
     }
 
-    setMessage(`${capitalize(mode)} layout saved for ${nodes.length} nodes. Refresh the canvas to view it.`);
+    setMessage(
+      `${capitalize(mode)} layout saved for ${nodes.length} nodes. ${orphanCount} orphaned ${orphanCount === 1 ? "node was" : "nodes were"} included. Refresh the canvas to view it.`,
+    );
     setWorking(false);
   }
 
@@ -126,7 +129,7 @@ export default function FounderGraphLayoutTools() {
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         <label className="block">
           <span className="text-sm font-black text-slate-700">Layout style</span>
-          <select value={mode} onChange={(event) => setMode(event.target.value as LayoutMode)} className={inputClass}>
+          <select value={mode} onChange={(event) => setMode(event.target.value as GraphLayoutMode)} className={inputClass}>
             <option value="hierarchical">Hierarchical</option>
             <option value="radial">Radial</option>
             <option value="grid">Grid</option>
@@ -164,101 +167,13 @@ export default function FounderGraphLayoutTools() {
   );
 }
 
-function createGridLayout(nodes: GraphNode[], spacing: number): Record<string, Position> {
-  const sorted = [...nodes].sort((a, b) => a.node_type.localeCompare(b.node_type) || a.title.localeCompare(b.title));
-  const columns = Math.max(3, Math.ceil(Math.sqrt(sorted.length)));
-  const xGap = 280 * spacing;
-  const yGap = 170 * spacing;
-
-  return Object.fromEntries(
-    sorted.map((node, index) => [
-      node.id,
-      snap({ x: 72 + (index % columns) * xGap, y: 72 + Math.floor(index / columns) * yGap }),
-    ]),
-  );
-}
-
-function createHierarchicalLayout(nodes: GraphNode[], edges: GraphEdge[], spacing: number): Record<string, Position> {
-  const incoming = new Map(nodes.map((node) => [node.id, 0]));
-  const outgoing = new Map(nodes.map((node) => [node.id, [] as string[]]));
-
-  for (const edge of edges) {
-    incoming.set(edge.target_node_id, (incoming.get(edge.target_node_id) ?? 0) + 1);
-    outgoing.get(edge.source_node_id)?.push(edge.target_node_id);
-  }
-
-  const roots = nodes.filter((node) => (incoming.get(node.id) ?? 0) === 0);
-  const queue = (roots.length ? roots : nodes.slice(0, 1)).map((node) => ({ id: node.id, level: 0 }));
-  const levels = new Map<string, number>();
-
-  while (queue.length) {
-    const current = queue.shift()!;
-    if (levels.has(current.id) && (levels.get(current.id) ?? 0) <= current.level) continue;
-    levels.set(current.id, current.level);
-    for (const target of outgoing.get(current.id) ?? []) queue.push({ id: target, level: current.level + 1 });
-  }
-
-  for (const node of nodes) if (!levels.has(node.id)) levels.set(node.id, 0);
-
-  const grouped = new Map<number, GraphNode[]>();
-  for (const node of nodes) {
-    const level = levels.get(node.id) ?? 0;
-    grouped.set(level, [...(grouped.get(level) ?? []), node]);
-  }
-
-  const positions: Record<string, Position> = {};
-  const xGap = 290 * spacing;
-  const yGap = 190 * spacing;
-
-  for (const [level, levelNodes] of [...grouped.entries()].sort(([a], [b]) => a - b)) {
-    const sorted = [...levelNodes].sort((a, b) => a.title.localeCompare(b.title));
-    const totalWidth = Math.max(0, (sorted.length - 1) * xGap);
-    sorted.forEach((node, index) => {
-      positions[node.id] = snap({ x: 100 + index * xGap - totalWidth / 2 + 600, y: 72 + level * yGap });
-    });
-  }
-
-  return positions;
-}
-
-function createRadialLayout(nodes: GraphNode[], edges: GraphEdge[], spacing: number): Record<string, Position> {
-  const degree = new Map(nodes.map((node) => [node.id, 0]));
-  for (const edge of edges) {
-    degree.set(edge.source_node_id, (degree.get(edge.source_node_id) ?? 0) + 1);
-    degree.set(edge.target_node_id, (degree.get(edge.target_node_id) ?? 0) + 1);
-  }
-
-  const sorted = [...nodes].sort((a, b) => (degree.get(b.id) ?? 0) - (degree.get(a.id) ?? 0));
-  const center = sorted[0];
-  const rest = sorted.slice(1);
-  const positions: Record<string, Position> = { [center.id]: snap({ x: 650, y: 500 }) };
-
-  let index = 0;
-  let ring = 1;
-  while (index < rest.length) {
-    const count = Math.min(rest.length - index, Math.max(6, ring * 8));
-    const radius = ring * 230 * spacing;
-    for (let i = 0; i < count; i += 1) {
-      const angle = (Math.PI * 2 * i) / count - Math.PI / 2;
-      const node = rest[index + i];
-      positions[node.id] = snap({ x: 650 + Math.cos(angle) * radius, y: 500 + Math.sin(angle) * radius });
-    }
-    index += count;
-    ring += 1;
-  }
-
-  return positions;
-}
-
-function snap(position: Position): Position {
-  return {
-    x: Math.max(GRID, Math.round(position.x / GRID) * GRID),
-    y: Math.max(GRID, Math.round(position.y / GRID) * GRID),
-  };
-}
-
 function Description({ title, text }: { title: string; text: string }) {
-  return <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><p className="font-black text-slate-950">{title}</p><p className="mt-2 text-sm leading-6 text-slate-600">{text}</p></div>;
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <p className="font-black text-slate-950">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
+    </div>
+  );
 }
 
 function capitalize(value: string) {
