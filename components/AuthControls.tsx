@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getEffectiveRole } from "@/lib/effective-role";
 
@@ -20,201 +20,44 @@ const ROLE_LABELS: Record<string, string> = {
   admin: "Community Admin",
 };
 
-const baseMenuItems = [
-  {
-    href: "/profile",
-    label: "Profile",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        className="h-4 w-4"
-      >
-        <rect x="3" y="5" width="18" height="14" rx="2" />
-        <circle cx="9" cy="12" r="2" />
-        <path d="M14 10h4M14 14h4" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    href: "/devotions",
-    label: "Daily Devotions",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        className="h-4 w-4"
-      >
-        <path
-          d="M12 6.5c-1.4-1.3-3.4-2-5.5-2-1 0-2 .15-2.5.4v12.6c.5-.25 1.5-.4 2.5-.4 2.1 0 4.1.7 5.5 2 1.4-1.3 3.4-2 5.5-2 1 0 2 .15 2.5.4V4.9c-.5-.25-1.5-.4-2.5-.4-2.1 0-4.1.7-5.5 2z"
-          strokeLinejoin="round"
-        />
-        <path d="M12 6.5v12.6" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    href: "/trivia",
-    label: "Bible Trivia",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        className="h-4 w-4"
-      >
-        <circle cx="12" cy="12" r="9" />
-        <path
-          d="M9.5 9.3a2.5 2.5 0 114.5 1.5c-.6.7-1.5 1-1.5 2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="12" cy="16.7" r="0.9" fill="currentColor" stroke="none" />
-      </svg>
-    ),
-  },
-  {
-    href: "/help",
-    label: "Help & User Manuals",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        className="h-4 w-4"
-      >
-        <path
-          d="M4 5.5A2.5 2.5 0 016.5 3H11a3 3 0 013 3v15a3 3 0 00-3-3H6.5A2.5 2.5 0 004 20.5v-15z"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M20 5.5A2.5 2.5 0 0017.5 3H14v18a3 3 0 013-3h.5a2.5 2.5 0 012.5 2.5v-15z"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    href: "/settings",
-    label: "Settings",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        className="h-4 w-4"
-      >
-        <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h13M21 18h.01" strokeLinecap="round" />
-        <circle cx="16" cy="6" r="2" fill="currentColor" stroke="none" />
-        <circle cx="9" cy="12" r="2" fill="currentColor" stroke="none" />
-        <circle cx="18" cy="18" r="2" fill="currentColor" stroke="none" />
-      </svg>
-    ),
-  },
-  {
-    href: "/programs",
-    label: "Programs",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-        <circle cx="5" cy="5" r="1.6" />
-        <circle cx="12" cy="5" r="1.6" />
-        <circle cx="19" cy="5" r="1.6" />
-        <circle cx="5" cy="12" r="1.6" />
-        <circle cx="12" cy="12" r="1.6" />
-        <circle cx="19" cy="12" r="1.6" />
-        <circle cx="5" cy="19" r="1.6" />
-        <circle cx="12" cy="19" r="1.6" />
-        <circle cx="19" cy="19" r="1.6" />
-      </svg>
-    ),
-  },
+const accountItems = [
+  { href: "/profile", label: "Profile", icon: "👤" },
+  { href: "/notifications", label: "Notifications", icon: "🔔" },
+  { href: "/settings", label: "Settings", icon: "⚙" },
+  { href: "/feedback", label: "Feedback", icon: "💬" },
+  { href: "/support", label: "Help & Support", icon: "?" },
 ];
-
-const shieldIcon = (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    className="h-4 w-4"
-  >
-    <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" strokeLinejoin="round" />
-    <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-// Only admins get the full admin dashboard (moderation, reassignment,
-// every member's requests).
-const adminCareTeamMenuItem = {
-  href: "/admin",
-  label: "Prayer Care Admin",
-  icon: shieldIcon,
-};
-
-// Prayer partners (the "prayer_team" role) and pastors both get their own
-// dedicated, assignments-only page instead — they should only ever see
-// requests assigned to them, not the full admin dashboard.
-const prayerTeamMenuItem = {
-  href: "/prayer-assignments",
-  label: "My Prayer Assignments",
-  icon: shieldIcon,
-};
 
 export default function AuthControls() {
   const supabase = createClient();
   const router = useRouter();
   const pathname = usePathname();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Header (and this component) persists across client-side navigations —
-  // it isn't remounted per page — so without this the menu would stay open
-  // after clicking a link elsewhere (e.g. the notification bell or a
-  // BottomNav tab) instead of closing when you navigate away.
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+  useEffect(() => setOpen(false), [pathname]);
 
-  // Close on any click/tap outside the menu. Using a document-level listener
-  // (rather than relying only on an invisible overlay div) so this reliably
-  // closes on touch devices too, regardless of what element happens to sit
-  // on top elsewhere on the page (e.g. the BottomNav).
   useEffect(() => {
     if (!open) return;
-
-    function handleOutside(e: MouseEvent | TouchEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false);
-      }
+    function closeOutside(event: MouseEvent | TouchEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) setOpen(false);
     }
-
-    document.addEventListener("mousedown", handleOutside);
-    document.addEventListener("touchstart", handleOutside);
+    document.addEventListener("mousedown", closeOutside);
+    document.addEventListener("touchstart", closeOutside);
     return () => {
-      document.removeEventListener("mousedown", handleOutside);
-      document.removeEventListener("touchstart", handleOutside);
+      document.removeEventListener("mousedown", closeOutside);
+      document.removeEventListener("touchstart", closeOutside);
     };
   }, [open]);
 
   useEffect(() => {
     let active = true;
-
     async function load() {
       const { data } = await supabase.auth.getUser();
-      const user = data?.user;
+      const user = data.user;
       if (!user) {
         if (active) {
           setEmail(null);
@@ -223,202 +66,94 @@ export default function AuthControls() {
         }
         return;
       }
-      if (active) setEmail(user.email ?? null);
-
       const { data: profileData } = await supabase
         .from("profiles")
         .select("full_name, avatar_url, role, preview_role")
         .eq("id", user.id)
         .single();
-
       if (active) {
+        setEmail(user.email ?? null);
         setProfile((profileData as Profile) ?? null);
         setLoading(false);
       }
     }
-
     load();
-
-    const { data: listener } = supabase.auth.onAuthStateChange(() => {
-      load();
-    });
-
-    // The Profile page's role-preview toggle updates the same profiles row
-    // this component reads, but that update happens entirely client-side on
-    // a page that doesn't remount this header — so without an explicit
-    // signal, this menu and the "Previewing as..." banner would stay stale
-    // until a full page reload. ProfileClient dispatches this event right
-    // after a successful preview-role change so this refetches immediately.
+    const { data: listener } = supabase.auth.onAuthStateChange(load);
     window.addEventListener("lf:profile-updated", load);
-
     return () => {
       active = false;
       listener.subscription.unsubscribe();
       window.removeEventListener("lf:profile-updated", load);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [supabase]);
 
-  async function handleSignOut() {
+  async function signOut() {
     await supabase.auth.signOut();
-    // Clear the home-screen app badge on sign-out — otherwise a shared or
-    // handed-down device could keep showing a stale unread count for
-    // whoever signs in next, before their own count has loaded.
-    if ("clearAppBadge" in navigator) {
-      navigator.clearAppBadge().catch(() => {});
-    }
+    if ("clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
     setOpen(false);
     router.push("/");
     router.refresh();
   }
 
-  if (loading) {
-    return <div className="h-9 w-9" aria-hidden="true" />;
-  }
-
-  if (!email) {
-    return (
-      <Link
-        href="/login"
-        className="rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500"
-      >
-        Login
-      </Link>
-    );
-  }
+  if (loading) return <div className="h-10 w-10" aria-hidden="true" />;
+  if (!email) return <Link href="/login" className="lfp-button lfp-button-primary">Login</Link>;
 
   const displayName = profile?.full_name?.trim() || email;
   const initial = displayName.charAt(0).toUpperCase() || "?";
   const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
-  const isPreviewing =
-    profile?.role === "admin" &&
-    !!profile?.preview_role &&
-    profile.preview_role !== "admin";
+  const isPreviewing = profile?.role === "admin" && !!profile?.preview_role && profile.preview_role !== "admin";
 
-  let menuItems = baseMenuItems;
-  if (effectiveRole === "admin") {
-    // Admins get both: the full moderation/oversight dashboard, and the
-    // same assignments-only view everyone else on the care team uses for
-    // their own requests — keeps /admin itself free of personal to-do
-    // clutter.
-    menuItems = [...baseMenuItems, adminCareTeamMenuItem, prayerTeamMenuItem];
-  } else if (effectiveRole === "prayer_team" || effectiveRole === "pastor") {
-    menuItems = [...baseMenuItems, prayerTeamMenuItem];
-  }
+  const roleItems = effectiveRole === "admin"
+    ? [
+        { href: "/admin", label: "Administration Center", icon: "🛡" },
+        { href: "/prayer-assignments", label: "My Prayer Assignments", icon: "🙏" },
+      ]
+    : effectiveRole === "prayer_team" || effectiveRole === "pastor"
+      ? [{ href: "/prayer-assignments", label: "My Prayer Assignments", icon: "🙏" }]
+      : [];
 
   return (
     <div className="relative" ref={containerRef}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="flex items-center rounded-full ring-2 ring-transparent transition hover:ring-indigo-100"
-        aria-label="Account menu"
-      >
+      <button onClick={() => setOpen((value) => !value)} className="flex items-center rounded-full ring-2 ring-transparent transition hover:ring-indigo-100" aria-label="Account menu" aria-expanded={open}>
         {profile?.avatar_url ? (
-          <img
-            src={profile.avatar_url}
-            alt=""
-            className="h-9 w-9 rounded-full object-cover"
-          />
+          <img src={profile.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover ring-2 ring-white shadow-md" />
         ) : (
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-semibold text-white">
-            {initial}
-          </span>
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-black text-white shadow-md">{initial}</span>
         )}
       </button>
 
       {open && (
-        <>
-          <div className="absolute right-0 z-20 mt-2 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl ring-1 ring-black/5">
-            <div className="flex items-center gap-3 border-b border-gray-100 bg-gray-50/60 px-4 py-3">
-              {profile?.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt=""
-                  className="h-10 w-10 rounded-full object-cover"
-                />
-              ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-semibold text-white">
-                  {initial}
-                </span>
-              )}
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-gray-900">
-                  {profile?.full_name?.trim() || "Add your name"}
-                </p>
-                <p className="truncate text-xs text-gray-500">{email}</p>
-              </div>
+        <div className="absolute right-0 z-50 mt-3 w-72 overflow-hidden rounded-3xl border border-slate-200 bg-white/96 shadow-2xl backdrop-blur-xl">
+          <div className="flex items-center gap-3 border-b border-slate-100 bg-slate-50/80 px-4 py-4">
+            {profile?.avatar_url ? <img src={profile.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" /> : <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 font-black text-white">{initial}</span>}
+            <div className="min-w-0">
+              <p className="truncate font-black text-slate-950">{profile?.full_name?.trim() || "Add your name"}</p>
+              <p className="truncate text-xs text-slate-500">{email}</p>
             </div>
+          </div>
 
-            {isPreviewing && (
-              <div className="border-b border-gray-100 bg-amber-50 px-4 py-2 text-xs font-medium text-amber-700">
-                Previewing as {ROLE_LABELS[effectiveRole]} —{" "}
-                <Link
-                  href="/profile"
-                  onClick={() => setOpen(false)}
-                  className="underline hover:text-amber-800"
-                >
-                  end preview
-                </Link>
-              </div>
-            )}
-
-            <div className="py-1.5">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 transition hover:bg-gray-50"
-                >
-                  <span className="text-gray-400">{item.icon}</span>
-                  {item.label}
-                </Link>
-              ))}
+          {isPreviewing && (
+            <div className="border-b border-amber-100 bg-amber-50 px-4 py-2.5 text-xs font-bold text-amber-800">
+              Previewing as {ROLE_LABELS[effectiveRole]}. <Link href="/profile" className="underline">End preview</Link>
             </div>
+          )}
 
-            <div className="border-t border-gray-100 px-4 py-2.5">
-              <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                Contact
-              </p>
-              <a
-                href="mailto:admin@lostandfoundproject.org"
-                className="mt-1 flex items-center gap-3 text-sm text-gray-700 transition hover:text-indigo-600"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  className="h-4 w-4 shrink-0 text-gray-400"
-                >
-                  <rect x="3" y="5" width="18" height="14" rx="2" />
-                  <path d="M3 7l9 6 9-6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                admin@lostandfoundproject.org
-              </a>
-            </div>
+          <div className="p-2">
+            {[...accountItems, ...roleItems].map((item) => (
+              <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-indigo-50 hover:text-indigo-800">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100" aria-hidden="true">{item.icon}</span>
+                {item.label}
+              </Link>
+            ))}
+          </div>
 
-            <button
-              onClick={handleSignOut}
-              className="flex w-full items-center gap-3 border-t border-gray-100 px-4 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                className="h-4 w-4"
-              >
-                <path
-                  d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Sign out
+          <div className="border-t border-slate-100 p-2">
+            <button type="button" onClick={signOut} className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-bold text-rose-700 transition hover:bg-rose-50">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-50" aria-hidden="true">↪</span>
+              Sign Out
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
