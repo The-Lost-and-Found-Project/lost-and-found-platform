@@ -19,6 +19,9 @@ type Step = {
 };
 
 type SaveState = "loading" | "saved" | "saving" | "error";
+type XpResult = { awarded: boolean; total_xp: number };
+
+const DISCOVERY_COMPLETION_XP = 50;
 
 export default function InteractiveDiscoveryPlayer({ packId, packTitle, discovery }: Props) {
   const supabase = useMemo(() => createClient(), []);
@@ -38,6 +41,10 @@ export default function InteractiveDiscoveryPlayer({ packId, packTitle, discover
   const [completed, setCompleted] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<SaveState>("loading");
+  const [xpAwarded, setXpAwarded] = useState<boolean | null>(null);
+  const [totalXp, setTotalXp] = useState<number | null>(null);
+  const [xpError, setXpError] = useState("");
+  const [completing, setCompleting] = useState(false);
   const hydrated = useRef(false);
 
   const step = steps[stepIndex];
@@ -122,10 +129,64 @@ export default function InteractiveDiscoveryPlayer({ packId, packTitle, discover
     return () => window.clearTimeout(timer);
   }, [completed, discovery.id, packId, responses, revealedClues, stepIndex, supabase, userId]);
 
+  async function completeDiscovery() {
+    if (completing) return;
+    setCompleting(true);
+    setXpError("");
+
+    const completedAt = new Date().toISOString();
+    const { error: progressError } = await supabase
+      .from("emmaus_discovery_progress")
+      .upsert({
+        user_id: userId,
+        pack_id: packId,
+        discovery_id: discovery.id,
+        current_step: steps.length - 1,
+        responses,
+        revealed_clues: revealedClues,
+        is_completed: true,
+        completed_at: completedAt,
+      }, { onConflict: "user_id,pack_id,discovery_id" });
+
+    if (progressError) {
+      console.error("Failed to complete Emmaus discovery:", progressError);
+      setSaveState("error");
+      setCompleting(false);
+      return;
+    }
+
+    const responseCount = Object.values(responses).filter((value) => value.trim()).length;
+    const { data, error } = await supabase.rpc("award_emmaus_xp", {
+      p_event_type: "discovery_completed",
+      p_source_key: `${packId}:${discovery.id}`,
+      p_points: DISCOVERY_COMPLETION_XP,
+      p_metadata: {
+        pack_id: packId,
+        discovery_id: discovery.id,
+        passage: discovery.passage,
+        response_count: responseCount,
+        clues_used: revealedClues,
+      },
+    });
+
+    if (error) {
+      console.error("Failed to award Emmaus XP:", error);
+      setXpError("Your discovery was saved, but XP could not be updated.");
+    } else {
+      const result = (Array.isArray(data) ? data[0] : data) as XpResult | null;
+      setXpAwarded(Boolean(result?.awarded));
+      setTotalXp(result?.total_xp ?? null);
+    }
+
+    setCompleted(true);
+    setSaveState("saved");
+    setCompleting(false);
+  }
+
   function next() {
     if (!canContinue) return;
     if (stepIndex === steps.length - 1) {
-      setCompleted(true);
+      void completeDiscovery();
       return;
     }
     setStepIndex((current) => current + 1);
@@ -144,6 +205,9 @@ export default function InteractiveDiscoveryPlayer({ packId, packTitle, discover
     setStepIndex(0);
     setResponses({});
     setRevealedClues(0);
+    setXpAwarded(null);
+    setTotalXp(null);
+    setXpError("");
 
     if (userId) {
       await supabase
@@ -182,12 +246,22 @@ export default function InteractiveDiscoveryPlayer({ packId, packTitle, discover
           <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">You slowed down and discovered.</h1>
           <p className="mt-5 text-lg leading-8 text-indigo-100/75">You completed {discovery.title} and recorded {answered} written responses. Your progress has been saved.</p>
 
+          <div className="mt-8 rounded-[2rem] border border-amber-300/25 bg-amber-300/10 p-6">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">Emmaus XP</p>
+            <p className="mt-2 text-4xl font-black text-amber-300">
+              {xpAwarded === true ? `+${DISCOVERY_COMPLETION_XP} XP` : xpAwarded === false ? "XP already earned" : "Completion recorded"}
+            </p>
+            {totalXp !== null && <p className="mt-2 text-indigo-100/70">Your total is now {totalXp} XP.</p>}
+            {xpError && <p className="mt-3 text-sm font-semibold text-rose-300">{xpError}</p>}
+          </div>
+
           <div className="mt-9 grid gap-4 text-left sm:grid-cols-2">
             <SummaryCard title="Application" text={responses.application || discovery.applicationPrompt} />
             <SummaryCard title="Journal" text={responses.journal || discovery.journalPrompt} />
           </div>
 
           <div className="mt-9 flex flex-wrap justify-center gap-3">
+            <Link href="/emmaus/walk" className="rounded-full bg-amber-300 px-5 py-3 font-black text-slate-950 shadow-xl">Return to Emmaus</Link>
             <Link href={`/emmaus/content/${packId}`} className="rounded-full bg-white px-5 py-3 font-black text-indigo-800 shadow-xl">Return to Pack</Link>
             <button type="button" onClick={restartDiscovery} className="rounded-full border border-white/25 bg-white/10 px-5 py-3 font-black text-white">Review Again</button>
           </div>
@@ -286,9 +360,9 @@ export default function InteractiveDiscoveryPlayer({ packId, packTitle, discover
         </section>
 
         <div className="mt-7 flex items-center justify-between gap-4">
-          <button type="button" onClick={previous} disabled={stepIndex === 0} className="rounded-full border border-slate-300 bg-white px-5 py-3 font-black text-slate-700 shadow-sm disabled:cursor-not-allowed disabled:opacity-40">Previous</button>
-          <button type="button" onClick={next} disabled={!canContinue} className="rounded-full bg-indigo-600 px-6 py-3 font-black text-white shadow-xl transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40">
-            {stepIndex === steps.length - 1 ? "Complete Discovery" : "Continue"}
+          <button type="button" onClick={previous} disabled={stepIndex === 0 || completing} className="rounded-full border border-slate-300 bg-white px-5 py-3 font-black text-slate-700 shadow-sm disabled:cursor-not-allowed disabled:opacity-40">Previous</button>
+          <button type="button" onClick={next} disabled={!canContinue || completing} className="rounded-full bg-indigo-600 px-6 py-3 font-black text-white shadow-xl transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40">
+            {completing ? "Completing..." : stepIndex === steps.length - 1 ? "Complete Discovery" : "Continue"}
           </button>
         </div>
       </div>
