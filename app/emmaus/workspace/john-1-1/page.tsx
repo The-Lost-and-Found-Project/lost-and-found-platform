@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { getConnectedKnowledge, getKnowledgeNode } from "@/lib/emmaus/knowledge-graph";
+import { getConnectedKnowledge, getKnowledgeNode, type KnowledgeEdge, type KnowledgeNode } from "@/lib/emmaus/knowledge-graph";
 
 type Tab = "observe" | "connections" | "trails" | "words" | "questions" | "journal";
+type ConnectedKnowledge = { node: KnowledgeNode; edge: KnowledgeEdge };
 
 const tabs: Array<{ key: Tab; label: string; icon: string }> = [
   { key: "observe", label: "Observe", icon: "👀" },
@@ -19,7 +20,7 @@ export default function JohnOneOneWorkspacePage() {
   const [activeTab, setActiveTab] = useState<Tab>("observe");
   const [notes, setNotes] = useState({ observe: "", questions: "", journal: "" });
   const node = getKnowledgeNode("verse-john-1-1");
-  const connected = getConnectedKnowledge("verse-john-1-1");
+  const connected = getConnectedKnowledge("verse-john-1-1") as ConnectedKnowledge[];
   const storageKey = "emmaus-workspace:john-1-1";
 
   useEffect(() => {
