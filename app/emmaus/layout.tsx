@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import EmmausBottomNav from "@/components/emmaus/EmmausBottomNav";
 
 const EMMAUS_FOUNDER_EMAIL = "chad@lostandfoundproject.org";
+const EMMAUS_FOUNDER_USER_ID = process.env.EMMAUS_FOUNDER_USER_ID?.trim();
 
 export default async function EmmausLayout({
   children,
@@ -18,7 +19,15 @@ export default async function EmmausLayout({
     redirect("/login");
   }
 
-  if (user.email?.toLowerCase() !== EMMAUS_FOUNDER_EMAIL) {
+  const matchesPermanentFounderId = Boolean(
+    EMMAUS_FOUNDER_USER_ID && user.id === EMMAUS_FOUNDER_USER_ID
+  );
+  const matchesBootstrapEmail = Boolean(
+    !EMMAUS_FOUNDER_USER_ID &&
+      user.email?.toLowerCase() === EMMAUS_FOUNDER_EMAIL
+  );
+
+  if (!matchesPermanentFounderId && !matchesBootstrapEmail) {
     redirect("/dashboard");
   }
 
