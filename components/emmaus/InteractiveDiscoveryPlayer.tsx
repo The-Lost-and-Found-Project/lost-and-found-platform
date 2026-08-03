@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import type { EmmausDiscoveryContent } from "@/lib/emmaus/content-packs/john-1";
 
 type Props = {
@@ -17,7 +18,10 @@ type Step = {
   kind: "response" | "prayer" | "summary";
 };
 
+type SaveState = "loading" | "saved" | "saving" | "error";
+
 export default function InteractiveDiscoveryPlayer({ packId, packTitle, discovery }: Props) {
+  const supabase = useMemo(() => createClient(), []);
   const steps = useMemo<Step[]>(() => [
     { id: "opening-prayer", label: "Prepare", prompt: discovery.openingPrayer, kind: "prayer" },
     { id: "opening-question", label: "Observe", prompt: discovery.openingQuestion, kind: "response" },
@@ -32,11 +36,91 @@ export default function InteractiveDiscoveryPlayer({ packId, packTitle, discover
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [revealedClues, setRevealedClues] = useState(0);
   const [completed, setCompleted] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<SaveState>("loading");
+  const hydrated = useRef(false);
 
   const step = steps[stepIndex];
   const progress = Math.round(((stepIndex + 1) / steps.length) * 100);
   const response = responses[step.id] ?? "";
   const canContinue = step.kind !== "response" || response.trim().length >= 3;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProgress() {
+      const { data: authData } = await supabase.auth.getUser();
+      const user = authData.user;
+      if (!user || cancelled) {
+        setSaveState("error");
+        hydrated.current = true;
+        return;
+      }
+
+      setUserId(user.id);
+      const { data, error } = await supabase
+        .from("emmaus_discovery_progress")
+        .select("current_step, responses, revealed_clues, is_completed")
+        .eq("user_id", user.id)
+        .eq("pack_id", packId)
+        .eq("discovery_id", discovery.id)
+        .maybeSingle();
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Failed to load Emmaus progress:", error);
+        setSaveState("error");
+        hydrated.current = true;
+        return;
+      }
+
+      if (data) {
+        const safeStep = Math.min(Math.max(data.current_step ?? 0, 0), steps.length - 1);
+        setStepIndex(safeStep);
+        setResponses((data.responses as Record<string, string>) ?? {});
+        setRevealedClues(Math.min(data.revealed_clues ?? 0, discovery.clues.length));
+        setCompleted(Boolean(data.is_completed));
+      }
+
+      setSaveState("saved");
+      hydrated.current = true;
+    }
+
+    loadProgress();
+    return () => {
+      cancelled = true;
+    };
+  }, [discovery.clues.length, discovery.id, packId, steps.length, supabase]);
+
+  useEffect(() => {
+    if (!hydrated.current || !userId) return;
+
+    const timer = window.setTimeout(async () => {
+      setSaveState("saving");
+      const { error } = await supabase
+        .from("emmaus_discovery_progress")
+        .upsert({
+          user_id: userId,
+          pack_id: packId,
+          discovery_id: discovery.id,
+          current_step: stepIndex,
+          responses,
+          revealed_clues: revealedClues,
+          is_completed: completed,
+          completed_at: completed ? new Date().toISOString() : null,
+        }, { onConflict: "user_id,pack_id,discovery_id" });
+
+      if (error) {
+        console.error("Failed to save Emmaus progress:", error);
+        setSaveState("error");
+      } else {
+        setSaveState("saved");
+      }
+    }, 650);
+
+    return () => window.clearTimeout(timer);
+  }, [completed, discovery.id, packId, responses, revealedClues, stepIndex, supabase, userId]);
 
   function next() {
     if (!canContinue) return;
@@ -55,6 +139,39 @@ export default function InteractiveDiscoveryPlayer({ packId, packTitle, discover
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  async function restartDiscovery() {
+    setCompleted(false);
+    setStepIndex(0);
+    setResponses({});
+    setRevealedClues(0);
+
+    if (userId) {
+      await supabase
+        .from("emmaus_discovery_progress")
+        .update({
+          current_step: 0,
+          responses: {},
+          revealed_clues: 0,
+          is_completed: false,
+          completed_at: null,
+        })
+        .eq("user_id", userId)
+        .eq("pack_id", packId)
+        .eq("discovery_id", discovery.id);
+    }
+  }
+
+  if (saveState === "loading") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-white">
+        <div className="text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-amber-300" />
+          <p className="mt-5 font-black">Loading your discovery...</p>
+        </div>
+      </main>
+    );
+  }
+
   if (completed) {
     const answered = Object.values(responses).filter((value) => value.trim()).length;
     return (
@@ -63,7 +180,7 @@ export default function InteractiveDiscoveryPlayer({ packId, packTitle, discover
           <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-400/15 text-4xl ring-1 ring-emerald-300/30" aria-hidden="true">✓</span>
           <p className="mt-7 text-xs font-black uppercase tracking-[0.2em] text-amber-300">Discovery Complete</p>
           <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">You slowed down and discovered.</h1>
-          <p className="mt-5 text-lg leading-8 text-indigo-100/75">You completed {discovery.title} and recorded {answered} written responses. The goal is not speed—it is faithful attention to Scripture.</p>
+          <p className="mt-5 text-lg leading-8 text-indigo-100/75">You completed {discovery.title} and recorded {answered} written responses. Your progress has been saved.</p>
 
           <div className="mt-9 grid gap-4 text-left sm:grid-cols-2">
             <SummaryCard title="Application" text={responses.application || discovery.applicationPrompt} />
@@ -72,7 +189,7 @@ export default function InteractiveDiscoveryPlayer({ packId, packTitle, discover
 
           <div className="mt-9 flex flex-wrap justify-center gap-3">
             <Link href={`/emmaus/content/${packId}`} className="rounded-full bg-white px-5 py-3 font-black text-indigo-800 shadow-xl">Return to Pack</Link>
-            <button type="button" onClick={() => { setCompleted(false); setStepIndex(0); }} className="rounded-full border border-white/25 bg-white/10 px-5 py-3 font-black text-white">Review Again</button>
+            <button type="button" onClick={restartDiscovery} className="rounded-full border border-white/25 bg-white/10 px-5 py-3 font-black text-white">Review Again</button>
           </div>
         </div>
       </main>
@@ -87,6 +204,9 @@ export default function InteractiveDiscoveryPlayer({ packId, packTitle, discover
           <div className="min-w-0 text-right">
             <p className="truncate text-xs font-black uppercase tracking-[0.14em] text-slate-400">{packTitle}</p>
             <p className="truncate font-black text-slate-950">{discovery.passage}</p>
+            <p className={`mt-1 text-xs font-bold ${saveState === "error" ? "text-rose-600" : "text-slate-400"}`} aria-live="polite">
+              {saveState === "saving" ? "Saving..." : saveState === "error" ? "Progress could not be saved" : "Progress saved"}
+            </p>
           </div>
         </div>
       </header>
