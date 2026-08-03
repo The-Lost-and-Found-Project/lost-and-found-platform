@@ -3,7 +3,16 @@ import { createClient } from "@/lib/supabase/server";
 import PrayerWallTicker from "@/components/PrayerWallTicker";
 import ShareButton from "@/components/ShareButton";
 import PushPrompt from "@/components/PushPrompt";
-import Link from "next/link";
+import {
+  LfpComingSoonCard,
+  LfpFeatureCard,
+  LfpPrimaryLink,
+  LfpSecondaryLink,
+  LfpSectionHeading,
+} from "@/components/ui/LfpDesignSystem";
+
+const EMMAUS_FOUNDER_EMAIL = "chad@lostandfoundproject.org";
+const EMMAUS_FOUNDER_USER_ID = process.env.EMMAUS_FOUNDER_USER_ID?.trim();
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -12,9 +21,7 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -22,11 +29,12 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  const firstName = profile?.full_name?.trim().split(" ")[0] || null;
-  const isCareTeam =
-    profile?.role === "admin" ||
-    profile?.role === "prayer_team" ||
-    profile?.role === "pastor";
+  const firstName = profile?.full_name?.trim().split(" ")[0] || "friend";
+  const isCareTeam = ["admin", "prayer_team", "pastor"].includes(profile?.role ?? "");
+  const isEmmausFounder = Boolean(
+    (EMMAUS_FOUNDER_USER_ID && user.id === EMMAUS_FOUNDER_USER_ID) ||
+      (!EMMAUS_FOUNDER_USER_ID && user.email?.toLowerCase() === EMMAUS_FOUNDER_EMAIL)
+  );
 
   let pendingApplication = false;
   if (!isCareTeam) {
@@ -42,110 +50,114 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div>
-      <section className="relative overflow-hidden">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-violet-50" />
-        <div aria-hidden="true" className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-violet-200/40 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -left-24 h-80 w-80 rounded-full bg-indigo-200/40 blur-3xl" />
-
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="max-w-xl">
-              <span className="inline-flex items-center rounded-full bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-700 ring-1 ring-inset ring-indigo-100">
-                Welcome back
-              </span>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                {firstName ? `Hi, ${firstName}` : "Hi there"}
-              </h1>
-              <p className="mt-3 text-gray-600">
-                Here&rsquo;s what&rsquo;s happening in our community today. Take a moment to pray, share your testimony, or continue your walk through Scripture.
-              </p>
+    <main className="lfp-page pb-20">
+      <section className="relative overflow-hidden bg-slate-950 text-white">
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(124,58,237,0.34),transparent_34rem),radial-gradient(circle_at_10%_100%,rgba(245,190,67,0.2),transparent_28rem)]" />
+        <div className="lfp-shell relative py-14 sm:py-20">
+          <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div className="max-w-3xl">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">The Lost and Found Project</p>
+              <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">Welcome back, {firstName}.</h1>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-indigo-100/75">A place to pray, grow, serve, and stay connected to what God is doing through this community.</p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap gap-3">
               <ShareButton />
-              <Link href="/profile" className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
-                  <path d="M12 20.25c-.36 0-.71-.1-1.02-.28C7.9 18.36 3.5 15.24 3.5 10.5 3.5 7.74 5.74 5.5 8.5 5.5c1.4 0 2.73.6 3.5 1.6.77-1 2.1-1.6 3.5-1.6 2.76 0 5 2.24 5 5 0 4.74-4.4 7.86-7.48 9.47-.31.18-.66.28-1.02.28z" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                Share My Testimony
-              </Link>
+              <LfpSecondaryLink href="/profile">Share My Testimony</LfpSecondaryLink>
             </div>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            <HeroAction icon="🙏" title="Submit a Prayer" description="Share what is on your heart with our prayer community." href="/prayer/submit" />
+            <HeroAction icon="📖" title="Daily Devotion" description="Begin a Scripture-centered devotional for today." href="/devotions" />
+            <HeroAction icon="✨" title="Bible Trivia" description="Strengthen biblical knowledge through an engaging challenge." href="/trivia" />
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+      <div className="lfp-shell pt-8 sm:pt-12">
         <PushPrompt />
 
-        <div className="mb-6 overflow-hidden rounded-2xl border border-indigo-200 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-1 shadow-xl">
-          <div className="rounded-[0.9rem] bg-white/[0.06] p-6 text-white sm:p-7">
-            <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">Emmaus</p>
-                <h2 className="mt-2 text-2xl font-black">Continue your walk through Scripture</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-indigo-100/75">
-                  Open the Bible, begin a guided Discovery, follow Scripture connections, and return to what God has been teaching you.
-                </p>
+        {isEmmausFounder && (
+          <section className="mb-10 overflow-hidden rounded-[2rem] border border-amber-300/30 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-1 shadow-2xl">
+            <div className="rounded-[1.8rem] bg-white/[0.05] p-6 text-white sm:p-8">
+              <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Private Founder Lab</p>
+                  <h2 className="mt-3 text-3xl font-black">Continue building Emmaus</h2>
+                  <p className="mt-3 max-w-2xl leading-7 text-indigo-100/70">This private Scripture-discovery environment is visible only to your founder account while it is being developed and reviewed.</p>
+                </div>
+                <LfpPrimaryLink href="/emmaus/walk">Open Emmaus →</LfpPrimaryLink>
               </div>
-              <Link href="/emmaus/walk" className="justify-self-start rounded-full bg-amber-300 px-5 py-2.5 text-sm font-black text-slate-950 shadow-lg transition hover:bg-amber-200 sm:justify-self-end">
-                Open Emmaus →
-              </Link>
             </div>
-          </div>
-        </div>
+          </section>
+        )}
 
         {isCareTeam && (
-          <div className="mb-6 grid grid-cols-1 items-center gap-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-5 sm:grid-cols-[minmax(0,1fr)_auto]">
-            <div>
-              <h2 className="text-sm font-semibold text-gray-900">My Prayer Assignments</h2>
-              <p className="mt-1 text-sm text-gray-600">View the prayer requests entrusted to you, record care updates, and keep each person covered in prayer.</p>
+          <section className="mb-10 rounded-[2rem] border border-indigo-100 bg-indigo-50/80 p-6 shadow-sm sm:p-8">
+            <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-center">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-indigo-700">Care Team</p>
+                <h2 className="mt-2 text-2xl font-black text-slate-950">Prayer assignments need faithful follow-through.</h2>
+                <p className="mt-2 max-w-2xl leading-7 text-slate-600">Review entrusted requests, record care updates, and keep each person covered in prayer.</p>
+              </div>
+              <LfpPrimaryLink href="/prayer-assignments">View Assignments</LfpPrimaryLink>
             </div>
-            <Link href="/prayer-assignments" className="justify-self-start rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 sm:justify-self-end">
-              View Assignments
-            </Link>
-          </div>
+          </section>
         )}
 
-        <div className="mb-6 grid grid-cols-1 items-center gap-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-5 sm:grid-cols-[minmax(0,1fr)_auto]">
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900">Daily Devotions</h2>
-            <p className="mt-1 text-sm text-gray-600">A 7-day devotional journey — Scripture, teaching, and prayer to start your day rooted in God&rsquo;s Word.</p>
+        <section>
+          <LfpSectionHeading eyebrow="Available now" title="Your next meaningful step" description="Choose one focused action rather than sorting through a crowded list of features." />
+          <div className="mt-7 grid gap-5 md:grid-cols-3">
+            <LfpFeatureCard eyebrow="Prayer" title="Prayer Community" description="Submit a request, pray with others, and follow the stories of God's faithfulness." href="/prayer" action="Open Prayer" icon="🙏" />
+            <LfpFeatureCard eyebrow="Formation" title="Daily Devotions" description="A seven-day rhythm of Scripture, practical teaching, reflection, and prayer." href="/devotions" action="Start Reading" icon="📖" />
+            <LfpFeatureCard eyebrow="Learning" title="Bible Trivia" description="Test your knowledge and learn through six biblical categories." href="/trivia" action="Play Now" icon="🧠" />
           </div>
-          <Link href="/devotions" className="justify-self-start rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 sm:justify-self-end">
-            Start Reading
-          </Link>
-        </div>
-
-        <div className="mb-6 grid grid-cols-1 items-center gap-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-5 sm:grid-cols-[minmax(0,1fr)_auto]">
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900">Bible Trivia Challenge</h2>
-            <p className="mt-1 text-sm text-gray-600">Test your Bible knowledge, learn Scripture, and see how you stack up across six categories.</p>
-          </div>
-          <Link href="/trivia" className="justify-self-start rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 sm:justify-self-end">
-            Play Now
-          </Link>
-        </div>
+        </section>
 
         {!isCareTeam && (
-          <div className="mb-6 grid grid-cols-1 items-center gap-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-5 sm:grid-cols-[minmax(0,1fr)_auto]">
-            <div>
-              <h2 className="text-sm font-semibold text-gray-900">Interested in serving on our Prayer Care Team?</h2>
-              <p className="mt-1 text-sm text-gray-600">
-                {pendingApplication
-                  ? "Your application is being reviewed — we'll notify you here as soon as there's an update."
-                  : "Prayer, encouragement, and a listening ear — we'd love to have you."}
-              </p>
+          <section className="mt-10 rounded-[2rem] border border-violet-100 bg-white/85 p-6 shadow-xl sm:p-8">
+            <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-center">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-700">Serve with us</p>
+                <h2 className="mt-2 text-2xl font-black text-slate-950">Prayer Care Team</h2>
+                <p className="mt-2 max-w-2xl leading-7 text-slate-600">
+                  {pendingApplication
+                    ? "Your application is being reviewed. We will notify you when there is an update."
+                    : "Offer prayer, encouragement, and a faithful listening ear to people who need support."}
+                </p>
+              </div>
+              {!pendingApplication && <LfpPrimaryLink href="/prayer-care-application">I’m Interested</LfpPrimaryLink>}
             </div>
-            {!pendingApplication && (
-              <Link href="/prayer-care-application" className="justify-self-start rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 sm:justify-self-end">
-                I&rsquo;m Interested
-              </Link>
-            )}
-          </div>
+          </section>
         )}
 
-        <PrayerWallTicker />
-      </section>
-    </div>
+        <section className="mt-14">
+          <LfpSectionHeading eyebrow="Growing vision" title="Coming soon to the community" description="These areas remain intentionally unavailable until they are complete, tested, and ready to serve people well." />
+          <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <LfpComingSoonCard title="Mentoring" description="A relational workspace for mentors and mentees to meet, pray, set growth goals, and walk through Scripture together." icon="🤝" planned={["Matching", "Shared goals", "Meeting notes"]} />
+            <LfpComingSoonCard title="Study Library" description="A growing collection of individual, group, marriage, men's, and women's studies from The Lost and Found Project." icon="📚" planned={["Guided studies", "Group editions", "Progress tracking"]} />
+            <LfpComingSoonCard title="Events" description="Discover gatherings, classes, workshops, and ministry opportunities in one organized place." icon="📅" planned={["Registration", "Reminders", "Event details"]} />
+          </div>
+        </section>
+
+        <section className="mt-14">
+          <LfpSectionHeading eyebrow="Community prayer" title="Pray with what is happening now" />
+          <div className="mt-7">
+            <PrayerWallTicker />
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function HeroAction({ icon, title, description, href }: { icon: string; title: string; description: string; href: string }) {
+  return (
+    <a href={href} className="group rounded-3xl border border-white/10 bg-white/[0.07] p-5 backdrop-blur transition hover:-translate-y-1 hover:border-amber-300/35 hover:bg-white/[0.11]">
+      <span className="text-3xl" aria-hidden="true">{icon}</span>
+      <h2 className="mt-4 text-lg font-black">{title}</h2>
+      <p className="mt-2 text-sm leading-6 text-indigo-100/60">{description}</p>
+      <p className="mt-4 text-sm font-black text-amber-300 transition group-hover:translate-x-1">Continue →</p>
+    </a>
   );
 }
