@@ -4,14 +4,11 @@ import ProfileClient from "@/components/ProfileClient";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -21,20 +18,47 @@ export default async function ProfilePage() {
     .eq("id", user.id)
     .single();
 
+  const firstName = profile?.full_name?.trim().split(" ")[0] || "friend";
+
   return (
-    <ProfileClient
-      email={user.email ?? ""}
-      createdAt={user.created_at}
-      initialFullName={profile?.full_name ?? ""}
-      initialAvatarUrl={profile?.avatar_url ?? ""}
-      initialFavoriteScripture={profile?.favorite_scripture ?? ""}
-      initialDateOfSalvation={profile?.date_of_salvation ?? ""}
-      initialDateOfBaptism={profile?.date_of_baptism ?? ""}
-      isRealAdmin={profile?.role === "admin"}
-      initialPreviewRole={profile?.preview_role ?? ""}
-      isCareTeamMember={["admin", "prayer_team", "pastor"].includes(profile?.role ?? "")}
-      initialRotationStatus={profile?.rotation_status ?? "active"}
-      initialReinstatementRequestedAt={profile?.reinstatement_requested_at ?? null}
-    />
+    <main className="lfp-page pb-20">
+      <section className="relative overflow-hidden bg-slate-950 text-white">
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_85%_10%,rgba(124,58,237,0.3),transparent_32rem),radial-gradient(circle_at_10%_100%,rgba(245,190,67,0.18),transparent_28rem)]" />
+        <div className="lfp-shell relative py-14 sm:py-20">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Your Profile</p>
+          <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">Your story matters, {firstName}.</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">Manage the personal details, faith milestones, and account information that shape your experience across The Lost and Found Project.</p>
+        </div>
+      </section>
+
+      <div className="lfp-shell py-10 sm:py-14">
+        <section className="grid gap-5 md:grid-cols-3">
+          <ProfileValue icon="👤" title="Be known" text="Keep your name and profile information current so the platform can serve you personally." />
+          <ProfileValue icon="📖" title="Remember your anchors" text="Record important faith milestones and the Scripture that continues to shape your walk." />
+          <ProfileValue icon="🛡" title="Manage your access" text="Care-team and administrative controls remain available only to the roles already authorized." />
+        </section>
+
+        <section className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-white/92 shadow-2xl">
+          <ProfileClient
+            email={user.email ?? ""}
+            createdAt={user.created_at}
+            initialFullName={profile?.full_name ?? ""}
+            initialAvatarUrl={profile?.avatar_url ?? ""}
+            initialFavoriteScripture={profile?.favorite_scripture ?? ""}
+            initialDateOfSalvation={profile?.date_of_salvation ?? ""}
+            initialDateOfBaptism={profile?.date_of_baptism ?? ""}
+            isRealAdmin={profile?.role === "admin"}
+            initialPreviewRole={profile?.preview_role ?? ""}
+            isCareTeamMember={["admin", "prayer_team", "pastor"].includes(profile?.role ?? "")}
+            initialRotationStatus={profile?.rotation_status ?? "active"}
+            initialReinstatementRequestedAt={profile?.reinstatement_requested_at ?? null}
+          />
+        </section>
+      </div>
+    </main>
   );
+}
+
+function ProfileValue({ icon, title, text }: { icon: string; title: string; text: string }) {
+  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
 }
