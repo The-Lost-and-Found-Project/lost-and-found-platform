@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import EmmausBottomNav from "@/components/emmaus/EmmausBottomNav";
 
-const EMMAUS_FOUNDER_EMAIL = "admin@lostandfoundproject.org";
+const EMMAUS_FOUNDER_EMAIL = "chad@lostandfoumdproject.org";
 
 export default async function EmmausLayout({
   children,
