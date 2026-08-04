@@ -1,3 +1,28 @@
+do $$
+declare
+  progress_rows bigint;
+begin
+  if to_regclass('public.emmaus_discovery_progress') is not null
+     and not exists (
+       select 1
+       from information_schema.columns
+       where table_schema = 'public'
+         and table_name = 'emmaus_discovery_progress'
+         and column_name = 'pack_id'
+     ) then
+    execute 'select count(*) from public.emmaus_discovery_progress' into progress_rows;
+
+    if progress_rows > 0 then
+      raise exception
+        'Cannot reconcile legacy emmaus_discovery_progress: % rows require an explicit data migration',
+        progress_rows;
+    end if;
+
+    drop table public.emmaus_discovery_progress;
+  end if;
+end;
+$$;
+
 create table if not exists public.emmaus_discovery_progress (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -18,23 +43,27 @@ alter table public.emmaus_discovery_progress enable row level security;
 create policy "Users can view their own Emmaus progress"
 on public.emmaus_discovery_progress
 for select
-using (auth.uid() = user_id);
+to authenticated
+using ((select auth.uid()) = user_id);
 
 create policy "Users can create their own Emmaus progress"
 on public.emmaus_discovery_progress
 for insert
-with check (auth.uid() = user_id);
+to authenticated
+with check ((select auth.uid()) = user_id);
 
 create policy "Users can update their own Emmaus progress"
 on public.emmaus_discovery_progress
 for update
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
 
 create policy "Users can delete their own Emmaus progress"
 on public.emmaus_discovery_progress
 for delete
-using (auth.uid() = user_id);
+to authenticated
+using ((select auth.uid()) = user_id);
 
 create index if not exists emmaus_discovery_progress_user_updated_idx
 on public.emmaus_discovery_progress (user_id, updated_at desc);

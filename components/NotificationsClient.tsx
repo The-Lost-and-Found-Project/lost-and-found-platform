@@ -87,7 +87,7 @@ export default function NotificationsClient({ initialNotifications }: { initialN
     const { error } = await supabase.from("notifications").update({ read_at: now }).eq("id", notification.id);
     if (!error) {
       setNotifications((previous) => previous.map((item) => item.id === notification.id ? { ...item, read_at: item.read_at ?? now } : item));
-      announceUnreadCount(Math.max(0, unreadCount - 1));
+      announceUnreadCount(unreadCount - 1);
     }
   }
 

@@ -26,19 +26,19 @@ export type BibleChapter = {
   bookId: string;
   chapter: number;
   verses: BibleVerse[];
-  source: "Free Use Bible API";
+  source: "Free Use Bible API" | "Emmaus verified KJV corpus";
   licenseUrl?: string;
 };
 
 const API_BASE = "https://bible.helloao.org/api";
 
 const translationIds: Record<SupportedBibleTranslation, string> = {
-  KJV: "ENGKJV",
+  KJV: "eng_kjv",
   WEB: "ENGWEBP",
   BSB: "BSB",
-  ASV: "ENGASV",
-  BBE: "ENGBBE",
-  YLT: "ENGYLT",
+  ASV: "eng_asv",
+  BBE: "eng_bbe",
+  YLT: "eng_ylt",
 };
 
 const bookIds: Record<string, string> = {

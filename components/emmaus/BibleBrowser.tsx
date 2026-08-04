@@ -48,8 +48,6 @@ export default function BibleBrowser() {
 
   useEffect(() => {
     const controller = new AbortController();
-    setSelectedKeys(new Set());
-    setFocusedVerse(null);
 
     async function loadChapter() {
       setLoading(true);
@@ -79,6 +77,7 @@ export default function BibleBrowser() {
   }
 
   function chooseBook(book: BibleBook) {
+    resetVerseSelection();
     setSelectedBook(book);
     setSelectedChapter(1);
     setQuery("");
@@ -86,8 +85,42 @@ export default function BibleBrowser() {
   }
 
   function chooseChapter(chapter: number) {
+    resetVerseSelection();
     setSelectedChapter(chapter);
     scrollToSection(passageSectionRef.current);
+  }
+
+  function moveChapter(direction: -1 | 1) {
+    const currentBookIndex = books.findIndex((book) => book.name === selectedBook.name);
+    if (direction === -1) {
+      if (selectedChapter > 1) {
+        chooseChapter(selectedChapter - 1);
+        return;
+      }
+      const previousBook = books[currentBookIndex - 1];
+      if (!previousBook) return;
+      resetVerseSelection();
+      setTestament(previousBook.testament);
+      setSelectedBook(previousBook);
+      setSelectedChapter(previousBook.chapters);
+    } else {
+      if (selectedChapter < selectedBook.chapters) {
+        chooseChapter(selectedChapter + 1);
+        return;
+      }
+      const nextBook = books[currentBookIndex + 1];
+      if (!nextBook) return;
+      resetVerseSelection();
+      setTestament(nextBook.testament);
+      setSelectedBook(nextBook);
+      setSelectedChapter(1);
+    }
+    scrollToSection(passageSectionRef.current);
+  }
+
+  function resetVerseSelection() {
+    setSelectedKeys(new Set());
+    setFocusedVerse(null);
   }
 
   function toggleVerse(key: string) {
@@ -134,7 +167,7 @@ export default function BibleBrowser() {
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-indigo-700">Emmaus Bible Library</p>
         <h1 className="mt-1 text-3xl font-bold text-gray-950">Browse Scripture</h1>
         <p className="mt-2 text-sm leading-6 text-gray-600">Choose a book, then Emmaus will move you directly to its chapters.</p>
-        <label className="mt-6 block"><span className="text-sm font-semibold text-gray-800">Translation</span><select value={translation} onChange={(event) => setTranslation(event.target.value as Translation)} className={inputClass}><option value="KJV">KJV — King James Version</option><option value="WEB">WEB — World English Bible</option></select></label>
+        <label className="mt-6 block"><span className="text-sm font-semibold text-gray-800">Translation</span><select value={translation} onChange={(event) => { resetVerseSelection(); setTranslation(event.target.value as Translation); }} className={inputClass}><option value="KJV">KJV — King James Version</option><option value="WEB">WEB — World English Bible</option></select></label>
         <div className="mt-5 grid grid-cols-2 gap-2">{(["Old Testament", "New Testament"] as Testament[]).map((item) => <button key={item} type="button" onClick={() => setTestament(item)} className={`rounded-xl px-3 py-2 text-sm font-semibold ${testament === item ? "bg-indigo-600 text-white" : "border border-gray-200 bg-white text-gray-700"}`}>{item === "Old Testament" ? "Old" : "New"}</button>)}</div>
         <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search books" className={`${inputClass} mt-4`} />
         <div className="mt-4 max-h-[32rem] space-y-1 overflow-auto pr-1">{visibleBooks.map((book) => <button key={book.name} type="button" onClick={() => chooseBook(book)} className={`flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm transition ${selectedBook.name === book.name ? "bg-indigo-50 font-semibold text-indigo-800" : "text-gray-700 hover:bg-gray-50"}`}><span>{book.name}</span><span className="flex items-center gap-2 text-xs text-gray-400"><span>{book.chapters} ch.</span><span aria-hidden="true">→</span></span></button>)}</div>
@@ -145,7 +178,7 @@ export default function BibleBrowser() {
         <div className="mt-8 grid grid-cols-5 gap-2 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12">{Array.from({ length: selectedBook.chapters }, (_, index) => index + 1).map((chapter) => <button key={chapter} type="button" onClick={() => chooseChapter(chapter)} className={`aspect-square rounded-xl border text-sm font-semibold transition ${selectedChapter === chapter ? "border-indigo-600 bg-indigo-600 text-white" : "border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50"}`}>{chapter}</button>)}</div>
 
         <div ref={passageSectionRef} className="mt-8 scroll-mt-24 rounded-3xl border border-indigo-200 bg-indigo-50/50 p-5 sm:p-7">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-700">Step 3 · Read and explore</p><h3 className="mt-1 text-2xl font-bold text-gray-950">{selectedBook.name} {selectedChapter}</h3></div><button type="button" onClick={() => scrollToSection(chapterSectionRef.current)} className="rounded-full border border-indigo-300 bg-white px-3 py-1.5 text-xs font-semibold text-indigo-700">Change chapter</button></div>
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-700">Step 3 · Read and explore</p><h3 className="mt-1 text-2xl font-bold text-gray-950">{selectedBook.name} {selectedChapter}</h3></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => moveChapter(-1)} disabled={selectedBook.name === "Genesis" && selectedChapter === 1} className="rounded-full border border-indigo-300 bg-white px-3 py-1.5 text-xs font-semibold text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">← Previous</button><button type="button" onClick={() => scrollToSection(chapterSectionRef.current)} className="rounded-full border border-indigo-300 bg-white px-3 py-1.5 text-xs font-semibold text-indigo-700">Choose chapter</button><button type="button" onClick={() => moveChapter(1)} disabled={selectedBook.name === "Revelation" && selectedChapter === 22} className="rounded-full border border-indigo-300 bg-white px-3 py-1.5 text-xs font-semibold text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">Next →</button></div></div>
           {loading && <p className="text-gray-600">Loading {selectedBook.name} {selectedChapter}...</p>}
           {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
           {chapterData && <div className="space-y-3">{chapterData.verses.map((verse) => {

@@ -13,9 +13,16 @@ import {
 
 const typeLabels: Record<KnowledgeNodeType, string> = {
   verse: "Verse",
+  passage: "Passage",
+  chapter: "Chapter",
   concept: "Concept",
+  doctrine: "Doctrine",
   person: "Person",
+  place: "Place",
+  event: "Event",
   theme: "Theme",
+  covenant: "Covenant",
+  prophecy: "Prophecy",
   book: "Book",
   word: "Word Study",
   trail: "Rabbit Trail",
@@ -23,9 +30,16 @@ const typeLabels: Record<KnowledgeNodeType, string> = {
 
 const typeIcons: Record<KnowledgeNodeType, string> = {
   verse: "📖",
+  passage: "📜",
+  chapter: "📑",
   concept: "🧠",
+  doctrine: "✦",
   person: "👤",
+  place: "📍",
+  event: "◆",
   theme: "🌱",
+  covenant: "🤝",
+  prophecy: "🕯️",
   book: "📚",
   word: "🔤",
   trail: "🧭",

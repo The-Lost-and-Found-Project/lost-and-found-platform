@@ -8,3 +8,14 @@ export const emmausContentPacks: EmmausContentPack[] = [
 ];
 
 export function getEmmausContentPack(id: string) {
+  return emmausContentPacks.find((pack) => pack.id === id);
+}
+
+export function getEmmausDiscovery(id: string) {
+  for (const pack of emmausContentPacks) {
+    const discovery = pack.discoveries.find((item) => item.id === id);
+    if (discovery) return { pack, discovery };
+  }
+
+  return undefined;
+}

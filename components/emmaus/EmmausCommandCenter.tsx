@@ -5,14 +5,14 @@ import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type TranslationCode="KJV"|"WEB";
-type ProgressRow={book_key:string;book_name:string;testament:"old"|"new";canonical_order:number;chapter_count:number;imported_chapters:number;imported_verses:number;enriched_verses:number;graph_edges:number;pending_enrichment:number;chapter_percent:number;enrichment_percent:number};
+type ProgressRow={book_key:string;book_name:string;abbreviation?:string;testament:"old"|"new";canonical_order:number;chapter_count:number;imported_chapters:number;imported_verses:number;enriched_verses:number;graph_edges:number;pending_enrichment:number;chapter_percent:number;enrichment_percent:number};
 type ImportBatch={id:string;book_key:string;chapter_start:number;chapter_end:number;translation:string;imported_verse_count:number;status:string;completed_at:string|null;created_at:string};
 
 export default function EmmausCommandCenter(){
  const supabase=useMemo(()=>createClient(),[]);
  const[translation,setTranslation]=useState<TranslationCode>("KJV"),[rows,setRows]=useState<ProgressRow[]>([]),[batches,setBatches]=useState<ImportBatch[]>([]),[loading,setLoading]=useState(true),[message,setMessage]=useState("");
- useEffect(()=>{void load()},[translation]);
  async function load(){setLoading(true);setMessage("");const[{data:progress,error:progressError},{data:recent,error:recentError}]=await Promise.all([supabase.rpc("get_emmaus_bible_progress",{p_translation:translation}),supabase.from("emmaus_scripture_import_batches").select("id,book_key,chapter_start,chapter_end,translation,imported_verse_count,status,completed_at,created_at").eq("translation",translation).order("created_at",{ascending:false}).limit(8)]);if(progressError){setMessage(progressError.message);setLoading(false);return}if(recentError)setMessage(recentError.message);setRows((progress??[]) as ProgressRow[]);setBatches((recent??[]) as ImportBatch[]);setLoading(false)}
+ useEffect(()=>{void load()},[translation]);
  const totals=rows.reduce((acc,row)=>({books:acc.books+(row.imported_chapters>0?1:0),chapters:acc.chapters+row.imported_chapters,chapterTotal:acc.chapterTotal+row.chapter_count,verses:acc.verses+row.imported_verses,enriched:acc.enriched+row.enriched_verses,edges:acc.edges+row.graph_edges,pending:acc.pending+row.pending_enrichment}),{books:0,chapters:0,chapterTotal:0,verses:0,enriched:0,edges:0,pending:0});
  const chapterPercent=totals.chapterTotal?Math.floor(totals.chapters/totals.chapterTotal*100):0;
  const enrichmentPercent=totals.verses?Math.floor(totals.enriched/totals.verses*100):0;

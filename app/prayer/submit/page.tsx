@@ -172,17 +172,17 @@ export default function SubmitPrayerRequestPage() {
             <p className="lfp-eyebrow">Your information</p>
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
               <Field label="Your name" htmlFor="prayer-name">
-                <input id="prayer-name" type="text" required value={name} onChange={(event) => setName(event.target.value)} className={inputClass} />
+                <input id="prayer-name" type="text" required value={name} onChange={(event) => setName(event.target.value)} className={`${inputClass} min-h-11`} />
                 {prefilledFromProfile && <p className="mt-2 text-xs leading-5 text-slate-500">Filled from your profile. Change it when submitting on someone else’s behalf.</p>}
               </Field>
               <Field label="Email" htmlFor="prayer-email">
-                <input id="prayer-email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} className={inputClass} />
+                <input id="prayer-email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} className={`${inputClass} min-h-11`} />
               </Field>
               <Field label="Phone number (optional)" htmlFor="prayer-phone">
-                <input id="prayer-phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} className={inputClass} />
+                <input id="prayer-phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} className={`${inputClass} min-h-11`} />
               </Field>
               <Field label="Prayer category" htmlFor="prayer-category">
-                <select id="prayer-category" required value={categoryId} onChange={(event) => setCategoryId(event.target.value)} className={inputClass}>
+                <select id="prayer-category" required value={categoryId} onChange={(event) => setCategoryId(event.target.value)} className={`${inputClass} min-h-11`}>
                   <option value="">Select a category</option>
                   {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
                 </select>
@@ -192,7 +192,7 @@ export default function SubmitPrayerRequestPage() {
 
           <section className="border-t border-slate-200 pt-8">
             <Field label="Your prayer request" htmlFor="prayer-request">
-              <textarea id="prayer-request" required rows={7} value={requestText} onChange={(event) => setRequestText(event.target.value)} className={inputClass} />
+              <textarea id="prayer-request" required rows={7} value={requestText} onChange={(event) => setRequestText(event.target.value)} className={`${inputClass} min-h-11`} />
               <p className="mt-3 text-sm leading-6 text-slate-500">Protect other people’s privacy. Avoid full names or sensitive medical, legal, financial, and contact information unless you have permission to share it.</p>
             </Field>
           </section>
@@ -209,7 +209,7 @@ export default function SubmitPrayerRequestPage() {
           {contactRequested && (
             <section className="grid gap-5 rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5 sm:grid-cols-2">
               <Field label="Preferred contact method" htmlFor="preferred-contact">
-                <select id="preferred-contact" required value={preferredContact} onChange={(event) => setPreferredContact(event.target.value)} className={inputClass}>
+                <select id="preferred-contact" required value={preferredContact} onChange={(event) => setPreferredContact(event.target.value)} className={`${inputClass} min-h-11`}>
                   <option value="">Select an option</option>
                   <option value="Email">Email</option>
                   <option value="Phone Call">Phone call</option>
@@ -217,7 +217,7 @@ export default function SubmitPrayerRequestPage() {
                 </select>
               </Field>
               <Field label="Preferred care-team gender (optional)" htmlFor="preferred-care-gender">
-                <select id="preferred-care-gender" value={preferredCareGender} onChange={(event) => setPreferredCareGender(event.target.value)} className={inputClass}>
+                <select id="preferred-care-gender" value={preferredCareGender} onChange={(event) => setPreferredCareGender(event.target.value)} className={`${inputClass} min-h-11`}>
                   <option value="">No preference</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>

@@ -178,13 +178,13 @@ export default async function DashboardPage() {
 
         {isCareTeam && (
           <section className="mb-10 rounded-[2rem] border border-indigo-100 bg-indigo-50/80 p-6 shadow-sm sm:p-8">
-            <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-indigo-700">Care Team</p>
-                <h2 className="mt-2 text-2xl font-black text-slate-950">Prayer assignments need faithful follow-through.</h2>
+                <h2 className="mt-2 text-2xl font-black text-slate-950">My Prayer Assignments</h2>
                 <p className="mt-2 max-w-2xl leading-7 text-slate-600">Review entrusted requests, record care updates, and keep each person covered in prayer.</p>
               </div>
-              <LfpPrimaryLink href="/prayer-assignments">View Assignments</LfpPrimaryLink>
+              <div className="sm:justify-self-end"><LfpPrimaryLink href="/prayer-assignments">View Assignments</LfpPrimaryLink></div>
             </div>
           </section>
         )}
@@ -200,7 +200,7 @@ export default async function DashboardPage() {
 
         {!isCareTeam && (
           <section className="mt-10 rounded-[2rem] border border-violet-100 bg-white/85 p-6 shadow-xl sm:p-8">
-            <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-700">Serve with us</p>
                 <h2 className="mt-2 text-2xl font-black text-slate-950">Prayer Care Team</h2>
@@ -210,7 +210,7 @@ export default async function DashboardPage() {
                     : "Offer prayer, encouragement, and a faithful listening ear to people who need support."}
                 </p>
               </div>
-              {!pendingApplication && <LfpPrimaryLink href="/prayer-care-application">I’m Interested</LfpPrimaryLink>}
+              {!pendingApplication && <div className="sm:justify-self-end"><LfpPrimaryLink href="/prayer-care-application">I’m Interested</LfpPrimaryLink></div>}
             </div>
           </section>
         )}
