@@ -5,7 +5,8 @@ stable
 security definer
 set search_path = public
 as $$
-  select exists (
+  select session_user = 'postgres'
+  or exists (
     select 1
     from public.profiles
     where id = auth.uid()
@@ -13,6 +14,7 @@ as $$
   );
 $$;
 
+revoke all on function public.is_emmaus_admin() from public, anon;
 grant execute on function public.is_emmaus_admin() to authenticated;
 
 create policy "Admins can view all Discovery Maps"

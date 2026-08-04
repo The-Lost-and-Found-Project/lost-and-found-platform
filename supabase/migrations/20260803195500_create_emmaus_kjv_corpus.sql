@@ -1,3 +1,32 @@
+do $$
+declare
+  scripture_rows bigint;
+  edge_rows bigint;
+begin
+  if to_regclass('public.emmaus_scripture_nodes') is not null
+     and not exists (
+       select 1
+       from information_schema.columns
+       where table_schema = 'public'
+         and table_name = 'emmaus_scripture_nodes'
+         and column_name = 'book_key'
+     ) then
+    execute 'select count(*) from public.emmaus_scripture_nodes' into scripture_rows;
+    execute 'select count(*) from public.emmaus_scripture_edges' into edge_rows;
+
+    if scripture_rows > 0 or edge_rows > 0 then
+      raise exception
+        'Cannot reconcile legacy Emmaus Scripture tables: % nodes and % edges require an explicit data migration',
+        scripture_rows,
+        edge_rows;
+    end if;
+
+    drop table public.emmaus_scripture_edges;
+    drop table public.emmaus_scripture_nodes;
+  end if;
+end;
+$$;
+
 create table if not exists public.emmaus_bible_translations (
   code text primary key,
   name text not null,
@@ -71,6 +100,9 @@ create index if not exists emmaus_scripture_nodes_graph_idx
   on public.emmaus_scripture_nodes(graph_node_id);
 create index if not exists emmaus_scripture_nodes_status_idx
   on public.emmaus_scripture_nodes(status, translation);
+create index if not exists emmaus_scripture_nodes_text_search_idx
+  on public.emmaus_scripture_nodes
+  using gin (to_tsvector('english', text_content));
 
 create table if not exists public.emmaus_scripture_import_batches (
   id uuid primary key default gen_random_uuid(),
@@ -235,3 +267,6 @@ end;
 $$;
 
 grant execute on function public.link_emmaus_scripture_batch_to_graph(uuid) to authenticated;
+
+revoke all on function public.link_emmaus_scripture_to_graph(uuid) from public, anon;
+revoke all on function public.link_emmaus_scripture_batch_to_graph(uuid) from public, anon;

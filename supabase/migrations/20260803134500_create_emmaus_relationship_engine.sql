@@ -96,6 +96,7 @@ values
   ('reveals_attribute', 'Reveals attribute', 'Is revealed in', 'A passage or event reveals an attribute of God.', 'theology', true, 60),
   ('supports_doctrine', 'Supports doctrine', 'Is supported by', 'A passage contributes evidence to a doctrinal conclusion.', 'theology', true, 70),
   ('features_person', 'Features person', 'Appears in', 'A passage, event, or discovery includes a biblical person.', 'entity', true, 80),
+  ('features_event', 'Features event', 'Appears in', 'A passage or discovery includes a biblical event.', 'entity', true, 85),
   ('occurs_at', 'Occurs at', 'Is location of', 'An event or passage is associated with a place.', 'entity', true, 90),
   ('develops_theme', 'Develops theme', 'Is developed in', 'A passage or discovery develops a biblical theme.', 'theme', true, 100),
   ('uses_term', 'Uses language term', 'Appears in', 'A passage or discovery uses a significant Hebrew, Aramaic, or Greek term.', 'language', true, 110),

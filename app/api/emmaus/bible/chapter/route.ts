@@ -45,6 +45,42 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    if (translationParam === "KJV") {
+      const { data: storedVerses, error: corpusError } = await supabase
+        .from("emmaus_scripture_nodes")
+        .select("reference_key, reference_label, book, chapter, verse_start, text_content")
+        .eq("translation", "KJV")
+        .eq("book", book)
+        .eq("chapter", chapter)
+        .eq("status", "published")
+        .order("verse_start", { ascending: true });
+
+      if (corpusError) {
+        throw new Error(`Emmaus KJV corpus query failed: ${corpusError.message}`);
+      }
+
+      if (storedVerses?.length) {
+        return NextResponse.json({
+          translation: "KJV",
+          translationName: "King James Version",
+          book: storedVerses[0].book,
+          bookId: slugifyBook(storedVerses[0].book),
+          chapter: storedVerses[0].chapter,
+          verses: storedVerses.map((verse) => ({
+            number: verse.verse_start,
+            text: verse.text_content,
+            canonicalKey: verse.reference_key,
+            reference: verse.reference_label,
+          })),
+          source: "Emmaus verified KJV corpus",
+          licenseUrl: "https://ebible.org/Scriptures/details.php?id=eng-kjv2006",
+        }, {
+          status: 200,
+          headers: { "Cache-Control": "private, max-age=300" },
+        });
+      }
+    }
+
     const result = await getBibleChapter({
       translation: translationParam,
       book,
@@ -65,4 +101,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ error: message }, { status });
   }
+}
+
+function slugifyBook(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }

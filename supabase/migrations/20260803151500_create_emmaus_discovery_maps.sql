@@ -189,7 +189,7 @@ returns table (
   title text,
   passage text,
   subtitle text,
-  position integer,
+  "position" integer,
   stop_type text,
   transition_prompt text,
   reflection_prompt text,

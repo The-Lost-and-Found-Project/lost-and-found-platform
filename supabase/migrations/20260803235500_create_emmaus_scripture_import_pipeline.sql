@@ -43,8 +43,8 @@ declare
   verse_item jsonb;
   verse_number integer;
   verse_text text;
-  reference_key text;
-  reference_label text;
+  v_reference_key text;
+  v_reference_label text;
   scripture_id uuid;
   graph_node_id uuid;
   previous_graph_node_id uuid:=null;
@@ -85,26 +85,29 @@ begin
     if verse_number is null or verse_number<1 then raise exception 'Every verse requires a positive verse number'; end if;
     if verse_text='' then raise exception 'Verse % has no text',verse_number; end if;
 
-    reference_key:=p_book_key||'-'||p_chapter||'-'||verse_number;
-    reference_label:=bible_book.name||' '||p_chapter||':'||verse_number;
+    v_reference_key:=p_book_key||'-'||p_chapter||'-'||verse_number;
+    v_reference_label:=bible_book.name||' '||p_chapter||':'||verse_number;
+    scripture_id:=null;
+    graph_node_id:=null;
 
-    select id,graph_node_id into scripture_id,graph_node_id
-    from public.emmaus_scripture_nodes
-    where translation=p_translation and reference_key=reference_key;
+    select s.id,s.graph_node_id into scripture_id,graph_node_id
+    from public.emmaus_scripture_nodes s
+    where s.translation=p_translation and s.reference_key=v_reference_key
+    limit 1;
 
     if scripture_id is null then
       insert into public.emmaus_scripture_nodes(
         reference_key,book,book_key,chapter,verse_start,reference_label,text_content,
         translation,testament,canonical_order,status,source_batch_id,created_by
       ) values(
-        reference_key,bible_book.name,p_book_key,p_chapter,verse_number,reference_label,verse_text,
+        v_reference_key,bible_book.name,p_book_key,p_chapter,verse_number,v_reference_label,verse_text,
         p_translation,bible_book.testament,bible_book.canonical_order,record_status,batch_id,auth.uid()
       ) returning id into scripture_id;
       imported_count:=imported_count+1;
     else
       update public.emmaus_scripture_nodes set
         text_content=verse_text,
-        reference_label=reference_label,
+        reference_label=v_reference_label,
         status=record_status,
         source_batch_id=batch_id,
         updated_at=now()
@@ -116,9 +119,9 @@ begin
 
     update public.emmaus_graph_nodes set
       summary=verse_text,
-      title=reference_label,
+      title=v_reference_label,
       subtitle=p_translation,
-      scripture_reference=reference_label,
+      scripture_reference=v_reference_label,
       status=record_status,
       metadata=metadata||jsonb_build_object(
         'translation',p_translation,'book',bible_book.name,'book_key',p_book_key,
@@ -130,7 +133,7 @@ begin
     insert into public.emmaus_graph_edges(
       source_node_id,target_node_id,relationship_key,explanation,status,metadata
     ) values(
-      graph_node_id,chapter_node_id,'part_of',reference_label||' is part of '||bible_book.name||' '||p_chapter||'.',
+      graph_node_id,chapter_node_id,'part_of',v_reference_label||' is part of '||bible_book.name||' '||p_chapter||'.',
       record_status,jsonb_build_object('structural',true,'translation',p_translation)
     ) on conflict(source_node_id,target_node_id,relationship_key) do update set
       status=excluded.status,explanation=excluded.explanation,
