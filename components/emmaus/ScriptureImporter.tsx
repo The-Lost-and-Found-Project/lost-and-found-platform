@@ -1,175 +1,68 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-type TranslationCode = "KJV" | "WEB";
-type ParsedVerse = { verse: number; text: string; referenceKey: string; label: string };
-type ScriptureImporterProps = {
-  initialBook?: string;
-  initialChapter?: number;
-  initialTranslation?: TranslationCode;
+type TranslationCode="KJV"|"WEB";
+type Tab="import"|"coverage"|"backlog";
+type ParsedVerse={verse:number;text:string;referenceKey:string;label:string};
+type Book={book_key:string;name:string;abbreviation:string;testament:"old"|"new";canonical_order:number;chapter_count:number};
+type Backlog={queue_id:string;scripture_node_id:string;reference_label:string;text_content:string;enrichment_type:string;priority:number;status:string;notes:string|null;created_at:string};
+type ImportResult={batch_id:string;translation:string;book_key:string;chapter:number;inserted:number;updated:number;enrichment_tasks_created:number;status:string};
+type CoverageRow={chapter:number;verse_count:number};
+type Props={initialBook?:string;initialChapter?:number;initialTranslation?:TranslationCode};
+
+const translations:Record<TranslationCode,{label:string;note:string}>={
+ KJV:{label:"King James Version",note:"Public domain in the United States."},
+ WEB:{label:"World English Bible",note:"Public-domain modern English."},
 };
 
-const translations: Record<TranslationCode, { label: string; note: string }> = {
-  KJV: { label: "King James Version", note: "Public domain in the United States." },
-  WEB: { label: "World English Bible", note: "Public domain modern-English translation." },
-};
+export default function ScriptureImporter({initialBook="John",initialChapter=1,initialTranslation="KJV"}:Props){
+ const supabase=useMemo(()=>createClient(),[]);
+ const[tab,setTab]=useState<Tab>("import"),[books,setBooks]=useState<Book[]>([]),[bookKey,setBookKey]=useState(slug(initialBook)),[chapter,setChapter]=useState(initialChapter),[translation,setTranslation]=useState<TranslationCode>(initialTranslation),[passage,setPassage]=useState(""),[status,setStatus]=useState("Loading Bible Builder..."),[importing,setImporting]=useState(false),[publish,setPublish]=useState(true),[queueEnrichment,setQueueEnrichment]=useState(true),[result,setResult]=useState<ImportResult|null>(null),[coverage,setCoverage]=useState<CoverageRow[]>([]),[backlog,setBacklog]=useState<Backlog[]>([]),[backlogFilter,setBacklogFilter]=useState<string>("all"),[loadingPanel,setLoadingPanel]=useState(false);
+ const selectedBook=books.find(b=>b.book_key===bookKey);
+ const verses=useMemo(()=>parseVerses(selectedBook?.name??initialBook,bookKey,chapter,passage),[selectedBook?.name,initialBook,bookKey,chapter,passage]);
+ const validation=useMemo(()=>validateVerses(verses),[verses]);
 
-export default function ScriptureImporter({
-  initialBook = "John",
-  initialChapter = 1,
-  initialTranslation = "KJV",
-}: ScriptureImporterProps) {
-  const supabase = useMemo(() => createClient(), []);
-  const [book, setBook] = useState(initialBook);
-  const [chapter, setChapter] = useState(initialChapter);
-  const [translation, setTranslation] = useState<TranslationCode>(initialTranslation);
-  const [passage, setPassage] = useState("");
-  const [status, setStatus] = useState(`Ready for ${initialBook} ${initialChapter} in ${initialTranslation}. Paste verified public-domain text to begin.`);
-  const [importing, setImporting] = useState(false);
+ useEffect(()=>{void loadBooks()},[]);
+ useEffect(()=>{if(tab==="coverage")void loadCoverage();if(tab==="backlog")void loadBacklog()},[tab,bookKey,translation]);
 
-  const verses = useMemo(() => parseVerses(book, chapter, passage), [book, chapter, passage]);
+ async function loadBooks(){const{data,error}=await supabase.from("emmaus_bible_books").select("book_key,name,abbreviation,testament,canonical_order,chapter_count").order("canonical_order");if(error){setStatus(error.message);return}const rows=(data??[]) as Book[];setBooks(rows);if(!rows.some(b=>b.book_key===bookKey)&&rows[42])setBookKey(rows[42].book_key);setStatus("Ready. Select a book and paste a verified public-domain chapter.")}
+ async function loadCoverage(){setLoadingPanel(true);const{data,error}=await supabase.from("emmaus_scripture_nodes").select("chapter,verse_start").eq("translation",translation).eq("book_key",bookKey).neq("status","archived");if(error){setStatus(error.message);setLoadingPanel(false);return}const counts=new Map<number,number>();for(const row of data??[])counts.set(Number(row.chapter),(counts.get(Number(row.chapter))??0)+1);setCoverage([...counts.entries()].map(([chapter,verse_count])=>({chapter,verse_count})).sort((a,b)=>a.chapter-b.chapter));setLoadingPanel(false)}
+ async function loadBacklog(){setLoadingPanel(true);const{data,error}=await supabase.rpc("get_emmaus_enrichment_backlog",{p_book_key:bookKey,p_limit:300});if(error){setStatus(error.message);setLoadingPanel(false);return}setBacklog((data??[]) as Backlog[]);setLoadingPanel(false)}
+ async function importChapter(){if(!selectedBook||validation.errors.length||!verses.length)return;setImporting(true);setResult(null);setStatus(`Importing ${selectedBook.name} ${chapter} through the Emmaus pipeline...`);const{data,error}=await supabase.rpc("import_emmaus_scripture_chapter",{p_translation:translation,p_book_key:bookKey,p_chapter:chapter,p_verses:verses.map(v=>({verse:v.verse,text:v.text})),p_source_label:`Bible Builder: ${translation} ${selectedBook.name} ${chapter}`,p_publish:publish,p_queue_enrichment:queueEnrichment});if(error){setStatus(error.message);setImporting(false);return}const imported=data as ImportResult;setResult(imported);setStatus(`Complete: ${imported.inserted} inserted, ${imported.updated} updated.`);setImporting(false);await loadCoverage()}
+ function chooseBook(next:string){setBookKey(next);setChapter(1);setPassage("");setResult(null)}
+ const filteredBacklog=backlogFilter==="all"?backlog:backlog.filter(item=>item.enrichment_type===backlogFilter);
+ const enrichmentTypes=[...new Set(backlog.map(item=>item.enrichment_type))].sort();
 
-  async function importNodes() {
-    if (!book.trim() || chapter < 1 || !verses.length) return;
-    setImporting(true);
-    setStatus("Checking existing Scripture nodes...");
+ return <div className="space-y-6">
+  <header className="overflow-hidden rounded-[2rem] bg-slate-950 p-7 text-white shadow-2xl"><p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Emmaus Founder Tool</p><div className="mt-3 flex flex-wrap items-end justify-between gap-5"><div><h1 className="text-4xl font-black sm:text-5xl">Bible Builder</h1><p className="mt-3 max-w-3xl text-indigo-100/70">Import Scripture, inspect canonical coverage, and work the semantic enrichment queue without writing SQL.</p></div><div className="rounded-2xl border border-white/10 bg-white/10 px-5 py-4 text-center"><p className="text-3xl font-black">{books.length||66}</p><p className="text-[10px] font-black uppercase tracking-widest text-indigo-200">Canonical books</p></div></div></header>
 
-    const { data: authData } = await supabase.auth.getUser();
-    const user = authData.user;
-    if (!user) {
-      setStatus("You must be signed in.");
-      setImporting(false);
-      return;
-    }
+  <nav className="flex flex-wrap gap-2">{(["import","coverage","backlog"] as Tab[]).map(item=><button key={item} onClick={()=>setTab(item)} className={`rounded-full px-5 py-3 text-sm font-black capitalize ${tab===item?"bg-indigo-600 text-white":"border border-slate-300 bg-white text-slate-700"}`}>{item==="backlog"?"Enrichment backlog":item}</button>)}</nav>
 
-    const keys = verses.map((verse) => verse.referenceKey);
-    const { data: existing, error: lookupError } = await supabase
-      .from("emmaus_scripture_nodes")
-      .select("reference_key")
-      .in("reference_key", keys);
+  {tab==="import"&&<div className="grid gap-6 xl:grid-cols-[1fr_420px]">
+   <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl"><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Field label="Book"><select value={bookKey} onChange={e=>chooseBook(e.target.value)} className={inputClass}>{books.map(book=><option key={book.book_key} value={book.book_key}>{book.canonical_order}. {book.name}</option>)}</select></Field><Field label="Chapter"><input type="number" min={1} max={selectedBook?.chapter_count??150} value={chapter} onChange={e=>setChapter(Math.max(1,Math.min(selectedBook?.chapter_count??150,Number(e.target.value))))} className={inputClass}/></Field><Field label="Translation"><select value={translation} onChange={e=>setTranslation(e.target.value as TranslationCode)} className={inputClass}>{Object.entries(translations).map(([code,item])=><option key={code} value={code}>{code} — {item.label}</option>)}</select></Field><Field label="Chapter range"><div className="rounded-xl bg-slate-100 px-3 py-3 text-sm font-black text-slate-700">1–{selectedBook?.chapter_count??"—"}</div></Field></div>
+   <p className="mt-3 text-sm text-slate-500">{translations[translation].note}</p>
+   <Field label="Verified chapter text" hint="One verse per line, beginning with its verse number."><textarea value={passage} onChange={e=>setPassage(e.target.value)} rows={18} placeholder={`1 Paste ${selectedBook?.name??"Book"} ${chapter}:1 here...\n2 Continue with verse 2...`} className={inputClass}/></Field>
+   <div className="mt-5 grid gap-3 sm:grid-cols-2"><Toggle checked={publish} onChange={setPublish} title="Publish immediately" description="Make the verses visible in Emmaus after import."/><Toggle checked={queueEnrichment} onChange={setQueueEnrichment} title="Create enrichment tasks" description="Queue themes, people, places, questions, language, and cross-references."/></div>
+   {validation.errors.length>0&&<div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4"><p className="font-black text-rose-800">Validation issues</p>{validation.errors.map(error=><p key={error} className="mt-1 text-sm text-rose-700">• {error}</p>)}</div>}
+   <div className="mt-6 flex flex-wrap items-center gap-3"><button onClick={()=>void importChapter()} disabled={importing||!verses.length||validation.errors.length>0} className="rounded-full bg-indigo-600 px-6 py-3 font-black text-white disabled:opacity-40">{importing?"Building chapter...":"Build chapter"}</button><span className="text-sm font-bold text-slate-500">{status}</span></div>
+   {result&&<div className="mt-6 grid gap-3 rounded-3xl border border-emerald-200 bg-emerald-50 p-5 sm:grid-cols-4"><Metric value={result.inserted} label="Inserted"/><Metric value={result.updated} label="Updated"/><Metric value={result.enrichment_tasks_created} label="Tasks queued"/><Metric value={result.status} label="Status"/></div>}
+   </section>
+   <aside className="self-start rounded-[2rem] border border-slate-200 bg-white p-5 shadow-xl xl:sticky xl:top-6"><div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-amber-700">Validated preview</p><h2 className="mt-1 text-2xl font-black">{selectedBook?.name??"Book"} {chapter}</h2></div><span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black">{verses.length} verses</span></div><div className="mt-4 max-h-[42rem] space-y-2 overflow-auto">{verses.length?verses.map(v=><article key={v.referenceKey} className="rounded-2xl border border-slate-200 bg-slate-50 p-3"><p className="text-sm font-black text-indigo-700">{v.label}</p><p className="mt-1 text-sm leading-6 text-slate-700">{v.text}</p></article>):<Empty text="Paste a chapter to generate a verse-by-verse preview."/>}</div></aside>
+  </div>}
 
-    if (lookupError) {
-      setStatus(lookupError.message);
-      setImporting(false);
-      return;
-    }
+  {tab==="coverage"&&<section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl"><div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-indigo-700">Canonical coverage</p><h2 className="mt-1 text-3xl font-black">{selectedBook?.name??"Book"} · {translation}</h2></div><select value={bookKey} onChange={e=>chooseBook(e.target.value)} className={`${inputClass} max-w-xs`}>{books.map(book=><option key={book.book_key} value={book.book_key}>{book.name}</option>)}</select></div>{loadingPanel?<p className="mt-8 font-black text-slate-500">Calculating coverage...</p>:<div className="mt-6 grid grid-cols-4 gap-3 sm:grid-cols-7 md:grid-cols-10 lg:grid-cols-12">{Array.from({length:selectedBook?.chapter_count??0},(_,i)=>i+1).map(number=>{const row=coverage.find(item=>item.chapter===number);return <button key={number} onClick={()=>{setChapter(number);setTab("import")}} className={`rounded-2xl border p-3 text-center ${row?"border-emerald-300 bg-emerald-50":"border-slate-200 bg-slate-50"}`}><p className="font-black text-slate-950">{number}</p><p className={`mt-1 text-[10px] font-black uppercase ${row?"text-emerald-700":"text-slate-400"}`}>{row?`${row.verse_count} verses`:"Empty"}</p></button>})}</div>}</section>}
 
-    const existingKeys = new Set((existing ?? []).map((row) => row.reference_key));
-    const missing = verses.filter((verse) => !existingKeys.has(verse.referenceKey));
-
-    if (!missing.length) {
-      setStatus(`All ${verses.length} verse nodes already exist.`);
-      setImporting(false);
-      return;
-    }
-
-    const payload = missing.map((verse) => ({
-      reference_key: verse.referenceKey,
-      book: book.trim(),
-      chapter,
-      verse_start: verse.verse,
-      verse_end: null,
-      reference_label: verse.label,
-      text_content: verse.text,
-      translation,
-      summary: "",
-      status: "draft",
-      created_by: user.id,
-    }));
-
-    const { error: insertError } = await supabase.from("emmaus_scripture_nodes").insert(payload);
-    if (insertError) {
-      setStatus(insertError.message);
-      setImporting(false);
-      return;
-    }
-
-    setStatus(`Imported ${missing.length} new verse node${missing.length === 1 ? "" : "s"}; ${existingKeys.size} already existed.`);
-    setImporting(false);
-  }
-
-  return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_.9fr]">
-      <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-indigo-700">Emmaus Founder Tool</p>
-        <h1 className="mt-1 text-3xl font-bold text-gray-950">Scripture Graph Importer</h1>
-        <p className="mt-2 leading-7 text-gray-600">Create canonical verse nodes from verified public-domain Bible text.</p>
-
-        <div className="mt-7 grid gap-4 sm:grid-cols-2">
-          <Field label="Book"><input value={book} onChange={(event) => setBook(event.target.value)} className={inputClass} /></Field>
-          <Field label="Chapter"><input type="number" min={1} value={chapter} onChange={(event) => setChapter(Math.max(1, Number(event.target.value)))} className={inputClass} /></Field>
-        </div>
-
-        <Field label="Translation">
-          <select value={translation} onChange={(event) => setTranslation(event.target.value as TranslationCode)} className={inputClass}>
-            {Object.entries(translations).map(([code, item]) => <option key={code} value={code}>{code} — {item.label}</option>)}
-          </select>
-          <p className="mt-2 text-sm text-gray-500">{translations[translation].note}</p>
-        </Field>
-
-        <Field label="Passage text" hint="Use one verse per line, beginning with the verse number.">
-          <textarea value={passage} onChange={(event) => setPassage(event.target.value)} rows={14} placeholder={`1 Paste ${book} ${chapter}:1 here...\n2 Continue with verse 2...`} className={inputClass} />
-        </Field>
-
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button type="button" onClick={importNodes} disabled={importing || !verses.length} className="rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">
-            {importing ? "Importing..." : "Import missing nodes"}
-          </button>
-          <span className="text-sm text-gray-600">{status}</span>
-        </div>
-      </section>
-
-      <aside className="self-start rounded-3xl border border-gray-200 bg-white p-6 shadow-sm lg:sticky lg:top-6">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-700">Import Preview</p>
-            <h2 className="mt-1 text-2xl font-bold text-gray-950">{book || "Book"} {chapter}</h2>
-          </div>
-          <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700">{translation}</span>
-        </div>
-
-        <div className="mt-5 max-h-[34rem] space-y-3 overflow-auto pr-1">
-          {verses.length ? verses.map((verse) => (
-            <article key={verse.referenceKey} className="rounded-2xl border border-gray-200 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-semibold text-gray-950">{verse.label}</p>
-                <code className="text-xs text-gray-400">{verse.referenceKey}</code>
-              </div>
-              <p className="mt-2 text-sm leading-6 text-gray-700">{verse.text}</p>
-            </article>
-          )) : <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">Paste verse text to preview {book} {chapter}.</div>}
-        </div>
-
-        <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-gray-700">
-          This importer stores the exact text you provide. It does not yet fetch Bible text automatically from an external translation service.
-        </div>
-      </aside>
-    </div>
-  );
+  {tab==="backlog"&&<section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl"><div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-indigo-700">Semantic enrichment</p><h2 className="mt-1 text-3xl font-black">{selectedBook?.name??"Book"} backlog</h2></div><div className="flex gap-3"><select value={bookKey} onChange={e=>chooseBook(e.target.value)} className={inputClass}>{books.map(book=><option key={book.book_key} value={book.book_key}>{book.name}</option>)}</select><select value={backlogFilter} onChange={e=>setBacklogFilter(e.target.value)} className={inputClass}><option value="all">All types</option>{enrichmentTypes.map(type=><option key={type} value={type}>{type.replaceAll("_"," ")}</option>)}</select></div></div>{loadingPanel?<p className="mt-8 font-black text-slate-500">Loading enrichment work...</p>:filteredBacklog.length?<div className="mt-6 space-y-3">{filteredBacklog.map(item=><article key={item.queue_id} className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[120px_1fr_170px]"><div><p className="font-black text-indigo-700">{item.reference_label}</p><p className="mt-1 text-xs font-black uppercase text-slate-400">Priority {item.priority}</p></div><p className="text-sm leading-6 text-slate-700">{item.text_content}</p><div className="md:text-right"><span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-700">{item.enrichment_type.replaceAll("_"," ")}</span><p className="mt-2 text-xs font-bold text-slate-400">{item.status.replaceAll("_"," ")}</p></div></article>)}</div>:<div className="mt-6"><Empty text="No pending enrichment tasks match this filter."/></div>}</section>}
+ </div>
 }
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
-  return <label className="mt-5 block"><span className="font-semibold text-gray-900">{label}</span>{hint && <span className="ml-2 text-sm text-gray-500">{hint}</span>}<div className="mt-2">{children}</div></label>;
-}
-
-function parseVerses(book: string, chapter: number, value: string): ParsedVerse[] {
-  const normalizedBook = book.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  if (!normalizedBook || chapter < 1) return [];
-
-  return value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
-    const match = line.match(/^(\d+)\s*[.:\-]?\s*(.+)$/);
-    if (!match) return null;
-    const verse = Number(match[1]);
-    const text = match[2].trim();
-    return {
-      verse,
-      text,
-      referenceKey: `${normalizedBook}-${chapter}-${verse}`,
-      label: `${book.trim()} ${chapter}:${verse}`,
-    };
-  }).filter((verse): verse is ParsedVerse => verse !== null);
-}
-
-const inputClass = "w-full rounded-xl border border-gray-300 px-3 py-2.5 text-gray-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+function Field({label,hint,children}:{label:string;hint?:string;children:React.ReactNode}){return <label className="block"><span className="font-black text-slate-900">{label}</span>{hint&&<span className="ml-2 text-sm text-slate-500">{hint}</span>}<div className="mt-2">{children}</div></label>}
+function Toggle({checked,onChange,title,description}:{checked:boolean;onChange:(v:boolean)=>void;title:string;description:string}){return <button type="button" onClick={()=>onChange(!checked)} className={`rounded-2xl border p-4 text-left ${checked?"border-indigo-300 bg-indigo-50":"border-slate-200 bg-slate-50"}`}><div className="flex items-center justify-between"><p className="font-black text-slate-950">{title}</p><span className={`h-6 w-11 rounded-full p-1 ${checked?"bg-indigo-600":"bg-slate-300"}`}><span className={`block h-4 w-4 rounded-full bg-white transition ${checked?"translate-x-5":""}`}/></span></div><p className="mt-2 text-sm text-slate-600">{description}</p></button>}
+function Metric({value,label}:{value:string|number;label:string}){return <div className="rounded-2xl bg-white/70 p-3 text-center"><p className="text-2xl font-black text-emerald-950">{value}</p><p className="mt-1 text-[10px] font-black uppercase text-emerald-700">{label}</p></div>}
+function Empty({text}:{text:string}){return <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-slate-500">{text}</div>}
+function slug(value:string){return value.trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}
+function parseVerses(bookName:string,bookKey:string,chapter:number,value:string):ParsedVerse[]{if(!bookKey||chapter<1)return[];return value.split(/\r?\n/).map(line=>line.trim()).filter(Boolean).map(line=>{const match=line.match(/^(\d+)\s*[.:\-]?\s*(.+)$/);if(!match)return null;const verse=Number(match[1]);const text=match[2].trim();return{verse,text,referenceKey:`${bookKey}-${chapter}-${verse}`,label:`${bookName} ${chapter}:${verse}`}}).filter((v):v is ParsedVerse=>v!==null)}
+function validateVerses(verses:ParsedVerse[]){const errors:string[]=[];const seen=new Set<number>();for(const verse of verses){if(seen.has(verse.verse))errors.push(`Verse ${verse.verse} appears more than once.`);seen.add(verse.verse);if(!verse.text)errors.push(`Verse ${verse.verse} has no text.`)}if(verses.length&&verses[0].verse!==1)errors.push("The first imported line is not verse 1.");for(let i=1;i<verses.length;i++)if(verses[i].verse!==verses[i-1].verse+1)errors.push(`Verse sequence jumps from ${verses[i-1].verse} to ${verses[i].verse}.`);return{errors}}
+const inputClass="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
