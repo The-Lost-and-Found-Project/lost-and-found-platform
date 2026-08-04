@@ -25,7 +25,7 @@ const accountItems = [
   { href: "/notifications", label: "Notifications", icon: "🔔" },
   { href: "/settings", label: "Settings", icon: "⚙" },
   { href: "/feedback", label: "Feedback", icon: "💬" },
-  { href: "/support", label: "Help & Support", icon: "?" },
+  { href: "/help", label: "Help & User Manuals", icon: "?" },
 ];
 
 export default function AuthControls() {

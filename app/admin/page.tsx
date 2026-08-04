@@ -61,7 +61,9 @@ export default async function AdminPage() {
     redirect("/prayer-assignments");
   }
 
-  if (effectiveRole !== "admin") redirect("/dashboard");
+  if (effectiveRole !== "admin") {
+    redirect("/dashboard");
+  }
 
   const { data: requests } = await supabase
     .from("prayer_requests")

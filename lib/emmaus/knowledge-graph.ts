@@ -53,6 +53,12 @@ export type KnowledgeEdge = {
   reviewNote?: string;
 };
 
+export type KnowledgeConnection = {
+  node: KnowledgeNode;
+  edge: KnowledgeEdge;
+  direction: "outgoing" | "incoming";
+};
+
 const scriptureSource = (citation: string): KnowledgeSource => ({ kind: "scripture", citation });
 
 export const knowledgeNodes: KnowledgeNode[] = [
@@ -112,19 +118,22 @@ export function getKnowledgeNode(id: string) {
   return knowledgeNodes.find((node) => node.id === id) ?? null;
 }
 
-export function getConnectedKnowledge(id: string, options?: { approvedOnly?: boolean }) {
-  return knowledgeEdges.flatMap((edge) => {
-    if (options?.approvedOnly && edge.status !== "approved") return [];
+export function getConnectedKnowledge(id: string, options?: { approvedOnly?: boolean }): KnowledgeConnection[] {
+  const connections: KnowledgeConnection[] = [];
+
+  for (const edge of knowledgeEdges) {
+    if (options?.approvedOnly && edge.status !== "approved") continue;
     if (edge.from === id) {
       const node = getKnowledgeNode(edge.to);
-      return node ? [{ node, edge, direction: "outgoing" as const }] : [];
+      if (node) connections.push({ node, edge, direction: "outgoing" });
     }
     if (edge.to === id) {
       const node = getKnowledgeNode(edge.from);
-      return node ? [{ node, edge, direction: "incoming" as const }] : [];
+      if (node) connections.push({ node, edge, direction: "incoming" });
     }
-    return [];
-  });
+  }
+
+  return connections;
 }
 
 export function searchKnowledge(query: string, options?: { type?: KnowledgeNodeType; status?: ReviewStatus; testament?: Testament }) {

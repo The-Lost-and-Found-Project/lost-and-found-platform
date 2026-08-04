@@ -1,17 +1,23 @@
 create or replace function public.is_emmaus_admin()
 returns boolean
-language sql
+language plpgsql
 stable
 security definer
 set search_path = public
 as $$
-  select session_user = 'postgres'
-  or exists (
+begin
+  if session_user = 'postgres' then
+    return true;
+  end if;
+
+  return exists (
     select 1
-    from public.profiles
-    where id = auth.uid()
-      and role = 'admin'
+    from public.companion_memberships
+    where user_id = (select auth.uid())
+      and role in ('owner', 'admin')
+      and is_active
   );
+end;
 $$;
 
 revoke all on function public.is_emmaus_admin() from public, anon;

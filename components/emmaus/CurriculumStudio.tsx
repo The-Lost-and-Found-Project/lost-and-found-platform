@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getConnectedKnowledge, knowledgeNodes, type KnowledgeNode } from "@/lib/emmaus/knowledge-graph";
 import { buildReasoningPath, type ReasoningIntent } from "@/lib/emmaus/reasoning-engine";
 import { beginDialogue, type DialogueDepth, type DialogueMove } from "@/lib/emmaus/socratic-dialogue";
@@ -44,6 +45,7 @@ const defaultObjectives: Objective[] = [
 ];
 
 export default function CurriculumStudio() {
+  const router = useRouter();
   const [sourceNodeId, setSourceNodeId] = useState("verse-john-1-1");
   const [title, setTitle] = useState("The Eternal Word");
   const [subtitle, setSubtitle] = useState("Discover what John reveals about Jesus before creation begins.");
@@ -81,12 +83,11 @@ export default function CurriculumStudio() {
     closingPrayer,
   }), [clues, closingPrayer, depth, dialogueMoves, estimatedMinutes, objectives, openingPrayer, selectedConnectionIds, sourceNodeId, subtitle, teachingNotes, title]);
 
-  const preview = useMemo(() => {
-    const question = sourceNode ? `What does ${sourceNode.label} reveal?` : "What does this passage reveal?";
-    const dialogue = beginDialogue(question, depth, sourceNode?.id);
-    const reasoning = buildReasoningPath(sourceNode?.id ?? "", "connect", 4);
-    return { dialogue, reasoning };
-  }, [depth, sourceNode]);
+  const question = sourceNode ? `What does ${sourceNode.label} reveal?` : "What does this passage reveal?";
+  const preview = {
+    dialogue: beginDialogue(question, depth, sourceNode?.id),
+    reasoning: buildReasoningPath(sourceNode?.id ?? "", "connect", 4),
+  };
 
   function toggleObjective(id: string) {
     setObjectives((current) => current.map((objective) => objective.id === id ? { ...objective, enabled: !objective.enabled } : objective));
@@ -126,7 +127,7 @@ export default function CurriculumStudio() {
       selectedConnections: selectedConnections.map(({ node, edge }) => ({ node, edge })),
       reasoningPreview: preview.reasoning,
     }));
-    window.location.href = "/emmaus/admin/composer";
+    router.push("/emmaus/admin/composer");
   }
 
   async function copyDraft() {

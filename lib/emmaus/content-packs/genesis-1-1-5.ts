@@ -23,7 +23,7 @@ export const genesisOneOneToFiveContentPack: EmmausContentPack = {
         "Explore the Hebrew terms bereshit, bara, elohim, shamayim, and erets without overstating them.",
         "Connect Genesis 1:1 with John 1:1–3, Psalm 33:6, Colossians 1:16–17, and Hebrews 11:3.",
       ],
-      dialogueMoves: ["observe", "clarify", "context", "connect", "probe", "test", "reflect", "apply", "summarize"],
+      dialogueMoves: ["observe", "clarify", "connect", "probe", "test", "reflect", "apply", "summarize"],
       openingQuestion: "What does Genesis 1:1 place before everything else, and what does it say God did?",
       probingQuestions: [
         "What changes when you notice that God is already present before the heavens and the earth exist?",
@@ -57,7 +57,7 @@ export const genesisOneOneToFiveContentPack: EmmausContentPack = {
         "Distinguish unformed creation from moral evil.",
         "Recognize God's presence before visible order appears.",
       ],
-      dialogueMoves: ["observe", "clarify", "context", "probe", "test", "reflect", "apply", "summarize"],
+      dialogueMoves: ["observe", "clarify", "connect", "probe", "test", "reflect", "apply", "summarize"],
       openingQuestion: "What conditions describe the earth in verse 2, and where is God in relation to them?",
       probingQuestions: [
         "Does ‘formless and empty’ mean evil, abandoned, or unfinished? Which conclusion best fits the chapter?",
@@ -124,7 +124,7 @@ export const genesisOneOneToFiveContentPack: EmmausContentPack = {
         "Trace the repeated pattern of evaluation throughout Genesis 1.",
         "Reflect on the difference between God's declaration of good and personal preference.",
       ],
-      dialogueMoves: ["observe", "clarify", "context", "probe", "reflect", "apply", "summarize"],
+      dialogueMoves: ["observe", "clarify", "connect", "probe", "reflect", "apply", "summarize"],
       openingQuestion: "What two actions does God take toward the light in verse 4?",
       probingQuestions: [
         "What gives God the authority to call the light good?",
@@ -157,7 +157,7 @@ export const genesisOneOneToFiveContentPack: EmmausContentPack = {
         "Examine the evening-and-morning refrain without making the age of the earth the only question in the text.",
         "Connect created rhythm with later biblical patterns of work, rest, worship, and dependence.",
       ],
-      dialogueMoves: ["observe", "clarify", "context", "connect", "probe", "test", "reflect", "apply", "summarize"],
+      dialogueMoves: ["observe", "clarify", "connect", "probe", "test", "reflect", "apply", "summarize"],
       openingQuestion: "What does God name, and what repeated pattern closes the first day?",
       probingQuestions: [
         "What does God's naming communicate about His authority over both light and darkness?",

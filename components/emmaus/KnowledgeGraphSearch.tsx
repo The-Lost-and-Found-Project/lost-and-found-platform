@@ -10,10 +10,10 @@ const filters=["all","verse","passage","theme","person","place","event","discove
 export default function KnowledgeGraphSearch(){
  const supabase=useMemo(()=>createClient(),[]);
  const[query,setQuery]=useState(""),[type,setType]=useState("all"),[results,setResults]=useState<Node[]>([]),[featured,setFeatured]=useState<Node[]>([]),[loading,setLoading]=useState(false),[message,setMessage]=useState("");
- useEffect(()=>{void loadFeatured()},[]);
- useEffect(()=>{const timer=setTimeout(()=>{if(query.trim().length>=2)void search();else setResults([])},250);return()=>clearTimeout(timer)},[query,type]);
  async function loadFeatured(){const{data,error}=await supabase.from("emmaus_graph_nodes").select("id,node_key,node_type,title,subtitle,summary,scripture_reference").eq("status","published").in("node_key",["scripture:kjv:john-1-1","discovery:lamb-of-god","theme:light","person:nicodemus","theme:living-water","event:john-sign-3-bethesda","discovery:i-am-bread-of-life","theme:temple"]).limit(12);if(error){setMessage(error.message);return}setFeatured((data??[]) as Node[])}
  async function search(){setLoading(true);setMessage("");let request=supabase.from("emmaus_graph_nodes").select("id,node_key,node_type,title,subtitle,summary,scripture_reference").eq("status","published").or(`title.ilike.%${escapeSearch(query)}%,scripture_reference.ilike.%${escapeSearch(query)}%,summary.ilike.%${escapeSearch(query)}%`).order("title").limit(40);if(type!=="all")request=request.eq("node_type",type);const{data,error}=await request;if(error){setMessage(error.message);setResults([])}else setResults((data??[]) as Node[]);setLoading(false)}
+ useEffect(()=>{void loadFeatured()},[]);
+ useEffect(()=>{const timer=setTimeout(()=>{if(query.trim().length>=2)void search();else setResults([])},250);return()=>clearTimeout(timer)},[query,type]);
  const display=query.trim().length>=2?results:featured;
  return <div className="space-y-6">
   <header className="rounded-[2rem] bg-slate-950 p-7 text-white shadow-2xl sm:p-9"><p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Emmaus Exploration Engine</p><h1 className="mt-3 text-4xl font-black sm:text-6xl">Biblical Knowledge Graph</h1><p className="mt-4 max-w-3xl text-lg leading-8 text-indigo-100/70">Begin with a verse, person, place, event, theme, Greek term, or discovery and travel through its relationships in Scripture.</p></header>
