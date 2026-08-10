@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import TickerScroll from "./TickerScroll";
 
 type PrayerRequest = {
   id: string;
@@ -26,7 +26,7 @@ export default function PrayerWallTicker() {
         .from("prayer_wall_public")
         .select("id, request_text, created_at")
         .order("created_at", { ascending: false })
-        .limit(30);
+        .limit(3);
 
       if (active) {
         setRequests((data as PrayerRequest[]) ?? []);
@@ -48,24 +48,28 @@ export default function PrayerWallTicker() {
     return null;
   }
 
-  // Duplicated so the auto-scroll can loop seamlessly.
-  const items = [...requests, ...requests];
-
   return (
-    <div className="mt-8 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-      <div className="border-b border-gray-100 px-5 py-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Prayers From Our Community
+    <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="community-prayers-title">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="community-prayers-title" className="text-xl font-black text-slate-950">
+          Prayers from our community
         </h2>
+        <Link href="/prayer" className="text-sm font-bold text-indigo-700 hover:text-indigo-600">
+          Open Prayer →
+        </Link>
       </div>
-
-      <TickerScroll>
-        {items.map((r, i) => (
-          <div key={`${r.id}-${i}`} className="rounded-md bg-gray-50 px-4 py-3">
-            <p className="italic text-gray-700">&ldquo;{r.request_text}&rdquo;</p>
-          </div>
-        ))}
-      </TickerScroll>
-    </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        {requests.map((request) => {
+          const excerpt = request.request_text.length > 150
+            ? `${request.request_text.slice(0, 150).trim()}…`
+            : request.request_text;
+          return (
+            <article key={request.id} className="rounded-2xl bg-slate-50 p-4">
+              <p className="line-clamp-4 leading-6 text-slate-700">&ldquo;{excerpt}&rdquo;</p>
+            </article>
+          );
+        })}
+      </div>
+    </section>
   );
 }

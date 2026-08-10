@@ -52,7 +52,7 @@ export default function FeedbackClient({
   if (submitted) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-        <h1 className="text-2xl font-bold text-gray-900">Thank you</h1>
+        <h2 className="text-2xl font-bold text-gray-900">Thank you</h2>
         <p className="mt-4 text-gray-600">
           Thanks for taking the time to share your feedback. It goes straight
           to our team &mdash; we read every message, though we may not be able
@@ -70,15 +70,9 @@ export default function FeedbackClient({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-      <h1 className="text-2xl font-bold text-gray-900">Send Feedback</h1>
-      <p className="mt-2 text-gray-600">
-        You&apos;re one of a small group helping us test The Lost and Found
-        Project. Run into a bug, have an idea, or just want to tell us what&apos;s
-        working (or not)? Let us know below &mdash; this goes directly to our
-        team.
-      </p>
+      <h2 className="text-2xl font-bold text-gray-900">Your feedback</h2>
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Your Feedback

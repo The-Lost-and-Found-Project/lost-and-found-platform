@@ -61,7 +61,8 @@ function needsAttention(r: AdminRequest): boolean {
   return (
     r.moderation_status === "pending" ||
     !r.assigned_to ||
-    (r.follow_up_needed && !r.answered)
+    (r.follow_up_needed && !r.answered) ||
+    ["Needs Reassignment", "Escalated"].includes(r.status)
   );
 }
 

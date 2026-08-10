@@ -118,7 +118,7 @@ export default async function DashboardPage() {
             </div>
             <div className="flex flex-wrap gap-3">
               <ShareButton />
-              <LfpSecondaryLink href="/profile">Share My Testimony</LfpSecondaryLink>
+              <LfpSecondaryLink href="/testimonies/submit">Share My Testimony</LfpSecondaryLink>
             </div>
           </div>
 

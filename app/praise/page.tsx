@@ -55,13 +55,7 @@ export default function PraiseWallPage() {
       </section>
 
       <div className="lfp-shell py-10 sm:py-14">
-        <section className="grid gap-5 md:grid-cols-3">
-          <PraiseValue icon="🙌" title="Celebrate" text="Give God glory for what He has done and let gratitude become part of the community rhythm." />
-          <PraiseValue icon="♡" title="Encourage" text="Someone else may be waiting for the hope your answered prayer can provide." />
-          <PraiseValue icon="🕊" title="Share safely" text="Published praise reports remain anonymous, preserving privacy while still celebrating God's faithfulness." />
-        </section>
-
-        <section className="mt-14">
+        <section>
           <div className="max-w-3xl">
             <p className="lfp-eyebrow">Community praise</p>
             <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Recent reminders of God's faithfulness</h2>
@@ -115,21 +109,7 @@ export default function PraiseWallPage() {
           </div>
         </section>
 
-        <section className="mt-14 rounded-[2rem] bg-gradient-to-br from-indigo-600 to-violet-700 p-7 text-white shadow-2xl sm:p-10">
-          <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Mark the moment</p>
-              <h2 className="mt-3 text-3xl font-black">Has God answered a prayer?</h2>
-              <p className="mt-3 max-w-2xl leading-7 text-indigo-100/80">Share the praise while protecting your privacy. Your report may strengthen someone who is still waiting.</p>
-            </div>
-            <Link href="/praise/submit" className="lfp-button bg-white text-indigo-800 shadow-xl">Share Your Praise</Link>
-          </div>
-        </section>
       </div>
     </main>
   );
-}
-
-function PraiseValue({ icon, title, text }: { icon: string; title: string; text: string }) {
-  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
 }

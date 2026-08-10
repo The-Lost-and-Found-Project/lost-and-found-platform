@@ -19,20 +19,10 @@ export default async function SubmitTestimonyPage() {
       </section>
 
       <div className="lfp-shell py-10 sm:py-14">
-        <section className="grid gap-5 md:grid-cols-3">
-          <InfoCard icon="✦" title="Be honest" text="Share what happened in your own words without exaggerating or minimizing the difficult parts." />
-          <InfoCard icon="📖" title="Point to God" text="Help readers see how God met you, changed you, sustained you, or revealed truth through the experience." />
-          <InfoCard icon="🛡" title="Protect privacy" text="Avoid identifying details about other people unless you have permission to include them." />
-        </section>
-
-        <section className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-2xl">
+        <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl">
           <TestimonySubmitClient />
         </section>
       </div>
     </main>
   );
-}
-
-function InfoCard({ icon, title, text }: { icon: string; title: string; text: string }) {
-  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
 }

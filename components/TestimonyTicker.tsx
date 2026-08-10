@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import TickerScroll from "./TickerScroll";
 
 type Testimony = {
   id: string;
@@ -35,7 +35,7 @@ export default function TestimonyTicker({
         .from("testimonies_public")
         .select("id, faith_story, updated_at, user_id, display_name")
         .order("updated_at", { ascending: false })
-        .limit(30);
+        .limit(3);
 
       if (active) {
         setTestimonies((data as Testimony[]) ?? []);
@@ -66,33 +66,33 @@ export default function TestimonyTicker({
     );
   }
 
-  // Duplicated so the auto-scroll can loop seamlessly.
-  const items = [...testimonies, ...testimonies];
-
   return (
-    <div className="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-      <div className="border-b border-gray-100 px-5 py-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Testimonies From Our Community
+    <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="community-testimonies-title">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="community-testimonies-title" className="text-xl font-black text-slate-950">
+          Testimonies from our community
         </h2>
+        <Link href="/testimonies" className="text-sm font-bold text-indigo-700 hover:text-indigo-600">
+          Read testimonies →
+        </Link>
       </div>
-
-      <TickerScroll>
-        {items.map((t, i) => {
-          const key = `${t.id}-${i}`;
-
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        {testimonies.map((testimony) => {
+          const excerpt = testimony.faith_story.length > 180
+            ? `${testimony.faith_story.slice(0, 180).trim()}…`
+            : testimony.faith_story;
           return (
-            <div key={key} className="rounded-md bg-gray-50 px-4 py-3">
-              <p className="text-xs font-semibold text-gray-900">
-                {t.display_name ?? "Anonymous"}
+            <article key={testimony.id} className="rounded-2xl bg-slate-50 p-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                {testimony.display_name ?? "Anonymous"}
               </p>
-              <p className="mt-1 italic text-gray-700">
-                &ldquo;{t.faith_story}&rdquo;
+              <p className="mt-2 line-clamp-5 leading-6 text-slate-700">
+                &ldquo;{excerpt}&rdquo;
               </p>
-            </div>
+            </article>
           );
         })}
-      </TickerScroll>
-    </div>
+      </div>
+    </section>
   );
 }

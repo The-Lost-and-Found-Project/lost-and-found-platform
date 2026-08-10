@@ -94,7 +94,7 @@ export default function TestimonySubmitClient() {
   if (submitted) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-        <h1 className="text-2xl font-bold text-gray-900">Thank you</h1>
+        <h2 className="text-2xl font-bold text-gray-900">Thank you</h2>
         <p className="mt-4 text-gray-600">
           Thank you for sharing what God has done in your life. Your
           testimony will appear on the Testimony Board once it&apos;s been
@@ -112,14 +112,9 @@ export default function TestimonySubmitClient() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-      <h1 className="text-2xl font-bold text-gray-900">
+      <h2 className="text-2xl font-bold text-gray-900">
         {existingId ? "Update Your Testimony" : "Share Your Testimony"}
-      </h1>
-      <p className="mt-2 text-gray-600">
-        Tell us how God is working in your life. Your testimony will be
-        shared on the Testimony Board under your name, unless you choose to
-        post it anonymously below.
-      </p>
+      </h2>
       {existingId && (
         <p className="mt-2 text-sm text-amber-600">
           You&apos;ve already shared a testimony. Everyone gets just one, so
@@ -127,7 +122,7 @@ export default function TestimonySubmitClient() {
         </p>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div>
           <label htmlFor="testimony" className="block text-sm font-medium text-gray-700">
             Your Testimony

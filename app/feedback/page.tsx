@@ -25,13 +25,7 @@ export default async function FeedbackPage() {
       </section>
 
       <div className="lfp-shell py-10 sm:py-14">
-        <section className="grid gap-5 md:grid-cols-3">
-          <InfoCard icon="🐞" title="Report a problem" text="Include the page, action, device, and what happened. Screenshots are especially helpful." />
-          <InfoCard icon="💬" title="Clarify the experience" text="Tell us when wording, navigation, or instructions feel unclear or difficult to follow." />
-          <InfoCard icon="✦" title="Suggest an improvement" text="Share practical ideas that would help members pray, grow, serve, or stay connected." />
-        </section>
-
-        <section className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-2xl">
+        <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl">
           <FeedbackClient
             defaultName={profile?.full_name ?? ""}
             defaultEmail={profile?.email ?? user.email ?? ""}
@@ -40,8 +34,4 @@ export default async function FeedbackPage() {
       </div>
     </main>
   );
-}
-
-function InfoCard({ icon, title, text }: { icon: string; title: string; text: string }) {
-  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
 }

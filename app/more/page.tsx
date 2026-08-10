@@ -11,6 +11,8 @@ const groups = [
     items: [
       { href: "/profile", label: "Profile", description: "Manage your personal information and testimony.", icon: "👤" },
       { href: "/notifications", label: "Notifications", description: "Review recent updates and activity.", icon: "🔔" },
+      { href: "/settings", label: "Settings", description: "Choose notification and prayer privacy preferences.", icon: "⚙" },
+      { href: "/account", label: "Account Security", description: "Manage your password, sign-in, and account access.", icon: "🛡" },
     ],
   },
   {
@@ -36,7 +38,7 @@ export default async function MorePage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role")
+    .select("role")
     .eq("id", user.id)
     .single();
 
@@ -51,18 +53,7 @@ export default async function MorePage() {
       </section>
 
       <div className="lfp-shell py-10 sm:py-14">
-        <section className="lfp-card p-6 sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-5">
-            <div>
-              <p className="lfp-eyebrow">Signed in as</p>
-              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">{profile?.full_name || user.email || "Member"}</h2>
-              <p className="mt-2 text-slate-600">{user.email}</p>
-            </div>
-            <Link href="/profile" className="lfp-button lfp-button-primary">Manage Profile</Link>
-          </div>
-        </section>
-
-        <div className="mt-12 space-y-12">
+        <div className="space-y-12">
           {groups.map((group) => (
             <section key={group.title}>
               <LfpSectionHeading eyebrow="Options" title={group.title} />

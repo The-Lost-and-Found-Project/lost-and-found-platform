@@ -32,13 +32,7 @@ export default async function ProfilePage() {
       </section>
 
       <div className="lfp-shell py-10 sm:py-14">
-        <section className="grid gap-5 md:grid-cols-3">
-          <ProfileValue icon="👤" title="Be known" text="Keep your name and profile information current so the platform can serve you personally." />
-          <ProfileValue icon="📖" title="Remember your anchors" text="Record important faith milestones and the Scripture that continues to shape your walk." />
-          <ProfileValue icon="🛡" title="Manage your access" text="Care-team and administrative controls remain available only to the roles already authorized." />
-        </section>
-
-        <section className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-white/92 shadow-2xl">
+        <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/92 shadow-xl">
           <ProfileClient
             email={user.email ?? ""}
             createdAt={user.created_at}
@@ -58,8 +52,4 @@ export default async function ProfilePage() {
       </div>
     </main>
   );
-}
-
-function ProfileValue({ icon, title, text }: { icon: string; title: string; text: string }) {
-  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
 }

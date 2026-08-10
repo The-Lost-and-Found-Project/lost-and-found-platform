@@ -502,7 +502,7 @@ export default function MyJourneyClient({
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Journey</h1>
+          <h2 className="text-2xl font-bold text-gray-900">Journey timeline</h2>
           <p className="mt-2 text-gray-600">
             A timeline of your walk with God — milestones, prayers, and moments worth remembering.
           </p>

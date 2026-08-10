@@ -40,20 +40,10 @@ export default async function SettingsPage() {
       </section>
 
       <div className="lfp-shell py-10 sm:py-14">
-        <section className="grid gap-5 md:grid-cols-3">
-          <InfoCard icon="🔔" title="Stay informed" text="Control which ministry updates reach you by email and inside the platform." />
-          <InfoCard icon="🙏" title="Prayer activity" text="Choose whether to receive updates when members pray for your requests." />
-          <InfoCard icon="🛡" title="Privacy defaults" text="Set your preferred default while retaining the ability to choose on each submission." />
-        </section>
-
-        <section className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-2xl">
+        <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl">
           <SettingsClient initialSettings={settings ?? DEFAULT_SETTINGS} />
         </section>
       </div>
     </main>
   );
-}
-
-function InfoCard({ icon, title, text }: { icon: string; title: string; text: string }) {
-  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
 }
