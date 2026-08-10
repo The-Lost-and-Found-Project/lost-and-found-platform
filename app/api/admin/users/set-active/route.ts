@@ -1,76 +1,48 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™^™\]Y\İ™^™\ÜÛœÙHHœ›ÛH›™^ÜÙ\™\ˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\ÜÈÜ™X]PYZ[ÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØYZ[ˆÂ‚‹ËÈH›Û™È[›İYÚÈ™H\›X[™[ˆ˜[ˆ\˜][Û‹ˆİ\X˜\ÙIÜÈYZ[ˆTHZÙ\ÈB‹ËÈ\˜][Ûˆİš[™È˜]\ˆ[ˆH›ÛÛX[‹ÛÈ\È\ÈHİ[™\™Ø^HÂ‹ËÈ\ØX›HÚYÛ‹Z[ˆ[™Yš[š][H
+[[^XÚ]H™XXİ]˜]Y
+K‚˜ÛÛœİT“PS‘S•ĞSˆHÍŒÈËÈLYX\œÂ‚‹ËÈ]È[ˆYZ[ˆXİ]˜]KÙXXİ]˜]H[›İ\ˆ\Ù\‰ÜÈXØÛİ[ˆXXİ]˜][™Â‹ËÈ›İ›\È›Ùš[\Ëš\×ØXİ]™H
+ÛÈHRH[™[H“ËX˜\ÙYÚXÚÜÈ™Y›Xİ‹ËÈ][[YYX][JH[™˜[œÈH[™\›Z[™Èİ\X˜\ÙH]]\Ù\ˆÛÈ^IÜ™B‹ËÈXİX[HØÚÙYİ]ÙˆÚYÛš[™È[‹›İ\İY[ˆ[ˆH\‚™^Ü\Ş[˜È[˜İ[ÛˆÔÕ
+™\]Y\İˆ™^™\]Y\İ
+HÂˆHÂˆÛÛœİ›ÙHH]ØZ]™\]Y\İšœÛÛŠ
+NÂˆÛÛœİÈ\Ù\’Y\ĞXİ]™K™\ÜÛœÚXš[]PXİ[ÛˆHH›ÙHÏÈßNÂ‚ˆYˆ
+]\Ù\’Y\[Ùˆ\ĞXİ]™HOOH˜›ÛÛX[ˆŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ“Z\ÜÚ[™ÈÜˆ[˜[Y\Ù\’YÚ\ĞXİ]™HˆKˆÈİ]\ÎˆBˆ
+NÂˆB‚ˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
 
-// A "long enough to be permanent" ban duration. Supabase's admin API takes a
-// duration string rather than a boolean, so this is the standard way to
-// disable sign-in indefinitely (until explicitly reactivated).
-const PERMANENT_BAN = "876000h"; // 100 years
+NÂˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂ‚ˆYˆ
+]\Ù\ŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ“›İ]][XØ]YˆKÈİ]\ÎˆHJNÂˆB‚ˆÛÛœİÈ]NˆØ[\”›Ùš[HHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
+œ›ÛHŠBˆ™\JšY‹\Ù\‹šY
+BˆœÚ[™ÛJ
+NÂ‚ˆYˆ
+Ø[\”›Ùš[OËœ›ÛHOOH˜YZ[ˆŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›ÜˆYZ[œÈÛ›HˆKÈİ]\ÎˆÈJNÂˆB‚ˆYˆ
+\Ù\’YOOH\Ù\‹šY
+HÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ–[İHØ[‰İXXİ]˜]H[İ\ˆİÛˆXØÛİ[\™KˆˆKˆÈİ]\ÎˆBˆ
+NÂˆB‚ˆÛÛœİYZ[ˆHÜ™X]PYZ[ÛY[
 
-// Lets an admin activate/deactivate another user's account. Deactivating
-// both flips profiles.is_active (so the UI and any RLS-based checks reflect
-// it immediately) and bans the underlying Supabase Auth user so they're
-// actually locked out of signing in, not just hidden in the app.
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { userId, isActive } = body ?? {};
+NÂ‚ˆYˆ
+Z\ĞXİ]™JHÂˆÛÛœİÈ]Nˆ™\ÜÛœÚXš[]Y\Ë\œ›Üˆ™\ÜÛœÚXš[]Y\Ñ\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆœÙ[Xİ
+šYŠBˆ™\J˜\ÜÚYÛ™YİÈ‹\Ù\’Y
+Bˆ™\J˜[œİÙ\™Y‹˜[ÙJBˆ™\J˜\˜Ú]™Y‹˜[ÙJNÂ‚ˆYˆ
+™\ÜÛœÚXš[]Y\Ñ\œ›ÜŠH›İÈ™\ÜÛœÚXš[]Y\Ñ\œ›ÜÂ‚ˆYˆ
 
-    if (!userId || typeof isActive !== "boolean") {
-      return NextResponse.json(
-        { error: "Missing or invalid userId/isActive" },
-        { status: 400 }
-      );
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    const { data: callerProfile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (callerProfile?.role !== "admin") {
-      return NextResponse.json({ error: "Admins only" }, { status: 403 });
-    }
-
-    if (userId === user.id) {
-      return NextResponse.json(
-        { error: "You can't deactivate your own account here." },
-        { status: 400 }
-      );
-    }
-
-    const admin = createAdminClient();
-
-    const { error: profileError } = await admin
-      .from("profiles")
-      .update({ is_active: isActive })
-      .eq("id", userId);
-
-    if (profileError) throw profileError;
-
-    const { error: authError } = await admin.auth.admin.updateUserById(
-      userId,
-      { ban_duration: isActive ? "none" : PERMANENT_BAN }
-    );
-
-    if (authError) throw authError;
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("set-active error:", err);
-    return NextResponse.json(
-      { error: "Unexpected error updating account status" },
-      { status: 500 }
-    );
-  }
-}
+™\ÜÛœÚXš[]Y\ÏË›[™İÏÈ
+Hˆ	‰ˆVÈ˜[×Ü™X\ÜÚYÛˆ‹œ™]\›—İ×Ü]Y]YH—Kš[˜ÛY\Ê™\ÜÛœÚXš[]PXİ[ÛŠJHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÂˆ\œ›ÜˆXİ]™HØ\™H™\ÜÛœÚXš[]Y\È]\İ™H™X\ÜÚYÛ™Y™Y›Ü™HXXİ]˜][Û‹ˆ‹ˆÛÙNˆPÕU‘WÔ‘TÔÓ”ÒP’SUQTÈ‹ˆÛİ[ˆ™\ÜÛœÚXš[]Y\ÏË›[™İÏÈˆKÈİ]\ÎˆHJNÂˆB‚ˆ›Üˆ
+ÛÛœİ™\ÜÛœÚXš[]HÙˆ™\ÜÛœÚXš[]Y\ÈÏÈ×JHÂˆYˆ
+™\ÜÛœÚXš[]PXİ[ÛˆOOHœ™]\›—İ×Ü]Y]YHŠHÂˆÛÛœİÈ\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆ\]JÈ\ÜÚYÛ™YİÎˆ[İ]\Îˆ“™YYÈ™X\ÜÚYÛ›Y[ˆJBˆ™\JšY‹™\ÜÛœÚXš[]KšY
+Bˆ™\J˜\ÜÚYÛ™YİÈ‹\Ù\’Y
+NÂˆYˆ
+\œ›ÜŠH›İÈ\œ›ÜÂˆH[ÙHYˆ
+™\ÜÛœÚXš[]PXİ[ÛˆOOH˜[×Ü™X\ÜÚYÛˆŠHÂˆÛÛœİÈ]Nˆ™]Ğ\ÜÚYÛ™YK\œ›ÜˆHH]ØZ]YZ[‹œœÊœ™X\ÜÚYÛ—Ü˜^Y\—Ü™\]Y\İ‹Âˆ™\]Y\İÚYˆ™\ÜÛœÚXš[]KšYˆ^ÛYWİ\Ù\—ÚYˆ\Ù\’YˆJNÂˆYˆ
+\œ›ÜŠH›İÈ\œ›ÜÂˆYˆ
+™]Ğ\ÜÚYÛ™YJHÂˆÛÛœİÈ\œ›Üˆ\ÜÚYÛ™Y\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆ\]JÈİ]\Îˆ\ÜÚYÛ™YˆJBˆ™\JšY‹™\ÜÛœÚXš[]KšY
+Bˆ™\J˜\ÜÚYÛ™YİÈ‹™]Ğ\ÜÚYÛ™YJNÂˆYˆ
+\ÜÚYÛ™Y\œ›ÜŠH›İÈ\ÜÚYÛ™Y\œ›ÜÂˆH[ÙHÂˆÛÛœİÈ\œ›Üˆ]Y]YQ\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆ\]JÈ\ÜÚYÛ™YİÎˆ[İ]\Îˆ“™YYÈ™X\ÜÚYÛ›Y[ˆJBˆ™\JšY‹™\ÜÛœÚXš[]KšY
+NÂˆYˆ
+]Y]YQ\œ›ÜŠH›İÈ]Y]YQ\œ›ÜÂˆBˆBˆBˆB‚ˆÛÛœİÈ\œ›Üˆ›Ùš[Q\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ›Ùš[\ÈŠBˆ\]J\ĞXİ]™HÈÈ\×ØXİ]™NˆYHHˆÈ\×ØXİ]™Nˆ˜[ÙKZ[š\İWØ]˜Z[Xš[]Nˆš[˜Xİ]™HˆJBˆ™\JšY‹\Ù\’Y
+NÂ‚ˆYˆ
+›Ùš[Q\œ›ÜŠH›İÈ›Ùš[Q\œ›ÜÂ‚ˆÛÛœİÈ\œ›Üˆ]]\œ›ÜˆHH]ØZ]YZ[‹˜]]˜YZ[‹\]U\Ù\RY
+ˆ\Ù\’YˆÈ˜[—Ù\˜][Ûˆ\ĞXİ]™HÈ››Û™HˆˆT“PS‘S•ĞSˆBˆ
+NÂ‚ˆYˆ
+]]\œ›ÜŠH›İÈ]]\œ›ÜÂ‚ˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈİXØÙ\ÜÎˆYHJNÂˆHØ]Ú
+\œŠHÂˆÛÛœÛÛK™\œ›ÜŠœÙ]XXİ]™H\œ›Üˆ‹\œŠNÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ•[™^XİY\œ›Üˆ\][™ÈXØÛİ[İ]\ÈˆKˆÈİ]\ÎˆLBˆ
+NÂˆBŸB

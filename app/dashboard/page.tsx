@@ -1,323 +1,74 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import PrayerWallTicker from "@/components/PrayerWallTicker";
-import ShareButton from "@/components/ShareButton";
-import PushPrompt from "@/components/PushPrompt";
-import {
-  LfpComingSoonCard,
-  LfpFeatureCard,
-  LfpPrimaryLink,
-  LfpSecondaryLink,
-  LfpSectionHeading,
-} from "@/components/ui/LfpDesignSystem";
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\Ü[šÈœ›ÛH›™^Û[šÈÂš[\ÜÈ™Y\™XİHœ›ÛH›™^Û˜]šYØ][ÛˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\Ü˜^Y\•Ø[XÚÙ\ˆœ›ÛHØÛÛ\Û™[ËÔ˜^Y\•Ø[XÚÙ\ˆÂš[\ÜÚ\™P]Ûˆœ›ÛHØÛÛ\Û™[ËÔÚ\™P]ÛˆÂš[\Ü\Ú›Û\œ›ÛHØÛÛ\Û™[ËÔ\Ú›Û\Âš[\ÜÂˆœ™X]\™PØ\™ˆœš[X\S[šËˆœÙXÛÛ™\S[šËˆœÙXİ[Û’XY[™ËŸHœ›ÛHØÛÛ\Û™[ËİZKÓœ\ÚYÛ”Ş\İ[HÂ‚˜ÛÛœİSSPUT×Ñ“ÕS‘T—ÑSPRSH˜ÚYÜİ[™›İ[™›Ú™Xİ›Ü™ÈÂ˜ÛÛœİSSPUT×Ñ“ÕS‘T—ÕTÑT—ÒQH›ØÙ\ÜË™[‹‘SSPUT×Ñ“ÕS‘T—ÕTÑT—ÒQËš[J
+NÂ‚\H›İ\›™^PXİ[ÛˆHÂˆ^YXœ›İÎˆİš[™ÎÂˆ]Nˆİš[™ÎÂˆ\ØÜš\[Ûˆİš[™ÎÂˆ™Yˆİš[™ÎÂˆXİ[Ûˆİš[™ÎÂˆXÛÛˆİš[™ÎÂŸNÂ‚™^ÜY˜][\Ş[˜È[˜İ[Ûˆ\Ú›Ø\™YÙJ
+HÂˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
 
-const EMMAUS_FOUNDER_EMAIL = "chad@lostandfoundproject.org";
-const EMMAUS_FOUNDER_USER_ID = process.env.EMMAUS_FOUNDER_USER_ID?.trim();
-
-type JourneyAction = {
-  eyebrow: string;
-  title: string;
-  description: string;
-  href: string;
-  action: string;
-  icon: string;
-};
-
-export default async function DashboardPage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, role")
-    .eq("id", user.id)
-    .single();
-
-  const firstName = profile?.full_name?.trim().split(" ")[0] || "friend";
-  const isCareTeam = ["admin", "prayer_team", "pastor"].includes(profile?.role ?? "");
-  const isEmmausFounder = Boolean(
-    (EMMAUS_FOUNDER_USER_ID && user.id === EMMAUS_FOUNDER_USER_ID) ||
-      (!EMMAUS_FOUNDER_USER_ID && user.email?.toLowerCase() === EMMAUS_FOUNDER_EMAIL)
-  );
-
-  const [prayerResult, journeyResult, quizResult, notificationResult] = await Promise.all([
-    supabase
-      .from("prayer_requests")
-      .select("id, answered, status, created_at")
-      .eq("user_id", user.id)
-      .eq("archived", false)
-      .order("created_at", { ascending: false })
-      .limit(20),
-    supabase
-      .from("journey_entries")
-      .select("id, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1),
-    supabase
-      .from("quiz_attempts")
-      .select("id, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1),
-    supabase
-      .from("notifications")
-      .select("id")
-      .eq("user_id", user.id)
-      .is("read_at", null)
-      .limit(20),
-  ]);
-
-  const prayerRequests = prayerResult.data ?? [];
-  const activePrayerCount = prayerRequests.filter(
-    (request) => !request.answered && request.status !== "Closed"
-  ).length;
-  const answeredPrayerCount = prayerRequests.filter(
-    (request) => request.answered || request.status === "Answered"
-  ).length;
-  const hasJourneyEntry = (journeyResult.data?.length ?? 0) > 0;
-  const hasQuizAttempt = (quizResult.data?.length ?? 0) > 0;
-  const unreadNotificationCount = notificationResult.data?.length ?? 0;
-
-  const journeyAction = chooseJourneyAction({
-    activePrayerCount,
-    answeredPrayerCount,
-    hasJourneyEntry,
-    hasQuizAttempt,
-    unreadNotificationCount,
-  });
-
-  let pendingApplication = false;
-  if (!isCareTeam) {
-    const { data: application } = await supabase
-      .from("prayer_care_applications")
-      .select("status")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    pendingApplication = application?.status === "pending";
-  }
-
-  return (
-    <main className="lfp-page pb-20">
-      <section className="relative overflow-hidden bg-slate-950 text-white">
-        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(124,58,237,0.34),transparent_34rem),radial-gradient(circle_at_10%_100%,rgba(245,190,67,0.2),transparent_28rem)]" />
-        <div className="lfp-shell relative py-14 sm:py-20">
-          <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">The Lost and Found Project</p>
-              <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">Welcome back, {firstName}.</h1>
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-indigo-100/75">A place to pray, grow, serve, and stay connected to what God is doing through this community.</p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <ShareButton />
-              <LfpSecondaryLink href="/profile">Share My Testimony</LfpSecondaryLink>
-            </div>
-          </div>
-
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
-            <HeroAction icon="ğŸ™" title="Submit a Prayer" description="Share what is on your heart with our prayer community." href="/prayer/submit" />
-            <HeroAction icon="ğŸ“–" title="Daily Devotion" description="Begin a Scripture-centered devotional for today." href="/devotions" />
-            <HeroAction icon="âœ¨" title="Bible Trivia" description="Strengthen biblical knowledge through an engaging challenge." href="/trivia" />
-          </div>
-        </div>
-      </section>
-
-      <div className="lfp-shell pt-8 sm:pt-12">
-        <PushPrompt />
-
-        <section className="mb-10 overflow-hidden rounded-[2rem] border border-indigo-200/70 bg-white/92 shadow-2xl">
-          <div className="grid lg:grid-cols-[0.75fr_1.25fr]">
-            <div className="bg-gradient-to-br from-indigo-600 to-violet-700 p-7 text-white sm:p-9">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Continue Your Journey</p>
-              <h2 className="mt-3 text-3xl font-black">One meaningful next step.</h2>
-              <p className="mt-3 leading-7 text-indigo-100/80">This recommendation uses activity already in your account. It does not unlock or expose any Coming Soon features.</p>
-              <div className="mt-7 grid grid-cols-2 gap-3">
-                <JourneyMetric label="Active prayers" value={activePrayerCount} />
-                <JourneyMetric label="Answered" value={answeredPrayerCount} />
-                <JourneyMetric label="Unread updates" value={unreadNotificationCount} />
-                <JourneyMetric label="Journey started" value={hasJourneyEntry ? "Yes" : "Not yet"} />
-              </div>
-            </div>
-
-            <div className="p-7 sm:p-9">
-              <div className="flex items-start justify-between gap-5">
-                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-3xl ring-1 ring-indigo-100" aria-hidden="true">{journeyAction.icon}</span>
-                <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-[0.14em] text-amber-800">Recommended</span>
-              </div>
-              <p className="mt-6 text-xs font-black uppercase tracking-[0.16em] text-indigo-700">{journeyAction.eyebrow}</p>
-              <h3 className="mt-2 text-3xl font-black tracking-tight text-slate-950">{journeyAction.title}</h3>
-              <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">{journeyAction.description}</p>
-              <Link href={journeyAction.href} className="lfp-button lfp-button-primary mt-7">{journeyAction.action} â†’</Link>
-            </div>
-          </div>
-        </section>
-
-        {isEmmausFounder && (
-          <section className="mb-10 overflow-hidden rounded-[2rem] border border-amber-300/30 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-1 shadow-2xl">
-            <div className="rounded-[1.8rem] bg-white/[0.05] p-6 text-white sm:p-8">
-              <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Private Founder Lab</p>
-                  <h2 className="mt-3 text-3xl font-black">Continue building Emmaus</h2>
-                  <p className="mt-3 max-w-2xl leading-7 text-indigo-100/70">This private Scripture-discovery environment is visible only to your founder account while it is being developed and reviewed.</p>
-                </div>
-                <LfpPrimaryLink href="/emmaus/walk">Open Emmaus â†’</LfpPrimaryLink>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {isCareTeam && (
-          <section className="mb-10 rounded-[2rem] border border-indigo-100 bg-indigo-50/80 p-6 shadow-sm sm:p-8">
-            <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-indigo-700">Care Team</p>
-                <h2 className="mt-2 text-2xl font-black text-slate-950">My Prayer Assignments</h2>
-                <p className="mt-2 max-w-2xl leading-7 text-slate-600">Review entrusted requests, record care updates, and keep each person covered in prayer.</p>
-              </div>
-              <div className="sm:justify-self-end"><LfpPrimaryLink href="/prayer-assignments">View Assignments</LfpPrimaryLink></div>
-            </div>
-          </section>
-        )}
-
-        <section>
-          <LfpSectionHeading eyebrow="Available now" title="Choose another path" description="All options below are currently active and available." />
-          <div className="mt-7 grid gap-5 md:grid-cols-3">
-            <LfpFeatureCard eyebrow="Prayer" title="Prayer Community" description="Submit a request, pray with others, and follow the stories of God's faithfulness." href="/prayer" action="Open Prayer" icon="ğŸ™" />
-            <LfpFeatureCard eyebrow="Formation" title="Daily Devotions" description="A seven-day rhythm of Scripture, practical teaching, reflection, and prayer." href="/devotions" action="Start Reading" icon="ğŸ“–" />
-            <LfpFeatureCard eyebrow="Learning" title="Bible Trivia" description="Test your knowledge and learn through six biblical categories." href="/trivia" action="Play Now" icon="ğŸ§ " />
-          </div>
-        </section>
-
-        {!isCareTeam && (
-          <section className="mt-10 rounded-[2rem] border border-violet-100 bg-white/85 p-6 shadow-xl sm:p-8">
-            <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-700">Serve with us</p>
-                <h2 className="mt-2 text-2xl font-black text-slate-950">Prayer Care Team</h2>
-                <p className="mt-2 max-w-2xl leading-7 text-slate-600">
-                  {pendingApplication
-                    ? "Your application is being reviewed. We will notify you when there is an update."
-                    : "Offer prayer, encouragement, and a faithful listening ear to people who need support."}
-                </p>
-              </div>
-              {!pendingApplication && <div className="sm:justify-self-end"><LfpPrimaryLink href="/prayer-care-application">Iâ€™m Interested</LfpPrimaryLink></div>}
-            </div>
-          </section>
-        )}
-
-        <section className="mt-14">
-          <LfpSectionHeading eyebrow="Growing vision" title="Coming soon to the community" description="These areas remain intentionally unavailable until they are complete, tested, and ready to serve people well." />
-          <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            <LfpComingSoonCard title="Mentoring" description="A relational workspace for mentors and mentees to meet, pray, set growth goals, and walk through Scripture together." icon="ğŸ¤" planned={["Matching", "Shared goals", "Meeting notes"]} />
-            <LfpComingSoonCard title="Study Library" description="A growing collection of individual, group, marriage, men's, and women's studies from The Lost and Found Project." icon="ğŸ“š" planned={["Guided studies", "Group editions", "Progress tracking"]} />
-            <LfpComingSoonCard title="Events" description="Discover gatherings, classes, workshops, and ministry opportunities in one organized place." icon="ğŸ“…" planned={["Registration", "Reminders", "Event details"]} />
-          </div>
-        </section>
-
-        <section className="mt-14">
-          <LfpSectionHeading eyebrow="Community prayer" title="Pray with what is happening now" />
-          <div className="mt-7">
-            <PrayerWallTicker />
-          </div>
-        </section>
-      </div>
-    </main>
-  );
-}
-
-function chooseJourneyAction({
-  activePrayerCount,
-  answeredPrayerCount,
-  hasJourneyEntry,
-  hasQuizAttempt,
-  unreadNotificationCount,
-}: {
-  activePrayerCount: number;
-  answeredPrayerCount: number;
-  hasJourneyEntry: boolean;
-  hasQuizAttempt: boolean;
-  unreadNotificationCount: number;
-}): JourneyAction {
-  if (unreadNotificationCount > 0) {
-    return {
-      eyebrow: "Stay connected",
-      title: "Review your recent updates",
-      description: `You have ${unreadNotificationCount} unread ${unreadNotificationCount === 1 ? "notification" : "notifications"}. Review them before they get buried.` ,
-      href: "/notifications",
-      action: "Open Notifications",
-      icon: "ğŸ””",
-    };
-  }
-
-  if (activePrayerCount > 0 || answeredPrayerCount > 0) {
-    return {
-      eyebrow: "Remember God's faithfulness",
-      title: "Continue your prayer journey",
-      description: "Review your active requests, record an update, or mark an answered prayer so your story is not lost.",
-      href: "/my-journey",
-      action: "Open My Journey",
-      icon: "ğŸ§­",
-    };
-  }
-
-  if (!hasJourneyEntry) {
-    return {
-      eyebrow: "Begin your record",
-      title: "Mark your first journey milestone",
-      description: "Record a meaningful moment, prayer, decision, or step of obedience and begin building a personal record of God's faithfulness.",
-      href: "/my-journey",
-      action: "Start My Journey",
-      icon: "âœ¦",
-    };
-  }
-
-  if (!hasQuizAttempt) {
-    return {
-      eyebrow: "Strengthen biblical knowledge",
-      title: "Take your first Bible challenge",
-      description: "Choose a category and use each question as a doorway into deeper familiarity with Scripture.",
-      href: "/trivia",
-      action: "Start Bible Trivia",
-      icon: "ğŸ§ ",
-    };
-  }
-
-  return {
-    eyebrow: "Daily formation",
-    title: "Continue in today's devotion",
-    description: "Return to Scripture, reflect on the teaching, and carry one clear truth into the rest of your day.",
-    href: "/devotions",
-    action: "Open Daily Devotions",
-    icon: "ğŸ“–",
-  };
-}
-
-function JourneyMetric({ label, value }: { label: string; value: number | string }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4">
-      <p className="text-2xl font-black">{value}</p>
-      <p className="mt-1 text-xs font-semibold text-indigo-100/60">{label}</p>
-    </div>
-  );
-}
-
-function HeroAction({ icon, title, description, href }: { icon: string; title: string; description: string; href: string }) {
-  return (
-    <Link href={href} className="group rounded-3xl border border-white/10 bg-white/[0.07] p-5 backdrop-blur transition hover:-translate-y-1 hover:border-amber-300/35 hover:bg-white/[0.11]">
-      <span className="text-3xl" aria-hidden="true">{icon}</span>
-      <h2 className="mt-4 text-lg font-black">{title}</h2>
-      <p className="mt-2 text-sm leading-6 text-indigo-100/60">{description}</p>
-      <p className="mt-4 text-sm font-black text-amber-300 transition group-hover:translate-x-1">Continue â†’</p>
-    </Link>
-  );
-}
+NÂ‚ˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂ‚ˆYˆ
+]\Ù\ŠH™Y\™Xİ
+‹ÛÙÚ[ˆŠNÂ‚ˆÛÛœİÈ]Nˆ›Ùš[HHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
+™[Û˜[YK›ÛHŠBˆ™\JšY‹\Ù\‹šY
+BˆœÚ[™ÛJ
+NÂ‚ˆÛÛœİš\œİ˜[YHH›Ùš[OË™[Û˜[YOËš[J
+KœÜ]
+ˆŠVÌH™œšY[™ÂˆÛÛœİ\ĞØ\™UX[HHÈ˜YZ[ˆ‹œ˜^Y\—İX[H‹œ\İÜˆ—Kš[˜ÛY\Ê›Ùš[OËœ›ÛHÏÈˆŠNÂˆÛÛœİ\Ñ[[X]\Ñ›İ[™\ˆH›ÛÛX[Šˆ
+SSPUT×Ñ“ÕS‘T—ÕTÑT—ÒQ	‰ˆ\Ù\‹šYOOHSSPUT×Ñ“ÕS‘T—ÕTÑT—ÒQ
+Hˆ
+QSSPUT×Ñ“ÕS‘T—ÕTÑT—ÒQ	‰ˆ\Ù\‹™[XZ[ËÓİÙ\Ø\ÙJ
+HOOHSSPUT×Ñ“ÕS‘T—ÑSPRS
+Bˆ
+NÂ‚ˆYˆ
+\Ñ[[X]\Ñ›İ[™\ŠH™Y\™Xİ
+‹Ù[[X]\ËİØ[ÈŠNÂ‚ˆÛÛœİÜ˜^Y\”™\İ[›İ\›™^T™\İ[]Z^”™\İ[›İYšXØ][Û”™\İ[HH]ØZ]›ÛZ\ÙK˜[
+Âˆİ\X˜\ÙBˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆœÙ[Xİ
+šY[œİÙ\™Yİ]\ËÜ™X]YØ]ŠBˆ™\J\Ù\—ÚY‹\Ù\‹šY
+Bˆ™\J˜\˜Ú]™Y‹˜[ÙJBˆ›Ü™\Š˜Ü™X]YØ]‹È\ØÙ[™[™Îˆ˜[ÙHJBˆ›[Z]
+Œ
+Kˆİ\X˜\ÙBˆ™œ›ÛJš›İ\›™^WÙ[šY\ÈŠBˆœÙ[Xİ
+šYÜ™X]YØ]ŠBˆ™\J\Ù\—ÚY‹\Ù\‹šY
+Bˆ›Ü™\Š˜Ü™X]YØ]‹È\ØÙ[™[™Îˆ˜[ÙHJBˆ›[Z]
+JKˆİ\X˜\ÙBˆ™œ›ÛJœ]Z^—Ø][\ÈŠBˆœÙ[Xİ
+šYÜ™X]YØ]ŠBˆ™\J\Ù\—ÚY‹\Ù\‹šY
+Bˆ›Ü™\Š˜Ü™X]YØ]‹È\ØÙ[™[™Îˆ˜[ÙHJBˆ›[Z]
+JKˆİ\X˜\ÙBˆ™œ›ÛJ››İYšXØ][ÛœÈŠBˆœÙ[Xİ
+šYŠBˆ™\J\Ù\—ÚY‹\Ù\‹šY
+Bˆš\Êœ™XYØ]‹[
+Bˆ›[Z]
+Œ
+KˆJNÂ‚ˆÛÛœİ˜^Y\”™\]Y\İÈH˜^Y\”™\İ[™]HÏÈ×NÂˆÛÛœİXİ]™T˜^Y\Ûİ[H˜^Y\”™\]Y\İË™š[\Šˆ
+™\]Y\İ
+HOˆ\™\]Y\İ˜[œİÙ\™Y	‰ˆ™\]Y\İœİ]\ÈOOHÛÜÙY‚ˆ
+K›[™İÂˆÛÛœİ[œİÙ\™Y˜^Y\Ûİ[H˜^Y\”™\]Y\İË™š[\Šˆ
+™\]Y\İ
+HOˆ™\]Y\İ˜[œİÙ\™Y™\]Y\İœİ]\ÈOOH[œİÙ\™Y‚ˆ
+K›[™İÂˆÛÛœİ\Ò›İ\›™^Q[HH
+›İ\›™^T™\İ[™]OË›[™İÏÈ
+HˆÂˆÛÛœİ\Ô]Z^][\H
+]Z^”™\İ[™]OË›[™İÏÈ
+HˆÂˆÛÛœİ[œ™XY›İYšXØ][ÛÛİ[H›İYšXØ][Û”™\İ[™]OË›[™İÏÈÂ‚ˆÛÛœİ›İ\›™^PXİ[ÛˆHÚÛÜÙR›İ\›™^PXİ[ÛŠÂˆXİ]™T˜^Y\Ûİ[ˆ[œİÙ\™Y˜^Y\Ûİ[ˆ\Ò›İ\›™^Q[Kˆ\Ô]Z^][\ˆ[œ™XY›İYšXØ][ÛÛİ[ˆJNÂ‚ˆ][™[™Ğ\XØ][ÛˆH˜[ÙNÂˆYˆ
+Z\ĞØ\™UX[JHÂˆÛÛœİÈ]Nˆ\XØ][ÛˆHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ˜^Y\—ØØ\™WØ\XØ][ÛœÈŠBˆœÙ[Xİ
+œİ]\ÈŠBˆ™\J\Ù\—ÚY‹\Ù\‹šY
+Bˆ›Ü™\Š˜Ü™X]YØ]‹È\ØÙ[™[™Îˆ˜[ÙHJBˆ›[Z]
+JBˆ›X^X™TÚ[™ÛJ
+NÂ‚ˆ[™[™Ğ\XØ][ÛˆH\XØ][ÛËœİ]\ÈOOHœ[™[™ÈÂˆB‚ˆ™]\›ˆ
+ˆXZ[ˆÛ\ÜÓ˜[YOH›œ\YÙH‹LŒ‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOHœ™[]]™Hİ™\™›İËZY[ˆ™Ë\Û]KNML^]Ú]H‚ˆ]ˆ\šXKZY[HYHˆÛ\ÜÓ˜[YOH˜XœÛÛ]H[œÙ]L™ËVÜ˜YX[YÜ˜YY[
+Ú\˜ÛWØ]Î	WÌL	K™Ø˜JLNŒÍËŒÍ
+K˜[œÜ\™[ÌÍ™[JK˜YX[YÜ˜YY[
+Ú\˜ÛWØ]ÌL	WÌL	K™Ø˜JKNLËŒŠK˜[œÜ\™[Ì™[JWHˆÏ‚ˆ]ˆÛ\ÜÓ˜[YOH›œ\Ú[™[]]™HKLMÛNœKLŒ‚ˆ]ˆÛ\ÜÓ˜[YOH™ÜšYØ\NÎ™ÜšYXÛÛËVÌYœ—Ø]]×HÎš][\ËY[™‚ˆ]ˆÛ\ÜÓ˜[YOH›X^]ËLŞ‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒ™[WH^X[X™\‹LÌ•HÜİ[™›İ[™›Ú™XİÜ‚ˆHÛ\ÜÓ˜[YOH›]M^M›ÛX›XÚÈ˜XÚÚ[™Ë]YÚÛN^M•Ù[ÛÛYH˜XÚËÙš\œİ˜[Y_KÚO‚ˆÛ\ÜÓ˜[YOH›]MHX^]ËL^[ÈXY[™ËN^Z[™YÛËLLÍÍHHXÙHÈ˜^KÜ›İËÙ\™K[™İ^HÛÛ›™XİYÈÚ]ÛÙ\ÈÚ[™È›İYÚ\ÈÛÛ[][š]KÜ‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\Ø\LÈ‚ˆÚ\™P]ÛˆÏ‚ˆœÙXÛÛ™\S[šÈ™YH‹Ü›Ùš[H”Ú\™H^H\İ[[ÛOÓœÙXÛÛ™\S[šÏ‚ˆÙ]‚ˆÙ]‚‚ˆÙ]‚ˆÜÙXİ[Û‚‚ˆ]ˆÛ\ÜÓ˜[YOH›œ\Ú[NÛNœLLˆ‚ˆ\Ú›Û\Ï‚‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›X‹LLİ™\™›İËZY[ˆ›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹Z[™YÛËLŒÍÌ™Ë]Ú]KÎLˆÚYİËL‚ˆ]ˆÛ\ÜÓ˜[YOH™ÜšYÎ™ÜšYXÛÛËVÌÍYœ—ÌKŒYœ—H‚ˆ]ˆÛ\ÜÓ˜[YOH˜™ËYÜ˜YY[]ËXœˆœ›ÛKZ[™YÛËMŒË]š[Û]MÌMÈ^]Ú]HÛNœNH‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^X[X™\‹LÌÛÛ[YH[İ\ˆ›İ\›™^OÜ‚ˆˆÛ\ÜÓ˜[YOH›]LÈ^LŞ›ÛX›XÚÈ“Û™HYX[š[™Ù[™^İ\Ú‚ˆÛ\ÜÓ˜[YOH›]LÈXY[™ËMÈ^Z[™YÛËLLÎ•\È™XÛÛ[Y[™][Ûˆ\Ù\ÈXİ]š]H[™XYH[ˆ[İ\ˆXØÛİ[ˆ]Ù\È›İ[›ØÚÈÜˆ^ÜÙH[HÛÛZ[™ÈÛÛÛˆ™X]\™\ËÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›]MÈÜšYÜšYXÛÛËLˆØ\LÈ‚ˆ›İ\›™^SY]šXÈX™[HXİ]™H˜^Y\œÈˆ˜[YO^ØXİ]™T˜^Y\Ûİ[HÏ‚ˆ›İ\›™^SY]šXÈX™[H[œİÙ\™Yˆ˜[YO^Ø[œİÙ\™Y˜^Y\Ûİ[HÏ‚ˆ›İ\›™^SY]šXÈX™[H•[œ™XY\]\Èˆ˜[YO^İ[œ™XY›İYšXØ][ÛÛİ[HÏ‚ˆ›İ\›™^SY]šXÈX™[H’›İ\›™^Hİ\Yˆ˜[YO^Ú\Ò›İ\›™^Q[HÈ–Y\Èˆˆ“›İY]ŸHÏ‚ˆÙ]‚ˆÙ]‚‚ˆ]ˆÛ\ÜÓ˜[YOHœMÈÛNœNH‚ˆ]ˆÛ\ÜÓ˜[YOH™›^][\Ë\İ\\İYKX™]ÙY[ˆØ\MH‚ˆÜ[ˆÛ\ÜÓ˜[YOH™›^LMËLM][\ËXÙ[\ˆ\İYKXÙ[\ˆ›İ[™YL™ËZ[™YÛËML^LŞš[™ËLHš[™ËZ[™YÛËLLˆ\šXKZY[HYHÚ›İ\›™^PXİ[Û‹šXÛÛŸOÜÜ[‚ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËX[X™\‹MLLÈKLH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒM[WH^X[X™\‹N”™XÛÛ[Y[™YÜÜ[‚ˆÙ]‚ˆÛ\ÜÓ˜[YOH›]Mˆ^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒM™[WH^Z[™YÛËMÌÚ›İ\›™^PXİ[Û‹™^YXœ›İßOÜ‚ˆÈÛ\ÜÓ˜[YOH›]Lˆ^LŞ›ÛX›XÚÈ˜XÚÚ[™Ë]YÚ^\Û]KNMLÚ›İ\›™^PXİ[Û‹]_OÚÏ‚ˆÛ\ÜÓ˜[YOH›]MX^]ËL^[ÈXY[™ËN^\Û]KMŒÚ›İ\›™^PXİ[Û‹™\ØÜš\[ÛŸOÜ‚ˆ[šÈ™Y^Ú›İ\›™^PXİ[Û‹š™YŸHÛ\ÜÓ˜[YOH›œX]ÛˆœX]Û‹\š[X\H]MÈÚ›İ\›™^PXİ[Û‹˜Xİ[ÛŸH8¡¤Ó[šÏ‚ˆÙ]‚ˆÙ]‚ˆÜÙXİ[Û‚‚ˆÚ\Ñ[[X]\Ñ›İ[™\ˆ	‰ˆ
+ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›X‹LLİ™\™›İËZY[ˆ›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹X[X™\‹LÌÌÌ™ËYÜ˜YY[]ËXœˆœ›ÛK\Û]KNMLšXKZ[™YÛËNMLË\Û]KNLLHÚYİËL‚ˆ]ˆÛ\ÜÓ˜[YOHœ›İ[™YVÌK™[WH™Ë]Ú]KÖÌŒWHMˆ^]Ú]HÛNœN‚ˆ]ˆÛ\ÜÓ˜[YOH™ÜšYØ\MˆÎ™ÜšYXÛÛËVÌYœ—Ø]]×HÎš][\ËXÙ[\ˆ‚ˆ]‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^X[X™\‹LÌ”š]˜]H›İ[™\ˆXÜ‚ˆˆÛ\ÜÓ˜[YOH›]LÈ^LŞ›ÛX›XÚÈÛÛ[YHZ[[™È[[X]\ÏÚ‚ˆÛ\ÜÓ˜[YOH›]LÈX^]ËLXY[™ËMÈ^Z[™YÛËLLÍÌ•\Èš]˜]HØÜš\\™KY\ØÛİ™\H[š\›Û›Y[\Èš\ÚX›HÛ›HÈ[İ\ˆ›İ[™\ˆXØÛİ[Ú[H]\È™Z[™È]™[ÜY[™™]šY]ÙYÜ‚ˆÙ]‚ˆœš[X\S[šÈ™YH‹Ù[[X]\ËİØ[È“Ü[ˆ[[X]\È8¡¤Óœš[X\S[šÏ‚ˆÙ]‚ˆÙ]‚ˆÜÙXİ[Û‚ˆ
+_B‚ˆÚ\ĞØ\™UX[H	‰ˆ
+ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›X‹LL›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹Z[™YÛËLL™ËZ[™YÛËMLÎMˆÚYİË\ÛHÛNœN‚ˆ]ˆÛ\ÜÓ˜[YOH™ÜšYØ\MHÛN™ÜšYXÛÛËVÛZ[›X^
+YœŠWØ]]×HÛNš][\ËXÙ[\ˆ‚ˆ]‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒM™[WH^Z[™YÛËMÌØ\™HX[OÜ‚ˆˆÛ\ÜÓ˜[YOH›]Lˆ^L›ÛX›XÚÈ^\Û]KNML“^H˜^Y\ˆ\ÜÚYÛ›Y[ÏÚ‚ˆÛ\ÜÓ˜[YOH›]LˆX^]ËLXY[™ËMÈ^\Û]KMŒ”™]šY]È[\İY™\]Y\İË™XÛÜ™Ø\™H\]\Ë[™ÙY\XXÚ\œÛÛˆÛİ™\™Y[ˆ˜^Y\‹Ü‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOHœÛNš\İYK\Ù[‹Y[™œš[X\S[šÈ™YH‹Ü˜^Y\‹X\ÜÚYÛ›Y[È•šY]È\ÜÚYÛ›Y[ÏÓœš[X\S[šÏÙ]‚ˆÙ]‚ˆÜÙXİ[Û‚ˆ
+_B‚ˆÙXİ[Û‚ˆœÙXİ[Û’XY[™È^YXœ›İÏH–[İ\ˆ™^İ\ˆ]OH”˜^Kˆ™XYˆÜ›İËˆˆ\ØÜš\[ÛH•™YHÛX\ˆØ^\ÈÈÛÛ[YH[İ\ˆ›İ\›™^KˆˆÏ‚ˆ]ˆÛ\ÜÓ˜[YOH›]MÈÜšYØ\MHY™ÜšYXÛÛËLÈ‚ˆœ™X]\™PØ\™^YXœ›İÏH”˜^Hˆ]OH”˜^Y\ˆÛÛ[][š]Hˆ\ØÜš\[ÛH”İX›Z]H™\]Y\İ˜^HÚ]İ\œË[™›ÛİÈHİÜšY\ÈÙˆÛÙ	ÜÈ˜Z][™\ÜËˆˆ™YH‹Ü˜^Y\ˆˆXİ[ÛH“Ü[ˆ˜^Y\ˆˆXÛÛH¼'æcÈˆÏ‚ˆœ™X]\™PØ\™^YXœ›İÏH”™XYˆ]OH‘Z[H]›İ[ÛœÈˆ\ØÜš\[ÛHHØÜš\\™KXÙ[\™Yš]HÙˆXXÚ[™Ë™Y›Xİ[Û‹[™˜^Y\‹ˆˆ™YH‹Ù]›İ[ÛœÈˆXİ[ÛH”İ\™XY[™ÈˆXÛÛH¼'äåˆˆÏ‚ˆœ™X]\™PØ\™^YXœ›İÏH‘Ü›İÈˆ]OH‘Ü›İİXˆˆ\ØÜš\[ÛH‘š[™šX›HX\›š[™È[™›Ü›X][ÛˆÛÛÈ[ˆÛ™HXÙKˆˆ™YH‹ÙÜ›İÈˆXİ[ÛH“Ü[ˆÜ›İÈˆXÛÛH¸§)ˆˆÏ‚ˆÙ]‚ˆÜÙXİ[Û‚‚ˆÈZ\ĞØ\™UX[H	‰ˆ
+ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›]LL›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹]š[Û]LL™Ë]Ú]KÎHMˆÚYİË^ÛNœN‚ˆ]ˆÛ\ÜÓ˜[YOH™ÜšYØ\MHÛN™ÜšYXÛÛËVÛZ[›X^
+YœŠWØ]]×HÛNš][\ËXÙ[\ˆ‚ˆ]‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒM™[WH^]š[Û]MÌ”Ù\™HÚ]\ÏÜ‚ˆˆÛ\ÜÓ˜[YOH›]Lˆ^L›ÛX›XÚÈ^\Û]KNML”˜^Y\ˆØ\™HX[OÚ‚ˆÛ\ÜÓ˜[YOH›]LˆX^]ËLXY[™ËMÈ^\Û]KMŒ‚ˆÜ[™[™Ğ\XØ][Û‚ˆÈ–[İ\ˆ\XØ][Ûˆ\È™Z[™È™]šY]ÙYˆÙHÚ[›İYH[İHÚ[ˆ\™H\È[ˆ\]Kˆ‚ˆˆ“Ù™™\ˆ˜^Y\‹[˜Ûİ\˜YÙ[Y[[™H˜Z][\İ[š[™ÈX\ˆÈ[ÜHÚÈ™YYİ\ÜˆŸBˆÜ‚ˆÙ]‚ˆÈ\[™[™Ğ\XØ][Ûˆ	‰ˆ]ˆÛ\ÜÓ˜[YOHœÛNš\İYK\Ù[‹Y[™œš[X\S[šÈ™YH‹Ü˜^Y\‹XØ\™KX\XØ][Ûˆ’x &[H[\™\İYÓœš[X\S[šÏÙ]ŸBˆÙ]‚ˆÜÙXİ[Û‚ˆ
+_B‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›]LM‚ˆœÙXİ[Û’XY[™È^YXœ›İÏHÛÛ[][š]H˜^Y\ˆˆ]OH”˜^HÚ]Ú]\È\[š[™È›İÈˆÏ‚ˆ]ˆÛ\ÜÓ˜[YOH›]MÈ‚ˆ˜^Y\•Ø[XÚÙ\ˆÏ‚ˆÙ]‚ˆÜÙXİ[Û‚ˆÙ]‚ˆÛXZ[‚ˆ
+NÂŸB‚™[˜İ[ÛˆÚÛÜÙR›İ\›™^PXİ[ÛŠÂˆXİ]™T˜^Y\Ûİ[ˆ[œİÙ\™Y˜^Y\Ûİ[ˆ\Ò›İ\›™^Q[Kˆ\Ô]Z^][\ˆ[œ™XY›İYšXØ][ÛÛİ[ŸNˆÂˆXİ]™T˜^Y\Ûİ[ˆ[X™\Âˆ[œİÙ\™Y˜^Y\Ûİ[ˆ[X™\Âˆ\Ò›İ\›™^Q[Nˆ›ÛÛX[Âˆ\Ô]Z^][\ˆ›ÛÛX[Âˆ[œ™XY›İYšXØ][ÛÛİ[ˆ[X™\ÂŸJNˆ›İ\›™^PXİ[ÛˆÂˆYˆ
+[œ™XY›İYšXØ][ÛÛİ[ˆ
+HÂˆ™]\›ˆÂˆ^YXœ›İÎˆ”İ^HÛÛ›™XİY‹ˆ]Nˆ”™]šY]È[İ\ˆ™XÙ[\]\È‹ˆ\ØÜš\[Ûˆ[İH]™H	İ[œ™XY›İYšXØ][ÛÛİ[H[œ™XY	İ[œ™XY›İYšXØ][ÛÛİ[OOHHÈ››İYšXØ][Ûˆˆˆ››İYšXØ][ÛœÈŸKˆ™]šY]È[H™Y›Ü™H^HÙ]\šYY˜ˆ™Yˆ‹Û›İYšXØ][ÛœÈ‹ˆXİ[Ûˆ“Ü[ˆ›İYšXØ][ÛœÈ‹ˆXÛÛˆ¼'å%‹ˆNÂˆB‚ˆYˆ
+Xİ]™T˜^Y\Ûİ[ˆ[œİÙ\™Y˜^Y\Ûİ[ˆ
+HÂˆ™]\›ˆÂˆ^YXœ›İÎˆ”™[Y[X™\ˆÛÙ	ÜÈ˜Z][™\ÜÈ‹ˆ]NˆÛÛ[YH[İ\ˆ˜^Y\ˆ›İ\›™^H‹ˆ\ØÜš\[Ûˆ”™]šY]È[İ\ˆXİ]™H™\]Y\İË™XÛÜ™[ˆ\]KÜˆX\šÈ[ˆ[œİÙ\™Y˜^Y\ˆÛÈ[İ\ˆİÜH\È›İÜİˆ‹ˆ™Yˆ‹Û^KZ›İ\›™^H‹ˆXİ[Ûˆ“Ü[ˆ^H›İ\›™^H‹ˆXÛÛˆ¼'éëH‹ˆNÂˆB‚ˆYˆ
+Z\Ò›İ\›™^Q[JHÂˆ™]\›ˆÂˆ^YXœ›İÎˆ™YÚ[ˆ[İ\ˆ™XÛÜ™‹ˆ]Nˆ“X\šÈ[İ\ˆš\œİ›İ\›™^HZ[\İÛ™H‹ˆ\ØÜš\[Ûˆ”™XÛÜ™HYX[š[™Ù[[ÛY[˜^Y\‹XÚ\Ú[Û‹Üˆİ\ÙˆØ™YY[˜ÙH[™™YÚ[ˆZ[[™ÈH\œÛÛ˜[™XÛÜ™ÙˆÛÙ	ÜÈ˜Z][™\ÜËˆ‹ˆ™Yˆ‹Û^KZ›İ\›™^H‹ˆXİ[Ûˆ”İ\^H›İ\›™^H‹ˆXÛÛˆ¸§)ˆ‹ˆNÂˆB‚ˆYˆ
+Z\Ô]Z^][\
+HÂˆ™]\›ˆÂˆ^YXœ›İÎˆ”İ™[™İ[ˆšX›XØ[Û›İÛYÙH‹ˆ]Nˆ•ZÙH[İ\ˆš\œİšX›HÚ[[™ÙH‹ˆ\ØÜš\[ÛˆÚÛÜÙHHØ]YÛÜH[™\ÙHXXÚ]Y\İ[Ûˆ\ÈHÛÜØ^H[ÈY\\ˆ˜[Z[X\š]HÚ]ØÜš\\™Kˆ‹ˆ™Yˆ‹İš]šXH‹ˆXİ[Ûˆ”İ\šX›Hš]šXH‹ˆXÛÛˆ¼'éè‹ˆNÂˆB‚ˆ™]\›ˆÂˆ^YXœ›İÎˆ‘Z[H›Ü›X][Ûˆ‹ˆ]NˆÛÛ[YH[ˆÙ^IÜÈ]›İ[Ûˆ‹ˆ\ØÜš\[Ûˆ”™]\›ˆÈØÜš\\™K™Y›XİÛˆHXXÚ[™Ë[™Ø\œHÛ™HÛX\ˆ][ÈH™\İÙˆ[İ\ˆ^Kˆ‹ˆ™Yˆ‹Ù]›İ[ÛœÈ‹ˆXİ[Ûˆ“Ü[ˆZ[H]›İ[ÛœÈ‹ˆXÛÛˆ¼'äåˆ‹ˆNÂŸB‚™[˜İ[Ûˆ›İ\›™^SY]šXÊÈX™[˜[YHNˆÈX™[ˆİš[™ÎÈ˜[YNˆ[X™\ˆİš[™ÈJHÂˆ™]\›ˆ
+ˆ]ˆÛ\ÜÓ˜[YOHœ›İ[™YL›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒHM‚ˆÛ\ÜÓ˜[YOH^L›ÛX›XÚÈİ˜[Y_OÜ‚ˆÛ\ÜÓ˜[YOH›]LH^^È›Û\Ù[ZX›Û^Z[™YÛËLLÍŒÛX™[OÜ‚ˆÙ]‚ˆ
+NÂŸB

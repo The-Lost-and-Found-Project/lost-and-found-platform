@@ -1,263 +1,88 @@
-"use client";
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçH\ÙHÛY[Â‚š[\Ü[šÈœ›ÛH›™^Û[šÈÂš[\ÜÈ\ÙQY™™Xİ\ÙTİ]HHœ›ÛHœ™XXİÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØÛY[Âš[\Ü\›œİ[UÚYÙ]œ›ÛHØÛÛ\Û™[ËÕ\›œİ[UÚYÙ]Â‚\HØ]YÛÜHHÂˆYˆİš[™ÎÂˆ˜[YNˆİš[™ÎÂˆY˜][ØØ\™WÛ]™[ˆİš[™È[Âˆ›İ]WİÎˆİš[™È[ÂŸNÂ‚˜ÛÛœİ[œ]Û\ÜÈH›]Lˆ›ØÚÈZ[‹ZLLˆËY[›İ[™YL›Ü™\ˆ›Ü™\‹\Û]KLÌ™Ë]Ú]HMKLÈ^\Û]KNMLÚYİË\ÛHİ][™K[›Û™H˜[œÚ][ÛˆXÙZÛ\^\Û]KM›Øİ\Î˜›Ü™\‹Z[™YÛËML›Øİ\Îœš[™ËM›Øİ\Îœš[™ËZ[™YÛËLLÂ‚™^ÜY˜][[˜İ[ÛˆİX›Z]˜^Y\”™\]Y\İYÙJ
+HÂˆÛÛœİİ\X˜\ÙHHÜ™X]PÛY[
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import TurnstileWidget from "@/components/TurnstileWidget";
+NÂˆÛÛœİØØ]YÛÜšY\ËÙ]Ø]YÛÜšY\×HH\ÙTİ]OØ]YÛÜV×OŠ×JNÂˆÛÛœİÛ˜[YKÙ]˜[YWHH\ÙTİ]JˆŠNÂˆÛÛœİÙ[XZ[Ù][XZ[HH\ÙTİ]JˆŠNÂˆÛÛœİÜÛ™KÙ]Û™WHH\ÙTİ]JˆŠNÂˆÛÛœİØØ]YÛÜRYÙ]Ø]YÛÜRYHH\ÙTİ]JˆŠNÂˆÛÛœİÜ™\]Y\İ^Ù]™\]Y\İ^HH\ÙTİ]JˆŠNÂˆÛÛœİÚ\ÔX›XËÙ]\ÔX›X×HH\ÙTİ]JYJNÂˆÛÛœİÚ\Ğ[›Û[[İ\ËÙ]\Ğ[›Û[[İ\×HH\ÙTİ]J˜[ÙJNÂˆÛÛœİØÛÛXİ™\]Y\İYÙ]ÛÛXİ™\]Y\İYHH\ÙTİ]J˜[ÙJNÂˆÛÛœİÜ™Y™\œ™YÛÛXİÙ]™Y™\œ™YÛÛXİHH\ÙTİ]JˆŠNÂˆÛÛœİÜ™Y™\œ™YØ\™QÙ[™\‹Ù]™Y™\œ™YØ\™QÙ[™\—HH\ÙTİ]JˆŠNÂˆÛÛœİÜİX›Z][™ËÙ]İX›Z][™×HH\ÙTİ]J˜[ÙJNÂˆÛÛœİÙ\œ›Ü‹Ù]\œ›Ü—HH\ÙTİ]JˆŠNÂˆÛÛœİÜİX›Z]YÙ]İX›Z]YHH\ÙTİ]J˜[ÙJNÂˆÛÛœİØØ\ÚUÚÙ[‹Ù]Ø\ÚUÚÙ[—HH\ÙTİ]JˆŠNÂˆÛÛœİÜ™Yš[Yœ›ÛT›Ùš[KÙ]™Yš[Yœ›ÛT›Ùš[WHH\ÙTİ]J˜[ÙJNÂ‚ˆ\ÙQY™™Xİ
 
-type Category = {
-  id: string;
-  name: string;
-  default_care_level: string | null;
-  route_to: string | null;
-};
 
-const inputClass = "mt-2 block min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+HOˆÂˆ\Ş[˜È[˜İ[ÛˆØYØ]YÛÜšY\Ê
+HÂˆÛÛœİÈ]HHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ˜^Y\—ØØ]YÛÜšY\ÈŠBˆœÙ[Xİ
+šY˜[YKY˜][ØØ\™WÛ]™[›İ]WİÈŠBˆ›Ü™\ŠœÛÜÛÜ™\ˆŠNÂˆÙ]Ø]YÛÜšY\Ê
+]H\ÈØ]YÛÜV×JHÏÈ×JNÂˆBˆØYØ]YÛÜšY\Ê
+NÂˆËÈ\Û[Y\ØX›K[™^[[™H™XXİZÛÚÜËÙ^]\İ]™KY\ÂˆK×JNÂ‚ˆ\ÙQY™™Xİ
 
-export default function SubmitPrayerRequestPage() {
-  const supabase = createClient();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [requestText, setRequestText] = useState("");
-  const [isPublic, setIsPublic] = useState(true);
-  const [isAnonymous, setIsAnonymous] = useState(false);
-  const [contactRequested, setContactRequested] = useState(false);
-  const [preferredContact, setPreferredContact] = useState("");
-  const [preferredCareGender, setPreferredCareGender] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState("");
-  const [prefilledFromProfile, setPrefilledFromProfile] = useState(false);
 
-  useEffect(() => {
-    async function loadCategories() {
-      const { data } = await supabase
-        .from("prayer_categories")
-        .select("id, name, default_care_level, route_to")
-        .order("sort_order");
-      setCategories((data as Category[]) ?? []);
-    }
-    loadCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+HOˆÂˆ\Ş[˜È[˜İ[ÛˆØYÚYÛ™Y[‘Y˜][Ê
+HÂˆÛÛœİÈ]Nˆ\Ù\‘]HHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂˆÛÛœİ\Ù\ˆH\Ù\‘]OË\Ù\ÂˆYˆ
+]\Ù\ŠH™]\›Â‚ˆÛÛœİŞÈ]Nˆ›Ùš[HKÈ]NˆÙ][™ÜÈWHH]ØZ]›ÛZ\ÙK˜[
+Âˆİ\X˜\ÙK™œ›ÛJœ›Ùš[\ÈŠKœÙ[Xİ
+™[Û˜[YHŠK™\JšY‹\Ù\‹šY
+KœÚ[™ÛJ
+Kˆİ\X˜\ÙK™œ›ÛJ\Ù\—ÜÙ][™ÜÈŠKœÙ[Xİ
+™Y˜][Ø[›Û[[İ\ÈŠK™\J\Ù\—ÚY‹\Ù\‹šY
+KœÚ[™ÛJ
+KˆJNÂ‚ˆYˆ
+›Ùš[OË™[Û˜[YJHÙ]˜[YJ›Ùš[K™[Û˜[YJNÂˆYˆ
+\Ù\‹™[XZ[
+HÙ][XZ[
+\Ù\‹™[XZ[
+NÂˆYˆ
+›Ùš[OË™[Û˜[YH\Ù\‹™[XZ[
+HÙ]™Yš[Yœ›ÛT›Ùš[JYJNÂˆYˆ
+Ù][™ÜÏË™Y˜][Ø[›Û[[İ\ÊHÙ]\Ğ[›Û[[İ\ÊYJNÂˆBˆØYÚYÛ™Y[‘Y˜][Ê
+NÂˆËÈ\Û[Y\ØX›K[™^[[™H™XXİZÛÚÜËÙ^]\İ]™KY\ÂˆK×JNÂ‚ˆ\Ş[˜È[˜İ[Ûˆ[™TİX›Z]
+]™[ˆ™XXİ‘›Ü›Q]™[
+HÂˆ]™[œ™]™[Y˜][
 
-  useEffect(() => {
-    async function loadSignedInDefaults() {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-      if (!user) return;
+NÂˆÙ]\œ›ÜŠˆŠNÂ‚ˆYˆ
+›ØÙ\ÜË™[‹“‘VÔP“P×ÕT“”ÕSWÔÒUWÒÑVH	‰ˆXØ\ÚUÚÙ[ŠHÂˆÙ]\œ›ÜŠ”X\ÙHÛÛ\]HHÙXİ\š]HÚXÚÈ™Y›Ü™HÚ\š[™È[İ\ˆ™\]Y\İˆŠNÂˆ™]\›ÂˆB‚ˆÙ]İX›Z][™ÊYJNÂ‚ˆÛÛœİØ\ÚPÚXÚÈH]ØZ]™]Ú
+‹Ø\Kİ™\šYK]\›œİ[H‹ÂˆY]Ùˆ”ÔÕ‹ˆXY\œÎˆÈÛÛ[U\Hˆ˜\XØ][Û‹ÚœÛÛˆˆKˆ›ÙNˆ”ÓÓ‹œİš[™ÚYJÈÚÙ[ˆØ\ÚUÚÙ[ˆJKˆJK[Š
+™\ÜÛœÙJHOˆ™\ÜÛœÙKšœÛÛŠ
+JNÂ‚ˆYˆ
+XØ\ÚPÚXÚËœİXØÙ\ÜÊHÂˆÙ]\œ›ÜŠØ\ÚPÚXÚË™\œ›ÜˆÏÈ•ÙHÛİ[›İ™\šYHHÙXİ\š]HÚXÚËˆX\ÙHHYØZ[‹ˆŠNÂˆÙ]İX›Z][™Ê˜[ÙJNÂˆ™]\›ÂˆB‚ˆÛÛœİÈ]Nˆ\Ù\‘]HHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂˆÛÛœİ\Ù\ˆH\Ù\‘]OË\Ù\ÂˆÛÛœİ™]Ô™\]Y\İYH\[ÙˆÜ\ÈOOH[™Yš[™Yˆ	‰ˆœ˜[™ÛUURQˆ[ˆÜ\ÈÈÜ\Ëœ˜[™ÛUURQ
 
-      const [{ data: profile }, { data: settings }] = await Promise.all([
-        supabase.from("profiles").select("full_name").eq("id", user.id).single(),
-        supabase.from("user_settings").select("default_anonymous").eq("user_id", user.id).single(),
-      ]);
+Hˆ[™Yš[™YÂ‚ˆÛÛœİÈ\œ›Üˆ[œÙ\\œ›ÜˆHH]ØZ]İ\X˜\ÙK™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠKš[œÙ\
+Âˆ‹‹Š™]Ô™\]Y\İYÈÈYˆ™]Ô™\]Y\İYHˆßJKˆ\Ù\—ÚYˆ\Ù\ˆÈ\Ù\‹šYˆ[ˆ˜[YKˆ[XZ[ˆÛ™NˆÛ™H[ˆ™Y™\œ™YØÛÛXİˆÛÛXİ™\]Y\İYÈ™Y™\œ™YÛÛXİ[ˆ[ˆ™Y™\œ™YØØ\™WÙÙ[™\ˆÛÛXİ™\]Y\İYÈ™Y™\œ™YØ\™QÙ[™\ˆ[ˆ[ˆØ]YÛÜWÚYˆØ]YÛÜRY[ˆ™\]Y\İİ^ˆ™\]Y\İ^ˆİ]\Îˆ”İX›Z]Y‹ˆ\×ÜX›XÎˆ\ÔX›XËˆ\×Ø[›Û[[İ\Îˆ\Ğ[›Û[[İ\ËˆÛÛXİÜ™\]Y\İYˆÛÛXİ™\]Y\İYˆJNÂ‚ˆYˆ
+[œÙ\\œ›ÜŠHÂˆÙ]\œ›ÜŠ•ÙHÛİ[›İÚ\™H[İ\ˆ˜^Y\ˆ™\]Y\İˆX\ÙH™]šY]È[İ\ˆ[™›Ü›X][Ûˆ[™HYØZ[‹ˆŠNÂˆÙ]İX›Z][™Ê˜[ÙJNÂˆ™]\›ÂˆB‚ˆYˆ
+™]Ô™\]Y\İY
+HÂˆ™]Ú
+‹Ø\KÛ›İYKX\ÜÚYÛ›Y[‹ÂˆY]Ùˆ”ÔÕ‹ˆXY\œÎˆÈÛÛ[U\Hˆ˜\XØ][Û‹ÚœÛÛˆˆKˆ›ÙNˆ”ÓÓ‹œİš[™ÚYJÈ™\]Y\İYˆ™]Ô™\]Y\İYJKˆJK˜Ø]Ú
 
-      if (profile?.full_name) setName(profile.full_name);
-      if (user.email) setEmail(user.email);
-      if (profile?.full_name || user.email) setPrefilledFromProfile(true);
-      if (settings?.default_anonymous) setIsAnonymous(true);
-    }
-    loadSignedInDefaults();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+›İYšXØ][Û‘\œ›ÜŠHOˆÂˆÛÛœÛÛK™\œ›ÜŠ‘˜Z[YÈÙ[™\ÜÚYÛ›Y[›İYšXØ][Ûˆ‹›İYšXØ][Û‘\œ›ÜŠNÂˆJNÂˆB‚ˆÙ]İX›Z]Y
+YJNÂˆÙ]İX›Z][™Ê˜[ÙJNÂˆÚ[™İËœØÜ›ÛÊÈÜˆ™Z]š[ÜˆœÛ[ÛİˆJNÂˆB‚ˆYˆ
+İX›Z]Y
+HÂˆ™]\›ˆ
+ˆXZ[ˆÛ\ÜÓ˜[YOH›œ\YÙH‹LŒ‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH˜™Ë\Û]KNML^]Ú]H‚ˆ]ˆÛ\ÜÓ˜[YOH›œ\Ú[KLMˆÛNœKL‚ˆ]ˆÛ\ÜÓ˜[YOH›^X]]ÈX^]ËLŞ^XÙ[\ˆ‚ˆÜ[ˆÛ\ÜÓ˜[YOH›^X]]È›^LMˆËLMˆ][\ËXÙ[\ˆ\İYKXÙ[\ˆ›İ[™YY[™ËY[Y\˜[MÌMH^Mš[™ËLHš[™ËY[Y\˜[LÌÌÌˆ\šXKZY[HYH¼'æcÏÜÜ[‚ˆÛ\ÜÓ˜[YOH›]Mˆ^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒ™[WH^X[X™\‹LÌ”™\]Y\İÚ\™YÜ‚ˆHÛ\ÜÓ˜[YOH›]M^M›ÛX›XÚÈ˜XÚÚ[™Ë]YÚÛN^M–[İHÈ›İ]™HÈØ\œH\È[Û™KÚO‚ˆÛ\ÜÓ˜[YOH›]MH^[ÈXY[™ËN^Z[™YÛËLLÍÍH–[İ\ˆ˜^Y\ˆ™\]Y\İ\È™Y[ˆ™XÙZ]™Y[™Ú\™YXØÛÜ™[™ÈÈHš]˜XŞHÚÚXÙ\È[İHÙ[XİYˆİ\ˆ˜^Y\ˆX[HÛİ[™HÛ›Ü™YÈ˜^HÚ][İKÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›]NH›^›^]Ü˜\\İYKXÙ[\ˆØ\LÈ‚ˆ[šÈ™YH‹Ü˜^Y\ˆˆÛ\ÜÓ˜[YOH›œX]Ûˆ™Ë]Ú]H^Z[™YÛËNÚYİË^”™]\›ˆÈ˜^Y\Ó[šÏ‚ˆ[šÈ™YH‹Û^KZ›İ\›™^HˆÛ\ÜÓ˜[YOH›œX]Ûˆ›Ü™\ˆ›Ü™\‹]Ú]KÌH™Ë]Ú]KÌL^]Ú]H“Ü[ˆ^H›İ\›™^OÓ[šÏ‚ˆÙ]‚ˆÙ]‚ˆÙ]‚ˆÜÙXİ[Û‚ˆÛXZ[‚ˆ
+NÂˆB‚ˆ™]\›ˆ
+ˆXZ[ˆÛ\ÜÓ˜[YOH›œ\YÙH‹LŒ‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOHœ™[]]™Hİ™\™›İËZY[ˆ™Ë\Û]KNML^]Ú]H‚ˆ]ˆ\šXKZY[HYHˆÛ\ÜÓ˜[YOH˜XœÛÛ]H[œÙ]L™ËVÜ˜YX[YÜ˜YY[
+Ú\˜ÛWØ]ÎIWÌL	K™Ø˜JLNŒÍËŒÌŠK˜[œÜ\™[ÌÌœ™[JK˜YX[YÜ˜YY[
+Ú\˜ÛWØ]ÌL	WÌL	K™Ø˜JKNLËŒŠK˜[œÜ\™[Ì™[JWHˆÏ‚ˆ]ˆÛ\ÜÓ˜[YOH›œ\Ú[™[]]™HKLMÛNœKLŒ‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒ™[WH^X[X™\‹LÌ”˜^Y\ˆ™\]Y\İÜ‚ˆHÛ\ÜÓ˜[YOH›]MX^]ËM^M›ÛX›XÚÈ˜XÚÚ[™Ë]YÚÛN^M”Ú\™HÚ]\ÈÛˆ[İ\ˆX\ÚO‚ˆÛ\ÜÓ˜[YOH›]MHX^]ËLŞ^[ÈXY[™ËN^Z[™YÛËLLÍÍHÚÛÜÙHİÈ[İ\ˆ™\]Y\İ\ÈÚ\™YÚ]\ˆ[İHØ[\œÛÛ˜[›ÛİË]\[™İÈ]XÚY[YZ[™È[™›Ü›X][Ûˆ\Èš\ÚX›KÜ‚ˆÙ]‚ˆÜÙXİ[Û‚‚ˆ]ˆÛ\ÜÓ˜[YOH›œ\Ú[KLLÛNœKLM‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH™ÜšYØ\MHY™ÜšYXÛÛËLÈ‚ˆ[™›ĞØ\™XÛÛH¼'æcÈˆ]OH”Ú\™HÛ™\İHˆ^H•\ÙH[İ\ˆİÛˆÛÜ™Ëˆ[İHÈ›İ™YYÈXZÙHH™\]Y\İÛİ[™Û\ÚYÜˆÜ\š]X[ˆˆÏ‚ˆ[™›ĞØ\™XÛÛH¼'æèHˆ]OHÚÛÜÙH[İ\ˆš]˜XŞHˆ^H‘XÚYHÚ]\ˆH™\]Y\İX^H\X\ˆX›XÛH[™Ú]\ˆ[İ\ˆY[]HÚİ[™[XZ[ˆY[‹ˆˆÏ‚ˆ[™›ĞØ\™XÛÛH¸¦hHˆ]OH”™\]Y\İ›ÛİË]\ˆ^H\ÚÈ›Üˆ\œÛÛ˜[ÛÛXİÚ[ˆ[İHÛİ[™[™Yš]œ›ÛHY][Û˜[˜^Y\ˆ[™[˜Ûİ\˜YÙ[Y[ˆˆÏ‚ˆÜÙXİ[Û‚‚ˆ›Ü›HÛ”İX›Z]^Ú[™TİX›Z]HÛ\ÜÓ˜[YOH›^X]]È]LLX^]ËLŞÜXÙK^KN›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹\Û]KLŒ™Ë]Ú]HMˆÚYİËLÛNœLL‚ˆÙXİ[Û‚ˆÛ\ÜÓ˜[YOH›œY^YXœ›İÈ–[İ\ˆ[™›Ü›X][ÛÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›]MHÜšYØ\MHÛN™ÜšYXÛÛËLˆ‚ˆšY[X™[H–[İ\ˆ˜[YHˆ[›ÜHœ˜^Y\‹[˜[YH‚ˆ[œ]YHœ˜^Y\‹[˜[YHˆ\OH^ˆ™\]Z\™Y˜[YO^Û˜[Y_HÛÚ[™ÙO^Ê]™[
+HOˆÙ]˜[YJ]™[\™Ù]˜[YJ_HÛ\ÜÓ˜[YO^Ø	Ú[œ]Û\ÜßHZ[‹ZLLXHÏ‚ˆÜ™Yš[Yœ›ÛT›Ùš[H	‰ˆÛ\ÜÓ˜[YOH›]Lˆ^^ÈXY[™ËMH^\Û]KML‘š[Yœ›ÛH[İ\ˆ›Ùš[KˆÚ[™ÙH]Ú[ˆİX›Z][™ÈÛˆÛÛY[Û™H[Ùx &\È™Z[‹ÜŸBˆÑšY[‚ˆšY[X™[H‘[XZ[ˆ[›ÜHœ˜^Y\‹Y[XZ[‚ˆ[œ]YHœ˜^Y\‹Y[XZ[ˆ\OH™[XZ[ˆ™\]Z\™Y˜[YO^Ù[XZ[HÛÚ[™ÙO^Ê]™[
+HOˆÙ][XZ[
+]™[\™Ù]˜[YJ_HÛ\ÜÓ˜[YO^Ø	Ú[œ]Û\ÜßHZ[‹ZLLXHÏ‚ˆÑšY[‚ˆšY[X™[H”Û™H[X™\ˆ
+Ü[Û˜[
+Hˆ[›ÜHœ˜^Y\‹\Û™H‚ˆ[œ]YHœ˜^Y\‹\Û™Hˆ\OH[ˆ˜[YO^ÜÛ™_HÛÚ[™ÙO^Ê]™[
+HOˆÙ]Û™J]™[\™Ù]˜[YJ_HÛ\ÜÓ˜[YO^Ø	Ú[œ]Û\ÜßHZ[‹ZLLXHÏ‚ˆÑšY[‚ˆšY[X™[H”˜^Y\ˆØ]YÛÜHˆ[›ÜHœ˜^Y\‹XØ]YÛÜH‚ˆÙ[XİYHœ˜^Y\‹XØ]YÛÜHˆ™\]Z\™Y˜[YO^ØØ]YÛÜRYHÛÚ[™ÙO^Ê]™[
+HOˆÙ]Ø]YÛÜRY
+]™[\™Ù]˜[YJ_HÛ\ÜÓ˜[YO^Ø	Ú[œ]Û\ÜßHZ[‹ZLLXO‚ˆÜ[Ûˆ˜[YOHˆ”Ù[XİHØ]YÛÜOÛÜ[Û‚ˆØØ]YÛÜšY\Ë›X\
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    setError("");
-
-    if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !captchaToken) {
-      setError("Please complete the security check before sharing your request.");
-      return;
-    }
-
-    setSubmitting(true);
-
-    const captchaCheck = await fetch("/api/verify-turnstile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: captchaToken }),
-    }).then((response) => response.json());
-
-    if (!captchaCheck.success) {
-      setError(captchaCheck.error ?? "We could not verify the security check. Please try again.");
-      setSubmitting(false);
-      return;
-    }
-
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
-    const newRequestId = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : undefined;
-
-    const { error: insertError } = await supabase.from("prayer_requests").insert({
-      ...(newRequestId ? { id: newRequestId } : {}),
-      user_id: user ? user.id : null,
-      name,
-      email,
-      phone: phone || null,
-      preferred_contact: contactRequested ? preferredContact || null : null,
-      preferred_care_gender: contactRequested ? preferredCareGender || null : null,
-      category_id: categoryId || null,
-      request_text: requestText,
-      is_public: isPublic,
-      is_anonymous: isAnonymous,
-      contact_requested: contactRequested,
-    });
-
-    if (insertError) {
-      setError("We could not share your prayer request. Please review your information and try again.");
-      setSubmitting(false);
-      return;
-    }
-
-    if (newRequestId) {
-      fetch("/api/notify-assignment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requestId: newRequestId }),
-      }).catch((notificationError) => {
-        console.error("Failed to send assignment notification:", notificationError);
-      });
-    }
-
-    setSubmitted(true);
-    setSubmitting(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  if (submitted) {
-    return (
-      <main className="lfp-page pb-20">
-        <section className="bg-slate-950 text-white">
-          <div className="lfp-shell py-16 sm:py-24">
-            <div className="mx-auto max-w-3xl text-center">
-              <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-400/15 text-4xl ring-1 ring-emerald-300/30" aria-hidden="true">ğŸ™</span>
-              <p className="mt-6 text-xs font-black uppercase tracking-[0.2em] text-amber-300">Request Shared</p>
-              <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">You do not have to carry this alone.</h1>
-              <p className="mt-5 text-lg leading-8 text-indigo-100/75">Your prayer request has been received and shared according to the privacy choices you selected. Our prayer team would be honored to pray with you.</p>
-              <div className="mt-9 flex flex-wrap justify-center gap-3">
-                <Link href="/prayer" className="lfp-button bg-white text-indigo-800 shadow-xl">Return to Prayer</Link>
-                <Link href="/my-journey" className="lfp-button border border-white/25 bg-white/10 text-white">Open My Journey</Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
-  return (
-    <main className="lfp-page pb-20">
-      <section className="relative overflow-hidden bg-slate-950 text-white">
-        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_85%_10%,rgba(124,58,237,0.32),transparent_32rem),radial-gradient(circle_at_10%_100%,rgba(245,190,67,0.2),transparent_28rem)]" />
-        <div className="lfp-shell relative py-14 sm:py-20">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Prayer Request</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-black tracking-tight sm:text-6xl">Share what is on your heart.</h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">Choose how your request is shared, whether you want personal follow-up, and how much identifying information is visible.</p>
-        </div>
-      </section>
-
-      <div className="lfp-shell py-10 sm:py-14">
-        <section className="grid gap-5 md:grid-cols-3">
-          <InfoCard icon="ğŸ™" title="Share honestly" text="Use your own words. You do not need to make the request sound polished or spiritual." />
-          <InfoCard icon="ğŸ›¡" title="Choose your privacy" text="Decide whether the request may appear publicly and whether your identity should remain hidden." />
-          <InfoCard icon="â™¡" title="Request follow-up" text="Ask for personal contact when you would benefit from additional prayer and encouragement." />
-        </section>
-
-        <form onSubmit={handleSubmit} className="mx-auto mt-10 max-w-3xl space-y-8 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl sm:p-10">
-          <section>
-            <p className="lfp-eyebrow">Your information</p>
-            <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <Field label="Your name" htmlFor="prayer-name">
-                <input id="prayer-name" type="text" required value={name} onChange={(event) => setName(event.target.value)} className={`${inputClass} min-h-11`} />
-                {prefilledFromProfile && <p className="mt-2 text-xs leading-5 text-slate-500">Filled from your profile. Change it when submitting on someone elseâ€™s behalf.</p>}
-              </Field>
-              <Field label="Email" htmlFor="prayer-email">
-                <input id="prayer-email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} className={`${inputClass} min-h-11`} />
-              </Field>
-              <Field label="Phone number (optional)" htmlFor="prayer-phone">
-                <input id="prayer-phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} className={`${inputClass} min-h-11`} />
-              </Field>
-              <Field label="Prayer category" htmlFor="prayer-category">
-                <select id="prayer-category" required value={categoryId} onChange={(event) => setCategoryId(event.target.value)} className={`${inputClass} min-h-11`}>
-                  <option value="">Select a category</option>
-                  {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
-                </select>
-              </Field>
-            </div>
-          </section>
-
-          <section className="border-t border-slate-200 pt-8">
-            <Field label="Your prayer request" htmlFor="prayer-request">
-              <textarea id="prayer-request" required rows={7} value={requestText} onChange={(event) => setRequestText(event.target.value)} className={`${inputClass} min-h-11`} />
-              <p className="mt-3 text-sm leading-6 text-slate-500">Protect other peopleâ€™s privacy. Avoid full names or sensitive medical, legal, financial, and contact information unless you have permission to share it.</p>
-            </Field>
-          </section>
-
-          <section className="border-t border-slate-200 pt-8">
-            <p className="lfp-eyebrow">Privacy and care choices</p>
-            <div className="mt-5 space-y-3">
-              <Choice checked={isPublic} onChange={setIsPublic} title="Allow this request on the public Prayer Wall" description="Approved requests may be viewed and prayed for by signed-in community members." />
-              <Choice checked={isAnonymous} onChange={setIsAnonymous} title="Share this request anonymously" description="Your personal information will not appear with the request on the public wall." />
-              <Choice checked={contactRequested} onChange={setContactRequested} title="I would like personal follow-up" description="An authorized care-team member may contact you using your selected method." />
-            </div>
-          </section>
-
-          {contactRequested && (
-            <section className="grid gap-5 rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5 sm:grid-cols-2">
-              <Field label="Preferred contact method" htmlFor="preferred-contact">
-                <select id="preferred-contact" required value={preferredContact} onChange={(event) => setPreferredContact(event.target.value)} className={`${inputClass} min-h-11`}>
-                  <option value="">Select an option</option>
-                  <option value="Email">Email</option>
-                  <option value="Phone Call">Phone call</option>
-                  <option value="Text Message">Text message</option>
-                </select>
-              </Field>
-              <Field label="Preferred care-team gender (optional)" htmlFor="preferred-care-gender">
-                <select id="preferred-care-gender" value={preferredCareGender} onChange={(event) => setPreferredCareGender(event.target.value)} className={`${inputClass} min-h-11`}>
-                  <option value="">No preference</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                </select>
-              </Field>
-            </section>
-          )}
-
-          <section className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
-            <h2 className="font-black text-slate-950">Before you share</h2>
-            <p className="mt-2">Your request may be shared with authorized prayer and care-team members for prayer, moderation, assignment, and requested follow-up. It will never be sold or used outside the ministry of The Lost and Found Project.</p>
-            <p className="mt-3">This form is not monitored for emergencies and is not a substitute for professional medical, legal, or mental-health care. If someone is in immediate danger, contact local emergency services.</p>
-          </section>
-
-          <TurnstileWidget onVerify={setCaptchaToken} onExpire={() => setCaptchaToken("")} />
-
-          {error && <div role="alert" aria-live="polite" className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 font-semibold text-rose-800">{error}</div>}
-
-          <button type="submit" disabled={submitting} className="lfp-button lfp-button-primary w-full sm:w-auto disabled:cursor-not-allowed disabled:opacity-60">
-            {submitting ? "Sharing your request..." : "Share Prayer Request"}
-          </button>
-        </form>
-      </div>
-    </main>
-  );
-}
-
-function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: React.ReactNode }) {
-  return <div><label htmlFor={htmlFor} className="block text-sm font-black text-slate-800">{label}</label>{children}</div>;
-}
-
-function Choice({ checked, onChange, title, description }: { checked: boolean; onChange: (checked: boolean) => void; title: string; description: string }) {
-  return (
-    <label className="flex cursor-pointer items-start gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-indigo-200 hover:bg-indigo-50/40">
-      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} className="mt-1 h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
-      <span><span className="block font-black text-slate-950">{title}</span><span className="mt-1 block text-sm leading-6 text-slate-600">{description}</span></span>
-    </label>
-  );
-}
-
-function InfoCard({ icon, title, text }: { icon: string; title: string; text: string }) {
-  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
-}
+Ø]YÛÜJHOˆÜ[ÛˆÙ^O^ØØ]YÛÜKšYH˜[YO^ØØ]YÛÜKšYOØØ]YÛÜK›˜[Y_OÛÜ[ÛŠ_BˆÜÙ[Xİ‚ˆÑšY[‚ˆÙ]‚ˆÜÙXİ[Û‚‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH˜›Ü™\‹]›Ü™\‹\Û]KLŒN‚ˆšY[X™[H–[İ\ˆ˜^Y\ˆ™\]Y\İˆ[›ÜHœ˜^Y\‹\™\]Y\İ‚ˆ^\™XHYHœ˜^Y\‹\™\]Y\İˆ™\]Z\™Y›İÜÏ^ÍßH˜[YO^Ü™\]Y\İ^HÛÚ[™ÙO^Ê]™[
+HOˆÙ]™\]Y\İ^
+]™[\™Ù]˜[YJ_HÛ\ÜÓ˜[YO^Ø	Ú[œ]Û\ÜßHZ[‹ZLLXHÏ‚ˆÛ\ÜÓ˜[YOH›]LÈ^\ÛHXY[™ËMˆ^\Û]KML”›İXİİ\ˆ[Üx &\Èš]˜XŞKˆ]›ÚY[˜[Y\ÈÜˆÙ[œÚ]]™HYYXØ[YØ[š[˜[˜ÚX[[™ÛÛXİ[™›Ü›X][Ûˆ[›\ÜÈ[İH]™H\›Z\ÜÚ[ÛˆÈÚ\™H]Ü‚ˆÑšY[‚ˆÜÙXİ[Û‚‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH˜›Ü™\‹]›Ü™\‹\Û]KLŒN‚ˆÛ\ÜÓ˜[YOH›œY^YXœ›İÈ”š]˜XŞH[™Ø\™HÚÚXÙ\ÏÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›]MHÜXÙK^KLÈ‚ˆÚÚXÙHÚXÚÙY^Ú\ÔX›XßHÛÚ[™ÙO^ÜÙ]\ÔX›XßH]OH[İÈ\È™\]Y\İÛˆHX›XÈ˜^Y\ˆØ[ˆ\ØÜš\[ÛH\›İ™Y™\]Y\İÈX^H™HšY]ÙY[™˜^YY›ÜˆHÚYÛ™YZ[ˆÛÛ[][š]HY[X™\œËˆˆÏ‚ˆÚÚXÙHÚXÚÙY^Ú\Ğ[›Û[[İ\ßHÛÚ[™ÙO^ÜÙ]\Ğ[›Û[[İ\ßH]OH”Ú\™H\È™\]Y\İ[›Û[[İ\ÛHˆ\ØÜš\[ÛH–[İ\ˆ\œÛÛ˜[[™›Ü›X][ÛˆÚ[›İ\X\ˆÚ]H™\]Y\İÛˆHX›XÈØ[ˆˆÏ‚ˆÚÚXÙHÚXÚÙY^ØÛÛXİ™\]Y\İYHÛÚ[™ÙO^ÜÙ]ÛÛXİ™\]Y\İYH]OH’HÛİ[ZÙH\œÛÛ˜[›ÛİË]\ˆ\ØÜš\[ÛH[ˆ]]Üš^™YØ\™K]X[HY[X™\ˆX^HÛÛXİ[İH\Ú[™È[İ\ˆÙ[XİYY]ÙˆˆÏ‚ˆÙ]‚ˆÜÙXİ[Û‚‚ˆØÛÛXİ™\]Y\İY	‰ˆ
+ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH™ÜšYØ\MH›İ[™YLŞ›Ü™\ˆ›Ü™\‹Z[™YÛËLL™ËZ[™YÛËMLÍÌMHÛN™ÜšYXÛÛËLˆ‚ˆšY[X™[H”™Y™\œ™YÛÛXİY]Ùˆ[›ÜHœ™Y™\œ™YXÛÛXİ‚ˆÙ[XİYHœ™Y™\œ™YXÛÛXİˆ™\]Z\™Y˜[YO^Ü™Y™\œ™YÛÛXİHÛÚ[™ÙO^Ê]™[
+HOˆÙ]™Y™\œ™YÛÛXİ
+]™[\™Ù]˜[YJ_HÛ\ÜÓ˜[YO^Ø	Ú[œ]Û\ÜßHZ[‹ZLLXO‚ˆÜ[Ûˆ˜[YOHˆ”Ù[Xİ[ˆÜ[ÛÛÜ[Û‚ˆÜ[Ûˆ˜[YOH‘[XZ[‘[XZ[ÛÜ[Û‚ˆÜ[Ûˆ˜[YOH”Û™HØ[”Û™HØ[ÛÜ[Û‚ˆÜ[Ûˆ˜[YOH•^Y\ÜØYÙH•^Y\ÜØYÙOÛÜ[Û‚ˆÜÙ[Xİ‚ˆÑšY[‚ˆšY[X™[H”™Y™\œ™YØ\™K]X[HÙ[™\ˆ
+Ü[Û˜[
+Hˆ[›ÜHœ™Y™\œ™YXØ\™KYÙ[™\ˆ‚ˆÙ[XİYHœ™Y™\œ™YXØ\™KYÙ[™\ˆˆ˜[YO^Ü™Y™\œ™YØ\™QÙ[™\ŸHÛÚ[™ÙO^Ê]™[
+HOˆÙ]™Y™\œ™YØ\™QÙ[™\Š]™[\™Ù]˜[YJ_HÛ\ÜÓ˜[YO^Ø	Ú[œ]Û\ÜßHZ[‹ZLLXO‚ˆÜ[Ûˆ˜[YOHˆ“›È™Y™\™[˜ÙOÛÜ[Û‚ˆÜ[Ûˆ˜[YOH›X[H“X[OÛÜ[Û‚ˆÜ[Ûˆ˜[YOH™™[X[H‘™[X[OÛÜ[Û‚ˆÜÙ[Xİ‚ˆÑšY[‚ˆÜÙXİ[Û‚ˆ
+_B‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOHœ›İ[™YLŞ›Ü™\ˆ›Ü™\‹\Û]KLŒ™Ë\Û]KMLMH^\ÛHXY[™ËMˆ^\Û]KMŒ‚ˆˆÛ\ÜÓ˜[YOH™›ÛX›XÚÈ^\Û]KNML™Y›Ü™H[İHÚ\™OÚ‚ˆÛ\ÜÓ˜[YOH›]Lˆ–[İ\ˆ™\]Y\İX^H™HÚ\™YÚ]]]Üš^™Y˜^Y\ˆ[™Ø\™K]X[HY[X™\œÈ›Üˆ˜^Y\‹[Ù\˜][Û‹\ÜÚYÛ›Y[[™™\]Y\İY›ÛİË]\ˆ]Ú[™]™\ˆ™HÛÛÜˆ\ÙYİ]ÚYHHZ[š\İHÙˆHÜİ[™›İ[™›Ú™XİÜ‚ˆÛ\ÜÓ˜[YOH›]LÈ•\È›Ü›H\È›İ[Ûš]Ü™Y›Üˆ[Y\™Ù[˜ÚY\È[™\È›İHİXœİ]]H›Üˆ›Ù™\ÜÚ[Û˜[YYXØ[YØ[ÜˆY[[ZX[Ø\™KˆYˆÛÛY[Û™H\È[ˆ[[YYX]H[™Ù\‹ÛÛXİØØ[[Y\™Ù[˜ŞHÙ\šXÙ\ËÜ‚ˆÜÙXİ[Û‚‚ˆ\›œİ[UÚYÙ]Û•™\šYO^ÜÙ]Ø\ÚUÚÙ[ŸHÛ‘^\™O^Ê
+HOˆÙ]Ø\ÚUÚÙ[ŠˆŠ_HÏ‚‚ˆÙ\œ›Üˆ	‰ˆ]ˆ›ÛOH˜[\ˆ\šXK[]™OHœÛ]HˆÛ\ÜÓ˜[YOHœ›İ[™YL›Ü™\ˆ›Ü™\‹\›ÜÙKLŒ™Ë\›ÜÙKMLMKLÈ›Û\Ù[ZX›Û^\›ÜÙKNÙ\œ›ÜŸOÙ]ŸB‚ˆ]Ûˆ\OHœİX›Z]ˆ\ØX›Y^ÜİX›Z][™ßHÛ\ÜÓ˜[YOH›œX]ÛˆœX]Û‹\š[X\HËY[ÛNËX]]È\ØX›Y˜İ\œÛÜ‹[›İX[İÙY\ØX›Y›ÜXÚ]KMŒ‚ˆÜİX›Z][™ÈÈ”Ú\š[™È[İ\ˆ™\]Y\İ‹‹ˆˆˆ”Ú\™H˜^Y\ˆ™\]Y\İŸBˆØ]Û‚ˆÙ›Ü›O‚ˆÙ]‚ˆÛXZ[‚ˆ
+NÂŸB‚™[˜İ[ÛˆšY[
+ÈX™[[›Ü‹Ú[™[ˆNˆÈX™[ˆİš[™ÎÈ[›Üˆİš[™ÎÈÚ[™[ˆ™XXİ”™XXİ›ÙHJHÂˆ™]\›ˆ]X™[[›Ü^Ú[›ÜŸHÛ\ÜÓ˜[YOH˜›ØÚÈ^\ÛH›ÛX›XÚÈ^\Û]KNÛX™[OÛX™[ØÚ[™[ŸOÙ]ÂŸB‚™[˜İ[ÛˆÚÚXÙJÈÚXÚÙYÛÚ[™ÙK]K\ØÜš\[ÛˆNˆÈÚXÚÙYˆ›ÛÛX[ÈÛÚ[™ÙNˆ
+ÚXÚÙYˆ›ÛÛX[ŠHOˆ›ÚYÈ]Nˆİš[™ÎÈ\ØÜš\[Ûˆİš[™ÈJHÂˆ™]\›ˆ
+ˆX™[Û\ÜÓ˜[YOH™›^İ\œÛÜ‹\Ú[\ˆ][\Ë\İ\Ø\M›İ[™YL›Ü™\ˆ›Ü™\‹\Û]KLŒ™Ë]Ú]HM˜[œÚ][Ûˆİ™\˜›Ü™\‹Z[™YÛËLŒİ™\˜™ËZ[™YÛËMLÍ‚ˆ[œ]\OH˜ÚXÚØ›ŞˆÚXÚÙY^ØÚXÚÙYHÛÚ[™ÙO^Ê]™[
+HOˆÛÚ[™ÙJ]™[\™Ù]˜ÚXÚÙY
+_HÛ\ÜÓ˜[YOH›]LHMHËMH›İ[™Y›Ü™\‹\Û]KLÌ^Z[™YÛËMŒ›Øİ\Îœš[™ËZ[™YÛËMLˆÏ‚ˆÜ[Ü[ˆÛ\ÜÓ˜[YOH˜›ØÚÈ›ÛX›XÚÈ^\Û]KNMLİ]_OÜÜ[Ü[ˆÛ\ÜÓ˜[YOH›]LH›ØÚÈ^\ÛHXY[™ËMˆ^\Û]KMŒÙ\ØÜš\[ÛŸOÜÜ[ÜÜ[‚ˆÛX™[‚ˆ
+NÂŸB‚™[˜İ[Ûˆ[™›ĞØ\™
+ÈXÛÛ‹]K^NˆÈXÛÛˆİš[™ÎÈ]Nˆİš[™ÎÈ^ˆİš[™ÈJHÂˆ™]\›ˆ\XÛHÛ\ÜÓ˜[YOH›œXØ\™MˆÜ[ˆÛ\ÜÓ˜[YOH^LŞˆ\šXKZY[HYHÚXÛÛŸOÜÜ[ˆÛ\ÜÓ˜[YOH›]MH^^›ÛX›XÚÈ^\Û]KNMLİ]_OÚÛ\ÜÓ˜[YOH›]LÈXY[™ËMÈ^\Û]KMŒİ^OÜØ\XÛOÂŸB

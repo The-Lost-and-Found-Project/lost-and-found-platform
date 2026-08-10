@@ -1,76 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™^™\]Y\İ™^™\ÜÛœÙHHœ›ÛH›™^ÜÙ\™\ˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\ÜÈÜ™X]PYZ[ÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØYZ[ˆÂ‚˜ÛÛœİSÕÑQÑ’QSÈHÂˆ˜Xİ[Û—ØÛÛXİYØ]‹ˆ˜Xİ[Û—Ü˜^YYØ]‹ˆ˜Xİ[Û—İ\]WÜÙ[Ø]‹ˆ›\İØXİ[Û—Ø]‹ˆ™›Ûİ×İ\Û™YYY‹ˆ™›Ûİ×İ\Ù]H‹ˆ˜[œİÙ\™Y‹ˆœİ]\È‹ˆœ˜Z\ÙWÜ™\Ü‹—H\ÈÛÛœİÂ‚˜ÛÛœİSÕÑQÔÕUTÑTÈHÂˆ”İX›Z]Y‹”™]šY]ÙY‹\ÜÚYÛ™Y‹Xİ]™HØ\™H‹‘›ÛİËU\‹ˆ”™\ÛÛ™Y‹ÛÜÙY‹“™YYÈ™X\ÜÚYÛ›Y[‹‘\ØØ[]Y‹ˆ•[˜X›HÈÛÛXİ‹•Ú]˜]Ûˆ‹—NÂ‚™^Ü\Ş[˜È[˜İ[ÛˆÔÕ
+™\]Y\İˆ™^™\]Y\İ
+HÂˆHÂˆÛÛœİ›ÙHH]ØZ]™\]Y\İšœÛÛŠ
+NÂˆÛÛœİÈ™\]Y\İYÚ[™Ù\ÈHH›ÙHÏÈßNÂ‚ˆYˆ
+\™\]Y\İYXÚ[™Ù\È\[ÙˆÚ[™Ù\ÈOOH›Øš™XİŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ“Z\ÜÚ[™È™\]Y\İYÜˆÚ[™Ù\ÈˆKˆÈİ]\ÎˆBˆ
+NÂˆB‚ˆÛÛœİ[˜[YšY[HØš™XİšÙ^\ÊÚ[™Ù\ÊK™š[™
+ˆ
+Ù^JHOˆPSÕÑQÑ’QSËš[˜ÛY\ÊÙ^H\È
+\[ÙˆSÕÑQÑ’QSÊVÛ[X™\—JBˆ
+NÂˆYˆ
+[˜[YšY[
+HÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜˆšY[›İ[İÙYˆ	Ú[˜[YšY[XKˆÈİ]\ÎˆBˆ
+NÂˆB‚ˆYˆ
+Ú[™Ù\Ëœİ]\È	‰ˆPSÕÑQÔÕUTÑTËš[˜ÛY\ÊÚ[™Ù\Ëœİ]\ÊJHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ’[˜[Y˜^Y\ˆÛÜšÙ›İÈİ]\ÈˆKÈİ]\ÎˆJNÂˆB‚ˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
 
-const ALLOWED_FIELDS = [
-  "action_contacted_at",
-  "action_prayed_at",
-  "action_update_sent_at",
-  "last_action_at",
-  "follow_up_needed",
-  "follow_up_date",
-  "answered",
-  "status",
-  "praise_report",
-] as const;
+NÂˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂ‚ˆYˆ
+]\Ù\ŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ“›İ]][XØ]YˆKÈİ]\ÎˆHJNÂˆB‚ˆÛÛœİYZ[ˆHÜ™X]PYZ[ÛY[
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { requestId, changes } = body ?? {};
-
-    if (!requestId || !changes || typeof changes !== "object") {
-      return NextResponse.json(
-        { error: "Missing requestId or changes" },
-        { status: 400 }
-      );
-    }
-
-    const invalidField = Object.keys(changes).find(
-      (key) => !ALLOWED_FIELDS.includes(key as (typeof ALLOWED_FIELDS)[number])
-    );
-    if (invalidField) {
-      return NextResponse.json(
-        { error: `Field not allowed: ${invalidField}` },
-        { status: 400 }
-      );
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    const admin = createAdminClient();
-    const { data, error } = await admin
-      .from("prayer_requests")
-      .update(changes)
-      .eq("id", requestId)
-      .eq("assigned_to", user.id)
-      .eq("archived", false)
-      .select(
-        "id, action_contacted_at, action_prayed_at, action_update_sent_at, last_action_at, follow_up_needed, follow_up_date, answered, status, praise_report"
-      )
-      .maybeSingle();
-
-    if (error) throw error;
-    if (!data) {
-      return NextResponse.json(
-        { error: "Assignment not found or no longer assigned to you" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({ success: true, request: data });
-  } catch (err) {
-    console.error("update prayer assignment error:", err);
-    return NextResponse.json(
-      { error: "Unexpected error updating prayer assignment" },
-      { status: 500 }
-    );
-  }
-}
+NÂˆÛÛœİÈ]K\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆ\]JÚ[™Ù\ÊBˆ™\JšY‹™\]Y\İY
+Bˆ™\J˜\ÜÚYÛ™YİÈ‹\Ù\‹šY
+Bˆ™\J˜\˜Ú]™Y‹˜[ÙJBˆœÙ[Xİ
+ˆšYXİ[Û—ØÛÛXİYØ]Xİ[Û—Ü˜^YYØ]Xİ[Û—İ\]WÜÙ[Ø]\İØXİ[Û—Ø]›Ûİ×İ\Û™YYY›Ûİ×İ\Ù]K[œİÙ\™Yİ]\Ë˜Z\ÙWÜ™\Ü‚ˆ
+Bˆ›X^X™TÚ[™ÛJ
+NÂ‚ˆYˆ
+\œ›ÜŠH›İÈ\œ›ÜÂˆYˆ
+Y]JHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ\ÜÚYÛ›Y[›İ›İ[™Üˆ›ÈÛ™Ù\ˆ\ÜÚYÛ™YÈ[İHˆKˆÈİ]\ÎˆBˆ
+NÂˆB‚ˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈİXØÙ\ÜÎˆYK™\]Y\İˆ]HJNÂˆHØ]Ú
+\œŠHÂˆÛÛœÛÛK™\œ›ÜŠ\]H˜^Y\ˆ\ÜÚYÛ›Y[\œ›Üˆ‹\œŠNÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ•[™^XİY\œ›Üˆ\][™È˜^Y\ˆ\ÜÚYÛ›Y[ˆKˆÈİ]\ÎˆLBˆ
+NÂˆBŸB

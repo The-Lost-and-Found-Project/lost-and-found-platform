@@ -1,158 +1,34 @@
-"use client";
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçH\ÙHÛY[Â‚š[\ÜÈ\ÙQY™™Xİ\ÙSY[[Ë\ÙTİ]HHœ›ÛHœ™XXİÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØÛY[Â‚‹ËÈZ[š\İH]˜Z[Xš[]HÛÛ›ÛÈ™]ÈØ\™H\ÜÚYÛ›Y[ÈÛ›Kˆ]™]™\ˆ\ØX›\Â‹ËÈÙÚ[ÈXØÛİ[XØÙ\ÜÈ™[XZ[œÈ[ˆ^XÚ]YZ[š\İ˜]]™HXÚ\Ú[Û‹‚™^ÜY˜][[˜İ[Ûˆ›İ][Û”İ]\Ó[Ù[
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+HÂˆÛÛœİİ\X˜\ÙHH\ÙSY[[Ê
 
-// Mounted once, globally (see app/layout.tsx), so it checks the signed-in
-// user's rotation_status on every fresh app open, per Chad's spec: a
-// member paused for neglecting an assignment gets a popup with a
-// self-service "Unpause" option (30-day window), and a member who's
-// fallen all the way through to 'inactive' gets a popup with a "Reactivate"
-// option that submits a request pending admin approval. Regular members
-// (rotation_status stays 'active' by default) never see this â€” it's a
-// no-op for them. Dismissing just closes it for the current app session;
-// it'll check again next time the app is opened, since nothing here is
-// persisted to localStorage.
-export default function RotationStatusModal() {
-  const supabase = createClient();
-  const [status, setStatus] = useState<string | null>(null);
-  const [reinstatementRequestedAt, setReinstatementRequestedAt] = useState<
-    string | null
-  >(null);
-  const [dismissed, setDismissed] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+HOˆÜ™X]PÛY[
 
-  useEffect(() => {
-    async function load() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+K×JNÂˆÛÛœİØ]˜Z[Xš[]KÙ]]˜Z[Xš[]WHH\ÙTİ]Oİš[™È[Š[
+NÂˆÛÛœİÛZ\ÜÙY\ÜÚYÛ›Y[Ûİ[Ù]Z\ÜÙY\ÜÚYÛ›Y[Ûİ[HH\ÙTİ]J
+NÂˆÛÛœİÙ\ÛZ\ÜÙYÙ]\ÛZ\ÜÙYHH\ÙTİ]J˜[ÙJNÂ‚ˆ\ÙQY™™Xİ
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("rotation_status, reinstatement_requested_at")
-        .eq("id", user.id)
-        .single();
 
-      if (profile) {
-        setStatus(profile.rotation_status ?? "active");
-        setReinstatementRequestedAt(profile.reinstatement_requested_at ?? null);
-      }
-    }
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+HOˆÂˆ]Ø[˜Ù[YH˜[ÙNÂ‚ˆ\Ş[˜È[˜İ[ÛˆØY
 
-  async function handleUnpause() {
-    setError("");
-    setBusy(true);
-    try {
-      const res = await fetch("/api/rotation/unpause", { method: "POST" });
-      const body = await res.json();
-      if (!res.ok) {
-        setError(body?.error ?? "Failed to unpause your account");
-      } else {
-        setDismissed(true);
-      }
-    } catch {
-      setError("Failed to unpause your account");
-    } finally {
-      setBusy(false);
-    }
-  }
+HÂˆÛÛœİÈ]NˆÈ\Ù\ˆHHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂˆYˆ
+]\Ù\ˆØ[˜Ù[Y
+H™]\›Â‚ˆÛÛœİÈ]Nˆ›Ùš[HHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
+›Z[š\İWØ]˜Z[Xš[]KZ\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ŠBˆ™\JšY‹\Ù\‹šY
+BˆœÚ[™ÛJ
+NÂ‚ˆYˆ
+XØ[˜Ù[Y
+HÂˆÙ]]˜Z[Xš[]J›Ùš[OË›Z[š\İWØ]˜Z[Xš[]HÏÈ˜]˜Z[X›HŠNÂˆÙ]Z\ÜÙY\ÜÚYÛ›Y[Ûİ[
+›Ùš[OË›Z\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ÏÈ
+NÂˆBˆB‚ˆ›ÚYØY
 
-  async function handleRequestReinstatement() {
-    setError("");
-    setBusy(true);
-    try {
-      const res = await fetch("/api/rotation/request-reinstatement", {
-        method: "POST",
-      });
-      const body = await res.json();
-      if (!res.ok) {
-        setError(body?.error ?? "Failed to request reinstatement");
-      } else {
-        setReinstatementRequestedAt(new Date().toISOString());
-      }
-    } catch {
-      setError("Failed to request reinstatement");
-    } finally {
-      setBusy(false);
-    }
-  }
+NÂˆ™]\›ˆ
 
-  if (dismissed || (status !== "paused_neglect" && status !== "inactive")) {
-    return null;
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-        {status === "paused_neglect" && (
-          <>
-            <h2 className="text-lg font-semibold text-gray-900">
-              You&apos;ve been paused from the prayer rotation
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              It looks like an assignment went 7+ days without an update, so
-              you&apos;ve been paused from receiving new prayer requests and
-              what you had was reassigned. You can unpause anytime in the
-              next 30 days â€” after that your account moves to inactive.
-            </p>
-            {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-            <div className="mt-5 flex gap-2">
-              <button
-                onClick={handleUnpause}
-                disabled={busy}
-                className="rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 disabled:opacity-60"
-              >
-                {busy ? "Unpausing..." : "Unpause My Account"}
-              </button>
-              <button
-                onClick={() => setDismissed(true)}
-                disabled={busy}
-                className="rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50"
-              >
-                Later
-              </button>
-            </div>
-          </>
-        )}
-
-        {status === "inactive" && (
-          <>
-            <h2 className="text-lg font-semibold text-gray-900">
-              Your prayer care team account is inactive
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              {reinstatementRequestedAt
-                ? "You've requested reinstatement â€” an admin needs to approve it before you're back in the rotation. You can still use the rest of the app normally in the meantime."
-                : "30 days passed without unpausing, so your account moved to inactive. You can request reinstatement any time â€” an admin will need to approve it. You can still use the rest of the app normally in the meantime."}
-            </p>
-            {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-            <div className="mt-5 flex gap-2">
-              {!reinstatementRequestedAt && (
-                <button
-                  onClick={handleRequestReinstatement}
-                  disabled={busy}
-                  className="rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 disabled:opacity-60"
-                >
-                  {busy ? "Requesting..." : "Reactivate"}
-                </button>
-              )}
-              <button
-                onClick={() => setDismissed(true)}
-                disabled={busy}
-                className="rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50"
-              >
-                {reinstatementRequestedAt ? "OK" : "Later"}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
+HOˆÈØ[˜Ù[YHYNÈNÂˆKÜİ\X˜\ÙWJNÂ‚ˆYˆ
+\ÛZ\ÜÙY
+]˜Z[Xš[]HOOH›[Z]Yˆ	‰ˆ]˜Z[Xš[]HOOHš[˜Xİ]™HŠJHÂˆ™]\›ˆ[ÂˆB‚ˆÛÛœİ[Z]YH]˜Z[Xš[]HOOH›[Z]YÂ‚ˆ™]\›ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH™š^Y[œÙ]L‹ML›^][\ËXÙ[\ˆ\İYKXÙ[\ˆ™ËX›XÚËÍM‚ˆ]ˆÛ\ÜÓ˜[YOHËY[X^]Ë\ÛH›İ[™YL™Ë]Ú]HMˆÚYİË^‚ˆˆÛ\ÜÓ˜[YOH^[È›Û\Ù[ZX›Û^YÜ˜^KNL‚ˆÛ[Z]YÈ“™]È˜^Y\ˆ\ÜÚYÛ›Y[È\™H[Z]Yˆˆ–[İH\™H›İ™XÙZ]š[™ÈZ[š\İH\ÜÚYÛ›Y[ÈŸBˆÚ‚ˆÛ\ÜÓ˜[YOH›]Lˆ^\ÛHXY[™ËMˆ^YÜ˜^KMŒ‚ˆÛ[Z]YˆÈ[ˆ[˜][™Y™\]Y\İØ\È™X\ÜÚYÛ™YÛÈH\œÛÛˆ™XÙZ]™\È[Y[HØ\™Kˆ[İ\ˆÙÚ[ˆ[™›Ü›X[\XØÙ\ÜÈ™[XZ[ˆXİ]™Kˆ	ÛZ\ÜÙY\ÜÚYÛ›Y[Ûİ[HˆÈHØ\™HXY\ˆ]\İ™]šY]È™\X]YZ\ÜÙY\ÜÚYÛ›Y[È™Y›Ü™H™]È\ÜÚYÛ›Y[È™\İ[YKˆˆˆ–[İHØ[ˆ™]\›ˆÈ]˜Z[X›Hœ›ÛH[İ\ˆ›Ùš[HÚ[ˆ[İH\™H™XYKˆŸXˆˆ–[İ\ˆZ[š\İH]˜Z[Xš[]H\È[˜Xİ]™K][İ\ˆXØÛİ[[™ÙÚ[ˆ™[XZ[ˆXİ]™Kˆ[ˆYZ[š\İ˜]ÜˆØ[ˆ™\İÜ™H\ÜÚYÛ›Y[]˜Z[Xš[]HY\ˆH[X[ˆ™]šY]ËˆŸBˆÜ‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ê
+HOˆÙ]\ÛZ\ÜÙY
+YJ_BˆÛ\ÜÓ˜[YOH›]MHZ[‹ZLLH›İ[™YY[™ËZ[™YÛËMŒMHKLˆ^\ÛH›Û\Ù[ZX›Û^]Ú]Hİ™\˜™ËZ[™YÛËML‚ˆ‚ˆÛÛ[YBˆØ]Û‚ˆÙ]‚ˆÙ]‚ˆ
+NÂŸB

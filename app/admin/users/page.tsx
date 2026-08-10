@@ -1,45 +1,18 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import AdminUsersClient from "@/components/AdminUsersClient";
-import { getEffectiveRole } from "@/lib/effective-role";
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™Y\™XİHœ›ÛH›™^Û˜]šYØ][ÛˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\ÜYZ[•\Ù\œĞÛY[œ›ÛHØÛÛ\Û™[ËĞYZ[•\Ù\œĞÛY[Âš[\ÜÈÙ]Y™™Xİ]™T›ÛHHœ›ÛHÛX‹ÙY™™Xİ]™K\›ÛHÂ‚™^ÜY˜][\Ş[˜È[˜İ[ÛˆYZ[•\Ù\œÔYÙJ
+HÂˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
 
-export default async function AdminUsersPage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, preview_role")
-    .eq("id", user.id)
-    .single();
-
-  // Use the effective role (honors an admin's preview_role override) so an
-  // admin previewing as another role sees the same restriction a real user
-  // of that role would.
-  const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
-
-  // Managing roles and deactivating accounts is admin-only, unlike the
-  // broader prayer care dashboard which is open to the whole care team
-  // (admin, prayer_team, pastor).
-  if (effectiveRole !== "admin") {
-    redirect("/dashboard");
-  }
-
-  const { data: users } = await supabase
-    .from("profiles")
-    .select(
-      "id, full_name, email, role, is_active, created_at, rotation_status, reinstatement_requested_at"
-    )
-    .order("created_at", { ascending: false });
-
-  return (
-    <AdminUsersClient users={users ?? []} currentUserId={user.id} />
-  );
-}
+NÂ‚ˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂ‚ˆYˆ
+]\Ù\ŠHÂˆ™Y\™Xİ
+‹ÛÙÚ[ˆŠNÂˆB‚ˆÛÛœİÈ]Nˆ›Ùš[HHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
+œ›ÛK™]šY]×Ü›ÛHŠBˆ™\JšY‹\Ù\‹šY
+BˆœÚ[™ÛJ
+NÂ‚ˆËÈ\ÙHHY™™Xİ]™H›ÛH
+Û›ÜœÈ[ˆYZ[‰ÜÈ™]šY]×Ü›ÛHİ™\œšYJHÛÈ[‚ˆËÈYZ[ˆ™]šY]Ú[™È\È[›İ\ˆ›ÛHÙY\ÈHØ[YH™\İšXİ[ÛˆH™X[\Ù\‚ˆËÈÙˆ]›ÛHÛİ[‚ˆÛÛœİY™™Xİ]™T›ÛHHÙ]Y™™Xİ]™T›ÛJ›Ùš[OËœ›ÛK›Ùš[OËœ™]šY]×Ü›ÛJNÂ‚ˆËÈX[˜YÚ[™È›Û\È[™XXİ]˜][™ÈXØÛİ[È\ÈYZ[‹[Û›K[›ZÙHBˆËÈœ›ØY\ˆ˜^Y\ˆØ\™H\Ú›Ø\™ÚXÚ\ÈÜ[ˆÈHÚÛHØ\™HX[BˆËÈ
+YZ[‹˜^Y\—İX[K\İÜŠK‚ˆYˆ
+Y™™Xİ]™T›ÛHOOH˜YZ[ˆŠHÂˆ™Y\™Xİ
+‹Ù\Ú›Ø\™ŠNÂˆB‚ˆÛÛœİÈ]Nˆ\Ù\œÈHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
+ˆšY[Û˜[YK[XZ[›ÛK\×ØXİ]™KÜ™X]YØ]›İ][Û—Üİ]\ËZ[š\İWØ]˜Z[Xš[]KZ\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™Y™Z[œİ][Y[Ü™\]Y\İYØ]‚ˆ
+Bˆ›Ü™\Š˜Ü™X]YØ]‹È\ØÙ[™[™Îˆ˜[ÙHJNÂ‚ˆ™]\›ˆ
+ˆYZ[•\Ù\œĞÛY[\Ù\œÏ^İ\Ù\œÈÏÈ×_Hİ\œ™[\Ù\’Y^İ\Ù\‹šYHÏ‚ˆ
+NÂŸB

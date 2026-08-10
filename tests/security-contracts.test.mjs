@@ -1,244 +1,199 @@
-import assert from "node:assert/strict";
-import { readFile, readdir } from "node:fs/promises";
-import path from "node:path";
-import test from "node:test";
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\Ü\ÜÙ\œ›ÛH››ÙN˜\ÜÙ\ÜİšXİÂš[\ÜÈ™XYš[K™XY\ˆHœ›ÛH››ÙN™œËÜ›ÛZ\Ù\ÈÂš[\Ü]œ›ÛH››ÙNœ]Âš[\Ü\İœ›ÛH››ÙN\İÂ‚˜ÛÛœİ›ÛİH›ØÙ\ÜË˜İÙ
 
-const root = process.cwd();
+NÂ‚˜\Ş[˜È[˜İ[Ûˆ›İ]Qš[\Ê\™XİÜJHÂˆÛÛœİ[šY\ÈH]ØZ]™XY\Š\™XİÜKÈÚ]š[U\\ÎˆYHJNÂˆÛÛœİ™\İYH]ØZ]›ÛZ\ÙK˜[
+ˆ[šY\Ë›X\
+\Ş[˜È
+[JHOˆÂˆÛÛœİ[]H]š›Ú[Š\™XİÜK[K›˜[YJNÂˆYˆ
+[Kš\Ñ\™XİÜJ
+JH™]\›ˆ›İ]Qš[\Ê[]
+NÂˆ™]\›ˆ[K›˜[YHOOHœ›İ]KÈˆÈÙ[]Hˆ×NÂˆJBˆ
+NÂˆ™]\›ˆ™\İY™›]
 
-async function routeFiles(directory) {
-  const entries = await readdir(directory, { withFileTypes: true });
-  const nested = await Promise.all(
-    entries.map(async (entry) => {
-      const fullPath = path.join(directory, entry.name);
-      if (entry.isDirectory()) return routeFiles(fullPath);
-      return entry.name === "route.ts" ? [fullPath] : [];
-    })
-  );
-  return nested.flat();
-}
+NÂŸB‚\İ
+˜[YZ[ˆ›İ]\È\Ú[™ÈHÙ\šXÙH›ÛH™\šYHHØ[\ˆ\È[ˆYZ[ˆ‹\Ş[˜È
 
-test("all admin routes using the service role verify the caller is an admin", async () => {
-  const files = await routeFiles(path.join(root, "app", "api", "admin"));
+HOˆÂˆÛÛœİš[\ÈH]ØZ]›İ]Qš[\Ê]š›Ú[Š›Ûİ˜\‹˜\H‹˜YZ[ˆŠJNÂ‚ˆ›Üˆ
+ÛÛœİš[HÙˆš[\ÊHÂˆÛÛœİÛİ\˜ÙHH]ØZ]™XYš[Jš[K]ŠNÂˆYˆ
+\Ûİ\˜ÙKš[˜ÛY\Ê˜Ü™X]PYZ[ÛY[ŠJHÛÛ[YNÂ‚ˆ\ÜÙ\›X]Ú
+Ûİ\˜ÙKØ]]™Ù]\Ù\—
+
+KË	Ùš[_H]\İ]][XØ]X
+NÂˆ\ÜÙ\›X]Ú
+ˆÛİ\˜ÙKˆØØ[\”›Ùš[W×œ›ÛHOOH˜YZ[ˆ‹Ëˆ	Ùš[_H]\İ™\šYHHYZ[ˆ›ÛXˆ
+NÂˆBŸJNÂ‚\İ
+››Û‹XYZ[ˆYÙH™\]Y\İÈX]™HHYZ[ˆ˜]šYØ][Ûˆ\™XH‹\Ş[˜È
 
-  for (const file of files) {
-    const source = await readFile(file, "utf8");
-    if (!source.includes("createAdminClient")) continue;
+HOˆÂˆÛÛœİYZ[”YÙ\ÈHÂˆœYÙKŞ‹ˆ˜[˜[]XÜËÜYÙKŞ‹ˆ˜\XØ][ÛœËÜYÙKŞ‹ˆ˜ÛÛ[ÜYÙKŞ‹ˆ™]›İ[ÛœËÜYÙKŞ‹ˆ™™YY˜XÚËÜYÙKŞ‹ˆš]šXKÜYÙKŞ‹ˆ\Ù\œËÜYÙKŞ‹ˆNÂ‚ˆ›Üˆ
+ÛÛœİ™[]]™T]ÙˆYZ[”YÙ\ÊHÂˆÛÛœİš[HH]š›Ú[Š›Ûİ˜\‹˜YZ[ˆ‹™[]]™T]
+NÂˆÛÛœİÛİ\˜ÙHH]ØZ]™XYš[Jš[K]ŠNÂˆ\ÜÙ\›X]Ú
+ˆÛİ\˜ÙKˆÚYˆ
 
-    assert.match(source, /auth\.getUser\(\)/, `${file} must authenticate`);
-    assert.match(
-      source,
-      /callerProfile\?\.role !== "admin"/,
-      `${file} must verify the admin role`
-    );
-  }
-});
+ÎˆZ\ĞYZ[ŸY™™Xİ]™T›ÛHOOH˜YZ[ˆŠW
+H×Êœ™Y\™Xİ
+—Ù\Ú›Ø\™—
+N×Ê—KËˆ	Ùš[_H]\İ™Y\™XİÜ™[˜\HY[X™\œÈ]Ø^Hœ›ÛHYZ[ˆ˜]šYØ][Û˜ˆ
+NÂˆBŸJNÂ‚\İ
+™]™\HÜ›Ûˆ›İ]H™\šYšY\ÈH™\˜Ù[Ü›Ûˆ™X\™\ˆÙXÜ™]‹\Ş[˜È
 
-test("non-admin page requests leave the admin navigation area", async () => {
-  const adminPages = [
-    "page.tsx",
-    "analytics/page.tsx",
-    "applications/page.tsx",
-    "content/page.tsx",
-    "devotions/page.tsx",
-    "feedback/page.tsx",
-    "trivia/page.tsx",
-    "users/page.tsx",
-  ];
+HOˆÂˆÛÛœİš[\ÈH]ØZ]›İ]Qš[\Ê]š›Ú[Š›Ûİ˜\‹˜\H‹˜Ü›ÛˆŠJNÂˆ\ÜÙ\›ÚÊš[\Ë›[™İˆ™^XİYÜ›Ûˆ›İ]\ÈŠNÂ‚ˆ›Üˆ
+ÛÛœİš[HÙˆš[\ÊHÂˆÛÛœİÛİ\˜ÙHH]ØZ]™XYš[Jš[K]ŠNÂˆ\ÜÙ\›X]Ú
+Ûİ\˜ÙKØ]]Üš^˜][Û‹Ë	Ùš[_H]\İ™XY]]Üš^˜][Û˜
+NÂˆ\ÜÙ\›X]Ú
+Ûİ\˜ÙKĞÔ“Ó—ÔÑPÔ‘UË	Ùš[_H]\İ™\]Z\™HÔ“Ó—ÔÑPÔ‘U
+NÂˆ\ÜÙ\›X]Ú
+Ûİ\˜ÙKÜİ]\Î—ÊKË	Ùš[_H]\İ™Z™Xİ[˜[YØ[\œØ
+NÂˆBŸJNÂ‚\İ
+œÙ\šXÙK\›ÛHÜ™Y[X[È™]™\ˆ\X\ˆ[ˆX›XÈ[š\›Û›Y[˜\šXX›\È‹\Ş[˜È
 
-  for (const relativePath of adminPages) {
-    const file = path.join(root, "app", "admin", relativePath);
-    const source = await readFile(file, "utf8");
-    assert.match(
-      source,
-      /if \((?:!isAdmin|effectiveRole !== "admin")\) \{\s*redirect\("\/dashboard"\);\s*\}/,
-      `${file} must redirect ordinary members away from admin navigation`
-    );
-  }
-});
+HOˆÂˆÛÛœİÛİ\˜ÙHH]ØZ]™XYš[J]š›Ú[Š›Ûİ‹™[‹™^[\HŠK]ŠNÂˆ\ÜÙ\™Ù\Ó›İX]Ú
+Ûİ\˜ÙKÓ‘VÔP“P×ÖĞKVŒNW×J”ÑT•’PÑWÔ“ÓKÊNÂˆ\ÜÙ\›X]Ú
+Ûİ\˜ÙK×”ÕTPTÑWÔÑT•’PÑWÔ“ÓWÒÑVOIÛJNÂŸJNÂ‚\İ
+›™]Ë[Y[X™\ˆÜ\˜][Û˜[›İYšXØ][ÛœÈ\™HYZ[‹[Û›H‹\Ş[˜È
 
-test("every cron route verifies the Vercel cron bearer secret", async () => {
-  const files = await routeFiles(path.join(root, "app", "api", "cron"));
-  assert.ok(files.length > 0, "expected cron routes");
+HOˆÂˆÛÛœİZYÜ˜][Û”Ûİ\˜ÙHH]ØZ]™XYš[Jˆ]š›Ú[Šˆ›Ûİˆœİ\X˜\ÙH‹ˆ›ZYÜ˜][ÛœÈ‹ˆŒŒŒÌÌMŒÍ—ØYZ[—ÛÛ›WÛY[X™\—Û›İYšXØ][ÛœËœÜ[‚ˆ
+Kˆ]‚ˆ
+NÂˆÛÛœİZ[[™›ÔÛİ\˜ÙHH]ØZ]™XYš[Jˆ]š›Ú[Š›Ûİ˜\‹˜\H‹˜Z[Z[™›È‹œ›İ]KÈŠKˆ]‚ˆ
+NÂ‚ˆ\ÜÙ\›X]Ú
+ZYÜ˜][Û”Ûİ\˜ÙKİÚ\™H›Ù—œ›ÛHH	ØYZ[‰ËÊNÂˆ\ÜÙ\™Ù\Ó›İX]Ú
+ˆZYÜ˜][Û”Ûİ\˜ÙKˆÜ›Ù—œ›ÛH[ˆ
+	ØYZ[‰Ë	Ü\İÜ‰Ë	Ü˜^Y\—İX[I×
+KÂˆ
+NÂˆ\ÜÙ\›X]Ú
+ZYÜ˜][Û”Ûİ\˜ÙKÛ—\HH	Û™]×ÛY[X™\‰ËÊNÂˆ\ÜÙ\›X]Ú
+ZYÜ˜][Û”Ûİ\˜ÙKÜ™XÚ\Y[œ›ÛHˆ	ØYZ[‰ËÊNÂˆ\ÜÙ\›X]Ú
+ˆZYÜ˜][Û”Ûİ\˜ÙKˆİ×Ü™YØÛ\Ü×
+	ÜX›X×››İYšXØ][ÛœÉ×
+H\È›İ[Âˆ
+NÂˆ\ÜÙ\›X]Ú
+ZYÜ˜][Û”Ûİ\˜ÙKİ×Ü™YØÛ\Ü×
+	ÜX›X×œ›Ùš[\É×
+H\È›İ[ÊNÂˆ\ÜÙ\›X]Ú
+Z[[™›ÔÛİ\˜ÙKÕ‘TÑSÑÒUĞÓÓSRUÔÒKÊNÂˆ\ÜÙ\™Ù\Ó›İX]Ú
+Z[[™›ÔÛİ\˜ÙKØØ[\”›Ùš[KÊNÂŸJNÂ‚\İ
+˜Ø\™K]X[H›İYšXØ][ÛœÈ\ÙHH\ÜÚYÛ›Y[Ë[Û›H\İ[˜][Ûˆ‹\Ş[˜È
 
-  for (const file of files) {
-    const source = await readFile(file, "utf8");
-    assert.match(source, /authorization/, `${file} must read authorization`);
-    assert.match(source, /CRON_SECRET/, `${file} must require CRON_SECRET`);
-    assert.match(source, /status:\s*401/, `${file} must reject invalid callers`);
-  }
-});
+HOˆÂˆÛÛœİZYÜ˜][Û”Ûİ\˜ÙHH]ØZ]™XYš[Jˆ]š›Ú[Šˆ›Ûİˆœİ\X˜\ÙH‹ˆ›ZYÜ˜][ÛœÈ‹ˆŒŒŒÌÌMŒÍŒWÜ›ÛWØ\›ÜšX]WÛ›İYšXØ][Û—Û[šÜËœÜ[‚ˆ
+Kˆ]‚ˆ
+NÂ‚ˆ\ÜÙ\›X]Ú
+ZYÜ˜][Û”Ûİ\˜ÙKÜX›X×››İYWØ]]×Ø\ÜÚYÛ™YØØ\™WİX[WÛY[X™\‹ÊNÂˆ\ÜÙ\›X]Ú
+ZYÜ˜][Û”Ûİ\˜ÙKÜX›X×››İYWÜ˜^Y\—Ü™\]Y\İØ\ÜÚYÛ™YÊNÂˆ\ÜÙ\›X]Ú
+ZYÜ˜][Û”Ûİ\˜ÙKÜX›X×››İYWÜ˜^Y\—ØØ\™WØ\XØ][Û—ÙXÚ\Ú[Û‹ÊNÂˆ\ÜÙ\›X]Ú
+ZYÜ˜][Û”Ûİ\˜ÙKÉ×Ü˜^Y\‹X\ÜÚYÛ›Y[ÉËÊNÂˆ\ÜÙ\›X]Ú
+ˆZYÜ˜][Û”Ûİ\˜ÙKˆÛ—\H[ˆ
+	Ø\ÜÚYÛ™Y	Ë	Ü˜^Y\—ØØ\™WØ\XØ][Û—Ø\›İ™Y	×
+KÂˆ
+NÂˆ\ÜÙ\›X]Ú
+ZYÜ˜][Û”Ûİ\˜ÙKÛ—]HH	Ó™]È˜^Y\ˆ™\]Y\İİX›Z]Y	ËÊNÂˆ\ÜÙ\›X]Ú
+ˆZYÜ˜][Û”Ûİ\˜ÙKˆİ×Ü™YØÛ\Ü×
+	ÜX›X×››İYšXØ][ÛœÉ×
+H\È›İ[Âˆ
+NÂˆ\ÜÙ\›X]Ú
+ZYÜ˜][Û”Ûİ\˜ÙKİ×Ü™YØÛ\Ü×
+	ÜX›X×œ›Ùš[\É×
+H\È›İ[ÊNÂŸJNÂ‚\İ
+ÛÛZ[™ÈÛÛÛˆ›ÙÜ˜[\È™[XZ[ˆ[[[Û˜[H[˜Xİ]™H‹\Ş[˜È
 
-test("service-role credentials never appear in public environment variables", async () => {
-  const source = await readFile(path.join(root, ".env.example"), "utf8");
-  assert.doesNotMatch(source, /NEXT_PUBLIC_[A-Z0-9_]*SERVICE_ROLE/);
-  assert.match(source, /^SUPABASE_SERVICE_ROLE_KEY=$/m);
-});
+HOˆÂˆÛÛœİÛİ\˜ÙHH]ØZ]™XYš[J]š›Ú[Š›Ûİ˜\‹œ›ÙÜ˜[\È‹œYÙKŞŠK]ŠNÂ‚ˆ›Üˆ
+ÛÛœİ›ÙÜ˜[HÙˆÈ”İYY\È‹“Y[Üš[™È‹‘]™[È—JHÂˆ\ÜÙ\›X]Ú
+Ûİ\˜ÙK™]È™YÑ^
+]Nˆ‰Ü›ÙÜ˜[_H˜
+JNÂˆBˆ\ÜÙ\›X]Ú
+Ûİ\˜ÙKØÛÛœİÛÛZ[™ÔÛÛÛˆKÊNÂŸJNÂ‚\İ
+œ˜^Y\ˆİX›Z\ÜÚ[ÛˆÙ[™ÈH™\]Y\İQÈH\ÜÚYÛ›Y[›İYšY\ˆ‹\Ş[˜È
 
-test("new-member operational notifications are admin-only", async () => {
-  const migrationSource = await readFile(
-    path.join(
-      root,
-      "supabase",
-      "migrations",
-      "20260730163402_admin_only_member_notifications.sql"
-    ),
-    "utf8"
-  );
-  const buildInfoSource = await readFile(
-    path.join(root, "app", "api", "build-info", "route.ts"),
-    "utf8"
-  );
+HOˆÂˆÛÛœİÛİ\˜ÙHH]ØZ]™XYš[Jˆ]š›Ú[Š›Ûİ˜\‹œ˜^Y\ˆ‹œİX›Z]‹œYÙKŞŠKˆ]‚ˆ
+NÂ‚ˆ\ÜÙ\›X]Ú
+ˆÛİ\˜ÙKˆÙ™]Ú
+—Ø\WÛ›İYKX\ÜÚYÛ›Y[–×××J’”ÓÓ—œİš[™ÚYW
+×Êœ™\]Y\İY—Ê›™]Ô™\]Y\İYÊ—W
+KËˆ˜\ÜÚYÛ›Y[›İYšXØ][Ûˆ]\İY[YHHØ]™Y˜^Y\ˆ™\]Y\İ‚ˆ
+NÂˆ\ÜÙ\™Ù\Ó›İX]Ú
+ˆÛİ\˜ÙKˆÒ”ÓÓ—œİš[™ÚYW
+Ö×××J˜\ÜÚYÛ™YRY‹ËˆHÛY[]\İ›İÙ[™\İY\ÜÚYÛ›Y[Üˆ˜^Y\ˆ]Z[È‚ˆ
+NÂˆ\ÜÙ\™Ù\Ó›İX]Ú
+ˆÛİ\˜ÙKˆ×œœ×
+Êˆ™Ù]Ü˜^Y\—Ü™\]Y\İØ\ÜÚYÛ›Y[‹ËˆHœ›İÜÙ\ˆ]\İ›İØ[H›İXİY\ÜÚYÛ›Y[ÛÚİ\[˜İ[Ûˆ‚ˆ
+NÂŸJNÂ‚\İ
+œÚYÛ™YZ[ˆ\Ù\œÈØ[ˆ™XXÚ›ÛKX]Ø\™H[X[X[Èœ›ÛHHXØÛİ[Y[H‹\Ş[˜È
 
-  assert.match(migrationSource, /where prof\.role = 'admin'/);
-  assert.doesNotMatch(
-    migrationSource,
-    /prof\.role in \('admin','pastor','prayer_team'\)/
-  );
-  assert.match(migrationSource, /n\.type = 'new_member'/);
-  assert.match(migrationSource, /recipient\.role <> 'admin'/);
-  assert.match(
-    migrationSource,
-    /to_regclass\('public\.notifications'\) is not null/
-  );
-  assert.match(migrationSource, /to_regclass\('public\.profiles'\) is not null/);
-  assert.match(buildInfoSource, /VERCEL_GIT_COMMIT_SHA/);
-  assert.doesNotMatch(buildInfoSource, /callerProfile/);
-});
+HOˆÂˆÛÛœİY[TÛİ\˜ÙHH]ØZ]™XYš[Jˆ]š›Ú[Š›Ûİ˜ÛÛ\Û™[È‹]]ÛÛ›ÛËŞŠKˆ]‚ˆ
+NÂˆÛÛœİ[Ûİ\˜ÙHH]ØZ]™XYš[J]š›Ú[Š›Ûİ˜\‹š[‹œYÙKŞŠK]ŠNÂ‚ˆ\ÜÙ\›X]Ú
+Y[TÛİ\˜ÙKÚ™Y—Êˆ—Ú[‹ÊNÂˆ\ÜÙ\›X]Ú
+Y[TÛİ\˜ÙKÛX™[—Êˆ’[	ˆ\Ù\ˆX[X[È‹ÊNÂˆ\ÜÙ\›X]Ú
+[Ûİ\˜ÙKÙY™™Xİ]™T›ÛHOOHœ˜^Y\—İX[H‹ÊNÂˆ\ÜÙ\›X]Ú
+[Ûİ\˜ÙKÙY™™Xİ]™T›ÛHOOHœ\İÜˆ‹ÊNÂˆ\ÜÙ\›X]Ú
+[Ûİ\˜ÙKÜÚİĞYZ[‘İZYOWÙY™™Xİ]™T›ÛHOOH˜YZ[ˆ—KÊNÂŸJNÂ‚\İ
+œ™\]Y\İ\ˆ™[[İ˜[\˜Ú]™\È›İYÚ[ˆ]][XØ]YÙ\™\ˆ›İ]H‹\Ş[˜È
 
-test("care-team notifications use the assignments-only destination", async () => {
-  const migrationSource = await readFile(
-    path.join(
-      root,
-      "supabase",
-      "migrations",
-      "20260730163629_role_appropriate_notification_links.sql"
-    ),
-    "utf8"
-  );
+HOˆÂˆÛÛœİÛY[Ûİ\˜ÙHH]ØZ]™XYš[Jˆ]š›Ú[Š›Ûİ˜ÛÛ\Û™[È‹“^R›İ\›™^PÛY[ŞŠKˆ]‚ˆ
+NÂˆÛÛœİ›İ]TÛİ\˜ÙHH]ØZ]™XYš[Jˆ]š›Ú[Š›Ûİ˜\‹˜\H‹››İYK\™\]Y\İ\™[[İ™Y‹œ›İ]KÈŠKˆ]‚ˆ
+NÂ‚ˆ\ÜÙ\›X]Ú
+ˆÛY[Ûİ\˜ÙKˆÙ™]Ú
+—Ø\WÛ›İYK\™\]Y\İ\™[[İ™Y–×××J’”ÓÓ—œİš[™ÚYW
+×Êœ™\]Y\İYÊ—W
+KÂˆ
+NÂˆ\ÜÙ\™Ù\Ó›İX]Ú
+ˆÛY[Ûİ\˜ÙKˆ×™œ›ÛW
+œ˜^Y\—Ü™\]Y\İÈ—
+V×××J—\]W
+×Ê˜\˜Ú]™Y—ÊYWÊ—W
+KÂˆ
+NÂˆ\ÜÙ\›X]Ú
+›İ]TÛİ\˜ÙKØ]]™Ù]\Ù\—
+
+KÊNÂˆ\ÜÙ\›X]Ú
+›İ]TÛİ\˜ÙKÜ˜^Y\”™\]Y\İ\Ù\—ÚYOOH\Ù\—šYÊNÂˆ\ÜÙ\›X]Ú
+›İ]TÛİ\˜ÙK×\]W
+×Ê˜\˜Ú]™Y—ÊYWÊ—W
+KÊNÂˆ\ÜÙ\›X]Ú
+›İ]TÛİ\˜ÙK×™\W
+\Ù\—ÚY‹\Ù\—šY
+KÊNÂŸJNÂ‚\İ
+›[šÙY˜Z\ÙH™\ÜÈØ[ˆÛ›H[œİÙ\ˆH™\]Y\İ\‰ÜÈİÛˆ˜^Y\ˆ‹\Ş[˜È
 
-  assert.match(migrationSource, /public\.notify_auto_assigned_care_team_member/);
-  assert.match(migrationSource, /public\.notify_prayer_request_assigned/);
-  assert.match(migrationSource, /public\.notify_prayer_care_application_decision/);
-  assert.match(migrationSource, /'\/prayer-assignments'/);
-  assert.match(
-    migrationSource,
-    /n\.type in \('assigned', 'prayer_care_application_approved'\)/
-  );
-  assert.match(migrationSource, /n\.title = 'New prayer request submitted'/);
-  assert.match(
-    migrationSource,
-    /to_regclass\('public\.notifications'\) is not null/
-  );
-  assert.match(migrationSource, /to_regclass\('public\.profiles'\) is not null/);
-});
+HOˆÂˆÛÛœİÛY[Ûİ\˜ÙHH]ØZ]™XYš[Jˆ]š›Ú[Š›Ûİ˜ÛÛ\Û™[È‹”˜Z\ÙTİX›Z]ÛY[ŞŠKˆ]‚ˆ
+NÂˆÛÛœİ›İ]TÛİ\˜ÙHH]ØZ]™XYš[Jˆ]š›Ú[Š›Ûİ˜\‹˜\H‹œ˜Z\ÙK\™\ÜÈ‹œİX›Z]‹œ›İ]KÈŠKˆ]‚ˆ
+NÂ‚ˆ\ÜÙ\›X]Ú
+ÛY[Ûİ\˜ÙKÙ™]Ú
+—Ø\WÜ˜Z\ÙK\™\Ü×ÜİX›Z]‹ÊNÂˆ\ÜÙ\™Ù\Ó›İX]Ú
+ÛY[Ûİ\˜ÙK×™œ›ÛW
+œ˜^Y\—Ü™\]Y\İÈ—
+KÊNÂˆ\ÜÙ\›X]Ú
+›İ]TÛİ\˜ÙKØ]]™Ù]\Ù\—
+
+KÊNÂˆ\ÜÙ\›X]Ú
+ˆ›İ]TÛİ\˜ÙKˆ×™œ›ÛW
+œ˜^Y\—Ü™\]Y\İÈ—
+V×××J—™\W
+šY‹˜^Y\”™\]Y\İY
+V×××J—™\W
+\Ù\—ÚY‹\Ù\—šY
+KÂˆ
+NÂˆ\ÜÙ\›X]Ú
+›İ]TÛİ\˜ÙK×\]W
+×Ê˜[œİÙ\™Y—ÊYKÊœİ]\Î—Êˆ”™\ÛÛ™Y—Ê—W
+KÊNÂŸJNÂ‚\İ
+œ˜^Y\ˆ\ÜÚYÛ›Y[\]\È\™HÙ\™\‹X]]Üš^™Y[™™\İšXİYÈH\ÜÚYÛ™YH‹\Ş[˜È
 
-test("Coming Soon programs remain intentionally inactive", async () => {
-  const source = await readFile(path.join(root, "app", "programs", "page.tsx"), "utf8");
-
-  for (const program of ["Studies", "Mentoring", "Events"]) {
-    assert.match(source, new RegExp(`title: "${program}"`));
-  }
-  assert.match(source, /const comingSoon =/);
-});
-
-test("prayer submission sends the request ID to the assignment notifier", async () => {
-  const source = await readFile(
-    path.join(root, "app", "prayer", "submit", "page.tsx"),
-    "utf8"
-  );
-
-  assert.match(
-    source,
-    /fetch\("\/api\/notify-assignment"[\s\S]*JSON\.stringify\(\{\s*requestId:\s*newRequestId\s*\}\)/,
-    "assignment notification must identify the saved prayer request"
-  );
-  assert.doesNotMatch(
-    source,
-    /JSON\.stringify\(\{[\s\S]*assigneeId:/,
-    "the client must not send trusted assignment or prayer details"
-  );
-  assert.doesNotMatch(
-    source,
-    /\.rpc\(\s*"get_prayer_request_assignment"/,
-    "the browser must not call the protected assignment lookup function"
-  );
-});
-
-test("signed-in users can reach role-aware help manuals from the account menu", async () => {
-  const menuSource = await readFile(
-    path.join(root, "components", "AuthControls.tsx"),
-    "utf8"
-  );
-  const helpSource = await readFile(path.join(root, "app", "help", "page.tsx"), "utf8");
-
-  assert.match(menuSource, /href:\s*"\/help"/);
-  assert.match(menuSource, /label:\s*"Help & User Manuals"/);
-  assert.match(helpSource, /effectiveRole === "prayer_team"/);
-  assert.match(helpSource, /effectiveRole === "pastor"/);
-  assert.match(helpSource, /showAdminGuide=\{effectiveRole === "admin"\}/);
-});
-
-test("requester removal archives through an authenticated server route", async () => {
-  const clientSource = await readFile(
-    path.join(root, "components", "MyJourneyClient.tsx"),
-    "utf8"
-  );
-  const routeSource = await readFile(
-    path.join(root, "app", "api", "notify-request-removed", "route.ts"),
-    "utf8"
-  );
-
-  assert.match(
-    clientSource,
-    /fetch\("\/api\/notify-request-removed"[\s\S]*JSON\.stringify\(\{\s*requestId\s*\}\)/
-  );
-  assert.doesNotMatch(
-    clientSource,
-    /\.from\("prayer_requests"\)[\s\S]*\.update\(\{\s*archived:\s*true\s*\}\)/
-  );
-  assert.match(routeSource, /auth\.getUser\(\)/);
-  assert.match(routeSource, /prayerRequest\.user_id !== user\.id/);
-  assert.match(routeSource, /\.update\(\{\s*archived:\s*true\s*\}\)/);
-  assert.match(routeSource, /\.eq\("user_id", user\.id\)/);
-});
-
-test("linked praise reports can only answer the requester's own prayer", async () => {
-  const clientSource = await readFile(
-    path.join(root, "components", "PraiseSubmitClient.tsx"),
-    "utf8"
-  );
-  const routeSource = await readFile(
-    path.join(root, "app", "api", "praise-reports", "submit", "route.ts"),
-    "utf8"
-  );
-
-  assert.match(clientSource, /fetch\("\/api\/praise-reports\/submit"/);
-  assert.doesNotMatch(clientSource, /\.from\("prayer_requests"\)/);
-  assert.match(routeSource, /auth\.getUser\(\)/);
-  assert.match(
-    routeSource,
-    /\.from\("prayer_requests"\)[\s\S]*\.eq\("id", prayerRequestId\)[\s\S]*\.eq\("user_id", user\.id\)/
-  );
-  assert.match(routeSource, /\.update\(\{\s*answered:\s*true\s*\}\)/);
-});
-
-test("prayer assignment updates are server-authorized and restricted to the assignee", async () => {
-  const clientSource = await readFile(
-    path.join(root, "components", "MyPrayerAssignmentsClient.tsx"),
-    "utf8"
-  );
-  const routeSource = await readFile(
-    path.join(root, "app", "api", "prayer-assignments", "update", "route.ts"),
-    "utf8"
-  );
-
-  assert.match(routeSource, /\.eq\("assigned_to", user\.id\)/);
-  assert.match(routeSource, /ALLOWED_FIELDS/);
-  assert.match(routeSource, /\.eq\("archived", false\)/);
-  assert.match(clientSource, /fetch\("\/api\/prayer-assignments\/update"/);
-  assert.doesNotMatch(
-    clientSource,
-    /from\("prayer_requests"\)\.update\(changes\)/
-  );
-  assert.match(clientSource, /setRequests\(\(prev\) =>[\s\S]*previous/);
-});
+HOˆÂˆÛÛœİÛY[Ûİ\˜ÙHH]ØZ]™XYš[Jˆ]š›Ú[Š›Ûİ˜ÛÛ\Û™[È‹“^T˜^Y\\ÜÚYÛ›Y[ĞÛY[ŞŠKˆ]‚ˆ
+NÂˆÛÛœİ›İ]TÛİ\˜ÙHH]ØZ]™XYš[Jˆ]š›Ú[Š›Ûİ˜\‹˜\H‹œ˜^Y\‹X\ÜÚYÛ›Y[È‹\]H‹œ›İ]KÈŠKˆ]‚ˆ
+NÂ‚ˆ\ÜÙ\›X]Ú
+›İ]TÛİ\˜ÙK×™\W
+˜\ÜÚYÛ™YİÈ‹\Ù\—šY
+KÊNÂˆ\ÜÙ\›X]Ú
+›İ]TÛİ\˜ÙKĞSÕÑQÑ’QSËÊNÂˆ\ÜÙ\›X]Ú
+›İ]TÛİ\˜ÙK×™\W
+˜\˜Ú]™Y‹˜[ÙW
+KÊNÂˆ\ÜÙ\›X]Ú
+ÛY[Ûİ\˜ÙKÙ™]Ú
+—Ø\WÜ˜^Y\‹X\ÜÚYÛ›Y[×İ\]H‹ÊNÂˆ\ÜÙ\™Ù\Ó›İX]Ú
+ˆÛY[Ûİ\˜ÙKˆÙœ›ÛW
+œ˜^Y\—Ü™\]Y\İÈ—
+W\]W
+Ú[™Ù\×
+KÂˆ
+NÂˆ\ÜÙ\›X]Ú
+ÛY[Ûİ\˜ÙKÜÙ]™\]Y\İ×
+
+™]—
+HO–×××Jœ™]š[İ\ËÊNÂŸJNÂ

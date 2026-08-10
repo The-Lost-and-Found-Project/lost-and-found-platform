@@ -1,53 +1,22 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™^™\ÜÛœÙHHœ›ÛH›™^ÜÙ\™\ˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\ÜÈÜ™X]PYZ[ÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØYZ[ˆÂ‚‹ËÈHš\œİZ\ÜÙY\ÜÚYÛ›Y[Ø[ˆ™H™\İÜ™YÈ]˜Z[X›HHH›Û[Y\‹‚‹ËÈ™\X]YZ\ÜÙ\È™\]Z\™HHØ\™HXY\‰ÜÈ™]šY]È›İYÚHYZ[ˆÛÜšÙ›İË‚™^Ü\Ş[˜È[˜İ[ÛˆÔÕ
 
-// Self-service unpause: a member who was auto-paused from the rotation for
-// neglecting an assignment (rotation_status = 'paused_neglect') can bring
-// themselves straight back to 'active' any time within the 30-day window,
-// no admin approval needed. Once the 30 days are up and the cron has moved
-// them to 'inactive', this route no longer applies â€” see
-// /api/rotation/request-reinstatement instead.
-export async function POST() {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+HÂˆHÂˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
 
-    if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
+NÂˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂ‚ˆYˆ
+]\Ù\ŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ“›İ]][XØ]YˆKÈİ]\ÎˆHJNÂˆB‚ˆÛÛœİYZ[ˆHÜ™X]PYZ[ÛY[
 
-    const admin = createAdminClient();
+NÂ‚ˆÛÛœİÈ]Nˆ›Ùš[HHH]ØZ]YZ[‚ˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
+œ›İ][Û—Üİ]\ËZ\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ŠBˆ™\JšY‹\Ù\‹šY
+BˆœÚ[™ÛJ
+NÂ‚ˆYˆ
+›Ùš[OËœ›İ][Û—Üİ]\ÈOOHœ]\ÙYÛ™YÛXİŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ–[İ\ˆXØÛİ[\Û‰İİ\œ™[H]\ÙY›Üˆ[˜Xİ]š]KˆˆKˆÈİ]\ÎˆBˆ
+NÂˆB‚ˆYˆ
 
-    const { data: profile } = await admin
-      .from("profiles")
-      .select("rotation_status")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.rotation_status !== "paused_neglect") {
-      return NextResponse.json(
-        { error: "Your account isn't currently paused for inactivity." },
-        { status: 400 }
-      );
-    }
-
-    const { error } = await admin
-      .from("profiles")
-      .update({ rotation_status: "active", paused_at: null })
-      .eq("id", user.id)
-      .eq("rotation_status", "paused_neglect");
-
-    if (error) throw error;
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("rotation unpause error:", err);
-    return NextResponse.json(
-      { error: "Unexpected error unpausing your account" },
-      { status: 500 }
-    );
-  }
-}
+›Ùš[K›Z\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ÏÈ
+HHŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜˆHØ\™HXY\ˆ]\İ™]šY]È™\X]YZ\ÜÙY\ÜÚYÛ›Y[È™Y›Ü™H™]È\ÜÚYÛ›Y[È™\İ[YKˆˆKˆÈİ]\ÎˆÈBˆ
+NÂˆB‚ˆÛÛœİÈ\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ›Ùš[\ÈŠBˆ\]JÈ›İ][Û—Üİ]\Îˆ˜Xİ]™H‹Z[š\İWØ]˜Z[Xš[]Nˆ˜]˜Z[X›H‹]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™Yˆ˜[ÙK]\ÙYØ]ˆ[JBˆ™\JšY‹\Ù\‹šY
+Bˆ™\Jœ›İ][Û—Üİ]\È‹œ]\ÙYÛ™YÛXİŠNÂ‚ˆYˆ
+\œ›ÜŠH›İÈ\œ›ÜÂ‚ˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈİXØÙ\ÜÎˆYHJNÂˆHØ]Ú
+\œŠHÂˆÛÛœÛÛK™\œ›ÜŠœ›İ][Ûˆ[œ]\ÙH\œ›Üˆ‹\œŠNÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ•[™^XİY\œ›Üˆ[œ]\Ú[™È[İ\ˆXØÛİ[ˆKˆÈİ]\ÎˆLBˆ
+NÂˆBŸB

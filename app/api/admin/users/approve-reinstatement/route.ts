@@ -1,66 +1,23 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™^™\]Y\İ™^™\ÜÛœÙHHœ›ÛH›™^ÜÙ\™\ˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\ÜÈÜ™X]PYZ[ÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØYZ[ˆÂ‚‹ËÈYZ[‹[Û›H\›İ˜[›ÜˆHY[X™\ˆ™\]Y\İ[™È™Z[œİ][Y[Y\ˆ™Z[™Â‹ËÈX\šÙY	Ú[˜Xİ]™IÈ
+ÙYHØ\KÜ›İ][Û‹Ü™\]Y\İ\™Z[œİ][Y[
+Kˆœš[™ÜÈ[B‹ËÈİ˜ZYÚ˜XÚÈÈ	ØXİ]™IÈ[ˆH›İ][Û‹‚™^Ü\Ş[˜È[˜İ[ÛˆÔÕ
+™\]Y\İˆ™^™\]Y\İ
+HÂˆHÂˆÛÛœİ›ÙHH]ØZ]™\]Y\İšœÛÛŠ
+NÂˆÛÛœİÈ\Ù\’YHH›ÙHÏÈßNÂ‚ˆYˆ
+]\Ù\’Y
+HÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ“Z\ÜÚ[™È\Ù\’YˆKÈİ]\ÎˆJNÂˆB‚ˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
 
-// Admin-only approval for a member requesting reinstatement after being
-// marked 'inactive' (see /api/rotation/request-reinstatement). Brings them
-// straight back to 'active' in the rotation.
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { userId } = body ?? {};
+NÂˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂ‚ˆYˆ
+]\Ù\ŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ“›İ]][XØ]YˆKÈİ]\ÎˆHJNÂˆB‚ˆÛÛœİÈ]NˆØ[\”›Ùš[HHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
+œ›ÛHŠBˆ™\JšY‹\Ù\‹šY
+BˆœÚ[™ÛJ
+NÂ‚ˆYˆ
+Ø[\”›Ùš[OËœ›ÛHOOH˜YZ[ˆŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›ÜˆYZ[œÈÛ›HˆKÈİ]\ÎˆÈJNÂˆB‚ˆÛÛœİYZ[ˆHÜ™X]PYZ[ÛY[
 
-    if (!userId) {
-      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    const { data: callerProfile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (callerProfile?.role !== "admin") {
-      return NextResponse.json({ error: "Admins only" }, { status: 403 });
-    }
-
-    const admin = createAdminClient();
-
-    const { error } = await admin
-      .from("profiles")
-      .update({
-        rotation_status: "active",
-        paused_at: null,
-        reinstatement_requested_at: null,
-      })
-      .eq("id", userId)
-      .eq("rotation_status", "inactive");
-
-    if (error) throw error;
-
-    await admin.from("notifications").insert({
-      user_id: userId,
-      type: "reinstatement_approved",
-      title: "You're back in the prayer rotation",
-      body: "Your reinstatement request was approved â€” you're active in the rotation again and can receive new prayer assignments.",
-      link: "/profile",
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("approve-reinstatement error:", err);
-    return NextResponse.json(
-      { error: "Unexpected error approving reinstatement" },
-      { status: 500 }
-    );
-  }
-}
+NÂ‚ˆÛÛœİÈ\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ›Ùš[\ÈŠBˆ\]JÂˆ›İ][Û—Üİ]\Îˆ˜Xİ]™H‹ˆZ[š\İWØ]˜Z[Xš[]Nˆ˜]˜Z[X›H‹ˆ]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™Yˆ˜[ÙKˆ]\ÙYØ]ˆ[ˆ™Z[œİ][Y[Ü™\]Y\İYØ]ˆ[ˆJBˆ™\JšY‹\Ù\’Y
+Bˆ™\Jœ›İ][Û—Üİ]\È‹š[˜Xİ]™HŠNÂ‚ˆYˆ
+\œ›ÜŠH›İÈ\œ›ÜÂ‚ˆ]ØZ]YZ[‹™œ›ÛJ››İYšXØ][ÛœÈŠKš[œÙ\
+Âˆ\Ù\—ÚYˆ\Ù\’Yˆ\Nˆœ™Z[œİ][Y[Ø\›İ™Y‹ˆ]Nˆ–[İIÜ™H˜XÚÈ[ˆH˜^Y\ˆ›İ][Ûˆ‹ˆ›ÙNˆ–[İ\ˆ™Z[œİ][Y[™\]Y\İØ\È\›İ™Y8 %[İIÜ™HXİ]™H[ˆH›İ][ÛˆYØZ[ˆ[™Ø[ˆ™XÙZ]™H™]È˜^Y\ˆ\ÜÚYÛ›Y[Ëˆ‹ˆ[šÎˆ‹Ü›Ùš[H‹ˆJNÂ‚ˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈİXØÙ\ÜÎˆYHJNÂˆHØ]Ú
+\œŠHÂˆÛÛœÛÛK™\œ›ÜŠ˜\›İ™K\™Z[œİ][Y[\œ›Üˆ‹\œŠNÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ•[™^XİY\œ›Üˆ\›İš[™È™Z[œİ][Y[ˆKˆÈİ]\ÎˆLBˆ
+NÂˆBŸB

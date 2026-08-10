@@ -1,37 +1,4 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import Header from "@/components/Header";
-import BottomNav from "@/components/BottomNav";
-import RotationStatusModal from "@/components/RotationStatusModal";
-import UpdateNotifier from "@/components/UpdateNotifier";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-
-export const metadata: Metadata = {
-  title: "The Lost and Found Project",
-  description: "The official ministry platform for The Lost and Found Project.",
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-gray-50 font-sans text-gray-900 antialiased">
-        <a className="skip-link" href="#main-content">
-          Skip to main content
-        </a>
-        <Header />
-        <main id="main-content" className="pb-24" tabIndex={-1}>
-          {children}
-        </main>
-        <BottomNav />
-        <RotationStatusModal />
-        <UpdateNotifier />
-      </body>
-    </html>
-  );
-}
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\Ü\HÈY]Y]HHœ›ÛH›™^Âš[\ÜÈ[\ˆHœ›ÛH›™^Ù›ÛÙÛÛÙÛHÂš[\Ü‹‹ÙÛØ˜[Ë˜ÜÜÈÂš[\ÜXY\ˆœ›ÛHØÛÛ\Û™[ËÒXY\ˆÂš[\Ü\œ˜[YHœ›ÛHØÛÛ\Û™[ËĞ\œ˜[YHÂ‚˜ÛÛœİ[\ˆH[\ŠÈİXœÙ]ÎˆÈ›][ˆ—K˜\šXX›Nˆ‹KY›ÛZ[\ˆˆJNÂ‚™^ÜÛÛœİY]Y]NˆY]Y]HHÂˆ]Nˆ•HÜİ[™›İ[™›Ú™Xİ‹ˆ\ØÜš\[Ûˆ•HÙ™šXÚX[Z[š\İH]›Ü›H›ÜˆHÜİ[™›İ[™›Ú™Xİˆ‹ŸNÂ‚™^ÜY˜][[˜İ[Ûˆ›Ûİ^[İ]
+ÂˆÚ[™[‹ŸNˆÂˆÚ[™[ˆ™XXİ”™XXİ›ÙNÂŸJHÂˆ™]\›ˆ
+ˆ[[™ÏH™[ˆˆÛ\ÜÓ˜[YO^Ú[\‹˜\šXX›_O‚ˆ›ÙHÛ\ÜÓ˜[YOH›Z[‹Z\ØÜ™Y[ˆ™ËYÜ˜^KML›Û\Ø[œÈ^YÜ˜^KNL[X[X\ÙY‚ˆHÛ\ÜÓ˜[YOHœÚÚ\[[šÈˆ™YHˆÛXZ[‹XÛÛ[‚ˆÚÚ\ÈXZ[ˆÛÛ[ˆØO‚ˆ\œ˜[YHXY\^ÏXY\ˆÏŸOØÚ[™[ŸOĞ\œ˜[YO‚ˆØ›ÙO‚ˆÚ[‚ˆ
+NÂŸB

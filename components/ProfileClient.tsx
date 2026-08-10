@@ -1,754 +1,163 @@
-"use client";
-
-import { useRef, useState } from "react";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-
-const MAX_AVATAR_BYTES = 5 * 1024 * 1024; // 5MB
-
-type Props = {
-  email: string;
-  createdAt: string;
-  initialFullName: string;
-  initialAvatarUrl: string;
-  initialFavoriteScripture: string;
-  initialDateOfSalvation: string;
-  initialDateOfBaptism: string;
-  isRealAdmin?: boolean;
-  initialPreviewRole?: string;
-  isCareTeamMember?: boolean;
-  initialRotationStatus?: string;
-  initialReinstatementRequestedAt?: string | null;
-};
-
-const PREVIEW_OPTIONS: {
-  value: string;
-  label: string;
-  shortLabel: string;
-  description: string;
-}[] = [
-  {
-    value: "",
-    label: "Community Admin (no preview)",
-    shortLabel: "Admin",
-    description: "See the app as yourself, with full admin access.",
-  },
-  {
-    value: "member",
-    label: "Community Member",
-    shortLabel: "Member",
-    description: "Preview the app as a Community Member would see it.",
-  },
-  {
-    value: "prayer_team",
-    label: "Community Prayer Member",
-    shortLabel: "Prayer",
-    description: "Preview the app as a Community Prayer Member would see it.",
-  },
-];
-
-type Snapshot = {
-  fullName: string;
-  favoriteScripture: string;
-  dateOfSalvation: string;
-  dateOfBaptism: string;
-};
-
-// Parses a "YYYY-MM-DD" date input value into a friendly, timezone-safe
-// display string (avoids the classic off-by-one-day bug from `new
-// Date("YYYY-MM-DD")` being interpreted as UTC midnight).
-function formatDate(value: string) {
-  if (!value) return null;
-  const [y, m, d] = value.split("-").map(Number);
-  if (!y || !m || !d) return null;
-  return new Date(y, m - 1, d).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
-export default function ProfileClient({
-  email,
-  createdAt,
-  initialFullName,
-  initialAvatarUrl,
-  initialFavoriteScripture,
-  initialDateOfSalvation,
-  initialDateOfBaptism,
-  isRealAdmin = false,
-  initialPreviewRole = "",
-  isCareTeamMember = false,
-  initialRotationStatus = "active",
-  initialReinstatementRequestedAt = null,
-}: Props) {
-  const supabase = createClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [previewRole, setPreviewRole] = useState(initialPreviewRole);
-  const [savingPreview, setSavingPreview] = useState(false);
-
-  const [rotationStatus, setRotationStatus] = useState(initialRotationStatus);
-  const [reinstatementRequestedAt, setReinstatementRequestedAt] = useState(
-    initialReinstatementRequestedAt
-  );
-  const [rotationBusy, setRotationBusy] = useState(false);
-  const [rotationError, setRotationError] = useState("");
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
-
-  const [fullName, setFullName] = useState(initialFullName);
-  const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
-  const [favoriteScripture, setFavoriteScripture] = useState(
-    initialFavoriteScripture
-  );
-  const [dateOfSalvation, setDateOfSalvation] = useState(
-    initialDateOfSalvation
-  );
-  const [dateOfBaptism, setDateOfBaptism] = useState(initialDateOfBaptism);
-
-  const [saving, setSaving] = useState(false);
-  const [justSaved, setJustSaved] = useState(false);
-
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [avatarError, setAvatarError] = useState("");
-
-  const initial = (fullName || email || "?").trim().charAt(0).toUpperCase();
-
-  function handleEdit() {
-    setSnapshot({
-      fullName,
-      favoriteScripture,
-      dateOfSalvation,
-      dateOfBaptism,
-    });
-    setJustSaved(false);
-    setIsEditing(true);
-  }
-
-  function handleCancel() {
-    if (snapshot) {
-      setFullName(snapshot.fullName);
-      setFavoriteScripture(snapshot.favoriteScripture);
-      setDateOfSalvation(snapshot.dateOfSalvation);
-      setDateOfBaptism(snapshot.dateOfBaptism);
-    }
-    setAvatarError("");
-    setIsEditing(false);
-  }
-
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({
-          full_name: fullName,
-          favorite_scripture: favoriteScripture.trim() || null,
-          date_of_salvation: dateOfSalvation || null,
-          date_of_baptism: dateOfBaptism || null,
-        })
-        .eq("id", user.id);
-    }
-
-    setSaving(false);
-    setIsEditing(false);
-    setJustSaved(true);
-    setTimeout(() => setJustSaved(false), 3000);
-  }
-
-  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-
-    setAvatarError("");
-
-    if (!file.type.startsWith("image/")) {
-      setAvatarError("Please choose an image file.");
-      return;
-    }
-    if (file.size > MAX_AVATAR_BYTES) {
-      setAvatarError("Image must be 5MB or smaller.");
-      return;
-    }
-
-    setUploadingAvatar(true);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      setUploadingAvatar(false);
-      setAvatarError("You need to be signed in to upload a photo.");
-      return;
-    }
-
-    const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${user.id}/avatar.${extension}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(path, file, { upsert: true, contentType: file.type });
-
-    if (uploadError) {
-      setUploadingAvatar(false);
-      setAvatarError("Upload failed. Please try again.");
-      return;
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from("avatars")
-      .getPublicUrl(path);
-
-    // Cache-bust so the new photo shows immediately even though the
-    // filename (and therefore URL) stays the same between uploads.
-    const freshUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`;
-
-    await supabase
-      .from("profiles")
-      .update({ avatar_url: freshUrl })
-      .eq("id", user.id);
-
-    setAvatarUrl(freshUrl);
-    setUploadingAvatar(false);
-  }
-
-  async function handleRemoveAvatar() {
-    setAvatarError("");
-    setUploadingAvatar(true);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({ avatar_url: null })
-        .eq("id", user.id);
-    }
-
-    setAvatarUrl("");
-    setUploadingAvatar(false);
-  }
-
-  // Lets a real admin preview the app as another role, purely for
-  // training/QA. This only ever touches preview_role, never the real role
-  // column, so there's no way to get locked out and no privilege escalation
-  // risk for non-admins (the server ignores preview_role unless the caller's
-  // real role is already admin â€” see lib/effective-role.ts).
-  async function handlePreviewChange(value: string) {
-    setPreviewRole(value);
-    setSavingPreview(true);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({ preview_role: value || null })
-        .eq("id", user.id);
-    }
-
-    setSavingPreview(false);
-
-    // AuthControls (the header dropdown) persists across client-side
-    // navigations and only refetches the profile on mount or auth-state
-    // change, so without this it would keep showing the old role/menu and
-    // "Previewing as..." banner until a full page reload. This event lets
-    // it refetch immediately instead.
-    window.dispatchEvent(new Event("lf:profile-updated"));
-  }
-
-  // Self-service rotation controls for prayer care team members. Starting
-  // a sabbatical or unpausing immediately reflects in rotationStatus so the
-  // UI updates without waiting on a page reload.
-  async function handleSabbaticalToggle(action: "start" | "end") {
-    setRotationError("");
-    setRotationBusy(true);
-    try {
-      const res = await fetch("/api/rotation/sabbatical", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
-      const resBody = await res.json();
-      if (!res.ok) {
-        setRotationError(resBody?.error ?? "Failed to update your rotation status");
-      } else {
-        setRotationStatus(action === "start" ? "paused_sabbatical" : "active");
-      }
-    } catch {
-      setRotationError("Failed to update your rotation status");
-    } finally {
-      setRotationBusy(false);
-    }
-  }
-
-  async function handleUnpause() {
-    setRotationError("");
-    setRotationBusy(true);
-    try {
-      const res = await fetch("/api/rotation/unpause", { method: "POST" });
-      const resBody = await res.json();
-      if (!res.ok) {
-        setRotationError(resBody?.error ?? "Failed to unpause your account");
-      } else {
-        setRotationStatus("active");
-      }
-    } catch {
-      setRotationError("Failed to unpause your account");
-    } finally {
-      setRotationBusy(false);
-    }
-  }
-
-  async function handleRequestReinstatement() {
-    setRotationError("");
-    setRotationBusy(true);
-    try {
-      const res = await fetch("/api/rotation/request-reinstatement", {
-        method: "POST",
-      });
-      const resBody = await res.json();
-      if (!res.ok) {
-        setRotationError(resBody?.error ?? "Failed to request reinstatement");
-      } else {
-        setReinstatementRequestedAt(new Date().toISOString());
-      }
-    } catch {
-      setRotationError("Failed to request reinstatement");
-    } finally {
-      setRotationBusy(false);
-    }
-  }
-
-  const avatarImage = avatarUrl ? (
-    <img
-      src={avatarUrl}
-      alt=""
-      className="h-16 w-16 rounded-full object-cover"
-    />
-  ) : (
-    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-600 text-xl font-medium text-white">
-      {initial}
-    </span>
-  );
-
-  const fields = [
-    {
-      label: "Favorite Bible Verse",
-      value: favoriteScripture,
-      empty: "Not set",
-    },
-    {
-      label: "Date of Salvation",
-      value: formatDate(dateOfSalvation),
-      empty: "Not set",
-    },
-    {
-      label: "Date of Baptism",
-      value: formatDate(dateOfBaptism),
-      empty: "Not set",
-    },
-  ];
-
-  return (
-    <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-      <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-      <p className="mt-2 text-gray-600">
-        Manage your account details and how you appear across the app.
-      </p>
-
-      <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-center gap-4">
-            {avatarImage}
-            <div>
-              {isEditing ? (
-                <div>
-                  <label htmlFor="profile-full-name" className="sr-only">
-                    Full name
-                  </label>
-                  <input
-                    id="profile-full-name"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Add your name"
-                    className="block min-h-11 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-900 shadow-sm"
-                  />
-                </div>
-              ) : (
-                <p className="text-sm font-medium text-gray-900">
-                  {fullName || "Add your name"}
-                </p>
-              )}
-              <p className="text-sm text-gray-500">{email}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {justSaved && !isEditing && (
-              <span
-                role="status"
-                aria-live="polite"
-                className="text-sm text-green-600"
-              >
-                Saved.
-              </span>
-            )}
-
-            {isRealAdmin && !isEditing && (
-              <div
-                role="group"
-                aria-label="Preview the app as"
-                className="flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 p-0.5"
-              >
-                {PREVIEW_OPTIONS.map((option) => {
-                  const isSelected = (previewRole || "") === option.value;
-                  return (
-                    <button
-                      key={option.value || "admin"}
-                      type="button"
-                      title={option.description}
-                      aria-pressed={isSelected}
-                      disabled={savingPreview}
-                      onClick={() => handlePreviewChange(option.value)}
-                      className={`min-h-11 rounded px-3 py-2 text-xs font-medium transition disabled:opacity-50 ${
-                        isSelected
-                          ? "bg-indigo-600 text-white shadow-sm"
-                          : "text-gray-600 hover:bg-gray-200"
-                      }`}
-                    >
-                      {option.shortLabel}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {isEditing ? (
-              <>
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  disabled={saving}
-                  className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  form="profile-form"
-                  disabled={saving}
-                  className="min-h-11 rounded-md bg-amber-500 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-400 disabled:opacity-50"
-                >
-                  {saving ? "Saving..." : "Save"}
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={handleEdit}
-                className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-        </div>
-
-        {isRealAdmin && previewRole && (
-          <p className="mt-3 text-xs font-medium text-amber-600">
-            Previewing as{" "}
-            {PREVIEW_OPTIONS.find((o) => o.value === previewRole)?.label ??
-              previewRole}
-            . Your real admin access isn&rsquo;t affected â€” click Admin above
-            to switch back.
-          </p>
-        )}
-
-        {isEditing && (
-          <div className="mt-6">
-            <label
-              htmlFor="profile-picture"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Profile picture
-            </label>
-            <div className="mt-2 flex items-center gap-3">
-              <input
-                ref={fileInputRef}
-                id="profile-picture"
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingAvatar}
-                className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
-              >
-                {uploadingAvatar
-                  ? "Uploading..."
-                  : avatarUrl
-                  ? "Change Photo"
-                  : "Upload Photo"}
-              </button>
-              {avatarUrl && (
-                <button
-                  type="button"
-                  onClick={handleRemoveAvatar}
-                  disabled={uploadingAvatar}
-                  className="min-h-11 px-2 text-sm font-medium text-red-600 transition hover:text-red-500 disabled:opacity-50"
-                >
-                  Remove
-                </button>
-              )}
-            </div>
-            {avatarError && (
-              <p
-                role="alert"
-                aria-live="assertive"
-                className="mt-1 text-xs text-red-600"
-              >
-                {avatarError}
-              </p>
-            )}
-            <p className="mt-1 text-xs text-gray-500">JPG or PNG, up to 5MB.</p>
-          </div>
-        )}
-
-        <form
-          id="profile-form"
-          onSubmit={handleSave}
-          className="mt-6 divide-y divide-gray-100 border-t border-gray-100"
-        >
-          {isEditing ? (
-            <div className="space-y-5 py-5">
-              <div>
-                <label
-                  htmlFor="favorite-scripture"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Favorite Bible Verse
-                </label>
-                <input
-                  id="favorite-scripture"
-                  type="text"
-                  value={favoriteScripture}
-                  onChange={(e) => setFavoriteScripture(e.target.value)}
-                  placeholder="e.g. Philippians 4:13"
-                  className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
-                />
-              </div>
-
-              <div className="flex flex-wrap gap-5">
-                <div className="flex-1 min-w-[10rem]">
-                  <label
-                    htmlFor="date-of-salvation"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Date of Salvation
-                  </label>
-                  <input
-                    id="date-of-salvation"
-                    type="date"
-                    value={dateOfSalvation}
-                    onChange={(e) => setDateOfSalvation(e.target.value)}
-                    className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
-                  />
-                </div>
-                <div className="flex-1 min-w-[10rem]">
-                  <label
-                    htmlFor="date-of-baptism"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Date of Baptism
-                  </label>
-                  <input
-                    id="date-of-baptism"
-                    type="date"
-                    value={dateOfBaptism}
-                    onChange={(e) => setDateOfBaptism(e.target.value)}
-                    className="mt-1 block min-h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
-                  />
-                </div>
-              </div>
-            </div>
-          ) : (
-            fields.map((field) => (
-              <div key={field.label} className="py-4 first:pt-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  {field.label}
-                </p>
-                <p
-                  className="mt-1 whitespace-pre-wrap text-sm text-gray-900"
-                  style={
-                    field.label === "My Testimony" && field.value
-                      ? {
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        }
-                      : undefined
-                  }
-                >
-                  {field.value || (
-                    <span className="text-gray-400">{field.empty}</span>
-                  )}
-                </p>
-              </div>
-            ))
-          )}
-        </form>
-      </div>
-
-      {isCareTeamMember && (
-        <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-semibold text-gray-900">
-            Prayer Rotation
-          </h2>
-          <p className="mt-1 text-xs text-gray-500">
-            Control whether you&apos;re currently receiving new prayer
-            request assignments. You can still use every other part of the
-            app as a regular member no matter your status here.
-          </p>
-
-          {rotationError && (
-            <p
-              role="alert"
-              aria-live="assertive"
-              className="mt-3 text-xs text-red-600"
-            >
-              {rotationError}
-            </p>
-          )}
-
-          <div className="mt-4">
-            {rotationStatus === "active" && (
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-                  Active in rotation
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleSabbaticalToggle("start")}
-                  disabled={rotationBusy}
-                  className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
-                >
-                  {rotationBusy ? "Updating..." : "Start a Sabbatical"}
-                </button>
-              </div>
-            )}
-
-            {rotationStatus === "paused_sabbatical" && (
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-                  On sabbatical â€” paused from new assignments
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleSabbaticalToggle("end")}
-                  disabled={rotationBusy}
-                  className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
-                >
-                  {rotationBusy ? "Updating..." : "End Sabbatical & Resume"}
-                </button>
-              </div>
-            )}
-
-            {rotationStatus === "paused_neglect" && (
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
-                  Paused â€” no recent activity on an assignment
-                </span>
-                <button
-                  type="button"
-                  onClick={handleUnpause}
-                  disabled={rotationBusy}
-                  className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
-                >
-                  {rotationBusy ? "Updating..." : "Unpause My Account"}
-                </button>
-              </div>
-            )}
-
-            {rotationStatus === "inactive" && (
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700">
-                  Inactive
-                </span>
-                {reinstatementRequestedAt ? (
-                  <span className="text-xs text-gray-500">
-                    Reinstatement requested â€” waiting on admin approval.
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleRequestReinstatement}
-                    disabled={rotationBusy}
-                    className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
-                  >
-                    {rotationBusy ? "Requesting..." : "Request Reinstatement"}
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900">
-              My Testimony
-            </h2>
-            <p className="mt-1 text-xs text-gray-500">
-              Share or update your testimony on the Testimony Board.
-            </p>
-          </div>
-          <Link
-            href="/testimonies/submit"
-            className="min-h-11 shrink-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
-          >
-            Testimony Board â†’
-          </Link>
-        </div>
-      </div>
-
-      <div className="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900">Account</h2>
-            <p className="mt-1 text-xs text-gray-500">
-              Your login details, password, and sign out.
-            </p>
-          </div>
-          <Link
-            href="/account"
-            className="min-h-11 shrink-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
-          >
-            Account â†’
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçH\ÙHÛY[Â‚š[\ÜÈ\ÙT™Y‹\ÙTİ]HHœ›ÛHœ™XXİÂš[\Ü[šÈœ›ÛH›™^Û[šÈÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØÛY[Â‚˜ÛÛœİPVĞUUT—Ğ–UTÈHH
+ˆL
+ˆLÈËÈSP‚‚\H›ÜÈHÂˆ[XZ[ˆİš[™ÎÂˆÜ™X]Y]ˆİš[™ÎÂˆ[š]X[[˜[YNˆİš[™ÎÂˆ[š]X[]˜]\•\›ˆİš[™ÎÂˆ[š]X[˜]›Üš]TØÜš\\™Nˆİš[™ÎÂˆ[š]X[]SÙ”Ø[˜][Ûˆİš[™ÎÂˆ[š]X[]SÙ˜\\ÛNˆİš[™ÎÂˆ\Ô™X[YZ[Îˆ›ÛÛX[Âˆ[š]X[™]šY]Ô›ÛOÎˆİš[™ÎÂˆ\ĞØ\™UX[SY[X™\Îˆ›ÛÛX[Âˆ[š]X[›İ][Û”İ]\ÏÎˆİš[™ÎÂˆ[š]X[Z\ÜÙY\ÜÚYÛ›Y[Ûİ[Îˆ[X™\Âˆ[š]X[™Z[œİ][Y[™\]Y\İY]Îˆİš[™È[ÂŸNÂ‚˜ÛÛœİ‘U’QU×ÓÔSÓ”ÎˆÂˆ˜[YNˆİš[™ÎÂˆX™[ˆİš[™ÎÂˆÚÜX™[ˆİš[™ÎÂˆ\ØÜš\[Ûˆİš[™ÎÂŸV×HHÂˆÂˆ˜[YNˆˆ‹ˆX™[ˆÛÛ[][š]HYZ[ˆ
+›È™]šY]ÊH‹ˆÚÜX™[ˆYZ[ˆ‹ˆ\ØÜš\[Ûˆ”ÙYHH\\È[İ\œÙ[‹Ú][YZ[ˆXØÙ\ÜËˆ‹ˆKˆÂˆ˜[YNˆ›Y[X™\ˆ‹ˆX™[ˆÛÛ[][š]HY[X™\ˆ‹ˆÚÜX™[ˆ“Y[X™\ˆ‹ˆ\ØÜš\[Ûˆ”™]šY]ÈH\\ÈHÛÛ[][š]HY[X™\ˆÛİ[ÙYH]ˆ‹ˆKˆÂˆ˜[YNˆœ˜^Y\—İX[H‹ˆX™[ˆÛÛ[][š]H˜^Y\ˆY[X™\ˆ‹ˆÚÜX™[ˆ”˜^Y\ˆ‹ˆ\ØÜš\[Ûˆ”™]šY]ÈH\\ÈHÛÛ[][š]H˜^Y\ˆY[X™\ˆÛİ[ÙYH]ˆ‹ˆK—NÂ‚\HÛ˜\ÚİHÂˆ[˜[YNˆİš[™ÎÂˆ˜]›Üš]TØÜš\\™Nˆİš[™ÎÂˆ]SÙ”Ø[˜][Ûˆİš[™ÎÂˆ]SÙ˜\\ÛNˆİš[™ÎÂŸNÂ‚‹ËÈ\œÙ\ÈH–VVVKSSKQˆ]H[œ]˜[YH[ÈHœšY[™K[Y^›Û™K\ØY™B‹ËÈ\Ü^Hİš[™È
+]›ÚYÈHÛ\ÜÚXÈÙ™‹XK[Û™KY^HYÈœ›ÛH™]Â‹ËÈ]J–VVVKSSKQŠX™Z[™È[\œ™]Y\ÈUÈZYšYÚ
+K‚™[˜İ[Ûˆ›Ü›X]]J˜[YNˆİš[™ÊHÂˆYˆ
+]˜[YJH™]\›ˆ[ÂˆÛÛœİŞKKHH˜[YKœÜ]
+‹HŠK›X\
+[X™\ŠNÂˆYˆ
+^H[HY
+H™]\›ˆ[Âˆ™]\›ˆ™]È]JKHHK
+KÓØØ[Q]Tİš[™Ê™[‹UTÈ‹ÂˆYX\ˆ›[Y\šXÈ‹ˆ[Ûˆ›Û™È‹ˆ^Nˆ›[Y\šXÈ‹ˆJNÂŸB‚™^ÜY˜][[˜İ[Ûˆ›Ùš[PÛY[
+Âˆ[XZ[ˆÜ™X]Y]ˆ[š]X[[˜[YKˆ[š]X[]˜]\•\›ˆ[š]X[˜]›Üš]TØÜš\\™Kˆ[š]X[]SÙ”Ø[˜][Û‹ˆ[š]X[]SÙ˜\\ÛKˆ\Ô™X[YZ[ˆH˜[ÙKˆ[š]X[™]šY]Ô›ÛHHˆ‹ˆ\ĞØ\™UX[SY[X™\ˆH˜[ÙKˆ[š]X[›İ][Û”İ]\ÈH˜]˜Z[X›H‹ˆ[š]X[Z\ÜÙY\ÜÚYÛ›Y[Ûİ[Hˆ[š]X[™Z[œİ][Y[™\]Y\İY]H[ŸNˆ›ÜÊHÂˆÛÛœİİ\X˜\ÙHHÜ™X]PÛY[
+
+NÂˆÛÛœİš[R[œ]™YˆH\ÙT™YS[œ][[Y[Š[
+NÂ‚ˆÛÛœİÜ™]šY]Ô›ÛKÙ]™]šY]Ô›ÛWHH\ÙTİ]J[š]X[™]šY]Ô›ÛJNÂˆÛÛœİÜØ]š[™Ô™]šY]ËÙ]Ø]š[™Ô™]šY]×HH\ÙTİ]J˜[ÙJNÂ‚ˆÛÛœİÜ›İ][Û”İ]\ËÙ]›İ][Û”İ]\×HH\ÙTİ]J[š]X[›İ][Û”İ]\ÊNÂˆÛÛœİÜ™Z[œİ][Y[™\]Y\İY]Ù]™Z[œİ][Y[™\]Y\İY]HH\ÙTİ]Jˆ[š]X[™Z[œİ][Y[™\]Y\İY]ˆ
+NÂˆÛÛœİÜ›İ][Û\ŞKÙ]›İ][Û\ŞWHH\ÙTİ]J˜[ÙJNÂˆÛÛœİÜ›İ][Û‘\œ›Ü‹Ù]›İ][Û‘\œ›Ü—HH\ÙTİ]JˆŠNÂ‚ˆÛÛœİÚ\ÑY][™ËÙ]\ÑY][™×HH\ÙTİ]J˜[ÙJNÂˆÛÛœİÜÛ˜\ÚİÙ]Û˜\ÚİHH\ÙTİ]OÛ˜\Úİ[Š[
+NÂ‚ˆÛÛœİÙ[˜[YKÙ][˜[YWHH\ÙTİ]J[š]X[[˜[YJNÂˆÛÛœİØ]˜]\•\›Ù]]˜]\•\›HH\ÙTİ]J[š]X[]˜]\•\›
+NÂˆÛÛœİÙ˜]›Üš]TØÜš\\™KÙ]˜]›Üš]TØÜš\\™WHH\ÙTİ]Jˆ[š]X[˜]›Üš]TØÜš\\™Bˆ
+NÂˆÛÛœİÙ]SÙ”Ø[˜][Û‹Ù]]SÙ”Ø[˜][Û—HH\ÙTİ]Jˆ[š]X[]SÙ”Ø[˜][Û‚ˆ
+NÂˆÛÛœİÙ]SÙ˜\\ÛKÙ]]SÙ˜\\ÛWHH\ÙTİ]J[š]X[]SÙ˜\\ÛJNÂ‚ˆÛÛœİÜØ]š[™ËÙ]Ø]š[™×HH\ÙTİ]J˜[ÙJNÂˆÛÛœİÚ\İØ]™YÙ]\İØ]™YHH\ÙTİ]J˜[ÙJNÂ‚ˆÛÛœİİ\ØY[™Ğ]˜]\‹Ù]\ØY[™Ğ]˜]\—HH\ÙTİ]J˜[ÙJNÂˆÛÛœİØ]˜]\‘\œ›Ü‹Ù]]˜]\‘\œ›Ü—HH\ÙTİ]JˆŠNÂ‚ˆÛÛœİ[š]X[H
+[˜[YH[XZ[ÈŠKš[J
+K˜Ú\]
+
+KÕ\\Ø\ÙJ
+NÂ‚ˆ[˜İ[Ûˆ[™QY]
+
+HÂˆÙ]Û˜\Úİ
+Âˆ[˜[YKˆ˜]›Üš]TØÜš\\™Kˆ]SÙ”Ø[˜][Û‹ˆ]SÙ˜\\ÛKˆJNÂˆÙ]\İØ]™Y
+˜[ÙJNÂˆÙ]\ÑY][™ÊYJNÂˆB‚ˆ[˜İ[Ûˆ[™PØ[˜Ù[
+
+HÂˆYˆ
+Û˜\Úİ
+HÂˆÙ][˜[YJÛ˜\Úİ™[˜[YJNÂˆÙ]˜]›Üš]TØÜš\\™JÛ˜\Úİ™˜]›Üš]TØÜš\\™JNÂˆÙ]]SÙ”Ø[˜][ÛŠÛ˜\Úİ™]SÙ”Ø[˜][ÛŠNÂˆÙ]]SÙ˜\\ÛJÛ˜\Úİ™]SÙ˜\\ÛJNÂˆBˆÙ]]˜]\‘\œ›ÜŠˆŠNÂˆÙ]\ÑY][™Ê˜[ÙJNÂˆB‚ˆ\Ş[˜È[˜İ[Ûˆ[™TØ]™JNˆ™XXİ‘›Ü›Q]™[
+HÂˆKœ™]™[Y˜][
+
+NÂˆÙ]Ø]š[™ÊYJNÂ‚ˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂ‚ˆYˆ
+\Ù\ŠHÂˆ]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆ\]JÂˆ[Û˜[YNˆ[˜[YKˆ˜]›Üš]WÜØÜš\\™Nˆ˜]›Üš]TØÜš\\™Kš[J
+H[ˆ]WÛÙ—ÜØ[˜][Ûˆ]SÙ”Ø[˜][Ûˆ[ˆ]WÛÙ—Ø˜\\ÛNˆ]SÙ˜\\ÛH[ˆJBˆ™\JšY‹\Ù\‹šY
+NÂˆB‚ˆÙ]Ø]š[™Ê˜[ÙJNÂˆÙ]\ÑY][™Ê˜[ÙJNÂˆÙ]\İØ]™Y
+YJNÂˆÙ][Y[İ]
+
+
+HOˆÙ]\İØ]™Y
+˜[ÙJKÌ
+NÂˆB‚ˆ\Ş[˜È[˜İ[Ûˆ[™P]˜]\Ú[™ÙJNˆ™XXİÚ[™ÙQ]™[S[œ][[Y[ŠHÂˆÛÛœİš[HHK\™Ù]™š[\ÏË–ÌNÂˆK\™Ù]˜[YHHˆÂˆYˆ
+Yš[JH™]\›Â‚ˆÙ]]˜]\‘\œ›ÜŠˆŠNÂ‚ˆYˆ
+Yš[K\Kœİ\ÕÚ]
+š[XYÙKÈŠJHÂˆÙ]]˜]\‘\œ›ÜŠ”X\ÙHÚÛÜÙH[ˆ[XYÙHš[KˆŠNÂˆ™]\›ÂˆBˆYˆ
+š[KœÚ^™HˆPVĞUUT—Ğ–UTÊHÂˆÙ]]˜]\‘\œ›ÜŠ’[XYÙH]\İ™HSPˆÜˆÛX[\‹ˆŠNÂˆ™]\›ÂˆB‚ˆÙ]\ØY[™Ğ]˜]\ŠYJNÂ‚ˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂ‚ˆYˆ
+]\Ù\ŠHÂˆÙ]\ØY[™Ğ]˜]\Š˜[ÙJNÂˆÙ]]˜]\‘\œ›ÜŠ–[İH™YYÈ™HÚYÛ™Y[ˆÈ\ØYHİËˆŠNÂˆ™]\›ÂˆB‚ˆÛÛœİ^[œÚ[ÛˆHš[K›˜[YKœÜ]
+‹ˆŠKœÜ
+
+OËÓİÙ\Ø\ÙJ
+HšœÈÂˆÛÛœİ]H	İ\Ù\‹šYKØ]˜]\‹‰Ù^[œÚ[ÛŸXÂ‚ˆÛÛœİÈ\œ›Üˆ\ØY\œ›ÜˆHH]ØZ]İ\X˜\ÙKœİÜ˜YÙBˆ™œ›ÛJ˜]˜]\œÈŠBˆ\ØY
+]š[KÈ\Ù\ˆYKÛÛ[\Nˆš[K\HJNÂ‚ˆYˆ
+\ØY\œ›ÜŠHÂˆÙ]\ØY[™Ğ]˜]\Š˜[ÙJNÂˆÙ]]˜]\‘\œ›ÜŠ•\ØY˜Z[YˆX\ÙHHYØZ[‹ˆŠNÂˆ™]\›ÂˆB‚ˆÛÛœİÈ]NˆX›XÕ\›]HHHİ\X˜\ÙKœİÜ˜YÙBˆ™œ›ÛJ˜]˜]\œÈŠBˆ™Ù]X›XÕ\›
+]
+NÂ‚ˆËÈØXÚKX\İÛÈH™]ÈİÈÚİÜÈ[[YYX][H]™[ˆİYÚBˆËÈš[[˜[YH
+[™\™Y›Ü™HT“
+Hİ^\ÈHØ[YH™]ÙY[ˆ\ØYË‚ˆÛÛœİœ™\Ú\›H	ÜX›XÕ\›]KœX›XÕ\›OİIÑ]K››İÊ
+_XÂ‚ˆ]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆ\]JÈ]˜]\—İ\›ˆœ™\Ú\›JBˆ™\JšY‹\Ù\‹šY
+NÂ‚ˆÙ]]˜]\•\›
+œ™\Ú\›
+NÂˆÙ]\ØY[™Ğ]˜]\Š˜[ÙJNÂˆB‚ˆ\Ş[˜È[˜İ[Ûˆ[™T™[[İ™P]˜]\Š
+HÂˆÙ]]˜]\‘\œ›ÜŠˆŠNÂˆÙ]\ØY[™Ğ]˜]\ŠYJNÂ‚ˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂ‚ˆYˆ
+\Ù\ŠHÂˆ]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆ\]JÈ]˜]\—İ\›ˆ[JBˆ™\JšY‹\Ù\‹šY
+NÂˆB‚ˆÙ]]˜]\•\›
+ˆŠNÂˆÙ]\ØY[™Ğ]˜]\Š˜[ÙJNÂˆB‚ˆËÈ]ÈH™X[YZ[ˆ™]šY]ÈH\\È[›İ\ˆ›ÛK\™[H›Ü‚ˆËÈ˜Z[š[™ËÔPKˆ\ÈÛ›H]™\ˆİXÚ\È™]šY]×Ü›ÛK™]™\ˆH™X[›ÛBˆËÈÛÛ[[‹ÛÈ\™IÜÈ›ÈØ^HÈÙ]ØÚÙYİ][™›Èš]š[YÙH\ØØ[][Û‚ˆËÈš\ÚÈ›Üˆ›Û‹XYZ[œÈ
+HÙ\™\ˆYÛ›Ü™\È™]šY]×Ü›ÛH[›\ÜÈHØ[\‰ÜÂˆËÈ™X[›ÛH\È[™XYHYZ[ˆ8 %ÙYHX‹ÙY™™Xİ]™K\›ÛKÊK‚ˆ\Ş[˜È[˜İ[Ûˆ[™T™]šY]ĞÚ[™ÙJ˜[YNˆİš[™ÊHÂˆÙ]™]šY]Ô›ÛJ˜[YJNÂˆÙ]Ø]š[™Ô™]šY]ÊYJNÂ‚ˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂ‚ˆYˆ
+\Ù\ŠHÂˆ]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆ\]JÈ™]šY]×Ü›ÛNˆ˜[YH[JBˆ™\JšY‹\Ù\‹šY
+NÂˆB‚ˆÙ]Ø]š[™Ô™]šY]Ê˜[ÙJNÂ‚ˆËÈ]]ÛÛ›ÛÈ
+HXY\ˆ›ÜİÛŠH\œÚ\İÈXÜ›ÜÜÈÛY[\ÚYBˆËÈ˜]šYØ][ÛœÈ[™Û›H™Y™]Ú\ÈH›Ùš[HÛˆ[İ[Üˆ]]\İ]BˆËÈÚ[™ÙKÛÈÚ]İ]\È]Ûİ[ÙY\ÚİÚ[™ÈHÛ›ÛKÛY[H[™ˆËÈ”™]šY]Ú[™È\Ë‹‹ˆˆ˜[›™\ˆ[[H[YÙH™[ØYˆ\È]™[]ÂˆËÈ]™Y™]Ú[[YYX][H[œİXY‚ˆÚ[™İË™\Ü]Ú]™[
+™]È]™[
+›œ›Ùš[K]\]YŠJNÂˆB‚ˆËÈÙ[‹\Ù\šXÙH›İ][ÛˆÛÛ›ÛÈ›Üˆ˜^Y\ˆØ\™HX[HY[X™\œËˆİ\[™ÂˆËÈHØX˜˜]XØ[Üˆ[œ]\Ú[™È[[YYX][H™Y›XİÈ[ˆ›İ][Û”İ]\ÈÛÈBˆËÈRH\]\ÈÚ]İ]ØZ][™ÈÛˆHYÙH™[ØY‚ˆ\Ş[˜È[˜İ[Ûˆ[™TØX˜˜]XØ[ÙÙÛJXİ[Ûˆœİ\ˆ™[™ŠHÂˆÙ]›İ][Û‘\œ›ÜŠˆŠNÂˆÙ]›İ][Û\ŞJYJNÂˆHÂˆÛÛœİ™\ÈH]ØZ]™]Ú
+‹Ø\KÜ›İ][Û‹ÜØX˜˜]XØ[‹ÂˆY]Ùˆ”ÔÕ‹ˆXY\œÎˆÈÛÛ[U\Hˆ˜\XØ][Û‹ÚœÛÛˆˆKˆ›ÙNˆ”ÓÓ‹œİš[™ÚYJÈXİ[ÛˆJKˆJNÂˆÛÛœİ™\Ğ›ÙHH]ØZ]™\ËšœÛÛŠ
+NÂˆYˆ
+\™\Ë›ÚÊHÂˆÙ]›İ][Û‘\œ›ÜŠ™\Ğ›ÙOË™\œ›ÜˆÏÈ‘˜Z[YÈ\]H[İ\ˆ›İ][Ûˆİ]\ÈŠNÂˆH[ÙHÂˆÙ]›İ][Û”İ]\ÊXİ[ÛˆOOHœİ\ˆÈ˜]Ø^Hˆˆ˜]˜Z[X›HŠNÂˆBˆHØ]ÚÂˆÙ]›İ][Û‘\œ›ÜŠ‘˜Z[YÈ\]H[İ\ˆ›İ][Ûˆİ]\ÈŠNÂˆHš[˜[HÂˆÙ]›İ][Û\ŞJ˜[ÙJNÂˆBˆB‚ˆ\Ş[˜È[˜İ[Ûˆ[™U[œ]\ÙJ
+HÂˆÙ]›İ][Û‘\œ›ÜŠˆŠNÂˆÙ]›İ][Û\ŞJYJNÂˆHÂˆÛÛœİ™\ÈH]ØZ]™]Ú
+‹Ø\KÜ›İ][Û‹İ[œ]\ÙH‹ÈY]Ùˆ”ÔÕˆJNÂˆÛÛœİ™\Ğ›ÙHH]ØZ]™\ËšœÛÛŠ
+NÂˆYˆ
+\™\Ë›ÚÊHÂˆÙ]›İ][Û‘\œ›ÜŠ™\Ğ›ÙOË™\œ›ÜˆÏÈ‘˜Z[YÈ[œ]\ÙH[İ\ˆXØÛİ[ŠNÂˆH[ÙHÂˆÙ]›İ][Û”İ]\Ê˜]˜Z[X›HŠNÂˆBˆHØ]ÚÂˆÙ]›İ][Û‘\œ›ÜŠ‘˜Z[YÈ[œ]\ÙH[İ\ˆXØÛİ[ŠNÂˆHš[˜[HÂˆÙ]›İ][Û\ŞJ˜[ÙJNÂˆBˆB‚ˆ\Ş[˜È[˜İ[Ûˆ[™T™\]Y\İ™Z[œİ][Y[
+
+HÂˆÙ]›İ][Û‘\œ›ÜŠˆŠNÂˆÙ]›İ][Û\ŞJYJNÂˆHÂˆÛÛœİ™\ÈH]ØZ]™]Ú
+‹Ø\KÜ›İ][Û‹Ü™\]Y\İ\™Z[œİ][Y[‹ÂˆY]Ùˆ”ÔÕ‹ˆJNÂˆÛÛœİ™\Ğ›ÙHH]ØZ]™\ËšœÛÛŠ
+NÂˆYˆ
+\™\Ë›ÚÊHÂˆÙ]›İ][Û‘\œ›ÜŠ™\Ğ›ÙOË™\œ›ÜˆÏÈ‘˜Z[YÈ™\]Y\İ™Z[œİ][Y[ŠNÂˆH[ÙHÂˆÙ]™Z[œİ][Y[™\]Y\İY]
+™]È]J
+KÒTÓÔİš[™Ê
+JNÂˆBˆHØ]ÚÂˆÙ]›İ][Û‘\œ›ÜŠ‘˜Z[YÈ™\]Y\İ™Z[œİ][Y[ŠNÂˆHš[˜[HÂˆÙ]›İ][Û\ŞJ˜[ÙJNÂˆBˆB‚ˆÛÛœİ]˜]\’[XYÙHH]˜]\•\›È
+ˆ[YÂˆÜ˜Ï^Ø]˜]\•\›Bˆ[Hˆ‚ˆÛ\ÜÓ˜[YOHšLMˆËLMˆ›İ[™YY[Øš™XİXÛİ™\ˆ‚ˆÏ‚ˆ
+Hˆ
+ˆÜ[ˆÛ\ÜÓ˜[YOH™›^LMˆËLMˆ][\ËXÙ[\ˆ\İYKXÙ[\ˆ›İ[™YY[™ËZ[™YÛËMŒ^^›Û[YY][H^]Ú]H‚ˆÚ[š]X[BˆÜÜ[‚ˆ
+NÂ‚ˆÛÛœİšY[ÈHÂˆÂˆX™[ˆ‘˜]›Üš]HšX›H™\œÙH‹ˆ˜[YNˆ˜]›Üš]TØÜš\\™Kˆ[\Nˆ“›İÙ]‹ˆKˆÂˆX™[ˆ‘]HÙˆØ[˜][Ûˆ‹ˆ˜[YNˆ›Ü›X]]J]SÙ”Ø[˜][ÛŠKˆ[\Nˆ“›İÙ]‹ˆKˆÂˆX™[ˆ‘]HÙˆ˜\\ÛH‹ˆ˜[YNˆ›Ü›X]]J]SÙ˜\\ÛJKˆ[\Nˆ“›İÙ]‹ˆKˆNÂ‚ˆ™]\›ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH›^X]]ÈX^]ËLMKLMˆÛNœMˆ‚ˆHÛ\ÜÓ˜[YOH^L›ÛX›Û^YÜ˜^KNL”›Ùš[OÚO‚ˆÛ\ÜÓ˜[YOH›]Lˆ^YÜ˜^KMŒ‚ˆX[˜YÙH[İ\ˆXØÛİ[]Z[È[™İÈ[İH\X\ˆXÜ›ÜÜÈH\‚ˆÜ‚‚ˆ]ˆÛ\ÜÓ˜[YOH›]LL›İ[™Y[È›Ü™\ˆ›Ü™\‹YÜ˜^KLŒ™Ë]Ú]HMˆÚYİË\ÛH‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\Ë\İ\\İYKX™]ÙY[ˆØ\M‚ˆ]ˆÛ\ÜÓ˜[YOH™›^][\ËXÙ[\ˆØ\M‚ˆØ]˜]\’[XYÙ_Bˆ]‚ˆÚ\ÑY][™ÈÈ
+ˆ]‚ˆX™[[›ÜHœ›Ùš[KY[[˜[YHˆÛ\ÜÓ˜[YOHœÜ‹[Û›H‚ˆ[˜[YBˆÛX™[‚ˆ[œ]ˆYHœ›Ùš[KY[[˜[YH‚ˆ\OH^‚ˆ˜[YO^Ù[˜[Y_BˆÛÚ[™ÙO^ÊJHOˆÙ][˜[YJK\™Ù]˜[YJ_BˆXÙZÛ\HY[İ\ˆ˜[YH‚ˆÛ\ÜÓ˜[YOH˜›ØÚÈZ[‹ZLLH›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌLÈKLˆ^\ÛH›Û[YY][H^YÜ˜^KNLÚYİË\ÛH‚ˆÏ‚ˆÙ]‚ˆ
+Hˆ
+ˆÛ\ÜÓ˜[YOH^\ÛH›Û[YY][H^YÜ˜^KNL‚ˆÙ[˜[YHY[İ\ˆ˜[YHŸBˆÜ‚ˆ
+_BˆÛ\ÜÓ˜[YOH^\ÛH^YÜ˜^KMLÙ[XZ[OÜ‚ˆÙ]‚ˆÙ]‚‚ˆ]ˆÛ\ÜÓ˜[YOH™›^][\ËXÙ[\ˆØ\LÈ‚ˆÚ\İØ]™Y	‰ˆZ\ÑY][™È	‰ˆ
+ˆÜ[‚ˆ›ÛOHœİ]\È‚ˆ\šXK[]™OHœÛ]H‚ˆÛ\ÜÓ˜[YOH^\ÛH^YÜ™Y[‹MŒ‚ˆ‚ˆØ]™Y‚ˆÜÜ[‚ˆ
+_B‚ˆÚ\Ô™X[YZ[ˆ	‰ˆZ\ÑY][™È	‰ˆ
+ˆ]‚ˆ›ÛOH™Ü›İ\‚ˆ\šXK[X™[H”™]šY]ÈH\\È‚ˆÛ\ÜÓ˜[YOH™›^][\ËXÙ[\ˆØ\LH›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLŒ™ËYÜ˜^KMLLH‚ˆ‚ˆÔ‘U’QU×ÓÔSÓ”Ë›X\
+
+Ü[ÛŠHOˆÂˆÛÛœİ\ÔÙ[XİYH
+™]šY]Ô›ÛHˆŠHOOHÜ[Û‹˜[YNÂˆ™]\›ˆ
+ˆ]Û‚ˆÙ^O^ÛÜ[Û‹˜[YH˜YZ[ˆŸBˆ\OH˜]Ûˆ‚ˆ]O^ÛÜ[Û‹™\ØÜš\[ÛŸBˆ\šXK\™\ÜÙY^Ú\ÔÙ[XİYBˆ\ØX›Y^ÜØ]š[™Ô™]šY]ßBˆÛÛXÚÏ^Ê
+HOˆ[™T™]šY]ĞÚ[™ÙJÜ[Û‹˜[YJ_BˆÛ\ÜÓ˜[YO^ØZ[‹ZLLH›İ[™YLÈKLˆ^^È›Û[YY][H˜[œÚ][Ûˆ\ØX›Y›ÜXÚ]KML	Âˆ\ÔÙ[XİYˆÈ˜™ËZ[™YÛËMŒ^]Ú]HÚYİË\ÛH‚ˆˆ^YÜ˜^KMŒİ™\˜™ËYÜ˜^KLŒ‚ˆXBˆ‚ˆÛÜ[Û‹œÚÜX™[BˆØ]Û‚ˆ
+NÂˆJ_BˆÙ]‚ˆ
+_B‚ˆÚ\ÑY][™ÈÈ
+ˆ‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ú[™PØ[˜Ù[Bˆ\ØX›Y^ÜØ]š[™ßBˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌ™Ë]Ú]HLÈKLˆ^\ÛH›Û[YY][H^YÜ˜^KMÌÚYİË\ÛH˜[œÚ][Ûˆİ™\˜™ËYÜ˜^KML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆØ[˜Ù[ˆØ]Û‚ˆ]Û‚ˆ\OHœİX›Z]‚ˆ›Ü›OHœ›Ùš[KY›Ü›H‚ˆ\ØX›Y^ÜØ]š[™ßBˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y™ËX[X™\‹MLLÈKLˆ^\ÛH›Û[YY][H^]Ú]HÚYİË\ÛHİ™\˜™ËX[X™\‹M\ØX›Y›ÜXÚ]KML‚ˆ‚ˆÜØ]š[™ÈÈ”Ø]š[™Ë‹‹ˆˆˆ”Ø]™HŸBˆØ]Û‚ˆÏ‚ˆ
+Hˆ
+ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ú[™QY]BˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌ™Ë]Ú]HLÈKLˆ^\ÛH›Û[YY][H^YÜ˜^KMÌÚYİË\ÛH˜[œÚ][Ûˆİ™\˜™ËYÜ˜^KML‚ˆ‚ˆY]ˆØ]Û‚ˆ
+_BˆÙ]‚ˆÙ]‚‚ˆÚ\Ô™X[YZ[ˆ	‰ˆ™]šY]Ô›ÛH	‰ˆ
+ˆÛ\ÜÓ˜[YOH›]LÈ^^È›Û[YY][H^X[X™\‹MŒ‚ˆ™]šY]Ú[™È\ŞÈˆŸBˆÔ‘U’QU×ÓÔSÓ”Ë™š[™
+
+ÊHOˆË˜[YHOOH™]šY]Ô›ÛJOË›X™[ÏÂˆ™]šY]Ô›Û_Bˆˆ[İ\ˆ™X[YZ[ˆXØÙ\ÜÈ\Û‰œœÜ][ÎİY™™XİY8 %ÛXÚÈYZ[ˆX›İ™BˆÈİÚ]Ú˜XÚË‚ˆÜ‚ˆ
+_B‚ˆÚ\ÑY][™È	‰ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH›]Mˆ‚ˆX™[ˆ[›ÜHœ›Ùš[K\Xİ\™H‚ˆÛ\ÜÓ˜[YOH˜›ØÚÈ^\ÛH›Û[YY][H^YÜ˜^KMÌ‚ˆ‚ˆ›Ùš[HXİ\™BˆÛX™[‚ˆ]ˆÛ\ÜÓ˜[YOH›]Lˆ›^][\ËXÙ[\ˆØ\LÈ‚ˆ[œ]ˆ™Y^Ùš[R[œ]™YŸBˆYHœ›Ùš[K\Xİ\™H‚ˆ\OH™š[H‚ˆXØÙ\Hš[XYÙKÊˆ‚ˆÛÚ[™ÙO^Ú[™P]˜]\Ú[™Ù_BˆÛ\ÜÓ˜[YOHšY[ˆ‚ˆÏ‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ê
+HOˆš[R[œ]™Y‹˜İ\œ™[Ë˜ÛXÚÊ
+_Bˆ\ØX›Y^İ\ØY[™Ğ]˜]\ŸBˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌ™Ë]Ú]HLÈKLˆ^\ÛH›Û[YY][H^YÜ˜^KMÌÚYİË\ÛH˜[œÚ][Ûˆİ™\˜™ËYÜ˜^KML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆİ\ØY[™Ğ]˜]\‚ˆÈ•\ØY[™Ë‹‹ˆ‚ˆˆ]˜]\•\›ˆÈÚ[™ÙHİÈ‚ˆˆ•\ØYİÈŸBˆØ]Û‚ˆØ]˜]\•\›	‰ˆ
+ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ú[™T™[[İ™P]˜]\ŸBˆ\ØX›Y^İ\ØY[™Ğ]˜]\ŸBˆÛ\ÜÓ˜[YOH›Z[‹ZLLHLˆ^\ÛH›Û[YY][H^\™YMŒ˜[œÚ][Ûˆİ™\^\™YML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆ™[[İ™BˆØ]Û‚ˆ
+_BˆÙ]‚ˆØ]˜]\‘\œ›Üˆ	‰ˆ
+ˆˆ›ÛOH˜[\‚ˆ\šXK[]™OH˜\ÜÙ\]™H‚ˆÛ\ÜÓ˜[YOH›]LH^^È^\™YMŒ‚ˆ‚ˆØ]˜]\‘\œ›ÜŸBˆÜ‚ˆ
+_BˆÛ\ÜÓ˜[YOH›]LH^^È^YÜ˜^KML’”ÈÜˆ‘Ë\ÈSP‹Ü‚ˆÙ]‚ˆ
+_B‚ˆ›Ü›BˆYHœ›Ùš[KY›Ü›H‚ˆÛ”İX›Z]^Ú[™TØ]™_BˆÛ\ÜÓ˜[YOH›]Mˆ]šYK^H]šYKYÜ˜^KLL›Ü™\‹]›Ü™\‹YÜ˜^KLL‚ˆ‚ˆÚ\ÑY][™ÈÈ
+ˆ]ˆÛ\ÜÓ˜[YOHœÜXÙK^KMHKMH‚ˆ]‚ˆX™[ˆ[›ÜH™˜]›Üš]K\ØÜš\\™H‚ˆÛ\ÜÓ˜[YOH˜›ØÚÈ^\ÛH›Û[YY][H^YÜ˜^KMÌ‚ˆ‚ˆ˜]›Üš]HšX›H™\œÙBˆÛX™[‚ˆ[œ]ˆYH™˜]›Üš]K\ØÜš\\™H‚ˆ\OH^‚ˆ˜[YO^Ù˜]›Üš]TØÜš\\™_BˆÛÚ[™ÙO^ÊJHOˆÙ]˜]›Üš]TØÜš\\™JK\™Ù]˜[YJ_BˆXÙZÛ\H™K™Ëˆ[\X[œÈŒLÈ‚ˆÛ\ÜÓ˜[YOH›]LH›ØÚÈZ[‹ZLLHËY[›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌLÈKLˆÚYİË\ÛHÛN^\ÛH‚ˆÏ‚ˆÙ]‚‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\Ø\MH‚ˆ]ˆÛ\ÜÓ˜[YOH™›^LHZ[‹]ËVÌL™[WH‚ˆX™[ˆ[›ÜH™]K[Ù‹\Ø[˜][Ûˆ‚ˆÛ\ÜÓ˜[YOH˜›ØÚÈ^\ÛH›Û[YY][H^YÜ˜^KMÌ‚ˆ‚ˆ]HÙˆØ[˜][Û‚ˆÛX™[‚ˆ[œ]ˆYH™]K[Ù‹\Ø[˜][Ûˆ‚ˆ\OH™]H‚ˆ˜[YO^Ù]SÙ”Ø[˜][ÛŸBˆÛÚ[™ÙO^ÊJHOˆÙ]]SÙ”Ø[˜][ÛŠK\™Ù]˜[YJ_BˆÛ\ÜÓ˜[YOH›]LH›ØÚÈZ[‹ZLLHËY[›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌLÈKLˆÚYİË\ÛHÛN^\ÛH‚ˆÏ‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH™›^LHZ[‹]ËVÌL™[WH‚ˆX™[ˆ[›ÜH™]K[Ù‹X˜\\ÛH‚ˆÛ\ÜÓ˜[YOH˜›ØÚÈ^\ÛH›Û[YY][H^YÜ˜^KMÌ‚ˆ‚ˆ]HÙˆ˜\\ÛBˆÛX™[‚ˆ[œ]ˆYH™]K[Ù‹X˜\\ÛH‚ˆ\OH™]H‚ˆ˜[YO^Ù]SÙ˜\\Û_BˆÛÚ[™ÙO^ÊJHOˆÙ]]SÙ˜\\ÛJK\™Ù]˜[YJ_BˆÛ\ÜÓ˜[YOH›]LH›ØÚÈZ[‹ZLLHËY[›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌLÈKLˆÚYİË\ÛHÛN^\ÛH‚ˆÏ‚ˆÙ]‚ˆÙ]‚ˆÙ]‚ˆ
+Hˆ
+ˆšY[Ë›X\
+
+šY[
+HOˆ
+ˆ]ˆÙ^O^ÙšY[›X™[HÛ\ÜÓ˜[YOHœKMš\œİœL‚ˆÛ\ÜÓ˜[YOH^^È›Û\Ù[ZX›Û\\˜Ø\ÙH˜XÚÚ[™Ë]ÚYH^YÜ˜^KML‚ˆÙšY[›X™[BˆÜ‚ˆˆÛ\ÜÓ˜[YOH›]LHÚ]\ÜXÙK\™K]Ü˜\^\ÛH^YÜ˜^KNL‚ˆİ[O^ÂˆšY[›X™[OOH“^H\İ[[ÛHˆ	‰ˆšY[˜[YBˆÈÂˆ\Ü^Nˆ‹]ÙXšÚ]X›Ş‹ˆÙXšÚ][™PÛ[\ˆ‹ˆÙXšÚ]›ŞÜšY[ˆ™\XØ[‹ˆİ™\™›İÎˆšY[ˆ‹ˆBˆˆ[™Yš[™YˆBˆ‚ˆÙšY[˜[YH
+ˆÜ[ˆÛ\ÜÓ˜[YOH^YÜ˜^KMÙšY[™[\_OÜÜ[‚ˆ
+_BˆÜ‚ˆÙ]‚ˆ
+JBˆ
+_BˆÙ›Ü›O‚ˆÙ]‚‚ˆÚ\ĞØ\™UX[SY[X™\ˆ	‰ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH›]LL›İ[™Y[È›Ü™\ˆ›Ü™\‹YÜ˜^KLŒ™Ë]Ú]HMˆÚYİË\ÛH‚ˆˆÛ\ÜÓ˜[YOH^\ÛH›Û\Ù[ZX›Û^YÜ˜^KNL‚ˆZ[š\İH]˜Z[Xš[]BˆÚ‚ˆÛ\ÜÓ˜[YOH›]LH^^È^YÜ˜^KML‚ˆÛÛ›ÛÚ]\ˆ[İI˜\ÜÎÜ™Hİ\œ™[H™XÙZ]š[™È™]È˜^Y\‚ˆ™\]Y\İ\ÜÚYÛ›Y[Ëˆ[İHØ[ˆİ[\ÙH]™\Hİ\ˆ\ÙˆBˆ\\ÈH™Yİ[\ˆY[X™\ˆ›ÈX]\ˆ[İ\ˆ]˜Z[Xš[]H\™KˆXØÛİ[XØÙ\ÜÈ\ÈX[˜YÙYÙ\\˜][K‚ˆÜ‚‚ˆÜ›İ][Û‘\œ›Üˆ	‰ˆ
+ˆˆ›ÛOH˜[\‚ˆ\šXK[]™OH˜\ÜÙ\]™H‚ˆÛ\ÜÓ˜[YOH›]LÈ^^È^\™YMŒ‚ˆ‚ˆÜ›İ][Û‘\œ›ÜŸBˆÜ‚ˆ
+_B‚ˆ]ˆÛ\ÜÓ˜[YOH›]M‚ˆÜ›İ][Û”İ]\ÈOOH˜]˜Z[X›Hˆ	‰ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\ËXÙ[\ˆØ\LÈ‚ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËY[Y\˜[MLLÈKLH^^È›Û[YY][H^Y[Y\˜[MÌ‚ˆ]˜Z[X›H›Üˆ\ÜÚYÛ›Y[ÂˆÜÜ[‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ê
+HOˆ[™TØX˜˜]XØ[ÙÙÛJœİ\Š_Bˆ\ØX›Y^Ü›İ][Û\Ş_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌ™Ë]Ú]HLÈKLˆ^\ÛH›Û[YY][H^YÜ˜^KMÌÚYİË\ÛH˜[œÚ][Ûˆİ™\˜™ËYÜ˜^KML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆÜ›İ][Û\ŞHÈ•\][™Ë‹‹ˆˆˆ”Ù]]Ø^HŸBˆØ]Û‚ˆÙ]‚ˆ
+_B‚ˆÜ›İ][Û”İ]\ÈOOH˜]Ø^Hˆ	‰ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\ËXÙ[\ˆØ\LÈ‚ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËX[X™\‹MLLÈKLH^^È›Û[YY][H^X[X™\‹MÌ‚ˆ]Ø^H8 %›È™]È\ÜÚYÛ›Y[ÂˆÜÜ[‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ê
+HOˆ[™TØX˜˜]XØ[ÙÙÛJ™[™Š_Bˆ\ØX›Y^Ü›İ][Û\Ş_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y™ËZ[™YÛËMŒLÈKLˆ^\ÛH›Û[YY][H^]Ú]HÚYİË\ÛH˜[œÚ][Ûˆİ™\˜™ËZ[™YÛËML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆÜ›İ][Û\ŞHÈ•\][™Ë‹‹ˆˆˆ”™]\›ˆÈ]˜Z[X›HŸBˆØ]Û‚ˆÙ]‚ˆ
+_B‚ˆÜ›İ][Û”İ]\ÈOOH›[Z]Yˆ	‰ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\ËXÙ[\ˆØ\LÈ‚ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™Ë[Ü˜[™ÙKMLLÈKLH^^È›Û[YY][H^[Ü˜[™ÙKMÌ‚ˆ[Z]Y8 %™]È\ÜÚYÛ›Y[È]\ÙYˆÜÜ[‚ˆÚ[š]X[Z\ÜÙY\ÜÚYÛ›Y[Ûİ[ˆÈ
+ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ú[™U[œ]\Ù_Bˆ\ØX›Y^Ü›İ][Û\Ş_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y™ËZ[™YÛËMŒLÈKLˆ^\ÛH›Û[YY][H^]Ú]HÚYİË\ÛH˜[œÚ][Ûˆİ™\˜™ËZ[™YÛËML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆÜ›İ][Û\ŞHÈ•\][™Ë‹‹ˆˆˆ”™]\›ˆÈ]˜Z[X›HŸBˆØ]Û‚ˆ
+Hˆ
+ˆÜ[ˆÛ\ÜÓ˜[YOH^^È^YÜ˜^KMLHØ\™HXY\ˆ]\İ™]šY]È™\X]YZ\ÜÙY\ÜÚYÛ›Y[È™Y›Ü™H]˜Z[Xš[]H™\İ[Y\ËÜÜ[‚ˆ
+_BˆÙ]‚ˆ
+_B‚ˆÜ›İ][Û”İ]\ÈOOHš[˜Xİ]™Hˆ	‰ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\ËXÙ[\ˆØ\LÈ‚ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™Ë\™YMLLÈKLH^^È›Û[YY][H^\™YMÌ‚ˆ[˜Xİ]™H›ÜˆZ[š\İH\ÜÚYÛ›Y[ÂˆÜÜ[‚ˆÜ™Z[œİ][Y[™\]Y\İY]È
+ˆÜ[ˆÛ\ÜÓ˜[YOH^^È^YÜ˜^KML‚ˆ™Z[œİ][Y[™\]Y\İY8 %ØZ][™ÈÛˆYZ[ˆ\›İ˜[‚ˆÜÜ[‚ˆ
+Hˆ
+ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ú[™T™\]Y\İ™Z[œİ][Y[Bˆ\ØX›Y^Ü›İ][Û\Ş_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y™ËZ[™YÛËMŒLÈKLˆ^\ÛH›Û[YY][H^]Ú]HÚYİË\ÛH˜[œÚ][Ûˆİ™\˜™ËZ[™YÛËML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆÜ›İ][Û\ŞHÈ”™\]Y\İ[™Ë‹‹ˆˆˆ”™\]Y\İ™Z[œİ][Y[ŸBˆØ]Û‚ˆ
+_BˆÙ]‚ˆ
+_BˆÙ]‚ˆÙ]‚ˆ
+_B‚ˆ]ˆÛ\ÜÓ˜[YOH›]LL›İ[™Y[È›Ü™\ˆ›Ü™\‹YÜ˜^KLŒ™Ë]Ú]HMˆÚYİË\ÛH‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\ËXÙ[\ˆ\İYKX™]ÙY[ˆØ\M‚ˆ]‚ˆˆÛ\ÜÓ˜[YOH^\ÛH›Û\Ù[ZX›Û^YÜ˜^KNL‚ˆ^H\İ[[ÛBˆÚ‚ˆÛ\ÜÓ˜[YOH›]LH^^È^YÜ˜^KML‚ˆÚ\™HÜˆ\]H[İ\ˆ\İ[[ÛHÛˆH\İ[[ÛH›Ø\™‚ˆÜ‚ˆÙ]‚ˆ[šÂˆ™YH‹İ\İ[[ÛšY\ËÜİX›Z]‚ˆÛ\ÜÓ˜[YOH›Z[‹ZLLHÚš[šËL›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌ™Ë]Ú]HLÈKLˆ^\ÛH›Û[YY][H^YÜ˜^KMÌÚYİË\ÛH˜[œÚ][Ûˆİ™\˜™ËYÜ˜^KML‚ˆ‚ˆ\İ[[ÛH›Ø\™8¡¤‚ˆÓ[šÏ‚ˆÙ]‚ˆÙ]‚‚ˆ]ˆÛ\ÜÓ˜[YOH›]Mˆ›İ[™Y[È›Ü™\ˆ›Ü™\‹YÜ˜^KLŒ™Ë]Ú]HMˆÚYİË\ÛH‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\ËXÙ[\ˆ\İYKX™]ÙY[ˆØ\M‚ˆ]‚ˆˆÛ\ÜÓ˜[YOH^\ÛH›Û\Ù[ZX›Û^YÜ˜^KNLXØÛİ[Ú‚ˆÛ\ÜÓ˜[YOH›]LH^^È^YÜ˜^KML‚ˆ[İ\ˆÙÚ[ˆ]Z[Ë\ÜİÛÜ™[™ÚYÛˆİ]‚ˆÜ‚ˆÙ]‚ˆ[šÂˆ™YH‹ØXØÛİ[‚ˆÛ\ÜÓ˜[YOH›Z[‹ZLLHÚš[šËL›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌ™Ë]Ú]HLÈKLˆ^\ÛH›Û[YY][H^YÜ˜^KMÌÚYİË\ÛH˜[œÚ][Ûˆİ™\˜™ËYÜ˜^KML‚ˆ‚ˆXØÛİ[8¡¤‚ˆÓ[šÏ‚ˆÙ]‚ˆÙ]‚ˆÙ]‚ˆ
+NÂŸB

@@ -1,453 +1,155 @@
-"use client";
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçH\ÙHÛY[Â‚š[\ÜÈ\ÙTİ]HHœ›ÛHœ™XXİÂ‚˜ÛÛœİ“ÓWÓÔSÓ”ÈHÂˆÈ˜[YNˆ›Y[X™\ˆ‹X™[ˆÛÛ[][š]HY[X™\ˆˆKˆÈ˜[YNˆœ˜^Y\—İX[H‹X™[ˆÛÛ[][š]H˜^Y\ˆY[X™\ˆˆKˆÈ˜[YNˆœ\İÜˆ‹X™[ˆÛÛ[][š]HY[ÜˆˆKˆÈ˜[YNˆ˜YZ[ˆ‹X™[ˆÛÛ[][š]HYZ[ˆˆK—NÂ‚˜ÛÛœİURSP’SUWÓÔSÓ”ÈHÂˆÈ˜[YNˆ˜]˜Z[X›H‹X™[ˆ]˜Z[X›HˆKˆÈ˜[YNˆ›[Z]Y‹X™[ˆ“[Z]YˆKˆÈ˜[YNˆ˜]Ø^H‹X™[ˆ]Ø^HˆKˆÈ˜[YNˆš[˜Xİ]™H‹X™[ˆ’[˜Xİ]™HˆK—NÂ‚\H\Ù\”›İÈHÂˆYˆİš[™ÎÂˆ[Û˜[YNˆİš[™È[Âˆ[XZ[ˆİš[™È[Âˆ›ÛNˆİš[™È[Âˆ\×ØXİ]™Nˆ›ÛÛX[ÂˆÜ™X]YØ]ˆİš[™ÎÂˆ›İ][Û—Üİ]\ÏÎˆİš[™È[ÂˆZ[š\İWØ]˜Z[Xš[]OÎˆİš[™È[ÂˆZ\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[Îˆ[X™\Âˆ]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™YÎˆ›ÛÛX[Âˆ™Z[œİ][Y[Ü™\]Y\İYØ]Îˆİš[™È[ÂŸNÂ‚\H›ÜÈHÂˆ\Ù\œÎˆ\Ù\”›İÖ×NÂˆİ\œ™[\Ù\’Yˆİš[™ÎÂŸNÂ‚™^ÜY˜][[˜İ[ÛˆYZ[•\Ù\œĞÛY[
+È\Ù\œÎˆ[š]X[\Ù\œËİ\œ™[\Ù\’YNˆ›ÜÊHÂˆÛÛœİİ\Ù\œËÙ]\Ù\œ×HH\ÙTİ]O\Ù\”›İÖ×OŠ[š]X[\Ù\œÊNÂˆÛÛœİÜ[™[™ÒYÙ][™[™ÒYHH\ÙTİ]Oİš[™È[Š[
+NÂˆÛÛœİØÛÛ™š\›Z[™ÒYÙ]ÛÛ™š\›Z[™ÒYHH\ÙTİ]Oİš[™È[Š[
+NÂˆÛÛœİÙXXİ]˜][Û”™]šY]ËÙ]XXİ]˜][Û”™]šY]×HH\ÙTİ]OÈ\Ù\’Yˆİš[™ÎÈÛİ[ˆ[X™\ˆH[Š[
+NÂˆÛÛœİÙ\œ›Ü‹Ù]\œ›Ü—HH\ÙTİ]JˆŠNÂ‚ˆ\Ş[˜È[˜İ[Ûˆ[™T›ÛPÚ[™ÙJ\Ù\’Yˆİš[™Ë›ÛNˆİš[™ÊHÂˆÙ]\œ›ÜŠˆŠNÂˆÛÛœİ™]š[İ\ÈH\Ù\œÎÂˆÙ]\Ù\œÊ
+™]ŠHOˆ™]‹›X\
 
-import { useState } from "react";
+JHOˆ
+KšYOOH\Ù\’YÈÈ‹‹K›ÛHHˆJJJNÂˆÙ][™[™ÒY
+\Ù\’Y
+NÂ‚ˆHÂˆÛÛœİ™\ÈH]ØZ]™]Ú
+‹Ø\KØYZ[‹İ\Ù\œËÜÙ]\›ÛH‹ÂˆY]Ùˆ”ÔÕ‹ˆXY\œÎˆÈÛÛ[U\Hˆ˜\XØ][Û‹ÚœÛÛˆˆKˆ›ÙNˆ”ÓÓ‹œİš[™ÚYJÈ\Ù\’Y›ÛHJKˆJNÂˆÛÛœİ›ÙHH]ØZ]™\ËšœÛÛŠ
+NÂˆYˆ
+\™\Ë›ÚÊHÂˆÙ]\Ù\œÊ™]š[İ\ÊNÂˆÙ]\œ›ÜŠ›ÙOË™\œ›ÜˆÏÈ‘˜Z[YÈ\]H›ÛHŠNÂˆBˆHØ]ÚÂˆÙ]\Ù\œÊ™]š[İ\ÊNÂˆÙ]\œ›ÜŠ‘˜Z[YÈ\]H›ÛHŠNÂˆHš[˜[HÂˆÙ][™[™ÒY
+[
+NÂˆBˆB‚ˆ\Ş[˜È[˜İ[Ûˆ[™PXİ]™UÙÙÛJ\Ù\’Yˆİš[™Ë\ĞXİ]™Nˆ›ÛÛX[‹™\ÜÛœÚXš[]PXİ[ÛÎˆ˜[×Ü™X\ÜÚYÛˆˆœ™]\›—İ×Ü]Y]YHŠHÂˆÙ]\œ›ÜŠˆŠNÂˆÙ][™[™ÒY
+\Ù\’Y
+NÂ‚ˆHÂˆÛÛœİ™\ÈH]ØZ]™]Ú
+‹Ø\KØYZ[‹İ\Ù\œËÜÙ]XXİ]™H‹ÂˆY]Ùˆ”ÔÕ‹ˆXY\œÎˆÈÛÛ[U\Hˆ˜\XØ][Û‹ÚœÛÛˆˆKˆ›ÙNˆ”ÓÓ‹œİš[™ÚYJÈ\Ù\’Y\ĞXİ]™K™\ÜÛœÚXš[]PXİ[ÛˆJKˆJNÂˆÛÛœİ›ÙHH]ØZ]™\ËšœÛÛŠ
+NÂˆYˆ
+™\Ëœİ]\ÈOOHH	‰ˆ›ÙOË˜ÛÙHOOHPÕU‘WÔ‘TÔÓ”ÒP’SUQTÈŠHÂˆÙ]XXİ]˜][Û”™]šY]ÊÈ\Ù\’YÛİ[ˆ›ÙK˜Ûİ[ÏÈJNÂˆ™]\›ÂˆBˆYˆ
+\™\Ë›ÚÊHÂˆÙ]\œ›ÜŠ›ÙOË™\œ›ÜˆÏÈ‘˜Z[YÈ\]HXØÛİ[İ]\ÈŠNÂˆH[ÙHÂˆÙ]\Ù\œÊ
+™]ŠHOˆ™]‹›X\
 
-const ROLE_OPTIONS = [
-  { value: "member", label: "Community Member" },
-  { value: "prayer_team", label: "Community Prayer Member" },
-  { value: "pastor", label: "Community Mentor" },
-  { value: "admin", label: "Community Admin" },
-];
+JHOˆKšYOOH\Ù\’YÈÂˆ‹‹Kˆ\×ØXİ]™Nˆ\ĞXİ]™KˆZ[š\İWØ]˜Z[Xš[]Nˆ\ĞXİ]™HÈK›Z[š\İWØ]˜Z[Xš[]Hˆš[˜Xİ]™H‹ˆHˆJJNÂˆÙ]XXİ]˜][Û”™]šY]Ê[
+NÂˆBˆHØ]ÚÂˆÙ]\œ›ÜŠ‘˜Z[YÈ\]HXØÛİ[İ]\ÈŠNÂˆHš[˜[HÂˆÙ][™[™ÒY
+[
+NÂˆBˆB‚ˆ\Ş[˜È[˜İ[Ûˆ[™P]˜Z[Xš[]PÚ[™ÙJ\Ù\’Yˆİš[™Ë]˜Z[Xš[]Nˆİš[™ÊHÂˆÙ]\œ›ÜŠˆŠNÂˆÙ][™[™ÒY
+\Ù\’Y
+NÂˆHÂˆÛÛœİ™\ÈH]ØZ]™]Ú
+‹Ø\KØYZ[‹İ\Ù\œËÜÙ]X]˜Z[Xš[]H‹ÂˆY]Ùˆ”ÔÕ‹ˆXY\œÎˆÈÛÛ[U\Hˆ˜\XØ][Û‹ÚœÛÛˆˆKˆ›ÙNˆ”ÓÓ‹œİš[™ÚYJÈ\Ù\’Y]˜Z[Xš[]HJKˆJNÂˆÛÛœİ›ÙHH]ØZ]™\ËšœÛÛŠ
+NÂˆYˆ
+\™\Ë›ÚÊHÙ]\œ›ÜŠ›ÙOË™\œ›ÜˆÏÈ‘˜Z[YÈ\]HZ[š\İH]˜Z[Xš[]HŠNÂˆ[ÙHÙ]\Ù\œÊ
+™]ŠHOˆ™]‹›X\
 
-type UserRow = {
-  id: string;
-  full_name: string | null;
-  email: string | null;
-  role: string | null;
-  is_active: boolean;
-  created_at: string;
-  rotation_status?: string | null;
-  reinstatement_requested_at?: string | null;
-};
+JHOˆKšYOOH\Ù\’YÈÂˆ‹‹KˆZ[š\İWØ]˜Z[Xš[]Nˆ]˜Z[Xš[]Kˆ]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™Yˆ˜[ÙKˆHˆJJNÂˆHØ]ÚÂˆÙ]\œ›ÜŠ‘˜Z[YÈ\]HZ[š\İH]˜Z[Xš[]HŠNÂˆHš[˜[HÂˆÙ][™[™ÒY
+[
+NÂˆBˆB‚ˆ\Ş[˜È[˜İ[Ûˆ[™Q[]J\Ù\’Yˆİš[™ÊHÂˆÙ]\œ›ÜŠˆŠNÂˆÙ][™[™ÒY
+\Ù\’Y
+NÂ‚ˆHÂˆÛÛœİ™\ÈH]ØZ]™]Ú
+‹Ø\KØYZ[‹İ\Ù\œËÙ[]H‹ÂˆY]Ùˆ”ÔÕ‹ˆXY\œÎˆÈÛÛ[U\Hˆ˜\XØ][Û‹ÚœÛÛˆˆKˆ›ÙNˆ”ÓÓ‹œİš[™ÚYJÈ\Ù\’YJKˆJNÂˆÛÛœİ›ÙHH]ØZ]™\ËšœÛÛŠ
+NÂˆYˆ
+\™\Ë›ÚÊHÂˆÙ]\œ›ÜŠ›ÙOË™\œ›ÜˆÏÈ‘˜Z[YÈ[]H\Ù\ˆŠNÂˆH[ÙHÂˆÙ]\Ù\œÊ
+™]ŠHOˆ™]‹™š[\Š
+JHOˆKšYOOH\Ù\’Y
+JNÂˆBˆHØ]ÚÂˆÙ]\œ›ÜŠ‘˜Z[YÈ[]H\Ù\ˆŠNÂˆHš[˜[HÂˆÙ][™[™ÒY
+[
+NÂˆÙ]ÛÛ™š\›Z[™ÒY
+[
+NÂˆBˆB‚ˆ\Ş[˜È[˜İ[Ûˆ[™P\›İ™T™Z[œİ][Y[
+\Ù\’Yˆİš[™ÊHÂˆÙ]\œ›ÜŠˆŠNÂˆÙ][™[™ÒY
+\Ù\’Y
+NÂ‚ˆHÂˆÛÛœİ™\ÈH]ØZ]™]Ú
+‹Ø\KØYZ[‹İ\Ù\œËØ\›İ™K\™Z[œİ][Y[‹ÂˆY]Ùˆ”ÔÕ‹ˆXY\œÎˆÈÛÛ[U\Hˆ˜\XØ][Û‹ÚœÛÛˆˆKˆ›ÙNˆ”ÓÓ‹œİš[™ÚYJÈ\Ù\’YJKˆJNÂˆÛÛœİ›ÙHH]ØZ]™\ËšœÛÛŠ
+NÂˆYˆ
+\™\Ë›ÚÊHÂˆÙ]\œ›ÜŠ›ÙOË™\œ›ÜˆÏÈ‘˜Z[YÈ\›İ™H™Z[œİ][Y[ŠNÂˆH[ÙHÂˆÙ]\Ù\œÊ
+™]ŠHO‚ˆ™]‹›X\
 
-type Props = {
-  users: UserRow[];
-  currentUserId: string;
-};
+JHO‚ˆKšYOOH\Ù\’YˆÈÈ‹‹K›İ][Û—Üİ]\Îˆ˜Xİ]™H‹Z[š\İWØ]˜Z[Xš[]Nˆ˜]˜Z[X›H‹]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™Yˆ˜[ÙK™Z[œİ][Y[Ü™\]Y\İYØ]ˆ[BˆˆBˆ
+Bˆ
+NÂˆBˆHØ]ÚÂˆÙ]\œ›ÜŠ‘˜Z[YÈ\›İ™H™Z[œİ][Y[ŠNÂˆHš[˜[HÂˆÙ][™[™ÒY
+[
+NÂˆBˆB‚ˆÛÛœİ[™[™Ô™Z[œİ][Y[ÈH\Ù\œË™š[\Šˆ
+JHOˆKœ›İ][Û—Üİ]\ÈOOHš[˜Xİ]™Hˆ	‰ˆKœ™Z[œİ][Y[Ü™\]Y\İYØ]ˆ
+NÂ‚ˆ™]\›ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH›^X]]ÈX^]ËM^MKLMˆÛNœMˆ‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\ËXÙ[\ˆ\İYKX™]ÙY[ˆØ\M‚ˆ]‚ˆHÛ\ÜÓ˜[YOH^L›ÛX›Û^YÜ˜^KNL“X[˜YÙH\Ù\œÏÚO‚ˆÛ\ÜÓ˜[YOH›]Lˆ^YÜ˜^KMŒ‚ˆX[˜YÙHXØÛİ[XØÙ\ÜÈÙ\\˜][Hœ›ÛHZ[š\İH]˜Z[Xš[]H[™\ÜÚYÛ›Y[™\ÜÛœÚXš[]K‚ˆÜ‚ˆÙ]‚ˆBˆ™YH‹ØYZ[ˆ‚ˆÛ\ÜÓ˜[YOHš[›[™KY›^Z[‹ZLLHÚš[šËL][\ËXÙ[\ˆ^\ÛH›Û[YY][H^Z[™YÛËMŒİ™\^Z[™YÛËML‚ˆ‚ˆ˜XÚÈÈ˜^Y\ˆØ\™HYZ[‚ˆØO‚ˆÙ]‚‚ˆÙ\œ›Üˆ	‰ˆ
+ˆˆ›ÛOH˜[\‚ˆ\šXK[]™OH˜\ÜÙ\]™H‚ˆÛ\ÜÓ˜[YOH›]M›İ[™Y[È™Ë\™YMLLÈKLˆ^\ÛH^\™YMŒ‚ˆ‚ˆÙ\œ›ÜŸBˆÜ‚ˆ
+_B‚ˆÜ[™[™Ô™Z[œİ][Y[Ë›[™İˆ	‰ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH›]Mˆ›İ[™Y[È›Ü™\ˆ›Ü™\‹X[X™\‹LŒ™ËX[X™\‹MLM‚ˆˆÛ\ÜÓ˜[YOH^\ÛH›Û\Ù[ZX›Û^X[X™\‹NL‚ˆ[™[™È™Z[œİ][Y[™\]Y\İÂˆÚ‚ˆÛ\ÜÓ˜[YOH›]LH^^È^X[X™\‹MÌ‚ˆ\ÙHYØXŞH™\]Y\İÈ™[XZ[ˆ]˜Z[X›H›Üˆ™]šY]Ëˆ™]È[˜][™Y\ÜÚYÛ›Y[È›ÈÛ™Ù\ˆXXİ]˜]HXØÛİ[È]]ÛX]XØ[K‚ˆÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›]LÈÜXÙK^KLˆ‚ˆÜ[™[™Ô™Z[œİ][Y[Ë›X\
 
-export default function AdminUsersClient({ users: initialUsers, currentUserId }: Props) {
-  const [users, setUsers] = useState<UserRow[]>(initialUsers);
-  const [pendingId, setPendingId] = useState<string | null>(null);
-  const [confirmingId, setConfirmingId] = useState<string | null>(null);
-  const [error, setError] = useState("");
+JHOˆÂˆÛÛœİ\Ô[™[™ÈH[™[™ÒYOOHKšYÂˆÛÛœİXØÙ\ÜÚX›S˜[YHHK™[Û˜[YHÏÈK™[XZ[ÏÈ[›˜[YY\Ù\ˆÂˆ™]\›ˆ
+ˆ]‚ˆÙ^O^İKšYBˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\ËXÙ[\ˆ\İYKX™]ÙY[ˆØ\Lˆ›İ[™Y[Y™Ë]Ú]HLÈKLˆÚYİË\ÛH‚ˆ‚ˆÜ[ˆÛ\ÜÓ˜[YOH^\ÛH^YÜ˜^KNL‚ˆİK™[Û˜[YHÏÈK™[XZ[ÏÈ•[›˜[YYŸBˆÜÜ[‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆ\šXK[X™[^Ø\›İ™H™Z[œİ][Y[›Üˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ\ØX›Y^Ú\Ô[™[™ßBˆÛÛXÚÏ^Ê
+HOˆ[™P\›İ™T™Z[œİ][Y[
+KšY
+_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y™ËY[Y\˜[MŒLÈKLˆ^^È›Û[YY][H^]Ú]HÚYİË\ÛHİ™\˜™ËY[Y\˜[ML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆÚ\Ô[™[™ÈÈ\›İš[™Ë‹‹ˆˆˆ\›İ™H™Z[œİ][Y[ŸBˆØ]Û‚ˆÙ]‚ˆ
+NÂˆJ_BˆÙ]‚ˆÙ]‚ˆ
+_B‚ˆËÊˆX›H^[İ]›ÜˆÚY\ˆØÜ™Y[œÈ8 %˜\œ›İÈÛ™\È\ÙHHİXÚÙYˆØ\™È™[İÈ[œİXYÚ[˜ÙHÛÛ[[œÈÙˆ\Ù\ˆ]HÛ‰İš]BˆÛ™K]ÚYšY]ÜÜÚ]İ]›Ü˜Ú[™ÈÜš^›Û[ØÜ›Û[™Ëˆ
+‹ßBˆ]ˆÛ\ÜÓ˜[YOH›]MˆY[ˆİ™\™›İË^X]]È›İ[™Y[È›Ü™\ˆ›Ü™\‹YÜ˜^KLŒ™Ë]Ú]HÚYİË\ÛHÛN˜›ØÚÈ‚ˆX›HÛ\ÜÓ˜[YOH›Z[‹]ËY[]šYK^H]šYKYÜ˜^KLŒ^\ÛH‚ˆXYÛ\ÜÓ˜[YOH˜™ËYÜ˜^KML‚ˆ‚ˆÛ\ÜÓ˜[YOHœMKLÈ^[Y›Û[YY][H^YÜ˜^KML“˜[YOİ‚ˆÛ\ÜÓ˜[YOHœMKLÈ^[Y›Û[YY][H^YÜ˜^KML‘[XZ[İ‚ˆÛ\ÜÓ˜[YOHœMKLÈ^[Y›Û[YY][H^YÜ˜^KML’›Ú[™Yİ‚ˆÛ\ÜÓ˜[YOHœMKLÈ^[Y›Û[YY][H^YÜ˜^KML”›ÛOİ‚ˆÛ\ÜÓ˜[YOHœMKLÈ^[Y›Û[YY][H^YÜ˜^KML”İ]\Ïİ‚ˆÛ\ÜÓ˜[YOHœMKLÈ^[Y›Û[YY][H^YÜ˜^KMLİ‚ˆİ‚ˆİXY‚ˆ›ÙHÛ\ÜÓ˜[YOH™]šYK^H]šYKYÜ˜^KLL‚ˆİ\Ù\œË›X\
 
-  async function handleRoleChange(userId: string, role: string) {
-    setError("");
-    const previous = users;
-    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role } : u)));
-    setPendingId(userId);
+JHOˆÂˆÛÛœİ\ÔÙ[ˆHKšYOOHİ\œ™[\Ù\’YÂˆÛÛœİ\Ô[™[™ÈH[™[™ÒYOOHKšYÂˆÛÛœİ\ĞÛÛ™š\›Z[™ÈHÛÛ™š\›Z[™ÒYOOHKšYÂˆÛÛœİXØÙ\ÜÚX›S˜[YHHK™[Û˜[YHÏÈK™[XZ[ÏÈ[›˜[YY\Ù\ˆÂˆ™]\›ˆ
+ˆˆÙ^O^İKšYHÛ\ÜÓ˜[YO^İKš\×ØXİ]™HÈˆˆˆ˜™ËYÜ˜^KMLÜXÚ]KMŒŸO‚ˆÛ\ÜÓ˜[YOHœMKLÈ^YÜ˜^KNL‚ˆİK™[Û˜[YHÏÈ•[›˜[YYŸBˆÚ\ÔÙ[ˆ	‰ˆ
+ˆÜ[ˆÛ\ÜÓ˜[YOH›[Lˆ›İ[™YY[™ËZ[™YÛËMLLˆKLH^^È›Û[YY][H^Z[™YÛËMŒ‚ˆ[İBˆÜÜ[‚ˆ
+_Bˆİ‚ˆÛ\ÜÓ˜[YOHœMKLÈ‚ˆİK™[XZ[È
+ˆBˆ™Y^ØXZ[Î‰İK™[XZ[XBˆÛ\ÜÓ˜[YOH^Z[™YÛËMŒİ™\^Z[™YÛËML‚ˆ‚ˆİK™[XZ[BˆØO‚ˆ
+Hˆ
+ˆÜ[ˆÛ\ÜÓ˜[YOH^YÜ˜^KM“‹ĞOÜÜ[‚ˆ
+_Bˆİ‚ˆÛ\ÜÓ˜[YOHœMKLÈ^YÜ˜^KML‚ˆÛ™]È]JK˜Ü™X]YØ]
+KÓØØ[Q]Tİš[™Ê
+_Bˆİ‚ˆÛ\ÜÓ˜[YOHœÜXÙK^KLˆMKLÈ‚ˆÙ[Xİˆ\šXK[X™[^Ø›ÛH›Üˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ˜[YO^İKœ›ÛHÏÈ›Y[X™\ˆŸBˆ\ØX›Y^Ú\ÔÙ[ˆ\Ô[™[™ßBˆÛÚ[™ÙO^ÊJHOˆ[™T›ÛPÚ[™ÙJKšYK\™Ù]˜[YJ_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌLˆKLˆ^\ÛHÚYİË\ÛH\ØX›Y˜İ\œÛÜ‹[›İX[İÙY\ØX›Y›ÜXÚ]KML‚ˆ‚ˆÔ“ÓWÓÔSÓ”Ë›X\
 
-    try {
-      const res = await fetch("/api/admin/users/set-role", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, role }),
-      });
-      const body = await res.json();
-      if (!res.ok) {
-        setUsers(previous);
-        setError(body?.error ?? "Failed to update role");
-      }
-    } catch {
-      setUsers(previous);
-      setError("Failed to update role");
-    } finally {
-      setPendingId(null);
-    }
-  }
+ŠHOˆ
+ˆÜ[ÛˆÙ^O^Ü‹˜[Y_H˜[YO^Ü‹˜[Y_O‚ˆÜ‹›X™[BˆÛÜ[Û‚ˆ
+J_BˆÜÙ[Xİ‚ˆİ‚ˆÛ\ÜÓ˜[YOHœMKLÈ‚ˆÙ[Xİˆ\šXK[X™[^ØXØÛİ[İ]\È›Üˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ˜[YO^İKš\×ØXİ]™HÈ˜Xİ]™Hˆˆ™XXİ]˜]YŸBˆ\ØX›Y^Ú\ÔÙ[ˆ\Ô[™[™ßBˆÛÚ[™ÙO^ÊJHO‚ˆ[™PXİ]™UÙÙÛJKšYK\™Ù]˜[YHOOH˜Xİ]™HŠBˆBˆÛ\ÜÓ˜[YO^ØZ[‹ZLLH›İ[™Y[Y›Ü™\ˆLˆKLˆ^\ÛH›Û[YY][HÚYİË\ÛH\ØX›Y˜İ\œÛÜ‹[›İX[İÙY\ØX›Y›ÜXÚ]KML	ÂˆKš\×ØXİ]™BˆÈ˜›Ü™\‹Y[Y\˜[LŒ™ËY[Y\˜[ML^Y[Y\˜[MÌ‚ˆˆ˜›Ü™\‹\™YLŒ™Ë\™YML^\™YMÌ‚ˆXBˆ‚ˆÜ[Ûˆ˜[YOH˜Xİ]™HXİ]™OÛÜ[Û‚ˆÜ[Ûˆ˜[YOH™XXİ]˜]Y‘XXİ]˜]OÛÜ[Û‚ˆÜÙ[Xİ‚ˆÙ[Xİˆ\šXK[X™[^ØZ[š\İH]˜Z[Xš[]H›Üˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ˜[YO^İK›Z[š\İWØ]˜Z[Xš[]HÏÈ˜]˜Z[X›HŸBˆ\ØX›Y^Ú\Ô[™[™ßBˆÛÚ[™ÙO^ÊJHOˆ[™P]˜Z[Xš[]PÚ[™ÙJKšYK\™Ù]˜[YJ_BˆÛ\ÜÓ˜[YOH˜›ØÚÈZ[‹ZLLH›İ[™Y[Y›Ü™\ˆ›Ü™\‹Z[™YÛËLŒ™ËZ[™YÛËMLLˆKLˆ^\ÛH›Û[YY][H^Z[™YÛËMÌÚYİË\ÛH\ØX›Y›ÜXÚ]KML‚ˆ‚ˆĞURSP’SUWÓÔSÓ”Ë›X\
 
-  async function handleActiveToggle(userId: string, isActive: boolean) {
-    setError("");
-    const previous = users;
-    setUsers((prev) =>
-      prev.map((u) => (u.id === userId ? { ...u, is_active: isActive } : u))
-    );
-    setPendingId(userId);
+Ü[ÛŠHOˆÜ[ÛˆÙ^O^ÛÜ[Û‹˜[Y_H˜[YO^ÛÜ[Û‹˜[Y_OÛÜ[Û‹›X™[OÛÜ[ÛŠ_BˆÜÙ[Xİ‚ˆİK˜]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™Y	‰ˆÛ\ÜÓ˜[YOH^^È›Û\Ù[ZX›Û^X[X™\‹MÌ’[X[ˆ™]šY]È™\]Z\™Y0­ÈİK›Z\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ÏÈHZ\ÜÙYÜŸBˆÙXXİ]˜][Û”™]šY]ÏË\Ù\’YOOHKšY	‰ˆ
+ˆ]ˆÛ\ÜÓ˜[YOHœ›İ[™Y[Y›Ü™\ˆ›Ü™\‹X[X™\‹LŒ™ËX[X™\‹MLLˆ^^È^X[X™\‹NL‚ˆÙXXİ]˜][Û”™]šY]Ë˜Ûİ[HXİ]™HÙXXİ]˜][Û”™]šY]Ë˜Ûİ[OOHHÈœ™\ÜÛœÚXš[]Hˆˆœ™\ÜÛœÚXš[]Y\ÈŸH]\İ[İ™Hš\œİÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›]Lˆ›^›^]Ü˜\Ø\Lˆ‚ˆ]Ûˆ\OH˜]ÛˆˆÛÛXÚÏ^Ê
+HOˆ[™PXİ]™UÙÙÛJKšY˜[ÙK˜[×Ü™X\ÜÚYÛˆŠ_HÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y™ËZ[™YÛËMŒLÈKLˆ›Û\Ù[ZX›Û^]Ú]H[È™X\ÜÚYÛØ]Û‚ˆ]Ûˆ\OH˜]ÛˆˆÛÛXÚÏ^Ê
+HOˆ[™PXİ]™UÙÙÛJKšY˜[ÙKœ™]\›—İ×Ü]Y]YHŠ_HÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y›Ü™\ˆ›Ü™\‹X[X™\‹LÌ™Ë]Ú]HLÈKLˆ›Û\Ù[ZX›Û”™]\›ˆÈ]Y]YOØ]Û‚ˆÙ]‚ˆÙ]‚ˆ
+_Bˆİ‚ˆÛ\ÜÓ˜[YOHœMKLÈ‚ˆÚ\ÔÙ[ˆÈ[ˆ\ĞÛÛ™š\›Z[™ÈÈ
+ˆ]ˆÛ\ÜÓ˜[YOH™›^][\ËXÙ[\ˆØ\LˆÚ]\ÜXÙK[›İÜ˜\‚ˆÜ[ˆÛ\ÜÓ˜[YOH^^È^YÜ˜^KML‘[]OÏÜÜ[‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆ\šXK[X™[^ØÛÛ™š\›H[][ÛˆÙˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ\ØX›Y^Ú\Ô[™[™ßBˆÛÛXÚÏ^Ê
+HOˆ[™Q[]JKšY
+_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y™Ë\™YMŒLÈKLˆ^^È›Û[YY][H^]Ú]Hİ™\˜™Ë\™YML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆÚ\Ô[™[™ÈÈ‘[][™ø )ˆˆˆÛÛ™š\›HŸBˆØ]Û‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆ\šXK[X™[^ØØ[˜Ù[[][ÛˆÙˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ\ØX›Y^Ú\Ô[™[™ßBˆÛÛXÚÏ^Ê
+HOˆÙ]ÛÛ™š\›Z[™ÒY
+[
+_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌLÈKLˆ^^È›Û[YY][H^YÜ˜^KMŒİ™\˜™ËYÜ˜^KML‚ˆ‚ˆØ[˜Ù[ˆØ]Û‚ˆÙ]‚ˆ
+Hˆ
+ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆ\šXK[X™[^Ø[]HXØÛİ[›Üˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ\ØX›Y^Ú\Ô[™[™ßBˆÛÛXÚÏ^Ê
+HOˆÙ]ÛÛ™š\›Z[™ÒY
+KšY
+_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLHLˆ^^È›Û[YY][H^\™YMŒİ™\^\™YML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆ[]BˆØ]Û‚ˆ
+_Bˆİ‚ˆİ‚ˆ
+NÂˆJ_Bˆİ›ÙO‚ˆİX›O‚ˆÙ]‚‚ˆËÊˆİXÚÙYØ\™È›Üˆ˜\œ›İÈÛ™HØÜ™Y[œËˆ
+‹ßBˆ]ˆÛ\ÜÓ˜[YOH›]MˆÜXÙK^KLÈÛNšY[ˆ‚ˆİ\Ù\œË›X\
 
-    try {
-      const res = await fetch("/api/admin/users/set-active", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, isActive }),
-      });
-      const body = await res.json();
-      if (!res.ok) {
-        setUsers(previous);
-        setError(body?.error ?? "Failed to update account status");
-      }
-    } catch {
-      setUsers(previous);
-      setError("Failed to update account status");
-    } finally {
-      setPendingId(null);
-    }
-  }
+JHOˆÂˆÛÛœİ\ÔÙ[ˆHKšYOOHİ\œ™[\Ù\’YÂˆÛÛœİ\Ô[™[™ÈH[™[™ÒYOOHKšYÂˆÛÛœİ\ĞÛÛ™š\›Z[™ÈHÛÛ™š\›Z[™ÒYOOHKšYÂˆÛÛœİXØÙ\ÜÚX›S˜[YHHK™[Û˜[YHÏÈK™[XZ[ÏÈ[›˜[YY\Ù\ˆÂˆ™]\›ˆ
+ˆ]‚ˆÙ^O^İKšYBˆÛ\ÜÓ˜[YO^Ø›İ[™Y[È›Ü™\ˆ›Ü™\‹YÜ˜^KLŒ™Ë]Ú]HMÚYİË\ÛH	ÂˆKš\×ØXİ]™HÈˆˆˆ›ÜXÚ]KMŒ‚ˆXBˆ‚ˆ]ˆÛ\ÜÓ˜[YOH™›^][\ËXÙ[\ˆØ\Lˆ^\ÛH›Û[YY][H^YÜ˜^KNL‚ˆİK™[Û˜[YHÏÈ•[›˜[YYŸBˆÚ\ÔÙ[ˆ	‰ˆ
+ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËZ[™YÛËMLLˆKLH^^È›Û[YY][H^Z[™YÛËMŒ‚ˆ[İBˆÜÜ[‚ˆ
+_BˆÙ]‚ˆİK™[XZ[È
+ˆBˆ™Y^ØXZ[Î‰İK™[XZ[XBˆÛ\ÜÓ˜[YOH›]LH›ØÚÈœ™XZËX[^\ÛH^Z[™YÛËMŒİ™\^Z[™YÛËML‚ˆ‚ˆİK™[XZ[BˆØO‚ˆ
+Hˆ
+ˆÛ\ÜÓ˜[YOH›]LH^\ÛH^YÜ˜^KM“‹ĞOÜ‚ˆ
+_BˆÛ\ÜÓ˜[YOH›]LH^^È^YÜ˜^KM‚ˆ›Ú[™YÛ™]È]JK˜Ü™X]YØ]
+KÓØØ[Q]Tİš[™Ê
+_BˆÜ‚‚ˆ]ˆÛ\ÜÓ˜[YOH›]LÈ›^›^]Ü˜\Ø\Lˆ‚ˆÙ[Xİˆ\šXK[X™[^Ø›ÛH›Üˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ˜[YO^İKœ›ÛHÏÈ›Y[X™\ˆŸBˆ\ØX›Y^Ú\ÔÙ[ˆ\Ô[™[™ßBˆÛÚ[™ÙO^ÊJHOˆ[™T›ÛPÚ[™ÙJKšYK\™Ù]˜[YJ_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLHZ[‹]ËL›^LH›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌLˆKLˆ^\ÛHÚYİË\ÛH\ØX›Y˜İ\œÛÜ‹[›İX[İÙY\ØX›Y›ÜXÚ]KML‚ˆ‚ˆÔ“ÓWÓÔSÓ”Ë›X\
 
-  async function handleDelete(userId: string) {
-    setError("");
-    setPendingId(userId);
+ŠHOˆ
+ˆÜ[ÛˆÙ^O^Ü‹˜[Y_H˜[YO^Ü‹˜[Y_O‚ˆÜ‹›X™[BˆÛÜ[Û‚ˆ
+J_BˆÜÙ[Xİ‚ˆÙ[Xİˆ\šXK[X™[^ØXØÛİ[İ]\È›Üˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ˜[YO^İKš\×ØXİ]™HÈ˜Xİ]™Hˆˆ™XXİ]˜]YŸBˆ\ØX›Y^Ú\ÔÙ[ˆ\Ô[™[™ßBˆÛÚ[™ÙO^ÊJHO‚ˆ[™PXİ]™UÙÙÛJKšYK\™Ù]˜[YHOOH˜Xİ]™HŠBˆBˆÛ\ÜÓ˜[YO^ØZ[‹ZLLHZ[‹]ËL›^LH›İ[™Y[Y›Ü™\ˆLˆKLˆ^\ÛH›Û[YY][HÚYİË\ÛH\ØX›Y˜İ\œÛÜ‹[›İX[İÙY\ØX›Y›ÜXÚ]KML	ÂˆKš\×ØXİ]™BˆÈ˜›Ü™\‹Y[Y\˜[LŒ™ËY[Y\˜[ML^Y[Y\˜[MÌ‚ˆˆ˜›Ü™\‹\™YLŒ™Ë\™YML^\™YMÌ‚ˆXBˆ‚ˆÜ[Ûˆ˜[YOH˜Xİ]™HXİ]™OÛÜ[Û‚ˆÜ[Ûˆ˜[YOH™XXİ]˜]Y‘XXİ]˜]OÛÜ[Û‚ˆÜÙ[Xİ‚ˆÙ[Xİˆ\šXK[X™[^ØZ[š\İH]˜Z[Xš[]H›Üˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ˜[YO^İK›Z[š\İWØ]˜Z[Xš[]HÏÈ˜]˜Z[X›HŸBˆ\ØX›Y^Ú\Ô[™[™ßBˆÛÚ[™ÙO^ÊJHOˆ[™P]˜Z[Xš[]PÚ[™ÙJKšYK\™Ù]˜[YJ_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLHZ[‹]ËL›^LH›İ[™Y[Y›Ü™\ˆ›Ü™\‹Z[™YÛËLŒ™ËZ[™YÛËMLLˆKLˆ^\ÛH›Û[YY][H^Z[™YÛËMÌÚYİË\ÛH\ØX›Y›ÜXÚ]KML‚ˆ‚ˆĞURSP’SUWÓÔSÓ”Ë›X\
 
-    try {
-      const res = await fetch("/api/admin/users/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-      const body = await res.json();
-      if (!res.ok) {
-        setError(body?.error ?? "Failed to delete user");
-      } else {
-        setUsers((prev) => prev.filter((u) => u.id !== userId));
-      }
-    } catch {
-      setError("Failed to delete user");
-    } finally {
-      setPendingId(null);
-      setConfirmingId(null);
-    }
-  }
-
-  async function handleApproveReinstatement(userId: string) {
-    setError("");
-    setPendingId(userId);
-
-    try {
-      const res = await fetch("/api/admin/users/approve-reinstatement", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-      const body = await res.json();
-      if (!res.ok) {
-        setError(body?.error ?? "Failed to approve reinstatement");
-      } else {
-        setUsers((prev) =>
-          prev.map((u) =>
-            u.id === userId
-              ? { ...u, rotation_status: "active", reinstatement_requested_at: null }
-              : u
-          )
-        );
-      }
-    } catch {
-      setError("Failed to approve reinstatement");
-    } finally {
-      setPendingId(null);
-    }
-  }
-
-  const pendingReinstatements = users.filter(
-    (u) => u.rotation_status === "inactive" && u.reinstatement_requested_at
-  );
-
-  return (
-    <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Manage Users</h1>
-          <p className="mt-2 text-gray-600">
-            Promote members to the care team, deactivate an account, or
-            permanently delete one.
-          </p>
-        </div>
-        <a
-          href="/admin"
-          className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-indigo-600 hover:text-indigo-500"
-        >
-          Back to Prayer Care Admin
-        </a>
-      </div>
-
-      {error && (
-        <p
-          role="alert"
-          aria-live="assertive"
-          className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
-        >
-          {error}
-        </p>
-      )}
-
-      {pendingReinstatements.length > 0 && (
-        <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
-          <h2 className="text-sm font-semibold text-amber-900">
-            Pending Reinstatement Requests
-          </h2>
-          <p className="mt-1 text-xs text-amber-700">
-            These members were marked inactive after being paused for 30+
-            days and have asked to be reinstated to the prayer rotation.
-          </p>
-          <div className="mt-3 space-y-2">
-            {pendingReinstatements.map((u) => {
-              const isPending = pendingId === u.id;
-              const accessibleName = u.full_name ?? u.email ?? "unnamed user";
-              return (
-                <div
-                  key={u.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-white px-3 py-2 shadow-sm"
-                >
-                  <span className="text-sm text-gray-900">
-                    {u.full_name ?? u.email ?? "Unnamed"}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label={`Approve reinstatement for ${accessibleName}`}
-                    disabled={isPending}
-                    onClick={() => handleApproveReinstatement(u.id)}
-                    className="min-h-11 rounded-md bg-emerald-600 px-3 py-2 text-xs font-medium text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
-                  >
-                    {isPending ? "Approving..." : "Approve Reinstatement"}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Table layout for wider screens â€” narrow phones use the stacked
-          cards below instead, since columns of user data don't fit a
-          phone-width viewport without forcing horizontal scrolling. */}
-      <div className="mt-6 hidden overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm sm:block">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium text-gray-500">Name</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500">Email</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500">Joined</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500">Role</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500">Status</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {users.map((u) => {
-              const isSelf = u.id === currentUserId;
-              const isPending = pendingId === u.id;
-              const isConfirming = confirmingId === u.id;
-              const accessibleName = u.full_name ?? u.email ?? "unnamed user";
-              return (
-                <tr key={u.id} className={u.is_active ? "" : "bg-gray-50 opacity-60"}>
-                  <td className="px-4 py-3 text-gray-900">
-                    {u.full_name ?? "Unnamed"}
-                    {isSelf && (
-                      <span className="ml-2 rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-600">
-                        You
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {u.email ? (
-                      <a
-                        href={`mailto:${u.email}`}
-                        className="text-indigo-600 hover:text-indigo-500"
-                      >
-                        {u.email}
-                      </a>
-                    ) : (
-                      <span className="text-gray-400">N/A</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">
-                    {new Date(u.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-3">
-                    <select
-                      aria-label={`Role for ${accessibleName}`}
-                      value={u.role ?? "member"}
-                      disabled={isSelf || isPending}
-                      onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                      className="min-h-11 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {ROLE_OPTIONS.map((r) => (
-                        <option key={r.value} value={r.value}>
-                          {r.label}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-4 py-3">
-                    <select
-                      aria-label={`Account status for ${accessibleName}`}
-                      value={u.is_active ? "active" : "deactivated"}
-                      disabled={isSelf || isPending}
-                      onChange={(e) =>
-                        handleActiveToggle(u.id, e.target.value === "active")
-                      }
-                      className={`min-h-11 rounded-md border px-2 py-2 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50 ${
-                        u.is_active
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                          : "border-red-200 bg-red-50 text-red-700"
-                      }`}
-                    >
-                      <option value="active">Active</option>
-                      <option value="deactivated">Deactivate</option>
-                    </select>
-                  </td>
-                  <td className="px-4 py-3">
-                    {isSelf ? null : isConfirming ? (
-                      <div className="flex items-center gap-2 whitespace-nowrap">
-                        <span className="text-xs text-gray-500">Delete?</span>
-                        <button
-                          type="button"
-                          aria-label={`Confirm deletion of ${accessibleName}`}
-                          disabled={isPending}
-                          onClick={() => handleDelete(u.id)}
-                          className="min-h-11 rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
-                        >
-                          {isPending ? "Deletingâ€¦" : "Confirm"}
-                        </button>
-                        <button
-                          type="button"
-                          aria-label={`Cancel deletion of ${accessibleName}`}
-                          disabled={isPending}
-                          onClick={() => setConfirmingId(null)}
-                          className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        aria-label={`Delete account for ${accessibleName}`}
-                        disabled={isPending}
-                        onClick={() => setConfirmingId(u.id)}
-                        className="min-h-11 px-2 text-xs font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Stacked cards for narrow phone screens. */}
-      <div className="mt-6 space-y-3 sm:hidden">
-        {users.map((u) => {
-          const isSelf = u.id === currentUserId;
-          const isPending = pendingId === u.id;
-          const isConfirming = confirmingId === u.id;
-          const accessibleName = u.full_name ?? u.email ?? "unnamed user";
-          return (
-            <div
-              key={u.id}
-              className={`rounded-lg border border-gray-200 bg-white p-4 shadow-sm ${
-                u.is_active ? "" : "opacity-60"
-              }`}
-            >
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
-                {u.full_name ?? "Unnamed"}
-                {isSelf && (
-                  <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-600">
-                    You
-                  </span>
-                )}
-              </div>
-              {u.email ? (
-                <a
-                  href={`mailto:${u.email}`}
-                  className="mt-0.5 block break-all text-sm text-indigo-600 hover:text-indigo-500"
-                >
-                  {u.email}
-                </a>
-              ) : (
-                <p className="mt-0.5 text-sm text-gray-400">N/A</p>
-              )}
-              <p className="mt-1 text-xs text-gray-400">
-                Joined {new Date(u.created_at).toLocaleDateString()}
-              </p>
-
-              <div className="mt-3 flex flex-wrap gap-2">
-                <select
-                  aria-label={`Role for ${accessibleName}`}
-                  value={u.role ?? "member"}
-                  disabled={isSelf || isPending}
-                  onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                  className="min-h-11 min-w-0 flex-1 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {ROLE_OPTIONS.map((r) => (
-                    <option key={r.value} value={r.value}>
-                      {r.label}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  aria-label={`Account status for ${accessibleName}`}
-                  value={u.is_active ? "active" : "deactivated"}
-                  disabled={isSelf || isPending}
-                  onChange={(e) =>
-                    handleActiveToggle(u.id, e.target.value === "active")
-                  }
-                  className={`min-h-11 min-w-0 flex-1 rounded-md border px-2 py-2 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50 ${
-                    u.is_active
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                      : "border-red-200 bg-red-50 text-red-700"
-                  }`}
-                >
-                  <option value="active">Active</option>
-                  <option value="deactivated">Deactivate</option>
-                </select>
-              </div>
-
-              {!isSelf && (
-                <div className="mt-3">
-                  {isConfirming ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500">
-                        Permanently delete this account?
-                      </span>
-                      <button
-                        type="button"
-                        aria-label={`Confirm deletion of ${accessibleName}`}
-                        disabled={isPending}
-                        onClick={() => handleDelete(u.id)}
-                        className="min-h-11 rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
-                      >
-                        {isPending ? "Deletingâ€¦" : "Confirm"}
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`Cancel deletion of ${accessibleName}`}
-                        disabled={isPending}
-                        onClick={() => setConfirmingId(null)}
-                        className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      aria-label={`Delete account for ${accessibleName}`}
-                      disabled={isPending}
-                      onClick={() => setConfirmingId(u.id)}
-                      className="min-h-11 px-2 text-xs font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
-                    >
-                      Delete account
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {isSelfNoteVisible(users, currentUserId) && (
-        <p className="mt-4 text-xs text-gray-400">
-          You can't change your own role, deactivate, or delete your own
-          account from this page â€” have another admin do it if needed.
-        </p>
-      )}
-    </div>
-  );
-}
-
-function isSelfNoteVisible(users: UserRow[], currentUserId: string) {
-  return users.some((u) => u.id === currentUserId);
-}
+Ü[ÛŠHOˆÜ[ÛˆÙ^O^ÛÜ[Û‹˜[Y_H˜[YO^ÛÜ[Û‹˜[Y_OÛÜ[Û‹›X™[OÛÜ[ÛŠ_BˆÜÙ[Xİ‚ˆÙ]‚‚ˆİK˜]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™Y	‰ˆÛ\ÜÓ˜[YOH›]Lˆ^^È›Û\Ù[ZX›Û^X[X™\‹MÌ’[X[ˆ™]šY]È™\]Z\™Y0­ÈİK›Z\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ÏÈHZ\ÜÙY\ÜÚYÛ›Y[ÏÜŸBˆÙXXİ]˜][Û”™]šY]ÏË\Ù\’YOOHKšY	‰ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH›]LÈ›İ[™Y[Y›Ü™\ˆ›Ü™\‹X[X™\‹LŒ™ËX[X™\‹MLLÈ^^È^X[X™\‹NL‚ˆÙXXİ]˜][Û”™]šY]Ë˜Ûİ[HXİ]™HÙXXİ]˜][Û”™]šY]Ë˜Ûİ[OOHHÈœ™\ÜÛœÚXš[]Hˆˆœ™\ÜÛœÚXš[]Y\ÈŸH]\İ[İ™H™Y›Ü™HXXİ]˜][Û‹Ü‚ˆ]ˆÛ\ÜÓ˜[YOH›]Lˆ›^›^]Ü˜\Ø\Lˆ‚ˆ]Ûˆ\OH˜]ÛˆˆÛÛXÚÏ^Ê
+HOˆ[™PXİ]™UÙÙÛJKšY˜[ÙK˜[×Ü™X\ÜÚYÛˆŠ_HÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y™ËZ[™YÛËMŒLÈKLˆ›Û\Ù[ZX›Û^]Ú]H[È™X\ÜÚYÛØ]Û‚ˆ]Ûˆ\OH˜]ÛˆˆÛÛXÚÏ^Ê
+HOˆ[™PXİ]™UÙÙÛJKšY˜[ÙKœ™]\›—İ×Ü]Y]YHŠ_HÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y›Ü™\ˆ›Ü™\‹X[X™\‹LÌ™Ë]Ú]HLÈKLˆ›Û\Ù[ZX›Û”™]\›ˆÈ]Y]YOØ]Û‚ˆÙ]‚ˆÙ]‚ˆ
+_B‚ˆÈZ\ÔÙ[ˆ	‰ˆ
+ˆ]ˆÛ\ÜÓ˜[YOH›]LÈ‚ˆÚ\ĞÛÛ™š\›Z[™ÈÈ
+ˆ]ˆÛ\ÜÓ˜[YOH™›^][\ËXÙ[\ˆØ\Lˆ‚ˆÜ[ˆÛ\ÜÓ˜[YOH^^È^YÜ˜^KML‚ˆ\›X[™[H[]H\ÈXØÛİ[ÂˆÜÜ[‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆ\šXK[X™[^ØÛÛ™š\›H[][ÛˆÙˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ\ØX›Y^Ú\Ô[™[™ßBˆÛÛXÚÏ^Ê
+HOˆ[™Q[]JKšY
+_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y™Ë\™YMŒLÈKLˆ^^È›Û[YY][H^]Ú]Hİ™\˜™Ë\™YML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆÚ\Ô[™[™ÈÈ‘[][™ø )ˆˆˆÛÛ™š\›HŸBˆØ]Û‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆ\šXK[X™[^ØØ[˜Ù[[][ÛˆÙˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ\ØX›Y^Ú\Ô[™[™ßBˆÛÛXÚÏ^Ê
+HOˆÙ]ÛÛ™š\›Z[™ÒY
+[
+_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLH›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌLÈKLˆ^^È›Û[YY][H^YÜ˜^KMŒİ™\˜™ËYÜ˜^KML‚ˆ‚ˆØ[˜Ù[ˆØ]Û‚ˆÙ]‚ˆ
+Hˆ
+ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆ\šXK[X™[^Ø[]HXØÛİ[›Üˆ	ØXØÙ\ÜÚX›S˜[Y_XBˆ\ØX›Y^Ú\Ô[™[™ßBˆÛÛXÚÏ^Ê
+HOˆÙ]ÛÛ™š\›Z[™ÒY
+KšY
+_BˆÛ\ÜÓ˜[YOH›Z[‹ZLLHLˆ^^È›Û[YY][H^\™YMŒİ™\^\™YML\ØX›Y›ÜXÚ]KML‚ˆ‚ˆ[]HXØÛİ[ˆØ]Û‚ˆ
+_BˆÙ]‚ˆ
+_BˆÙ]‚ˆ
+NÂˆJ_BˆÙ]‚‚ˆÚ\ÔÙ[“›İUš\ÚX›J\Ù\œËİ\œ™[\Ù\’Y
+H	‰ˆ
+ˆÛ\ÜÓ˜[YOH›]M^^È^YÜ˜^KM‚ˆ[İHØ[‰İÚ[™ÙH[İ\ˆİÛˆ›ÛKXXİ]˜]KÜˆ[]H[İ\ˆİÛ‚ˆXØÛİ[œ›ÛH\ÈYÙH8 %]™H[›İ\ˆYZ[ˆÈ]Yˆ™YYY‚ˆÜ‚ˆ
+_BˆÙ]‚ˆ
+NÂŸB‚™[˜İ[Ûˆ\ÔÙ[“›İUš\ÚX›J\Ù\œÎˆ\Ù\”›İÖ×Kİ\œ™[\Ù\’Yˆİš[™ÊHÂˆ™]\›ˆ\Ù\œËœÛÛYJ
+JHOˆKšYOOHİ\œ™[\Ù\’Y
+NÂŸB

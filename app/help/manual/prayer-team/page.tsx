@@ -1,66 +1,15 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { getEffectiveRole } from "@/lib/effective-role";
-import ManualSections, { ManualSection } from "@/components/ManualSections";
+şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™Y\™XİHœ›ÛH›™^Û˜]šYØ][ÛˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\ÜÈÙ]Y™™Xİ]™T›ÛHHœ›ÛHÛX‹ÙY™™Xİ]™K\›ÛHÂš[\ÜX[X[ÙXİ[ÛœËÈX[X[ÙXİ[ÛˆHœ›ÛHØÛÛ\Û™[ËÓX[X[ÙXİ[ÛœÈÂ‚˜ÛÛœİÙXİ[ÛœÎˆX[X[ÙXİ[Û–×HHÂˆÂˆ]Nˆ“^H˜^Y\ˆ\ÜÚYÛ›Y[È‹ˆ\˜YÜ˜\ÎˆÂˆ•\È\È[İ\ˆ\œÛÛ˜[ËYÈ\İ8 %]™\H˜^Y\ˆ™\]Y\İİ\œ™[H\ÜÚYÛ™YÈ[İKˆ™\]Y\İÈ\™H[™Yİ]]]ÛX]XØ[H[ˆ›İ][Û‹ÛÈ[İHÛÛ‰İ™YYÈÛÈÛÚÚ[™È›Üˆ[Kˆ‹ˆ‘›ÜˆXXÚ™\]Y\İÛÜšÈ›İYÚHÚXÚÛ\İˆX\šÈ][İIİ™H˜^YY[™›İHÚ]\ˆ[İIİ™H™XXÚYİ]ÈH™\]Y\İ\ˆ[™Ú]\ˆ^HØ[YÈ™HÛÛXİYˆÛ˜ÙHH™\]Y\İ\È[œİÙ\™YÜˆ›ÈÛ™Ù\ˆXİ]™K]ÛÛY\ÈÙ™ˆ[İ\ˆ\İˆ‹ˆKˆKˆÂˆ]Nˆ•[™\œİ[™[™È˜^Y\ˆ›İ][Ûˆ‹ˆ\˜YÜ˜\ÎˆÂˆ“Z[š\İH]˜Z[Xš[]HÛÛ›ÛÈ™]È\ÜÚYÛ›Y[ÈÚ]İ]Ú[™Ú[™ÈÙÚ[ˆXØÙ\ÜËˆ]˜Z[X›H™XÙZ]™\È\ÜÚYÛ›Y[Ë]Ø^H\ÈHÙ[‹\Ù[XİYœ™XZË[Z]Y]\Ù\È™]È\ÜÚYÛ›Y[Ë[™[˜Xİ]™H™[[İ™\ÈÛÛY[Û™Hœ›ÛH\ÜÚYÛ›Y[›İ][Ûˆ[[[ˆYZ[ˆ™\İÜ™\È]˜Z[Xš[]Kˆ‹ˆ’[ˆ[HÙˆ\ÙHİ]\ËH™\İÙˆH\ÛÜšÜÈ›Ü›X[H›Üˆ[İH8 %[İHØ[ˆİ[İX›Z]˜^Y\ˆ™\]Y\İË™XYH˜^Y\ˆØ[Ú\™H\İ[[ÛšY\Ë[™]™\][™È[ÙHH™Yİ[\ˆY[X™\ˆØ[ˆËˆ‹ˆKˆKˆÂˆ]Nˆ‘ÛÚ[™ÈÛˆØX˜˜]XØ[‹ˆ\˜YÜ˜\ÎˆÂˆ“™YYHœ™XZÏÈÛˆ[İ\ˆ›Ùš[HYÙKÙ][İ\ˆZ[š\İH]˜Z[Xš[]HÈ]Ø^Kˆ[][™Èİ\œ™[H\ÜÚYÛ™YÈ[İH\È[[YYX][H[™YÈH™^\œÛÛˆ[ˆ›İ][Û‹ÛÈ›İ[™ÈÚ]ÈØZ][™ÈÛˆ[İHÚ[H[İIÜ™H]Ø^Kˆ‹ˆ•Ú[ˆ[İIÜ™H™XYHÈÛÛYH˜XÚË™]\›ˆ[İ\ˆ]˜Z[Xš[]HÈ]˜Z[X›Kˆ‹ˆKˆKˆÂˆ]Nˆ’Yˆ[İHZ\ÜÈ\ÜÚYÛ›Y[È‹ˆ\˜YÜ˜\ÎˆÂˆ’YˆH™\]Y\İ\ÜÚYÛ™YÈ[İHÛÙ\ÈÈ^\ÈÚ]İ]Xİ[Û‹H™\]Y\İ\È›YÙÙY[™™X\ÜÚYÛ™Y›Üˆ[Y[HØ\™Kˆ[İ\ˆZ[š\İH]˜Z[Xš[]H™XÛÛY\È[Z]Y][İ\ˆXØÛİ[[™ÙÚ[ˆİ^HXİ]™Kˆ‹ˆY\ˆHš\œİZ\ÜÙY\ÜÚYÛ›Y[[İHX^H™]\›ˆ[İ\œÙ[ˆÈ]˜Z[X›Kˆ™\X]YZ\ÜÙY\ÜÚYÛ›Y[È™\]Z\™HØ\™K[XY\ˆ™]šY]Ë[™XØÛİ[XXİ]˜][Ûˆ™[XZ[œÈHÙ\\˜]H[X[ˆXÚ\Ú[Û‹ˆ‹ˆKˆK—NÂ‚™^ÜY˜][\Ş[˜È[˜İ[Ûˆ˜^Y\•X[SX[X[YÙJ
+HÂˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
 
-const sections: ManualSection[] = [
-  {
-    title: "My Prayer Assignments",
-    paragraphs: [
-      "This is your personal to-do list â€” every prayer request currently assigned to you. Requests are handed out automatically in rotation, so you won't need to go looking for them.",
-      "For each request, work through the checklist: mark that you've prayed, and note whether you've reached out to the requester and whether they wanted to be contacted. Once a request is answered or no longer active, it comes off your list.",
-    ],
-  },
-  {
-    title: "Understanding Prayer Rotation",
-    paragraphs: [
-      "Your rotation status controls whether you're currently receiving new assignments. Active means you're in the normal rotation. Sabbatical means you've paused yourself temporarily. Paused (Neglect) and Inactive are automatic statuses that kick in if assignments go unattended â€” see below.",
-      "In any of these states, the rest of the app works normally for you â€” you can still submit prayer requests, read the Prayer Wall, share testimonies, and everything else a regular member can do.",
-    ],
-  },
-  {
-    title: "Going on Sabbatical",
-    paragraphs: [
-      "Need a break? On your Profile page, use the Prayer Rotation card to pause yourself. Anything currently assigned to you is immediately handed to the next person in rotation, so nothing sits waiting on you while you're away.",
-      "When you're ready to come back, tap Reactivate on the same card â€” you're back in the rotation right away.",
-    ],
-  },
-  {
-    title: "If You Miss Assignments",
-    paragraphs: [
-      "If a request assigned to you goes 7 days without action, the app automatically pauses you and reassigns your active requests, the same way sabbatical does. You'll get a popup the next time you open the app letting you know.",
-      "You then have 30 days to unpause yourself with one tap from that popup. If you don't, your account moves to Inactive, and you'll instead see a Reactivate popup â€” tapping it sends a reinstatement request to an admin, who reviews and approves it before you're back in rotation.",
-    ],
-  },
-];
-
-export default async function PrayerTeamManualPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, preview_role")
-    .eq("id", user.id)
-    .single();
-  const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
-
-  if (
-    effectiveRole !== "prayer_team" &&
-    effectiveRole !== "pastor" &&
-    effectiveRole !== "admin"
-  ) {
-    redirect("/help");
-  }
-
-  return (
-    <ManualSections
-      title="Prayer Team Guide"
-      intro="How assignments, rotation, and sabbatical work for the prayer care team."
-      sections={sections}
-    />
-  );
-}
+NÂˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
+NÂˆYˆ
+]\Ù\ŠH™Y\™Xİ
+‹ÛÙÚ[ˆŠNÂ‚ˆÛÛœİÈ]Nˆ›Ùš[HHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
+œ›ÛK™]šY]×Ü›ÛHŠBˆ™\JšY‹\Ù\‹šY
+BˆœÚ[™ÛJ
+NÂˆÛÛœİY™™Xİ]™T›ÛHHÙ]Y™™Xİ]™T›ÛJ›Ùš[OËœ›ÛK›Ùš[OËœ™]šY]×Ü›ÛJNÂ‚ˆYˆ
+ˆY™™Xİ]™T›ÛHOOHœ˜^Y\—İX[Hˆ	‰‚ˆY™™Xİ]™T›ÛHOOHœ\İÜˆˆ	‰‚ˆY™™Xİ]™T›ÛHOOH˜YZ[ˆ‚ˆ
+HÂˆ™Y\™Xİ
+‹Ú[ŠNÂˆB‚ˆ™]\›ˆ
+ˆX[X[ÙXİ[ÛœÂˆ]OH”˜^Y\ˆX[HİZYH‚ˆ[›ÏH’İÈ\ÜÚYÛ›Y[Ë›İ][Û‹[™ØX˜˜]XØ[ÛÜšÈ›ÜˆH˜^Y\ˆØ\™HX[Kˆ‚ˆÙXİ[ÛœÏ^ÜÙXİ[ÛœßBˆÏ‚ˆ
+NÂŸB
