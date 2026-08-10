@@ -99,5 +99,6 @@ test("prayer administration exposes explicit attention and history views", async
   assert.match(requests, /All requests \(\{requests\.length\}\)/);
   assert.match(requests, /including \$\{historyCount\} in history/);
   assert.match(requests, /setAttentionOnly\(false\)/);
+  assert.match(requests, /includes\(statusFilter\)[\s\S]+setStatusFilter\("All"\)/);
   assert.match(requests, /role="status" aria-live="polite"/);
 });
