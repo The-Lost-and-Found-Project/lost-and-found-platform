@@ -45,8 +45,6 @@ export default async function DashboardPage() {
       (!EMMAUS_FOUNDER_USER_ID && user.email?.toLowerCase() === EMMAUS_FOUNDER_EMAIL)
   );
 
-  if (isEmmausFounder) redirect("/emmaus/walk");
-
   const [prayerResult, journeyResult, quizResult, notificationResult] = await Promise.all([
     supabase
       .from("prayer_requests")
