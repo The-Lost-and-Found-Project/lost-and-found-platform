@@ -23,21 +23,53 @@ function ensureConfigured() {
 }
 
 export type PushPayload = { title: string; body: string; url?: string };
+export type PushDeliveryResult = {
+  status: "sent" | "skipped" | "failed";
+  deliveredCount: number;
+  failedCount: number;
+  reason?: string;
+};
 
 // Sends a web push notification to every device a user has subscribed on.
-// Silently no-ops if push isn't configured or the user has no subscriptions
-// — callers should treat this as fire-and-forget, the same way the existing
-// email notifications are best-effort and never block the main action.
-export async function sendPushToUser(userId: string, payload: PushPayload) {
-  if (!ensureConfigured()) return;
+// Returns a small delivery summary so the notification webhook can expose
+// failed or skipped attempts without storing endpoint or payload secrets.
+export async function sendPushToUser(
+  userId: string,
+  payload: PushPayload
+): Promise<PushDeliveryResult> {
+  if (!ensureConfigured()) {
+    return {
+      status: "failed",
+      deliveredCount: 0,
+      failedCount: 1,
+      reason: "Push delivery is not configured",
+    };
+  }
 
   const supabase = createAdminClient();
-  const { data: subs } = await supabase
+  const { data: subs, error: subscriptionsError } = await supabase
     .from("push_subscriptions")
     .select("id, endpoint, p256dh, auth_key")
     .eq("user_id", userId);
 
-  if (!subs || subs.length === 0) return;
+  if (subscriptionsError) {
+    console.error("Push subscription lookup failed:", subscriptionsError);
+    return {
+      status: "failed",
+      deliveredCount: 0,
+      failedCount: 1,
+      reason: "Subscription lookup failed",
+    };
+  }
+
+  if (!subs || subs.length === 0) {
+    return {
+      status: "skipped",
+      deliveredCount: 0,
+      failedCount: 0,
+      reason: "No subscribed devices",
+    };
+  }
 
   // Include the member's current unread count with every push so the
   // service worker can set the PWA's home-screen app badge (the "red
@@ -56,7 +88,7 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
   // manual +1 needed.
   const payloadWithBadge = { ...payload, badgeCount: unreadCount ?? 0 };
 
-  await Promise.all(
+  const results = await Promise.all(
     subs.map(async (sub) => {
       try {
         await webpush.sendNotification(
@@ -66,6 +98,7 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
           },
           JSON.stringify(payloadWithBadge)
         );
+        return "sent" as const;
       } catch (err) {
         const statusCode = (err as { statusCode?: number })?.statusCode;
         if (statusCode === 404 || statusCode === 410) {
@@ -73,12 +106,41 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
           // (uninstalled, permission revoked, browser data cleared) —
           // prune it so we stop wasting sends on it.
           await supabase.from("push_subscriptions").delete().eq("id", sub.id);
+          return "expired" as const;
         } else {
           console.error("Push send failed:", err);
+          return "failed" as const;
         }
       }
     })
   );
+
+  const deliveredCount = results.filter((result) => result === "sent").length;
+  const failedCount = results.filter((result) => result === "failed").length;
+  const expiredCount = results.filter((result) => result === "expired").length;
+
+  if (failedCount > 0) {
+    return {
+      status: "failed",
+      deliveredCount,
+      failedCount,
+      reason:
+        deliveredCount > 0
+          ? `${failedCount} device delivery failed after ${deliveredCount} succeeded`
+          : "Push service rejected delivery",
+    };
+  }
+
+  if (deliveredCount === 0) {
+    return {
+      status: "skipped",
+      deliveredCount: 0,
+      failedCount: 0,
+      reason: expiredCount > 0 ? "Subscribed devices had expired" : "No subscribed devices",
+    };
+  }
+
+  return { status: "sent", deliveredCount, failedCount: 0 };
 }
 
 export async function sendPushToUsers(

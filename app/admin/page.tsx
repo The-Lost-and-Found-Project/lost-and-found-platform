@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import AdminPrayerDashboardClient from "@/components/AdminPrayerDashboardClient";
 import { getEffectiveRole } from "@/lib/effective-role";
 
@@ -65,24 +66,32 @@ export default async function AdminPage() {
     redirect("/dashboard");
   }
 
-  const { data: requests } = await supabase
-    .from("prayer_requests")
-    .select(
-      "id, user_id, created_at, name, email, phone, preferred_contact, contact_requested, category_id, request_text, is_public, is_anonymous, status, assigned_to, follow_up_needed, follow_up_date, answered, praise_report, prayer_count, flagged, flag_reason, moderation_status, last_action_at"
-    )
-    .order("created_at", { ascending: false });
+  const deliveryClient = createAdminClient();
+  const [deliveryResult, requestsResult, categoriesResult, careTeamResult] =
+    await Promise.all([
+      deliveryClient.rpc("get_notification_delivery_health"),
+      supabase
+        .from("prayer_requests")
+        .select(
+          "id, user_id, created_at, name, email, phone, preferred_contact, contact_requested, category_id, request_text, is_public, is_anonymous, status, assigned_to, follow_up_needed, follow_up_date, answered, praise_report, prayer_count, flagged, flag_reason, moderation_status, last_action_at"
+        )
+        .order("created_at", { ascending: false }),
+      supabase.from("prayer_categories").select("id, name").order("sort_order"),
+      supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .in("role", ["admin", "prayer_team", "pastor"])
+        .eq("is_active", true)
+        .eq("ministry_availability", "available"),
+    ]);
 
-  const { data: categories } = await supabase
-    .from("prayer_categories")
-    .select("id, name")
-    .order("sort_order");
-
-  const { data: careTeam } = await supabase
-    .from("profiles")
-    .select("id, full_name, email")
-    .in("role", ["admin", "prayer_team", "pastor"])
-    .eq("is_active", true)
-    .eq("ministry_availability", "available");
+  const deliveryHealth = deliveryResult.data;
+  const requests = requestsResult.data;
+  const categories = categoriesResult.data;
+  const careTeam = careTeamResult.data;
+  const failedPushCount = deliveryHealth?.[0]?.failed_count ?? 0;
+  const overduePushCount = deliveryHealth?.[0]?.pending_overdue_count ?? 0;
+  const deliveryIssues = failedPushCount + overduePushCount;
 
   const requestRows = requests ?? [];
   const openRequests = requestRows.filter((request) => !request.answered && request.status !== "Closed").length;
@@ -108,15 +117,25 @@ export default async function AdminPage() {
             <Link href="/dashboard" className="lfp-button border border-white/20 bg-white/10 text-white hover:bg-white/15">Return to Member App</Link>
           </div>
 
-          <div className="mt-9 grid gap-4 sm:grid-cols-3">
+          <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <AdminStat label="Open prayer requests" value={String(openRequests)} />
             <AdminStat label="Moderation attention" value={String(flaggedRequests)} />
             <AdminStat label="Follow-ups needed" value={String(followUps)} />
+            <AdminStat label="Notification delivery issues" value={String(deliveryIssues)} />
           </div>
         </div>
       </section>
 
       <div className="lfp-shell py-10 sm:py-14">
+        {deliveryIssues > 0 && (
+          <section className="mb-8 rounded-3xl border border-amber-300 bg-amber-50 p-5 sm:p-6" role="status">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-800">Delivery health</p>
+            <h2 className="mt-2 text-xl font-black text-slate-950">Some push notifications need review</h2>
+            <p className="mt-2 leading-7 text-slate-700">
+              {failedPushCount ?? 0} failed in the last seven days and {overduePushCount ?? 0} have remained pending for more than five minutes. In-app notifications are still preserved.
+            </p>
+          </section>
+        )}
         <section>
           <div className="max-w-3xl">
             <p className="lfp-eyebrow">Mission control</p>

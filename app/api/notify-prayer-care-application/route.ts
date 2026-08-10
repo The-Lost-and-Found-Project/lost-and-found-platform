@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendPushToUsers } from "@/lib/push/send";
+import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const FROM_ADDRESS =
@@ -28,9 +28,30 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { reason } = body ?? {};
+    const { applicationId } = body ?? {};
+
+    if (!applicationId) {
+      return NextResponse.json({ error: "Missing applicationId" }, { status: 400 });
+    }
+
+    const session = await createClient();
+    const {
+      data: { user },
+    } = await session.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
 
     const supabase = createAdminClient();
+    const { data: application } = await supabase
+      .from("prayer_care_applications")
+      .select("id, user_id, reason")
+      .eq("id", applicationId)
+      .single();
+
+    if (!application || application.user_id !== user.id) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
     const { data: admins, error: adminsError } = await supabase
       .from("profiles")
       .select("id, email")
@@ -39,10 +60,22 @@ export async function POST(request: NextRequest) {
 
     if (adminsError) throw adminsError;
 
+    const adminIds = (admins ?? []).map((m) => m.id);
+    const { data: disabledSettings } = adminIds.length
+      ? await supabase
+          .from("user_settings")
+          .select("user_id")
+          .in("user_id", adminIds)
+          .eq("email_notifications", false)
+      : { data: [] };
+    const disabledUserIds = new Set(
+      (disabledSettings ?? []).map((setting) => setting.user_id)
+    );
+
     const recipients = (admins ?? [])
+      .filter((admin) => !disabledUserIds.has(admin.id))
       .map((m) => m.email)
       .filter((e): e is string => Boolean(e));
-    const adminIds = (admins ?? []).map((m) => m.id);
 
     if (adminIds.length === 0) {
       return NextResponse.json({ success: true, skipped: "no admins" });
@@ -55,8 +88,8 @@ export async function POST(request: NextRequest) {
         <div style="font-family: sans-serif; font-size: 15px; color: #111;">
           <h2 style="margin-bottom: 4px;">New Prayer Care Team application</h2>
           ${
-            typeof reason === "string" && reason.trim()
-              ? `<blockquote style="border-left: 3px solid #4f46e5; margin: 16px 0; padding-left: 12px; color: #222;">${reason}</blockquote>`
+            application.reason?.trim()
+              ? `<blockquote style="border-left: 3px solid #4f46e5; margin: 16px 0; padding-left: 12px; color: #222;">${application.reason}</blockquote>`
               : ""
           }
           <p style="margin-top: 24px;">
@@ -67,13 +100,16 @@ export async function POST(request: NextRequest) {
         </div>
       `;
 
-      const { error } = await resend.emails.send({
-        from: FROM_ADDRESS,
-        to: FROM_ADDRESS,
-        bcc: recipients,
-        subject: "New Prayer Care Team application",
-        html,
-      });
+      const { error } = await resend.emails.send(
+        {
+          from: FROM_ADDRESS,
+          to: FROM_ADDRESS,
+          bcc: recipients,
+          subject: "New Prayer Care Team application",
+          html,
+        },
+        { idempotencyKey: `prayer-care-application/${application.id}` }
+      );
 
       if (error) {
         console.error("Resend error:", error);
@@ -82,16 +118,31 @@ export async function POST(request: NextRequest) {
       console.error("RESEND_API_KEY is not configured — skipping email");
     }
 
-    sendPushToUsers(adminIds, {
-      title: "New Prayer Care Team application",
-      body: "A member has applied to join the Prayer Care Team.",
-      url: "/admin/applications",
-    }).catch((err) => {
-      console.error(
-        "Failed to send new-application push notification:",
-        err
-      );
-    });
+    const { data: existingNotifications } = await supabase
+      .from("notifications")
+      .select("user_id")
+      .eq("type", "prayer_care_application")
+      .eq("application_id", application.id)
+      .in("user_id", adminIds);
+    const alreadyNotified = new Set(
+      (existingNotifications ?? []).map((notification) => notification.user_id)
+    );
+    const notificationsToInsert = adminIds
+      .filter((userId) => !alreadyNotified.has(userId))
+      .map((userId) => ({
+          user_id: userId,
+          type: "prayer_care_application",
+          title: "New Prayer Care Team application",
+          body: "A member has applied to join the Prayer Care Team.",
+          link: "/admin/applications",
+          application_id: application.id,
+        }));
+
+    const { error: notificationError } = notificationsToInsert.length
+      ? await supabase.from("notifications").insert(notificationsToInsert)
+      : { error: null };
+
+    if (notificationError) throw notificationError;
 
     return NextResponse.json({ success: true });
   } catch (err) {

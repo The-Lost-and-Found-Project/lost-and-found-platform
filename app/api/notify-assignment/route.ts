@@ -61,6 +61,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const { data: assigneeSettings } = await admin
+      .from("user_settings")
+      .select("email_notifications")
+      .eq("user_id", prayerRequest.assigned_to)
+      .maybeSingle();
+
+    if (assigneeSettings?.email_notifications === false) {
+      return NextResponse.json({
+        success: true,
+        email: "skipped_by_preference",
+      });
+    }
+
     let categoryName: string | null = null;
     if (prayerRequest.category_id) {
       const { data: category } = await admin
@@ -125,12 +138,15 @@ export async function POST(request: NextRequest) {
       </div>
     `;
 
-    const { error } = await resend.emails.send({
-      from: FROM_ADDRESS,
-      to: assignee.email,
-      subject: "You've been matched with a prayer request",
-      html,
-    });
+    const { error } = await resend.emails.send(
+      {
+        from: FROM_ADDRESS,
+        to: assignee.email,
+        subject: "You've been matched with a prayer request",
+        html,
+      },
+      { idempotencyKey: `prayer-assignment/${requestId}/${prayerRequest.assigned_to}` }
+    );
 
     if (error) {
       console.error("Resend error:", error);

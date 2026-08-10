@@ -114,13 +114,26 @@ export async function GET(request: NextRequest) {
 
     const { data: careTeam, error: careTeamError } = await supabase
       .from("profiles")
-      .select("email, full_name")
+      .select("id, email, full_name")
       .in("role", ["admin", "prayer_team", "pastor"])
       .not("email", "is", null);
 
     if (careTeamError) throw careTeamError;
 
+    const careTeamIds = (careTeam ?? []).map((member) => member.id);
+    const { data: disabledSettings } = careTeamIds.length
+      ? await supabase
+          .from("user_settings")
+          .select("user_id")
+          .in("user_id", careTeamIds)
+          .eq("email_notifications", false)
+      : { data: [] };
+    const disabledUserIds = new Set(
+      (disabledSettings ?? []).map((setting) => setting.user_id)
+    );
+
     const recipients = (careTeam ?? [])
+      .filter((member) => !disabledUserIds.has(member.id))
       .map((m) => m.email)
       .filter((email): email is string => Boolean(email));
 
