@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     const { data: staleRequests, error: staleError } = await supabase
       .from("prayer_requests")
       .select(
-        "id, request_text, name, is_anonymous, user_id, assigned_to, last_action_at, admin_idle_notified_at, checkin_notified_at"
+        "id, user_id, assigned_to, last_action_at, admin_idle_notified_at, checkin_notified_at"
       )
       .eq("answered", false)
       .eq("archived", false)
@@ -64,22 +64,6 @@ export async function GET(request: NextRequest) {
       );
 
       if (dueForAdminNudge.length > 0) {
-        const assigneeIds = Array.from(
-          new Set(dueForAdminNudge.map((r) => r.assigned_to as string))
-        );
-
-        const { data: assignees, error: assigneesError } = await supabase
-          .from("profiles")
-          .select("id, full_name, missed_assignment_count")
-          .in("id", assigneeIds);
-
-        if (assigneesError) throw assigneesError;
-
-        const assigneeNameById: Record<string, string> = {};
-        (assignees ?? []).forEach((a) => {
-          assigneeNameById[a.id] = a.full_name ?? "their prayer partner";
-        });
-
         const { data: admins, error: adminsError } = await supabase
           .from("profiles")
           .select("id")
@@ -88,23 +72,12 @@ export async function GET(request: NextRequest) {
         if (adminsError) throw adminsError;
 
         if (admins && admins.length > 0) {
-          const lines = dueForAdminNudge.map((r) => {
-            const days = Math.floor(
-              (Date.now() - new Date(r.last_action_at).getTime()) /
-                (1000 * 60 * 60 * 24)
-            );
-            const label = r.is_anonymous ? "An anonymous request" : r.name ?? "A request";
-            const assigneeName = assigneeNameById[r.assigned_to as string] ?? "their prayer partner";
-            return `${label} (assigned to ${assigneeName}) — ${days} days since last action`;
-          });
-
           const title =
             dueForAdminNudge.length === 1
               ? "A prayer request needs attention"
               : `${dueForAdminNudge.length} prayer requests need attention`;
-          const body = `${lines.slice(0, 5).join("; ")}${
-            lines.length > 5 ? `; and ${lines.length - 5} more` : ""
-          }.`;
+          const body =
+            "Open Prayer Operations to review overdue care, current ownership, and reassignment options.";
 
           const { error: insertError } = await supabase.from("notifications").insert(
             admins.map((admin) => ({
@@ -146,10 +119,7 @@ export async function GET(request: NextRequest) {
             user_id: r.user_id,
             type: "check_in_needed",
             title: "How's this prayer request going?",
-            body: `It's been about a week since there was an update on: "${r.request_text.slice(
-              0,
-              120
-            )}". Let us know if you still need prayer, it's been answered, or you'd like to update or remove it.`,
+            body: "It's been about a week since there was an update. Let us know if you still need prayer, it has been answered, or you would like to update or remove it.",
             link: `/my-journey?checkin=${r.id}`,
           }))
         );
@@ -239,7 +209,7 @@ export async function GET(request: NextRequest) {
               user_id: newAssigneeId,
               type: "prayer_reassigned",
               title: "A prayer request has been reassigned to you",
-              body: `This request was previously assigned to ${rp.full_name || "a prayer partner"} and was returned for timely care. ${prayedText} ${contactText}`,
+              body: `This request was returned to the team for timely care. ${prayedText} ${contactText}`,
               link: "/prayer-assignments",
             });
           }

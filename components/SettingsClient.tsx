@@ -48,14 +48,14 @@ export default function SettingsClient({
       <div className="mt-6 divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm">
         <ToggleRow
           title="Prayer notifications"
-          description="Get notified in-app when someone prays for your request."
+          description="Show an in-app update when someone prays for your request."
           checked={settings.prayer_reaction_notifications}
           onChange={(v) => updateSetting("prayer_reaction_notifications", v)}
           busy={saving === "prayer_reaction_notifications"}
         />
         <ToggleRow
           title="Email notifications"
-          description="Receive occasional email updates from the care team."
+          description="Receive care updates and role-related ministry summaries by email. Required account and security messages are unaffected."
           checked={settings.email_notifications}
           onChange={(v) => updateSetting("email_notifications", v)}
           busy={saving === "email_notifications"}

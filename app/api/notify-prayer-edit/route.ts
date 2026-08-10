@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendPushToUser } from "@/lib/push/send";
+import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const FROM_ADDRESS =
@@ -33,13 +33,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing requestId" }, { status: 400 });
     }
 
+    const session = await createClient();
+    const {
+      data: { user },
+    } = await session.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
     const supabase = createAdminClient();
 
     const { data: prayerRequest } = await supabase
       .from("prayer_requests")
-      .select("assigned_to, name, request_text, category_id, is_anonymous")
+      .select("user_id, assigned_to, name, request_text, category_id, is_anonymous")
       .eq("id", requestId)
       .single();
+
+    if (!prayerRequest || prayerRequest.user_id !== user.id) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
 
     // Nothing to do if this request was never assigned to anyone yet — no
     // one is actively following up on it.
@@ -47,7 +60,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, skipped: true });
     }
 
-    const [{ data: assignee }, { data: category }] = await Promise.all([
+    const [{ data: assignee }, { data: category }, { data: assigneeSettings }] = await Promise.all([
       supabase
         .from("profiles")
         .select("email, full_name")
@@ -60,13 +73,35 @@ export async function POST(request: NextRequest) {
             .eq("id", prayerRequest.category_id)
             .single()
         : Promise.resolve({ data: null }),
+      supabase
+        .from("user_settings")
+        .select("email_notifications")
+        .eq("user_id", prayerRequest.assigned_to)
+        .maybeSingle(),
     ]);
 
     const assigneeEmail = assignee?.email ?? undefined;
     const assigneeName = assignee?.full_name ?? null;
+    const emailEnabled = assigneeSettings?.email_notifications !== false;
 
-    if (!assigneeEmail) {
-      return NextResponse.json({ success: true, skipped: true });
+    const { error: notificationError } = await supabase.from("notifications").insert({
+      user_id: prayerRequest.assigned_to,
+      type: "prayer_request_updated",
+      title: "A prayer request in your care was updated",
+      body: "Open your assignments to review the updated private details and continue care.",
+      link: "/prayer-assignments",
+      prayer_request_id: requestId,
+    });
+
+    if (notificationError) {
+      throw notificationError;
+    }
+
+    if (!assigneeEmail || !emailEnabled) {
+      return NextResponse.json({
+        success: true,
+        email: emailEnabled ? "skipped_no_address" : "skipped_by_preference",
+      });
     }
 
     const apiKey = process.env.RESEND_API_KEY;
@@ -121,14 +156,6 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       );
     }
-
-    sendPushToUser(prayerRequest.assigned_to, {
-      title: "A prayer request you're following up on was updated",
-      body: changesDescription || prayerRequest.request_text.slice(0, 120),
-      url: "/admin",
-    }).catch((err) => {
-      console.error("Failed to send prayer-edit push notification:", err);
-    });
 
     return NextResponse.json({ success: true });
   } catch (err) {

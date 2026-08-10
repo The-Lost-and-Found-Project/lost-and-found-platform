@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendPushToUsers } from "@/lib/push/send";
 import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const FROM_ADDRESS =
@@ -45,10 +44,22 @@ export async function POST(request: NextRequest) {
 
     if (careTeamError) throw careTeamError;
 
+    const careTeamIds = (careTeam ?? []).map((member) => member.id);
+    const { data: disabledSettings } = careTeamIds.length
+      ? await supabase
+          .from("user_settings")
+          .select("user_id")
+          .in("user_id", careTeamIds)
+          .eq("email_notifications", false)
+      : { data: [] };
+    const disabledUserIds = new Set(
+      (disabledSettings ?? []).map((setting) => setting.user_id)
+    );
+
     const recipients = (careTeam ?? [])
+      .filter((member) => !disabledUserIds.has(member.id))
       .map((m) => m.email)
       .filter((e): e is string => Boolean(e));
-    const careTeamIds = (careTeam ?? []).map((m) => m.id);
 
     if (recipients.length === 0) {
       return NextResponse.json({ success: true, skipped: "no care team" });
@@ -86,17 +97,10 @@ export async function POST(request: NextRequest) {
       console.error("RESEND_API_KEY is not configured — skipping email");
     }
 
-    const pushBody =
-      typeof contentText === "string" ? contentText.slice(0, 120) : "";
-    sendPushToUsers(careTeamIds, {
-      title: "New praise report shared",
-      body: pushBody,
-      url: "/praise",
-    }).catch((err) => {
-      console.error("Failed to send new-praise-report push notification:", err);
+    return NextResponse.json({
+      success: true,
+      push: "handled_by_notification_webhook",
     });
-
-    return NextResponse.json({ success: true });
   } catch (err) {
     console.error("notify-new-praise-admin error:", err);
     return NextResponse.json(

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendPushToUser } from "@/lib/push/send";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 type NotificationRow = {
   id: string;
@@ -49,13 +50,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, skipped: "missing fields" });
     }
 
-    await sendPushToUser(row.user_id, {
+    const attemptedAt = new Date().toISOString();
+    const delivery = await sendPushToUser(row.user_id, {
       title: row.title,
       body: row.body ?? "",
       url: row.link ?? undefined,
     });
 
-    return NextResponse.json({ success: true });
+    const admin = createAdminClient();
+    const { error: trackingError } = await admin
+      .from("notifications")
+      .update({
+        push_status: delivery.status,
+        push_attempted_at: attemptedAt,
+        push_delivered_at:
+          delivery.status === "sent" ? new Date().toISOString() : null,
+        push_error: delivery.reason ?? null,
+      })
+      .eq("id", row.id);
+
+    if (trackingError) {
+      console.error("notification delivery tracking error:", trackingError);
+      return NextResponse.json(
+        { error: "Push completed but delivery tracking failed" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true, delivery: delivery.status });
   } catch (err) {
     console.error("notification-created webhook error:", err);
     return NextResponse.json(

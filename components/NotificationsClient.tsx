@@ -26,6 +26,19 @@ const TYPE_ICON: Record<string, string> = {
   content_approved: "bg-gradient-to-br from-emerald-500 to-green-600",
 };
 
+const TYPE_ACTION: Record<string, { label: string; action: string }> = {
+  assigned: { label: "Care assignment", action: "Review assignment" },
+  prayer_reassigned: { label: "Care assignment", action: "Review assignment" },
+  prayer_request_updated: { label: "Care update", action: "Review update" },
+  idle_assignment: { label: "Action needed", action: "Review overdue care" },
+  check_in_needed: { label: "Check-in", action: "Respond now" },
+  rotation_paused: { label: "Availability", action: "Review availability" },
+  prayer_care_application: { label: "Application", action: "Review application" },
+  prayed_for: { label: "Prayer", action: "View your journey" },
+  status_change: { label: "Care update", action: "Review update" },
+  flagged: { label: "Action needed", action: "Review content" },
+};
+
 type Filter = "all" | "unread";
 
 export default function NotificationsClient({ initialNotifications }: { initialNotifications: Notification[] }) {
@@ -150,24 +163,34 @@ export default function NotificationsClient({ initialNotifications }: { initialN
           </div>
         )}
 
-        {visibleNotifications.map((notification) => (
+        {visibleNotifications.map((notification) => {
+          const action = TYPE_ACTION[notification.type] ?? {
+            label: "Update",
+            action: "Open update",
+          };
+          return (
           <article key={notification.id} className={`group flex items-start gap-3 rounded-3xl border p-4 transition sm:p-5 ${notification.read_at ? "border-slate-200 bg-white" : "border-indigo-200 bg-indigo-50/70 shadow-sm"}`}>
             <Link href={notification.link ?? "/notifications"} onClick={(event) => void openNotification(event, notification)} className="flex min-w-0 flex-1 items-start gap-4 rounded-2xl">
               <span className={`mt-1 h-3 w-3 shrink-0 rounded-full ${notification.read_at ? "bg-slate-200" : TYPE_ICON[notification.type] ?? "bg-indigo-500"}`} aria-hidden="true" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-black text-slate-950">{notification.title}</h3>
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-600">{action.label}</span>
                   {!notification.read_at && <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">New</span>}
                 </div>
                 {notification.body && <p className="mt-2 leading-7 text-slate-600">{notification.body}</p>}
-                <p className="mt-3 text-xs font-semibold text-slate-400">{new Date(notification.created_at).toLocaleString()}</p>
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-semibold">
+                  <span className="text-slate-400">{new Date(notification.created_at).toLocaleString()}</span>
+                  <span className="font-black text-indigo-700">{action.action} →</span>
+                </div>
               </div>
             </Link>
             <button type="button" onClick={() => deleteOne(notification.id)} aria-label={`Delete notification: ${notification.title}`} className="shrink-0 rounded-full p-2 text-slate-400 transition hover:bg-rose-50 hover:text-rose-700 focus-visible:text-rose-700 sm:opacity-40 sm:group-hover:opacity-100 sm:focus-visible:opacity-100">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           </article>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

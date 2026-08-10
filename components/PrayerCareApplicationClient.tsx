@@ -64,14 +64,16 @@ export default function PrayerCareApplicationClient({
       return;
     }
 
-    const { error: insertError } = await supabase
+    const { data: application, error: insertError } = await supabase
       .from("prayer_care_applications")
       .insert({
         user_id: user.id,
         reason,
         experience: experience.trim() || null,
         availability: availability.trim() || null,
-      });
+      })
+      .select("id")
+      .single();
 
     if (insertError) {
       setError(
@@ -90,7 +92,7 @@ export default function PrayerCareApplicationClient({
     fetch("/api/notify-prayer-care-application", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason }),
+      body: JSON.stringify({ applicationId: application.id }),
     }).catch((err) => {
       console.error("Failed to send new-application admin notification:", err);
     });
