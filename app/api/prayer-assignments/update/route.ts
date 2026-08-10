@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { notifyPrayerEscalation } from "@/lib/notifications/care-alerts";
 
 const ALLOWED_FIELDS = [
   "action_contacted_at",
@@ -56,6 +57,16 @@ export async function POST(request: NextRequest) {
     }
 
     const admin = createAdminClient();
+    const { data: previousRequest, error: previousError } = await admin
+      .from("prayer_requests")
+      .select("status")
+      .eq("id", requestId)
+      .eq("assigned_to", user.id)
+      .eq("archived", false)
+      .maybeSingle();
+
+    if (previousError) throw previousError;
+
     const { data, error } = await admin
       .from("prayer_requests")
       .update(changes)
@@ -73,6 +84,19 @@ export async function POST(request: NextRequest) {
         { error: "Assignment not found or no longer assigned to you" },
         { status: 404 }
       );
+    }
+
+    if (previousRequest?.status !== "Escalated" && data.status === "Escalated") {
+      try {
+        await notifyPrayerEscalation({
+          admin,
+          prayerRequestId: data.id,
+          assignedTo: user.id,
+          actorUserId: user.id,
+        });
+      } catch (notificationError) {
+        console.error("prayer escalation notification error:", notificationError);
+      }
     }
 
     return NextResponse.json({ success: true, request: data });
