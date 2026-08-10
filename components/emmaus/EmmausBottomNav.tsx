@@ -5,9 +5,8 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/emmaus/walk", label: "Walk", icon: "🏠" },
-  { href: "/emmaus/admin/bible", label: "Bible", icon: "📖" },
-  { href: "/emmaus/admin/graph", label: "Explore", icon: "🔍" },
-  { href: "/emmaus/prayer", label: "Prayer", icon: "🙏" },
+  { href: "/emmaus/bible", label: "Bible", icon: "📖" },
+  { href: "/emmaus/discover", label: "Discover", icon: "🔍" },
   { href: "/emmaus/me", label: "Me", icon: "👤" },
 ];
 
@@ -16,7 +15,7 @@ export default function EmmausBottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-[70] border-t border-slate-200 bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden" aria-label="Emmaus navigation">
-      <div className="mx-auto grid max-w-xl grid-cols-5 gap-1">
+      <div className="mx-auto grid max-w-xl grid-cols-4 gap-1">
         {items.map((item) => {
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (

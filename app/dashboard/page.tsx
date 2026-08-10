@@ -5,7 +5,6 @@ import PrayerWallTicker from "@/components/PrayerWallTicker";
 import ShareButton from "@/components/ShareButton";
 import PushPrompt from "@/components/PushPrompt";
 import {
-  LfpComingSoonCard,
   LfpFeatureCard,
   LfpPrimaryLink,
   LfpSecondaryLink,
@@ -45,6 +44,8 @@ export default async function DashboardPage() {
     (EMMAUS_FOUNDER_USER_ID && user.id === EMMAUS_FOUNDER_USER_ID) ||
       (!EMMAUS_FOUNDER_USER_ID && user.email?.toLowerCase() === EMMAUS_FOUNDER_EMAIL)
   );
+
+  if (isEmmausFounder) redirect("/emmaus/walk");
 
   const [prayerResult, journeyResult, quizResult, notificationResult] = await Promise.all([
     supabase
@@ -123,11 +124,6 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
-            <HeroAction icon="🙏" title="Submit a Prayer" description="Share what is on your heart with our prayer community." href="/prayer/submit" />
-            <HeroAction icon="📖" title="Daily Devotion" description="Begin a Scripture-centered devotional for today." href="/devotions" />
-            <HeroAction icon="✨" title="Bible Trivia" description="Strengthen biblical knowledge through an engaging challenge." href="/trivia" />
-          </div>
         </div>
       </section>
 
@@ -190,11 +186,11 @@ export default async function DashboardPage() {
         )}
 
         <section>
-          <LfpSectionHeading eyebrow="Available now" title="Choose another path" description="All options below are currently active and available." />
+          <LfpSectionHeading eyebrow="Your next step" title="Pray. Read. Grow." description="Three clear ways to continue your journey." />
           <div className="mt-7 grid gap-5 md:grid-cols-3">
-            <LfpFeatureCard eyebrow="Prayer" title="Prayer Community" description="Submit a request, pray with others, and follow the stories of God's faithfulness." href="/prayer" action="Open Prayer" icon="🙏" />
-            <LfpFeatureCard eyebrow="Formation" title="Daily Devotions" description="A seven-day rhythm of Scripture, practical teaching, reflection, and prayer." href="/devotions" action="Start Reading" icon="📖" />
-            <LfpFeatureCard eyebrow="Learning" title="Bible Trivia" description="Test your knowledge and learn through six biblical categories." href="/trivia" action="Play Now" icon="🧠" />
+            <LfpFeatureCard eyebrow="Pray" title="Prayer Community" description="Submit a request, pray with others, and follow the stories of God's faithfulness." href="/prayer" action="Open Prayer" icon="🙏" />
+            <LfpFeatureCard eyebrow="Read" title="Daily Devotions" description="A Scripture-centered rhythm of teaching, reflection, and prayer." href="/devotions" action="Start Reading" icon="📖" />
+            <LfpFeatureCard eyebrow="Grow" title="Growth Hub" description="Find Bible learning and formation tools in one place." href="/grow" action="Open Grow" icon="✦" />
           </div>
         </section>
 
@@ -214,15 +210,6 @@ export default async function DashboardPage() {
             </div>
           </section>
         )}
-
-        <section className="mt-14">
-          <LfpSectionHeading eyebrow="Growing vision" title="Coming soon to the community" description="These areas remain intentionally unavailable until they are complete, tested, and ready to serve people well." />
-          <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            <LfpComingSoonCard title="Mentoring" description="A relational workspace for mentors and mentees to meet, pray, set growth goals, and walk through Scripture together." icon="🤝" planned={["Matching", "Shared goals", "Meeting notes"]} />
-            <LfpComingSoonCard title="Study Library" description="A growing collection of individual, group, marriage, men's, and women's studies from The Lost and Found Project." icon="📚" planned={["Guided studies", "Group editions", "Progress tracking"]} />
-            <LfpComingSoonCard title="Events" description="Discover gatherings, classes, workshops, and ministry opportunities in one organized place." icon="📅" planned={["Registration", "Reminders", "Event details"]} />
-          </div>
-        </section>
 
         <section className="mt-14">
           <LfpSectionHeading eyebrow="Community prayer" title="Pray with what is happening now" />
@@ -308,16 +295,5 @@ function JourneyMetric({ label, value }: { label: string; value: number | string
       <p className="text-2xl font-black">{value}</p>
       <p className="mt-1 text-xs font-semibold text-indigo-100/60">{label}</p>
     </div>
-  );
-}
-
-function HeroAction({ icon, title, description, href }: { icon: string; title: string; description: string; href: string }) {
-  return (
-    <Link href={href} className="group rounded-3xl border border-white/10 bg-white/[0.07] p-5 backdrop-blur transition hover:-translate-y-1 hover:border-amber-300/35 hover:bg-white/[0.11]">
-      <span className="text-3xl" aria-hidden="true">{icon}</span>
-      <h2 className="mt-4 text-lg font-black">{title}</h2>
-      <p className="mt-2 text-sm leading-6 text-indigo-100/60">{description}</p>
-      <p className="mt-4 text-sm font-black text-amber-300 transition group-hover:translate-x-1">Continue →</p>
-    </Link>
   );
 }

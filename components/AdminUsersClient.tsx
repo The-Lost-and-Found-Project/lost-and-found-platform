@@ -9,6 +9,13 @@ const ROLE_OPTIONS = [
   { value: "admin", label: "Community Admin" },
 ];
 
+const AVAILABILITY_OPTIONS = [
+  { value: "available", label: "Available" },
+  { value: "limited", label: "Limited" },
+  { value: "away", label: "Away" },
+  { value: "inactive", label: "Inactive" },
+];
+
 type UserRow = {
   id: string;
   full_name: string | null;
@@ -17,6 +24,9 @@ type UserRow = {
   is_active: boolean;
   created_at: string;
   rotation_status?: string | null;
+  ministry_availability?: string | null;
+  missed_assignment_count?: number;
+  availability_review_required?: boolean;
   reinstatement_requested_at?: string | null;
 };
 
@@ -29,6 +39,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
   const [users, setUsers] = useState<UserRow[]>(initialUsers);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [deactivationReview, setDeactivationReview] = useState<{ userId: string; count: number } | null>(null);
   const [error, setError] = useState("");
 
   async function handleRoleChange(userId: string, role: string) {
@@ -56,28 +67,56 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
     }
   }
 
-  async function handleActiveToggle(userId: string, isActive: boolean) {
+  async function handleActiveToggle(userId: string, isActive: boolean, responsibilityAction?: "bulk_reassign" | "return_to_queue") {
     setError("");
-    const previous = users;
-    setUsers((prev) =>
-      prev.map((u) => (u.id === userId ? { ...u, is_active: isActive } : u))
-    );
     setPendingId(userId);
 
     try {
       const res = await fetch("/api/admin/users/set-active", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, isActive }),
+        body: JSON.stringify({ userId, isActive, responsibilityAction }),
       });
       const body = await res.json();
+      if (res.status === 409 && body?.code === "ACTIVE_RESPONSIBILITIES") {
+        setDeactivationReview({ userId, count: body.count ?? 0 });
+        return;
+      }
       if (!res.ok) {
-        setUsers(previous);
         setError(body?.error ?? "Failed to update account status");
+      } else {
+        setUsers((prev) => prev.map((u) => u.id === userId ? {
+          ...u,
+          is_active: isActive,
+          ministry_availability: isActive ? u.ministry_availability : "inactive",
+        } : u));
+        setDeactivationReview(null);
       }
     } catch {
-      setUsers(previous);
       setError("Failed to update account status");
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  async function handleAvailabilityChange(userId: string, availability: string) {
+    setError("");
+    setPendingId(userId);
+    try {
+      const res = await fetch("/api/admin/users/set-availability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, availability }),
+      });
+      const body = await res.json();
+      if (!res.ok) setError(body?.error ?? "Failed to update ministry availability");
+      else setUsers((prev) => prev.map((u) => u.id === userId ? {
+        ...u,
+        ministry_availability: availability,
+        availability_review_required: false,
+      } : u));
+    } catch {
+      setError("Failed to update ministry availability");
     } finally {
       setPendingId(null);
     }
@@ -124,7 +163,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
         setUsers((prev) =>
           prev.map((u) =>
             u.id === userId
-              ? { ...u, rotation_status: "active", reinstatement_requested_at: null }
+              ? { ...u, rotation_status: "active", ministry_availability: "available", availability_review_required: false, reinstatement_requested_at: null }
               : u
           )
         );
@@ -146,8 +185,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Manage Users</h1>
           <p className="mt-2 text-gray-600">
-            Promote members to the care team, deactivate an account, or
-            permanently delete one.
+            Manage account access separately from ministry availability and assignment responsibility.
           </p>
         </div>
         <a
@@ -174,8 +212,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
             Pending Reinstatement Requests
           </h2>
           <p className="mt-1 text-xs text-amber-700">
-            These members were marked inactive after being paused for 30+
-            days and have asked to be reinstated to the prayer rotation.
+            These legacy requests remain available for review. New unattended assignments no longer deactivate accounts automatically.
           </p>
           <div className="mt-3 space-y-2">
             {pendingReinstatements.map((u) => {
@@ -251,7 +288,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                   <td className="px-4 py-3 text-gray-500">
                     {new Date(u.created_at).toLocaleDateString()}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="space-y-2 px-4 py-3">
                     <select
                       aria-label={`Role for ${accessibleName}`}
                       value={u.role ?? "member"}
@@ -283,6 +320,25 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                       <option value="active">Active</option>
                       <option value="deactivated">Deactivate</option>
                     </select>
+                    <select
+                      aria-label={`Ministry availability for ${accessibleName}`}
+                      value={u.ministry_availability ?? "available"}
+                      disabled={isPending}
+                      onChange={(e) => handleAvailabilityChange(u.id, e.target.value)}
+                      className="block min-h-11 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-2 text-sm font-medium text-indigo-700 shadow-sm disabled:opacity-50"
+                    >
+                      {AVAILABILITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                    </select>
+                    {u.availability_review_required && <p className="text-xs font-semibold text-amber-700">Human review required · {u.missed_assignment_count ?? 0} missed</p>}
+                    {deactivationReview?.userId === u.id && (
+                      <div className="rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900">
+                        <p>{deactivationReview.count} active {deactivationReview.count === 1 ? "responsibility" : "responsibilities"} must move first.</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <button type="button" onClick={() => handleActiveToggle(u.id, false, "bulk_reassign")} className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 font-semibold text-white">Bulk reassign</button>
+                          <button type="button" onClick={() => handleActiveToggle(u.id, false, "return_to_queue")} className="min-h-11 rounded-md border border-amber-300 bg-white px-3 py-2 font-semibold">Return to queue</button>
+                        </div>
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     {isSelf ? null : isConfirming ? (
@@ -392,7 +448,27 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                   <option value="active">Active</option>
                   <option value="deactivated">Deactivate</option>
                 </select>
+                <select
+                  aria-label={`Ministry availability for ${accessibleName}`}
+                  value={u.ministry_availability ?? "available"}
+                  disabled={isPending}
+                  onChange={(e) => handleAvailabilityChange(u.id, e.target.value)}
+                  className="min-h-11 min-w-0 flex-1 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-2 text-sm font-medium text-indigo-700 shadow-sm disabled:opacity-50"
+                >
+                  {AVAILABILITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
               </div>
+
+              {u.availability_review_required && <p className="mt-2 text-xs font-semibold text-amber-700">Human review required · {u.missed_assignment_count ?? 0} missed assignments</p>}
+              {deactivationReview?.userId === u.id && (
+                <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                  <p>{deactivationReview.count} active {deactivationReview.count === 1 ? "responsibility" : "responsibilities"} must move before deactivation.</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => handleActiveToggle(u.id, false, "bulk_reassign")} className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 font-semibold text-white">Bulk reassign</button>
+                    <button type="button" onClick={() => handleActiveToggle(u.id, false, "return_to_queue")} className="min-h-11 rounded-md border border-amber-300 bg-white px-3 py-2 font-semibold">Return to queue</button>
+                  </div>
+                </div>
+              )}
 
               {!isSelf && (
                 <div className="mt-3">

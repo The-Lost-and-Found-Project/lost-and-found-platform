@@ -144,7 +144,7 @@ export default async function LearningProfilePage() {
             <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">Next faithful step</p>
             <h2 className="mt-3 text-2xl font-black">Practice through Scripture.</h2>
             <p className="mt-3 leading-7 text-amber-50/75">A learning profile becomes meaningful through continued attention to God's Word. Choose another reviewed discovery and let the evidence grow naturally.</p>
-            <Link href="/emmaus/admin/bible" className="mt-6 inline-flex rounded-full bg-amber-300 px-5 py-3 font-black text-slate-950 shadow-lg">Choose a Discovery →</Link>
+            <Link href="/emmaus/discover" className="mt-6 inline-flex rounded-full bg-amber-300 px-5 py-3 font-black text-slate-950 shadow-lg">Choose a Discovery →</Link>
           </div>
         </section>
       </div>

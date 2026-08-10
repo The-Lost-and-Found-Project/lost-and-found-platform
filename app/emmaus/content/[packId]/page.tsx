@@ -15,7 +15,7 @@ export default async function EmmausContentPackPage({
     <main className="min-h-screen bg-gradient-to-b from-stone-50 via-white to-indigo-50/60 pb-28 lg:pb-12">
       <section className="bg-slate-950 text-white">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
-          <Link href="/emmaus/admin/bible" className="text-sm font-black text-amber-300 hover:text-amber-200">← Back to Bible Library</Link>
+          <Link href="/emmaus/bible" className="text-sm font-black text-amber-300 hover:text-amber-200">← Back to Bible Library</Link>
           <div className="mt-7 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <div className="max-w-4xl">
               <div className="flex flex-wrap items-center gap-3">

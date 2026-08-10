@@ -219,7 +219,7 @@ test("linked praise reports can only answer the requester's own prayer", async (
     routeSource,
     /\.from\("prayer_requests"\)[\s\S]*\.eq\("id", prayerRequestId\)[\s\S]*\.eq\("user_id", user\.id\)/
   );
-  assert.match(routeSource, /\.update\(\{\s*answered:\s*true\s*\}\)/);
+  assert.match(routeSource, /\.update\(\{\s*answered:\s*true,\s*status:\s*"Resolved"\s*\}\)/);
 });
 
 test("prayer assignment updates are server-authorized and restricted to the assignee", async () => {

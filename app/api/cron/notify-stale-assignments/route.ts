@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 // Runs daily via Vercel Cron (see vercel.json). Covers four things built on
 // the same 7-day-idle signal (last_action_at, bumped whenever a prayer
@@ -12,20 +11,9 @@ const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 //      7+ days without an action being taken.
 //   2. The submitting member gets asked to check in on their own request
 //      via the four options at /my-journey?checkin=<id>.
-//   3. Neglect auto-pause: a care team member (admin/prayer_team/pastor)
-//      whose assignment has gone stale gets moved to rotation_status =
-//      'paused_neglect' and everything currently assigned to them is
-//      immediately handed off to the next eligible rotation candidate
-//      (reassign immediately, either way — same as the sabbatical and
-//      user-delete flows). They get 30 days to self-service unpause
-//      (see /api/rotation/unpause and the app-open popup) before falling
-//      through to #4.
-//   4. Neglect -> inactive: anyone still sitting in paused_neglect 30+ days
-//      after being paused gets moved to rotation_status = 'inactive'.
-//      Getting back in from there requires a reinstatement request an
-//      admin has to approve (see /api/rotation/request-reinstatement and
-//      /api/admin/users/approve-reinstatement) — unlike sabbatical, which
-//      is fully self-service in both directions.
+//   3. An unattended assignment limits new ministry assignments, flags the
+//      volunteer for human review, and reassigns the request. It never
+//      disables login or automatically deactivates an account.
 //
 // Combined into one cron job (rather than several) to stay within Vercel's
 // per-project cron job limit alongside the existing weekly-digest and
@@ -65,7 +53,6 @@ export async function GET(request: NextRequest) {
       staleAssignmentCount: 0,
       membersNotified: 0,
       pausedForNeglect: 0,
-      movedToInactive: 0,
     };
 
     if (staleRequests && staleRequests.length > 0) {
@@ -83,7 +70,7 @@ export async function GET(request: NextRequest) {
 
         const { data: assignees, error: assigneesError } = await supabase
           .from("profiles")
-          .select("id, full_name")
+          .select("id, full_name, missed_assignment_count")
           .in("id", assigneeIds);
 
         if (assigneesError) throw assigneesError;
@@ -193,7 +180,7 @@ export async function GET(request: NextRequest) {
       if (staleAssigneeIds.length > 0) {
         const { data: rotationProfiles, error: rotationProfilesError } = await supabase
           .from("profiles")
-          .select("id, full_name")
+          .select("id, full_name, missed_assignment_count")
           .in("id", staleAssigneeIds)
           .eq("rotation_status", "active");
 
@@ -203,7 +190,9 @@ export async function GET(request: NextRequest) {
           const { error: pauseError } = await supabase
             .from("profiles")
             .update({
-              rotation_status: "paused_neglect",
+              ministry_availability: "limited",
+              missed_assignment_count: (rp.missed_assignment_count ?? 0) + 1,
+              availability_review_required: true,
               paused_at: new Date().toISOString(),
             })
             .eq("id", rp.id)
@@ -248,7 +237,7 @@ export async function GET(request: NextRequest) {
               user_id: newAssigneeId,
               type: "prayer_reassigned",
               title: "A prayer request has been reassigned to you",
-              body: `This request was previously assigned to ${rp.full_name || "a prayer partner"}, who has been paused from the rotation due to inactivity. ${prayedText} ${contactText}`,
+              body: `This request was previously assigned to ${rp.full_name || "a prayer partner"} and was returned for timely care. ${prayedText} ${contactText}`,
               link: "/prayer-assignments",
             });
           }
@@ -256,55 +245,14 @@ export async function GET(request: NextRequest) {
           await supabase.from("notifications").insert({
             user_id: rp.id,
             type: "rotation_paused",
-            title: "You've been paused from the prayer rotation",
-            body: "It's been 7+ days without an update on an assignment, so we've paused you from receiving new prayer requests and reassigned what you had. You can unpause anytime in the next 30 days from your Profile — after that, your account will be marked inactive and you'll need to request reinstatement.",
+            title: "New prayer assignments are temporarily limited",
+            body: "An assignment went 7+ days without an update, so it was reassigned for timely care. Your login remains active. A care leader will review your ministry availability before new assignments resume.",
             link: "/profile",
           });
 
           result.pausedForNeglect += 1;
         }
       }
-    }
-
-    // --- Neglect -> inactive: still paused 30+ days later. Runs every day
-    // regardless of whether there are stale requests right now, since this
-    // is checking a timestamp on profiles, not the current prayer_requests
-    // snapshot. ---
-    const inactiveCutoff = new Date(Date.now() - THIRTY_DAYS_MS).toISOString();
-
-    const { data: overduePaused, error: overduePausedError } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("rotation_status", "paused_neglect")
-      .lte("paused_at", inactiveCutoff);
-
-    if (overduePausedError) throw overduePausedError;
-
-    if (overduePaused && overduePaused.length > 0) {
-      const { error: inactiveError } = await supabase
-        .from("profiles")
-        .update({ rotation_status: "inactive" })
-        .in(
-          "id",
-          overduePaused.map((p) => p.id)
-        )
-        .eq("rotation_status", "paused_neglect");
-
-      if (inactiveError) throw inactiveError;
-
-      const { error: notifyError } = await supabase.from("notifications").insert(
-        overduePaused.map((p) => ({
-          user_id: p.id,
-          type: "rotation_inactive",
-          title: "Your prayer care team account is now inactive",
-          body: "It's been 30 days since you were paused from the rotation and it wasn't unpaused, so your account has moved to inactive. You can request reinstatement anytime from your Profile — an admin will need to approve it before you're back in the rotation.",
-          link: "/profile",
-        }))
-      );
-
-      if (notifyError) throw notifyError;
-
-      result.movedToInactive = overduePaused.length;
     }
 
     return NextResponse.json({ success: true, ...result });

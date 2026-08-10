@@ -179,7 +179,7 @@ export default function PrayerWallPage() {
                         {request.category_id && categories[request.category_id] && (
                           <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">{categories[request.category_id]}</span>
                         )}
-                        {request.status === "Answered" && (
+                        {(request.status === "Resolved" || request.status === "Closed") && (
                           <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">Answered</span>
                         )}
                       </div>

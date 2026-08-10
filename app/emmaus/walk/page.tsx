@@ -39,7 +39,7 @@ export default async function EmmausWalkPage() {
   const continueDiscovery = latestResolved?.discovery ?? firstAvailable;
   const continueHref = continuePack && continueDiscovery
     ? `/emmaus/content/${continuePack.id}/discovery/${continueDiscovery.id}`
-    : "/emmaus/admin/bible";
+    : "/emmaus/bible";
 
   const totalDiscoveries = emmausContentPacks.reduce((sum, pack) => sum + pack.discoveries.length, 0);
   const completionPercent = totalDiscoveries > 0 ? Math.round((completed.length / totalDiscoveries) * 100) : 0;
@@ -57,12 +57,6 @@ export default async function EmmausWalkPage() {
               <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">{greeting}, {firstName}.</h1>
               <p className="mt-4 text-xl leading-8 text-indigo-100/80">Emmaus remembers where you stopped and keeps the road open.</p>
             </div>
-            {profile?.role === "admin" && (
-              <div className="flex flex-wrap gap-2">
-                <Link href="/emmaus/admin/bible" className="rounded-full bg-amber-300 px-4 py-2 text-sm font-black text-slate-950">Review Content</Link>
-                <Link href="/emmaus/admin/dashboard" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold">Founder Studio</Link>
-              </div>
-            )}
           </div>
         </header>
 
@@ -130,9 +124,9 @@ export default async function EmmausWalkPage() {
             <p className="mt-3 text-indigo-100/65">Return to a study, explore the biblical network, pray, or choose a new passage.</p>
           </div>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <ActionCard icon="📖" title="Open Scripture" description="Browse reviewed content packs and the Bible structure." href="/emmaus/admin/bible" />
-            <ActionCard icon="🔍" title="Explore Connections" description="Move through verses, themes, people, and words." href="/emmaus/admin/graph" />
-            <ActionCard icon="🙏" title="Enter Prayer" description="Respond to Scripture without leaving Emmaus." href="/emmaus/prayer" />
+            <ActionCard icon="📖" title="Open Scripture" description="Browse reviewed passages and discoveries." href="/emmaus/bible" />
+            <ActionCard icon="🔍" title="Discover" description="Choose a guided question and follow Scripture deeper." href="/emmaus/discover" />
+            <ActionCard icon="🙏" title="Enter Prayer" description="Share a request or pray with the community." href="/emmaus/prayer" />
             <ActionCard icon="👤" title="My Emmaus" description="Review your learning profile and personal journey." href="/emmaus/me" />
           </div>
         </section>
@@ -144,7 +138,7 @@ export default async function EmmausWalkPage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">Available now</p>
                 <h2 className="mt-2 text-2xl font-black">Reviewed discoveries</h2>
               </div>
-              <Link href="/emmaus/admin/bible" className="text-sm font-bold text-amber-300">View complete library →</Link>
+              <Link href="/emmaus/bible" className="text-sm font-bold text-amber-300">View complete library →</Link>
             </div>
             <div className="mt-5 grid gap-3 md:grid-cols-2">
               {emmausContentPacks.flatMap((pack) => pack.discoveries.map((discovery) => ({ pack, discovery }))).slice(0, 4).map(({ pack, discovery }) => (

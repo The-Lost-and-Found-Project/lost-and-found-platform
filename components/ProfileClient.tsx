@@ -18,6 +18,7 @@ type Props = {
   initialPreviewRole?: string;
   isCareTeamMember?: boolean;
   initialRotationStatus?: string;
+  initialMissedAssignmentCount?: number;
   initialReinstatementRequestedAt?: string | null;
 };
 
@@ -79,7 +80,8 @@ export default function ProfileClient({
   isRealAdmin = false,
   initialPreviewRole = "",
   isCareTeamMember = false,
-  initialRotationStatus = "active",
+  initialRotationStatus = "available",
+  initialMissedAssignmentCount = 0,
   initialReinstatementRequestedAt = null,
 }: Props) {
   const supabase = createClient();
@@ -287,7 +289,7 @@ export default function ProfileClient({
       if (!res.ok) {
         setRotationError(resBody?.error ?? "Failed to update your rotation status");
       } else {
-        setRotationStatus(action === "start" ? "paused_sabbatical" : "active");
+        setRotationStatus(action === "start" ? "away" : "available");
       }
     } catch {
       setRotationError("Failed to update your rotation status");
@@ -305,7 +307,7 @@ export default function ProfileClient({
       if (!res.ok) {
         setRotationError(resBody?.error ?? "Failed to unpause your account");
       } else {
-        setRotationStatus("active");
+        setRotationStatus("available");
       }
     } catch {
       setRotationError("Failed to unpause your account");
@@ -622,12 +624,12 @@ export default function ProfileClient({
       {isCareTeamMember && (
         <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">
-            Prayer Rotation
+            Ministry Availability
           </h2>
           <p className="mt-1 text-xs text-gray-500">
             Control whether you&apos;re currently receiving new prayer
             request assignments. You can still use every other part of the
-            app as a regular member no matter your status here.
+            app as a regular member no matter your availability here. Account access is managed separately.
           </p>
 
           {rotationError && (
@@ -641,10 +643,10 @@ export default function ProfileClient({
           )}
 
           <div className="mt-4">
-            {rotationStatus === "active" && (
+            {rotationStatus === "available" && (
               <div className="flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-                  Active in rotation
+                  Available for assignments
                 </span>
                 <button
                   type="button"
@@ -652,15 +654,15 @@ export default function ProfileClient({
                   disabled={rotationBusy}
                   className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
                 >
-                  {rotationBusy ? "Updating..." : "Start a Sabbatical"}
+                  {rotationBusy ? "Updating..." : "Set Away"}
                 </button>
               </div>
             )}
 
-            {rotationStatus === "paused_sabbatical" && (
+            {rotationStatus === "away" && (
               <div className="flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-                  On sabbatical — paused from new assignments
+                  Away — no new assignments
                 </span>
                 <button
                   type="button"
@@ -668,31 +670,35 @@ export default function ProfileClient({
                   disabled={rotationBusy}
                   className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
                 >
-                  {rotationBusy ? "Updating..." : "End Sabbatical & Resume"}
+                  {rotationBusy ? "Updating..." : "Return to Available"}
                 </button>
               </div>
             )}
 
-            {rotationStatus === "paused_neglect" && (
+            {rotationStatus === "limited" && (
               <div className="flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
-                  Paused — no recent activity on an assignment
+                  Limited — new assignments paused
                 </span>
-                <button
-                  type="button"
-                  onClick={handleUnpause}
-                  disabled={rotationBusy}
-                  className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
-                >
-                  {rotationBusy ? "Updating..." : "Unpause My Account"}
-                </button>
+                {initialMissedAssignmentCount < 2 ? (
+                  <button
+                    type="button"
+                    onClick={handleUnpause}
+                    disabled={rotationBusy}
+                    className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
+                  >
+                    {rotationBusy ? "Updating..." : "Return to Available"}
+                  </button>
+                ) : (
+                  <span className="text-xs text-gray-500">A care leader must review repeated missed assignments before availability resumes.</span>
+                )}
               </div>
             )}
 
             {rotationStatus === "inactive" && (
               <div className="flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700">
-                  Inactive
+                  Inactive for ministry assignments
                 </span>
                 {reinstatementRequestedAt ? (
                   <span className="text-xs text-gray-500">

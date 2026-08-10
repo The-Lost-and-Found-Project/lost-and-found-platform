@@ -22,6 +22,12 @@ const ALLOWED_FIELDS = [
   "is_anonymous",
 ];
 
+const ALLOWED_STATUSES = [
+  "Submitted", "Reviewed", "Assigned", "Active Care", "Follow-Up",
+  "Resolved", "Closed", "Needs Reassignment", "Escalated",
+  "Unable to Contact", "Withdrawn",
+];
+
 // Backs every prayer-request moderation action in the admin dashboard —
 // approve, deny, manual flag, assign, edit, and the follow-up/answered
 // toggles. These used to go straight from the browser to Supabase with the
@@ -50,6 +56,10 @@ export async function POST(request: NextRequest) {
         { error: `Field not allowed: ${invalidField}` },
         { status: 400 }
       );
+    }
+
+    if (changes.status && !ALLOWED_STATUSES.includes(changes.status)) {
+      return NextResponse.json({ error: "Invalid prayer workflow status" }, { status: 400 });
     }
 
     const supabase = await createClient();

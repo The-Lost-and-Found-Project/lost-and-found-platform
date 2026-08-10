@@ -13,7 +13,7 @@ export default async function ProfilePage() {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "full_name, avatar_url, favorite_scripture, date_of_salvation, date_of_baptism, role, preview_role, rotation_status, reinstatement_requested_at"
+      "full_name, avatar_url, favorite_scripture, date_of_salvation, date_of_baptism, role, preview_role, ministry_availability, missed_assignment_count, reinstatement_requested_at"
     )
     .eq("id", user.id)
     .single();
@@ -50,7 +50,8 @@ export default async function ProfilePage() {
             isRealAdmin={profile?.role === "admin"}
             initialPreviewRole={profile?.preview_role ?? ""}
             isCareTeamMember={["admin", "prayer_team", "pastor"].includes(profile?.role ?? "")}
-            initialRotationStatus={profile?.rotation_status ?? "active"}
+            initialRotationStatus={profile?.ministry_availability ?? "available"}
+            initialMissedAssignmentCount={profile?.missed_assignment_count ?? 0}
             initialReinstatementRequestedAt={profile?.reinstatement_requested_at ?? null}
           />
         </section>

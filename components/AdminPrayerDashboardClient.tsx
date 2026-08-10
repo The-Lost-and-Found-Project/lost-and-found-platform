@@ -3,14 +3,17 @@
 import { useState } from "react";
 
 const STATUS_OPTIONS = [
-  "New",
+  "Submitted",
+  "Reviewed",
   "Assigned",
-  "Being Prayed For",
-  "Contacted",
-  "Ongoing",
-  "Follow-Up Needed",
-  "Answered",
+  "Active Care",
+  "Follow-Up",
+  "Resolved",
   "Closed",
+  "Needs Reassignment",
+  "Escalated",
+  "Unable to Contact",
+  "Withdrawn",
 ];
 
 type CareTeamMember = { id: string; full_name: string | null; email: string | null };
@@ -146,7 +149,10 @@ export default function AdminPrayerDashboardClient({
   }
 
   async function assignRequest(request: AdminRequest, assigneeId: string) {
-    await updateRequest(request.id, { assigned_to: assigneeId || null });
+    await updateRequest(request.id, {
+      assigned_to: assigneeId || null,
+      status: assigneeId ? "Assigned" : "Needs Reassignment",
+    });
     if (!assigneeId) return;
 
     // Fire-and-forget: the in-app notification is already handled by a DB
@@ -174,6 +180,7 @@ export default function AdminPrayerDashboardClient({
       moderation_status: "approved",
       flagged: false,
       flag_reason: null,
+      status: "Reviewed",
     });
   }
 
@@ -699,7 +706,7 @@ export default function AdminPrayerDashboardClient({
                           onChange={(e) =>
                             updateRequest(r.id, {
                               answered: e.target.checked,
-                              status: e.target.checked ? "Answered" : r.status,
+                              status: e.target.checked ? "Resolved" : r.status,
                             })
                           }
                           className="rounded border-gray-300"

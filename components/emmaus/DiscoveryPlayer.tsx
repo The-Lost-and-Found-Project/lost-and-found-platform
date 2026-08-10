@@ -240,7 +240,7 @@ export default function DiscoveryPlayer({
               </div>
               <div className="mt-9 flex flex-wrap justify-center gap-3">
                 <button type="button" onClick={() => { setStepIndex(4); setResponses((value) => ({ ...value, probe: "", connect: "" })); }} className="rounded-full border border-indigo-300 px-5 py-2.5 font-semibold text-indigo-700">Follow Another Path</button>
-                <Link href="/emmaus/admin/bible" className="rounded-full bg-indigo-600 px-6 py-2.5 font-bold text-white">Continue Exploring Scripture</Link>
+                <Link href="/emmaus/bible" className="rounded-full bg-indigo-600 px-6 py-2.5 font-bold text-white">Continue Exploring Scripture</Link>
                 <button type="button" onClick={restart} className="rounded-full border border-slate-300 px-5 py-2.5 font-semibold text-slate-600">Restart This Walk</button>
               </div>
             </div>

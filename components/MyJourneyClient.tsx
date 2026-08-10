@@ -298,6 +298,7 @@ export default function MyJourneyClient({
       .from("prayer_requests")
       .update({
         answered: true,
+        status: "Resolved",
         answered_update: updateText.trim() || null,
       })
       .eq("id", markAnsweredId)

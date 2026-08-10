@@ -14,7 +14,7 @@ const PERMANENT_BAN = "876000h"; // 100 years
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, isActive } = body ?? {};
+    const { userId, isActive, responsibilityAction } = body ?? {};
 
     if (!userId || typeof isActive !== "boolean") {
       return NextResponse.json(
@@ -51,9 +51,59 @@ export async function POST(request: NextRequest) {
 
     const admin = createAdminClient();
 
+    if (!isActive) {
+      const { data: responsibilities, error: responsibilitiesError } = await admin
+        .from("prayer_requests")
+        .select("id")
+        .eq("assigned_to", userId)
+        .eq("answered", false)
+        .eq("archived", false);
+
+      if (responsibilitiesError) throw responsibilitiesError;
+
+      if ((responsibilities?.length ?? 0) > 0 && !["bulk_reassign", "return_to_queue"].includes(responsibilityAction)) {
+        return NextResponse.json({
+          error: "Active care responsibilities must be reassigned before deactivation.",
+          code: "ACTIVE_RESPONSIBILITIES",
+          count: responsibilities?.length ?? 0,
+        }, { status: 409 });
+      }
+
+      for (const responsibility of responsibilities ?? []) {
+        if (responsibilityAction === "return_to_queue") {
+          const { error } = await admin
+            .from("prayer_requests")
+            .update({ assigned_to: null, status: "Needs Reassignment" })
+            .eq("id", responsibility.id)
+            .eq("assigned_to", userId);
+          if (error) throw error;
+        } else if (responsibilityAction === "bulk_reassign") {
+          const { data: newAssignee, error } = await admin.rpc("reassign_prayer_request", {
+            request_id: responsibility.id,
+            exclude_user_id: userId,
+          });
+          if (error) throw error;
+          if (newAssignee) {
+            const { error: assignedError } = await admin
+              .from("prayer_requests")
+              .update({ status: "Assigned" })
+              .eq("id", responsibility.id)
+              .eq("assigned_to", newAssignee);
+            if (assignedError) throw assignedError;
+          } else {
+            const { error: queueError } = await admin
+              .from("prayer_requests")
+              .update({ assigned_to: null, status: "Needs Reassignment" })
+              .eq("id", responsibility.id);
+            if (queueError) throw queueError;
+          }
+        }
+      }
+    }
+
     const { error: profileError } = await admin
       .from("profiles")
-      .update({ is_active: isActive })
+      .update(isActive ? { is_active: true } : { is_active: false, ministry_availability: "inactive" })
       .eq("id", userId);
 
     if (profileError) throw profileError;

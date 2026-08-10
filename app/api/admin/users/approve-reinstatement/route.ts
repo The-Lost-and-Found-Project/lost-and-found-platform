@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
       .from("profiles")
       .update({
         rotation_status: "active",
+        ministry_availability: "available",
+        availability_review_required: false,
         paused_at: null,
         reinstatement_requested_at: null,
       })

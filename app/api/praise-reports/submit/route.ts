@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     if (prayerRequestId) {
       const { error: updateError } = await admin
         .from("prayer_requests")
-        .update({ answered: true })
+        .update({ answered: true, status: "Resolved" })
         .eq("id", prayerRequestId)
         .eq("user_id", user.id);
 

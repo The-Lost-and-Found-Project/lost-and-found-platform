@@ -167,7 +167,11 @@ export default function MyPrayerAssignmentsClient({
     const isDone = Boolean(r[key]);
     const changes: Partial<AssignedRequest> = isDone
       ? { [key]: null }
-      : { [key]: new Date().toISOString(), last_action_at: new Date().toISOString() };
+      : {
+          [key]: new Date().toISOString(),
+          last_action_at: new Date().toISOString(),
+          status: key === "action_update_sent_at" ? "Follow-Up" : "Active Care",
+        };
     await updateRequest(r.id, changes);
   }
 
@@ -188,7 +192,7 @@ export default function MyPrayerAssignmentsClient({
 
     const saved = await updateRequest(answeringId, {
       answered: true,
-      status: "Answered",
+      status: "Resolved",
       praise_report: answerNote.trim() || null,
     });
 
@@ -395,6 +399,7 @@ export default function MyPrayerAssignmentsClient({
                           onChange={(e) =>
                             updateRequest(r.id, {
                               follow_up_needed: e.target.checked,
+                              status: e.target.checked ? "Follow-Up" : "Active Care",
                             })
                           }
                           className="rounded border-gray-300"

@@ -102,6 +102,7 @@ export default function SubmitPrayerRequestPage() {
       preferred_care_gender: contactRequested ? preferredCareGender || null : null,
       category_id: categoryId || null,
       request_text: requestText,
+      status: "Submitted",
       is_public: isPublic,
       is_anonymous: isAnonymous,
       contact_requested: contactRequested,

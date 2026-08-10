@@ -80,7 +80,9 @@ export default async function AdminPage() {
   const { data: careTeam } = await supabase
     .from("profiles")
     .select("id, full_name, email")
-    .in("role", ["admin", "prayer_team", "pastor"]);
+    .in("role", ["admin", "prayer_team", "pastor"])
+    .eq("is_active", true)
+    .eq("ministry_availability", "available");
 
   const requestRows = requests ?? [];
   const openRequests = requestRows.filter((request) => !request.answered && request.status !== "Closed").length;
