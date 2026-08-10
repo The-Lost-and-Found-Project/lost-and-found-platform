@@ -16,6 +16,12 @@ const AVAILABILITY_OPTIONS = [
   { value: "inactive", label: "Inactive" },
 ];
 
+function formatJoinedDate(value: string): string {
+  const [year, month, day] = value.slice(0, 10).split("-");
+  if (!year || !month || !day) return value;
+  return `${Number(month)}/${Number(day)}/${year}`;
+}
+
 type UserRow = {
   id: string;
   full_name: string | null;
@@ -245,8 +251,8 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
       {/* Table layout for wider screens — narrow phones use the stacked
           cards below instead, since columns of user data don't fit a
           phone-width viewport without forcing horizontal scrolling. */}
-      <div className="mt-6 hidden overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm sm:block">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
+      <div className="mt-6 hidden overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm xl:block">
+        <table className="min-w-[68rem] divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 text-left font-medium text-gray-500">Name</th>
@@ -286,7 +292,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                     )}
                   </td>
                   <td className="px-4 py-3 text-gray-500">
-                    {new Date(u.created_at).toLocaleDateString()}
+                    <time dateTime={u.created_at}>{formatJoinedDate(u.created_at)}</time>
                   </td>
                   <td className="space-y-2 px-4 py-3">
                     <select
@@ -382,8 +388,8 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
         </table>
       </div>
 
-      {/* Stacked cards for narrow phone screens. */}
-      <div className="mt-6 space-y-3 sm:hidden">
+      {/* Stacked cards keep every control readable until the full table fits. */}
+      <div className="mt-6 space-y-3 xl:hidden">
         {users.map((u) => {
           const isSelf = u.id === currentUserId;
           const isPending = pendingId === u.id;
@@ -415,7 +421,7 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                 <p className="mt-0.5 text-sm text-gray-400">N/A</p>
               )}
               <p className="mt-1 text-xs text-gray-400">
-                Joined {new Date(u.created_at).toLocaleDateString()}
+                Joined <time dateTime={u.created_at}>{formatJoinedDate(u.created_at)}</time>
               </p>
 
               <div className="mt-3 flex flex-wrap gap-2">
