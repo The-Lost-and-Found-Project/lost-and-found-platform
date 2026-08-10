@@ -31,28 +31,59 @@ const TYPE_ACTION: Record<string, { label: string; action: string }> = {
   prayer_reassigned: { label: "Care assignment", action: "Review assignment" },
   prayer_request_updated: { label: "Care update", action: "Review update" },
   idle_assignment: { label: "Action needed", action: "Review overdue care" },
+  follow_up_due: { label: "Follow-up due", action: "Complete follow-up" },
+  prayer_escalated: { label: "Escalated care", action: "Review escalation" },
   check_in_needed: { label: "Check-in", action: "Respond now" },
   rotation_paused: { label: "Availability", action: "Review availability" },
   prayer_care_application: { label: "Application", action: "Review application" },
+  prayer_care_application_approved: { label: "Application", action: "View assignments" },
+  prayer_care_application_denied: { label: "Application", action: "Review decision" },
   prayed_for: { label: "Prayer", action: "View your journey" },
   status_change: { label: "Care update", action: "Review update" },
   flagged: { label: "Action needed", action: "Review content" },
+  new_request: { label: "Community prayer", action: "Open prayer" },
+  new_praise: { label: "Praise report", action: "View praise" },
+  new_testimony: { label: "Testimony", action: "View testimony" },
+  new_member: { label: "New member", action: "Open People & Roles" },
+  content_denied: { label: "Content review", action: "Review decision" },
+  content_approved: { label: "Content review", action: "View update" },
 };
 
-type Filter = "all" | "unread";
+const ATTENTION_TYPES = new Set([
+  "assigned",
+  "prayer_reassigned",
+  "idle_assignment",
+  "follow_up_due",
+  "prayer_escalated",
+  "check_in_needed",
+  "rotation_paused",
+  "flagged",
+  "prayer_care_application",
+]);
+
+type Filter = "attention" | "unread" | "all";
+
+function needsAttention(notification: Notification) {
+  return !notification.read_at && ATTENTION_TYPES.has(notification.type);
+}
 
 export default function NotificationsClient({ initialNotifications }: { initialNotifications: Notification[] }) {
   const supabase = createClient();
   const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [userId, setUserId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>(() =>
+    initialNotifications.some(needsAttention) ? "attention" : "all"
+  );
 
   const unreadCount = notifications.filter((notification) => !notification.read_at).length;
+  const attentionCount = notifications.filter(needsAttention).length;
   const readCount = notifications.length - unreadCount;
-  const visibleNotifications = filter === "unread"
-    ? notifications.filter((notification) => !notification.read_at)
-    : notifications;
+  const visibleNotifications = notifications.filter((notification) => {
+    if (filter === "attention") return needsAttention(notification);
+    if (filter === "unread") return !notification.read_at;
+    return true;
+  });
 
   useEffect(() => {
     let channel: ReturnType<typeof supabase.channel> | null = null;
@@ -141,25 +172,32 @@ export default function NotificationsClient({ initialNotifications }: { initialN
           {unreadCount > 0 ? `${unreadCount} unread` : "You’re all caught up"}
         </p>
         <div className="flex flex-wrap items-center gap-2">
-          {unreadCount > 0 && <button onClick={markAllRead} className="lfp-button lfp-button-secondary min-h-10 px-4 py-2">Mark all read</button>}
-          {readCount > 0 && <button onClick={clearRead} className="lfp-button min-h-10 border border-slate-200 bg-white px-4 py-2 text-slate-600">Clear read</button>}
+          {unreadCount > 0 && <button onClick={markAllRead} className="lfp-button lfp-button-secondary min-h-11 px-4 py-2">Mark all read</button>}
+          {readCount > 0 && <button onClick={clearRead} className="lfp-button min-h-11 border border-slate-200 bg-white px-4 py-2 text-slate-600">Remove read</button>}
         </div>
       </div>
 
-      <div className="mt-5 inline-flex rounded-full border border-slate-200 bg-slate-100 p-1 text-sm" aria-label="Notification filter">
-        {(["all", "unread"] as const).map((option) => (
-          <button key={option} onClick={() => setFilter(option)} aria-pressed={filter === option} className={`rounded-full px-4 py-2 font-bold transition ${filter === option ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}>
-            {option === "all" ? "All" : "Unread"}{option === "all" && notifications.length > 0 ? ` (${notifications.length})` : option === "unread" && unreadCount > 0 ? ` (${unreadCount})` : ""}
+      <div className="mt-5 grid grid-cols-3 rounded-2xl border border-slate-200 bg-slate-100 p-1 text-sm" role="group" aria-label="Notification view">
+        {(["attention", "unread", "all"] as const).map((option) => (
+          <button key={option} onClick={() => setFilter(option)} aria-pressed={filter === option} className={`min-h-11 rounded-xl px-2 py-2 font-bold transition sm:px-4 ${filter === option ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}>
+            {option === "attention" ? "Priority" : option === "unread" ? "Unread" : "All"}
+            {option === "attention" && attentionCount > 0 ? ` (${attentionCount})` : option === "unread" && unreadCount > 0 ? ` (${unreadCount})` : option === "all" && notifications.length > 0 ? ` (${notifications.length})` : ""}
           </button>
         ))}
       </div>
+
+      <p className="mt-3 text-sm text-slate-500" aria-live="polite">
+        {filter === "attention"
+          ? attentionCount > 0 ? "Showing unread care items that need a response." : "No priority actions need a response."
+          : filter === "unread" ? "Showing every unread update." : "Showing your complete recent notification history."}
+      </p>
 
       <div className="mt-6 space-y-3">
         {visibleNotifications.length === 0 && (
           <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
             <span className="text-4xl" aria-hidden="true">🔔</span>
-            <h3 className="mt-4 text-xl font-black text-slate-950">{filter === "unread" ? "No unread notifications" : "No notifications yet"}</h3>
-            <p className="mt-2 text-sm text-slate-500">{filter === "unread" ? "Everything has been reviewed." : "Meaningful ministry updates will appear here."}</p>
+            <h3 className="mt-4 text-xl font-black text-slate-950">{filter === "attention" ? "No priority actions" : filter === "unread" ? "No unread notifications" : "No notifications yet"}</h3>
+            <p className="mt-2 text-sm text-slate-500">{filter === "attention" ? "Care assignments, escalations, and due follow-ups will appear here." : filter === "unread" ? "Everything has been reviewed." : "Meaningful ministry updates will appear here."}</p>
           </div>
         )}
 
@@ -175,7 +213,7 @@ export default function NotificationsClient({ initialNotifications }: { initialN
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-black text-slate-950">{notification.title}</h3>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-600">{action.label}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${needsAttention(notification) ? "bg-amber-100 text-amber-900" : "bg-slate-100 text-slate-600"}`}>{action.label}</span>
                   {!notification.read_at && <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">New</span>}
                 </div>
                 {notification.body && <p className="mt-2 leading-7 text-slate-600">{notification.body}</p>}
@@ -185,7 +223,7 @@ export default function NotificationsClient({ initialNotifications }: { initialN
                 </div>
               </div>
             </Link>
-            <button type="button" onClick={() => deleteOne(notification.id)} aria-label={`Delete notification: ${notification.title}`} className="shrink-0 rounded-full p-2 text-slate-400 transition hover:bg-rose-50 hover:text-rose-700 focus-visible:text-rose-700 sm:opacity-40 sm:group-hover:opacity-100 sm:focus-visible:opacity-100">
+            <button type="button" onClick={() => deleteOne(notification.id)} aria-label={`Delete notification: ${notification.title}`} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-rose-50 hover:text-rose-700 focus-visible:text-rose-700 sm:opacity-40 sm:group-hover:opacity-100 sm:focus-visible:opacity-100">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           </article>
