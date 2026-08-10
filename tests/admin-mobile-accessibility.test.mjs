@@ -16,6 +16,12 @@ test("user administration controls have contextual names and touch targets", asy
   assert.match(users, /aria-label=\{`Delete account for \$\{accessibleName\}`\}/);
   assert.match(users, /role="alert"\s+aria-live="assertive"/);
   assert.match(users, /min-h-11/);
+  assert.match(users, /id="user-directory-search"/);
+  assert.match(users, /role="group" aria-label="Directory view"/);
+  assert.match(users, /role="status" aria-live="polite"/);
+  assert.match(users, /<details/);
+  assert.match(users, /These must be reassigned or returned to the team queue/);
+  assert.match(users, /Permanently delete this login and profile/);
 });
 
 test("application decisions expose labels, state, and touch targets", async () => {
