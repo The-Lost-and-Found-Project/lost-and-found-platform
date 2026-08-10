@@ -4,20 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const memberItems = [
-  { href: "/dashboard", label: "Home", icon: "⌂" },
-  { href: "/prayer", label: "Prayer", icon: "♡" },
-  { href: "/grow", label: "Grow", icon: "✦" },
-  { href: "/community", label: "Community", icon: "◎" },
-  { href: "/more", label: "More", icon: "•••" },
+  { href: "/dashboard", label: "Home", shortLabel: "Home", icon: "⌂" },
+  { href: "/prayer", label: "Prayer", shortLabel: "Prayer", icon: "♡" },
+  { href: "/grow", label: "Grow", shortLabel: "Grow", icon: "✦" },
+  { href: "/community", label: "Community", shortLabel: "Community", icon: "◎" },
+  { href: "/more", label: "More", shortLabel: "More", icon: "•••" },
 ];
 
 const adminItems = [
-  { href: "/admin", label: "Requests", icon: "▤" },
-  { href: "/admin/analytics", label: "Analytics", icon: "⌁" },
-  { href: "/admin/users", label: "Users", icon: "◉" },
-  { href: "/admin/applications", label: "Applications", icon: "✓" },
-  { href: "/admin/content", label: "Content", icon: "▦" },
-  { href: "/dashboard", label: "App", icon: "⌂" },
+  { href: "/admin", label: "Requests", shortLabel: "Requests", icon: "▤" },
+  { href: "/admin/analytics", label: "Analytics", shortLabel: "Stats", icon: "⌁" },
+  { href: "/admin/users", label: "Users", shortLabel: "Users", icon: "◉" },
+  { href: "/admin/applications", label: "Applications", shortLabel: "Apply", icon: "✓" },
+  { href: "/admin/content", label: "Content", shortLabel: "Content", icon: "▦" },
+  { href: "/dashboard", label: "App", shortLabel: "App", icon: "⌂" },
 ];
 
 export default function BottomNav() {
@@ -48,7 +48,7 @@ export default function BottomNav() {
       <div
         className={`mx-auto ${
           inAdmin
-            ? "flex max-w-4xl snap-x snap-mandatory gap-1 overflow-x-auto overscroll-x-contain"
+            ? "grid max-w-4xl grid-cols-6 gap-0.5 sm:gap-1"
             : "grid max-w-xl grid-cols-5 gap-1"
         }`}
       >
@@ -63,7 +63,7 @@ export default function BottomNav() {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={`flex min-h-14 flex-col items-center justify-center rounded-2xl px-2 py-1.5 text-[11px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
-                inAdmin ? "min-w-20 snap-start" : ""
+                inAdmin ? "min-w-0 px-0.5 text-[9px] sm:px-2 sm:text-[11px]" : ""
               } ${
                 active
                   ? "bg-indigo-50 text-indigo-700 shadow-inner"
@@ -78,7 +78,14 @@ export default function BottomNav() {
               >
                 {item.icon}
               </span>
-              <span className="mt-1 whitespace-nowrap">{item.label}</span>
+              {inAdmin ? (
+                <>
+                  <span className="mt-1 whitespace-nowrap sm:hidden">{item.shortLabel}</span>
+                  <span className="mt-1 hidden whitespace-nowrap sm:inline">{item.label}</span>
+                </>
+              ) : (
+                <span className="mt-1 whitespace-nowrap">{item.label}</span>
+              )}
             </Link>
           );
         })}
