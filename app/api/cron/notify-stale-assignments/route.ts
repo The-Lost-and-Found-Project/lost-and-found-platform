@@ -187,12 +187,14 @@ export async function GET(request: NextRequest) {
         if (rotationProfilesError) throw rotationProfilesError;
 
         for (const rp of rotationProfiles ?? []) {
+          const nextMissedAssignmentCount = (rp.missed_assignment_count ?? 0) + 1;
+          const requiresHumanReview = nextMissedAssignmentCount >= 2;
           const { error: pauseError } = await supabase
             .from("profiles")
             .update({
               ministry_availability: "limited",
-              missed_assignment_count: (rp.missed_assignment_count ?? 0) + 1,
-              availability_review_required: true,
+              missed_assignment_count: nextMissedAssignmentCount,
+              availability_review_required: requiresHumanReview,
               paused_at: new Date().toISOString(),
             })
             .eq("id", rp.id)
@@ -246,7 +248,9 @@ export async function GET(request: NextRequest) {
             user_id: rp.id,
             type: "rotation_paused",
             title: "New prayer assignments are temporarily limited",
-            body: "An assignment went 7+ days without an update, so it was reassigned for timely care. Your login remains active. A care leader will review your ministry availability before new assignments resume.",
+            body: requiresHumanReview
+              ? "An assignment went 7+ days without an update, so it was reassigned for timely care. Your login remains active. Because this has happened more than once, a care leader must review your ministry availability before new assignments resume."
+              : "An assignment went 7+ days without an update, so it was reassigned for timely care. Your login remains active. When you are ready, you may return yourself to Available from your Profile.",
             link: "/profile",
           });
 
