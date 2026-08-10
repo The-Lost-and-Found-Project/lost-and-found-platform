@@ -21,6 +21,11 @@ export default async function EmmausMePage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 pb-28 text-white">
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mb-5 flex justify-end">
+          <Link href="/dashboard" className="inline-flex rounded-full border border-white/15 bg-white/10 px-5 py-3 text-sm font-black text-white transition hover:bg-white/15">
+            Open Lost & Found Platform
+          </Link>
+        </div>
         <header className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl sm:p-9">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">My Emmaus</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">Keep walking, {firstName}.</h1>
