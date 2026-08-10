@@ -89,3 +89,11 @@ test("normal login inactivity is never used as an account-deactivation signal", 
   assert.doesNotMatch(combined, /movedToInactive|THIRTY_DAYS_MS/);
   assert.match(combined, /Your login remains active/);
 });
+
+test("submitted requests stay in admin attention until review", async () => {
+  const dashboard = await source("components", "AdminPrayerDashboardClient.tsx");
+
+  assert.match(dashboard, /r\.status === "Submitted"/);
+  assert.match(dashboard, /status: request\.assigned_to \? "Assigned" : "Reviewed"/);
+  assert.match(dashboard, /onClick=\{\(\) => approveRequest\(r\)\}/);
+});
