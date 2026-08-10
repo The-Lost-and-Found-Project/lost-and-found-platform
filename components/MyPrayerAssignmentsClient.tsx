@@ -64,13 +64,18 @@ function actionItemsFor(r: AssignedRequest) {
 function isNew(r: AssignedRequest): boolean {
   return (
     !r.answered &&
+    r.status !== "Closed" &&
     !r.action_contacted_at &&
     !r.action_prayed_at &&
     !r.action_update_sent_at
   );
 }
 function isOngoing(r: AssignedRequest): boolean {
-  return !r.answered && !isNew(r);
+  return !r.answered && r.status !== "Closed" && !isNew(r);
+}
+
+function isCompleted(r: AssignedRequest): boolean {
+  return r.answered || r.status === "Closed";
 }
 
 const FILTERS = [
@@ -90,7 +95,6 @@ export default function MyPrayerAssignmentsClient({
   const [filter, setFilter] = useState<FilterKey>("all");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [answeringId, setAnsweringId] = useState<string | null>(null);
-  const [answerNote, setAnswerNote] = useState("");
   const [answerSaving, setAnswerSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
 
@@ -103,13 +107,13 @@ export default function MyPrayerAssignmentsClient({
     all: requests.length,
     new: requests.filter(isNew).length,
     ongoing: requests.filter(isOngoing).length,
-    completed: requests.filter((r) => r.answered).length,
+    completed: requests.filter(isCompleted).length,
   };
 
   const visibleRequests = requests.filter((r) => {
     if (filter === "new") return isNew(r);
     if (filter === "ongoing") return isOngoing(r);
-    if (filter === "completed") return r.answered;
+    if (filter === "completed") return isCompleted(r);
     return true;
   });
 
@@ -176,30 +180,26 @@ export default function MyPrayerAssignmentsClient({
   }
 
   function openAnsweredModal(id: string) {
-    const request = requests.find((r) => r.id === id);
     setAnsweringId(id);
-    setAnswerNote(request?.praise_report ?? "");
   }
 
   function closeAnsweredModal() {
     setAnsweringId(null);
-    setAnswerNote("");
   }
 
-  async function confirmAnswered() {
+  async function confirmCareComplete() {
     if (!answeringId) return;
     setAnswerSaving(true);
 
     const saved = await updateRequest(answeringId, {
-      answered: true,
-      status: "Resolved",
-      praise_report: answerNote.trim() || null,
+      status: "Closed",
+      follow_up_needed: false,
+      follow_up_date: null,
     });
 
     setAnswerSaving(false);
     if (!saved) return;
     setAnsweringId(null);
-    setAnswerNote("");
   }
 
   return (
@@ -254,7 +254,7 @@ export default function MyPrayerAssignmentsClient({
             <div
               key={r.id}
               className={`rounded-lg border bg-white shadow-sm ${
-                r.answered ? "border-emerald-200" : "border-gray-200"
+                isCompleted(r) ? "border-emerald-200" : "border-gray-200"
               }`}
             >
               <button
@@ -280,7 +280,7 @@ export default function MyPrayerAssignmentsClient({
                       {r.name}
                     </span>
                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                      {r.answered ? "Answered" : isNew(r) ? "New" : "In progress"}
+                      {r.answered ? "Answered" : r.status === "Closed" ? "Care complete" : isNew(r) ? "New" : "In progress"}
                     </span>
                     {r.category_id && categoryMap[r.category_id] && (
                       <span className="text-xs text-gray-400">
@@ -349,19 +349,19 @@ export default function MyPrayerAssignmentsClient({
                     </div>
 
                     <div className="flex shrink-0 flex-col items-end gap-2">
-                      {!r.answered && (
+                    {!isCompleted(r) && (
                         <button
                           type="button"
                           onClick={() => openAnsweredModal(r.id)}
                           className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500"
                         >
-                          Answered Prayer
+                          Complete Care
                         </button>
                       )}
                     </div>
                   </div>
 
-                  {!r.answered && (
+                  {!isCompleted(r) && (
                     <div className="mt-4 border-t border-gray-100 pt-4">
                       <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
                         Action checklist
@@ -390,7 +390,7 @@ export default function MyPrayerAssignmentsClient({
                     </div>
                   )}
 
-                  {!r.answered && (
+                  {!isCompleted(r) && (
                     <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 text-sm">
                       <label className="flex items-center gap-2 text-gray-700">
                         <input
@@ -438,20 +438,12 @@ export default function MyPrayerAssignmentsClient({
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-semibold text-gray-900">
-              Mark this prayer as answered
+              Complete care for this request
             </h2>
             <p className="mt-2 text-sm text-gray-600">
-              This moves the assignment to Completed. You can leave a quick
-              note about how it went — totally optional.
+              This closes the care assignment without declaring the prayer answered.
+              The requester can still confirm an answered prayer from My Journey.
             </p>
-
-            <textarea
-              value={answerNote}
-              onChange={(e) => setAnswerNote(e.target.value)}
-              rows={4}
-              placeholder="Any update you'd like to remember (optional)..."
-              className="mt-4 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            />
 
             <div className="mt-4 flex justify-end gap-2">
               <button
@@ -463,11 +455,11 @@ export default function MyPrayerAssignmentsClient({
               </button>
               <button
                 type="button"
-                onClick={confirmAnswered}
+                onClick={confirmCareComplete}
                 disabled={answerSaving}
                 className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 disabled:opacity-60"
               >
-                {answerSaving ? "Saving..." : "Confirm Answered"}
+                {answerSaving ? "Saving..." : "Confirm Care Complete"}
               </button>
             </div>
           </div>
