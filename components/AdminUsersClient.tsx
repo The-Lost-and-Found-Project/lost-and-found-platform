@@ -16,6 +16,8 @@ const AVAILABILITY_OPTIONS = [
   { value: "inactive", label: "Inactive" },
 ];
 
+const CARE_ROLES = ["prayer_team", "pastor", "admin"];
+
 function formatJoinedDate(value: string): string {
   const [year, month, day] = value.slice(0, 10).split("-");
   if (!year || !month || !day) return value;
@@ -46,9 +48,18 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [deactivationReview, setDeactivationReview] = useState<{ userId: string; count: number } | null>(null);
+  const [roleChangeReview, setRoleChangeReview] = useState<{
+    userId: string;
+    role: string;
+    count: number;
+  } | null>(null);
   const [error, setError] = useState("");
 
-  async function handleRoleChange(userId: string, role: string) {
+  async function handleRoleChange(
+    userId: string,
+    role: string,
+    responsibilityAction?: "bulk_reassign" | "return_to_queue"
+  ) {
     setError("");
     const previous = users;
     setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role } : u)));
@@ -58,12 +69,22 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
       const res = await fetch("/api/admin/users/set-role", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, role }),
+        body: JSON.stringify({ userId, role, responsibilityAction }),
       });
       const body = await res.json();
-      if (!res.ok) {
+      if (res.status === 409 && body?.code === "ACTIVE_RESPONSIBILITIES") {
+        setUsers(previous);
+        setRoleChangeReview({ userId, role, count: body.count ?? 0 });
+      } else if (!res.ok) {
         setUsers(previous);
         setError(body?.error ?? "Failed to update role");
+      } else {
+        setUsers((current) => current.map((u) => u.id === userId ? {
+          ...u,
+          role,
+          ministry_availability: body?.ministryAvailability ?? u.ministry_availability,
+        } : u));
+        setRoleChangeReview(null);
       }
     } catch {
       setUsers(previous);
@@ -308,6 +329,15 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                         </option>
                       ))}
                     </select>
+                    {roleChangeReview?.userId === u.id && (
+                      <div className="rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900">
+                        <p>{roleChangeReview.count} active {roleChangeReview.count === 1 ? "responsibility" : "responsibilities"} must move before this role changes.</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <button type="button" onClick={() => handleRoleChange(u.id, roleChangeReview.role, "bulk_reassign")} className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 font-semibold text-white">Bulk reassign</button>
+                          <button type="button" onClick={() => handleRoleChange(u.id, roleChangeReview.role, "return_to_queue")} className="min-h-11 rounded-md border border-amber-300 bg-white px-3 py-2 font-semibold">Return to queue</button>
+                        </div>
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <select
@@ -326,16 +356,22 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                       <option value="active">Active</option>
                       <option value="deactivated">Deactivate</option>
                     </select>
-                    <select
-                      aria-label={`Ministry availability for ${accessibleName}`}
-                      value={u.ministry_availability ?? "available"}
-                      disabled={isPending}
-                      onChange={(e) => handleAvailabilityChange(u.id, e.target.value)}
-                      className="block min-h-11 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-2 text-sm font-medium text-indigo-700 shadow-sm disabled:opacity-50"
-                    >
-                      {AVAILABILITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                    </select>
-                    {u.availability_review_required && <p className="text-xs font-semibold text-amber-700">Human review required · {u.missed_assignment_count ?? 0} missed</p>}
+                    {CARE_ROLES.includes(u.role ?? "member") ? (
+                      <>
+                        <select
+                          aria-label={`Ministry availability for ${accessibleName}`}
+                          value={u.ministry_availability ?? "available"}
+                          disabled={isPending}
+                          onChange={(e) => handleAvailabilityChange(u.id, e.target.value)}
+                          className="block min-h-11 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-2 text-sm font-medium text-indigo-700 shadow-sm disabled:opacity-50"
+                        >
+                          {AVAILABILITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                        </select>
+                        {u.availability_review_required && <p className="text-xs font-semibold text-amber-700">Human review required · {u.missed_assignment_count ?? 0} missed</p>}
+                      </>
+                    ) : (
+                      <p className="text-xs text-gray-500">No ministry assignments</p>
+                    )}
                     {deactivationReview?.userId === u.id && (
                       <div className="rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900">
                         <p>{deactivationReview.count} active {deactivationReview.count === 1 ? "responsibility" : "responsibilities"} must move first.</p>
@@ -454,18 +490,30 @@ export default function AdminUsersClient({ users: initialUsers, currentUserId }:
                   <option value="active">Active</option>
                   <option value="deactivated">Deactivate</option>
                 </select>
-                <select
-                  aria-label={`Ministry availability for ${accessibleName}`}
-                  value={u.ministry_availability ?? "available"}
-                  disabled={isPending}
-                  onChange={(e) => handleAvailabilityChange(u.id, e.target.value)}
-                  className="min-h-11 min-w-0 flex-1 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-2 text-sm font-medium text-indigo-700 shadow-sm disabled:opacity-50"
-                >
-                  {AVAILABILITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </select>
+                {CARE_ROLES.includes(u.role ?? "member") && (
+                  <select
+                    aria-label={`Ministry availability for ${accessibleName}`}
+                    value={u.ministry_availability ?? "available"}
+                    disabled={isPending}
+                    onChange={(e) => handleAvailabilityChange(u.id, e.target.value)}
+                    className="min-h-11 min-w-0 flex-1 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-2 text-sm font-medium text-indigo-700 shadow-sm disabled:opacity-50"
+                  >
+                    {AVAILABILITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                  </select>
+                )}
               </div>
 
-              {u.availability_review_required && <p className="mt-2 text-xs font-semibold text-amber-700">Human review required · {u.missed_assignment_count ?? 0} missed assignments</p>}
+              {!CARE_ROLES.includes(u.role ?? "member") && <p className="mt-2 text-xs text-gray-500">No ministry assignments</p>}
+              {u.availability_review_required && CARE_ROLES.includes(u.role ?? "member") && <p className="mt-2 text-xs font-semibold text-amber-700">Human review required · {u.missed_assignment_count ?? 0} missed assignments</p>}
+              {roleChangeReview?.userId === u.id && (
+                <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                  <p>{roleChangeReview.count} active {roleChangeReview.count === 1 ? "responsibility" : "responsibilities"} must move before this role changes.</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => handleRoleChange(u.id, roleChangeReview.role, "bulk_reassign")} className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 font-semibold text-white">Bulk reassign</button>
+                    <button type="button" onClick={() => handleRoleChange(u.id, roleChangeReview.role, "return_to_queue")} className="min-h-11 rounded-md border border-amber-300 bg-white px-3 py-2 font-semibold">Return to queue</button>
+                  </div>
+                </div>
+              )}
               {deactivationReview?.userId === u.id && (
                 <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
                   <p>{deactivationReview.count} active {deactivationReview.count === 1 ? "responsibility" : "responsibilities"} must move before deactivation.</p>
