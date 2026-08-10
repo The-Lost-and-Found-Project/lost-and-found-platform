@@ -282,7 +282,12 @@ export default function AdminPrayerDashboardClient({
               <button
                 type="button"
                 aria-pressed={attentionOnly}
-                onClick={() => setAttentionOnly(true)}
+                onClick={() => {
+                  setAttentionOnly(true);
+                  if (["Resolved", "Closed", "Unable to Contact", "Withdrawn"].includes(statusFilter)) {
+                    setStatusFilter("All");
+                  }
+                }}
                 className={`min-h-11 flex-1 rounded-lg px-3 py-2 text-sm font-bold transition sm:flex-none ${
                   attentionOnly ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-white"
                 }`}
