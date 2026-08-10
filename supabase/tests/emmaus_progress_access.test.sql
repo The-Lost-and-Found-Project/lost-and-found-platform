@@ -1,5 +1,19 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçX™YÚ[Â‚˜Ü™X]H^[œÚ[ÛˆYˆ›İ^\İÈİ\Ú]ØÚ[XH^[œÚ[ÛœÎÂ‚œÙ[Xİ[ŠŠNÂ‚œÙ[XİÚÊˆ
-Ù[Xİ™[›İÜÙXİ\š]Hœ›ÛH×ØÛ\ÜÈÚ\™HÚYH	ÜX›XË™[[X]\×Ù\ØÛİ™\WÜ›ÙÜ™\ÜÉÎœ™YØÛ\ÜÊKˆ	Ñ[[X]\È›ÙÜ™\ÜÈ™[XZ[œÈ›İXİYH“ÉÂŠNÂ‚œÙ[XİÚÊ\×İX›WÜš]š[YÙJ	Ø]][XØ]Y	Ë	ÜX›XË™[[X]\×Ù\ØÛİ™\WÜ›ÙÜ™\ÜÉË	ÔÑSPÕ	ÊK	Ø]][XØ]YØ[ˆØY›ÙÜ™\ÜÉÊNÂœÙ[XİÚÊ\×İX›WÜš]š[YÙJ	Ø]][XØ]Y	Ë	ÜX›XË™[[X]\×Ù\ØÛİ™\WÜ›ÙÜ™\ÜÉË	ÒS”ÑT•	ÊK	Ø]][XØ]YØ[ˆİ\›ÙÜ™\ÜÉÊNÂœÙ[XİÚÊ\×İX›WÜš]š[YÙJ	Ø]][XØ]Y	Ë	ÜX›XË™[[X]\×Ù\ØÛİ™\WÜ›ÙÜ™\ÜÉË	ÕTUIÊK	Ø]][XØ]YØ[ˆØ]™H›ÙÜ™\ÜÉÊNÂœÙ[XİÚÊ\×İX›WÜš]š[YÙJ	Ø]][XØ]Y	Ë	ÜX›XË™[[X]\×Ù\ØÛİ™\WÜ›ÙÜ™\ÜÉË	ÑSUIÊK	Ø]][XØ]YØ[ˆ™\İ\›ÙÜ™\ÜÉÊNÂœÙ[XİÚÊ›İ\×İX›WÜš]š[YÙJ	Ø[›Û‰Ë	ÜX›XË™[[X]\×Ù\ØÛİ™\WÜ›ÙÜ™\ÜÉË	ÔÑSPÕ	ÊK	Ø[›Û[[İ\Èš\Ú]ÜœÈØ[››İ™XY›ÙÜ™\ÜÉÊNÂ‚œÙ[Xİ
-ˆœ›ÛHš[š\Ú
+begin;
 
-NÂœ›Û˜XÚÎÂ
+create extension if not exists pgtap with schema extensions;
+
+select plan(6);
+
+select ok(
+  (select relrowsecurity from pg_class where oid = 'public.emmaus_discovery_progress'::regclass),
+  'Emmaus progress remains protected by RLS'
+);
+
+select ok(has_table_privilege('authenticated', 'public.emmaus_discovery_progress', 'SELECT'), 'authenticated can load progress');
+select ok(has_table_privilege('authenticated', 'public.emmaus_discovery_progress', 'INSERT'), 'authenticated can start progress');
+select ok(has_table_privilege('authenticated', 'public.emmaus_discovery_progress', 'UPDATE'), 'authenticated can save progress');
+select ok(has_table_privilege('authenticated', 'public.emmaus_discovery_progress', 'DELETE'), 'authenticated can restart progress');
+select ok(not has_table_privilege('anon', 'public.emmaus_discovery_progress', 'SELECT'), 'anonymous visitors cannot read progress');
+
+select * from finish();
+rollback;

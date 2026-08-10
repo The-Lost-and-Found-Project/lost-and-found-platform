@@ -1,3 +1,5 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™Y\™XİHœ›ÛH›™^Û˜]šYØ][ÛˆÂ‚™^ÜY˜][[˜İ[Ûˆ[[X]\Ñ^Ü™T™Y\™XİYÙJ
-HÂˆ™Y\™Xİ
-‹Ù[[X]\ËÙ\ØÛİ™\ˆŠNÂŸB
+import { redirect } from "next/navigation";
+
+export default function EmmausExploreRedirectPage() {
+  redirect("/emmaus/discover");
+}

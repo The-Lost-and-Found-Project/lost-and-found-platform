@@ -1,72 +1,165 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\Ü[šÈœ›ÛH›™^Û[šÈÂš[\ÜÈ™Y\™XİHœ›ÛH›™^Û˜]šYØ][ÛˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\ÜÈÙ][[X]\Ñ\ØÛİ™\HHœ›ÛHÛX‹Ù[[X]\ËØÛÛ[\XÚÜËÜ™YÚ\İHÂ‚˜ÛÛœİÒÒSÈHÈ›ØœÙ\™H‹˜ÛÛ^‹˜ÛÛ›™Xİ‹œ›Ø™H‹\İ‹[ÛÙŞH‹œ™Y›Xİ‹˜\H—H\ÈÛÛœİÂ\HÚÚ[H
-\[ÙˆÒÒSÊVÛ[X™\—NÂ‚\H›ÙÜ™\ÜÔ›İÈHÂˆ\ØÛİ™\WÚYˆİš[™ÎÂˆ™\ÜÛœÙ\Îˆ™XÛÜ™İš[™Ëİš[™Ïˆ[Âˆ™]™X[YØÛY\Îˆ[X™\Âˆ\×ØÛÛ\]Yˆ›ÛÛX[ÂŸNÂ‚˜ÛÛœİY]Nˆ™XÛÜ™ÚÚ[ÈX™[ˆİš[™ÎÈ\ØÜš\[Ûˆİš[™ÈOˆHÂˆØœÙ\™NˆÈX™[ˆ“ØœÙ\˜][Ûˆ‹\ØÜš\[Ûˆ“›İXÚ[™ÈÛÜ™ËİXİ\™K™\]][Û‹ÛÛ˜\İ[™^XÚ]ÛZ[\ËˆˆKˆÛÛ^ˆÈX™[ˆÛÛ^‹\ØÜš\[Ûˆ”™XY[™È™\œÙ\ÈÚ][ˆZ\ˆ]\˜\K\İÜšXØ[[™Ø[›ÛšXØ[Ù][™ËˆˆKˆÛÛ›™XİˆÈX™[ˆÛÛ›™Xİ[ÛœÈ‹\ØÜš\[Ûˆ•˜XÚ[™ÈÜ›ÜÜË\™Y™\™[˜Ù\Ë[Y\ËXÚÙ\Ë[™™[]Y\ÜØYÙ\ËˆˆKˆ›Ø™NˆÈX™[ˆ”]Y\İ[Ûš[™È‹\ØÜš\[Ûˆ\ÚÚ[™ÈØ\™Y[]Y\İ[ÛœÈ]^ÜÙH\Üİ[\[ÛœÈ[™Y\[ˆ][[Û‹ˆˆKˆ\İˆÈX™[ˆ•\İ[™È‹\ØÜš\[ÛˆÚXÚÚ[™ÈÛÛ˜Û\Ú[ÛœÈYØZ[œİH^[™HÚY\ˆÚ]™\ÜÈÙˆØÜš\\™KˆˆKˆ[ÛÙŞNˆÈX™[ˆ•[ÛÙŞH‹\ØÜš\[Ûˆ‘›Ü›Z[™È^\İ\ÜYÛÛ˜Û\Ú[ÛœÈX›İ]ÛÙÚš\İ[X[š]K[™™Y[\[Û‹ˆˆKˆ™Y›XİˆÈX™[ˆ”™Y›Xİ[Ûˆ‹\ØÜš\[Ûˆ”™XÛÙÛš^š[™ÈİÈØÜš\\™HY™\ÜÙ\È[İ]™\Ë™X\œË™[YYœË[™ÛÜœÚ\ˆˆKˆ\NˆÈX™[ˆ\XØ][Ûˆ‹\ØÜš\[Ûˆ•\›š[™È[™\œİ[™[™È[ÈÜXÚYšXÈØ™YY[˜ÙH[™˜Z][˜XİXÙKˆˆKŸNÂ‚™^ÜY˜][\Ş[˜È[˜İ[ÛˆX\›š[™Ô›Ùš[TYÙJ
-HÂˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getEmmausDiscovery } from "@/lib/emmaus/content-packs/registry";
 
-NÂˆÛÛœİÈ]NˆÈ\Ù\ˆHHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂˆYˆ
-]\Ù\ŠH™Y\™Xİ
-‹ÛÙÚ[ˆŠNÂ‚ˆÛÛœİŞÈ]Nˆ›Ùš[HKÈ]Nˆ›İÜÈWHH]ØZ]›ÛZ\ÙK˜[
-Âˆİ\X˜\ÙK™œ›ÛJœ›Ùš[\ÈŠKœÙ[Xİ
-™[Û˜[YHŠK™\JšY‹\Ù\‹šY
-KœÚ[™ÛJ
-Kˆİ\X˜\ÙBˆ™œ›ÛJ™[[X]\×Ù\ØÛİ™\WÜ›ÙÜ™\ÜÈŠBˆœÙ[Xİ
-™\ØÛİ™\WÚY™\ÜÛœÙ\Ë™]™X[YØÛY\Ë\×ØÛÛ\]YŠBˆ™\J\Ù\—ÚY‹\Ù\‹šY
-KˆJNÂ‚ˆÛÛœİ›ÙÜ™\ÜÈH
-›İÜÈÏÈ×JH\È›ÙÜ™\ÜÔ›İÖ×NÂˆÛÛœİØÛÜ™\ÈHØš™Xİ™œ›ÛQ[šY\ÊÒÒSË›X\
+const SKILLS = ["observe", "context", "connect", "probe", "test", "theology", "reflect", "apply"] as const;
+type Skill = (typeof SKILLS)[number];
 
-ÚÚ[
-HOˆÜÚÚ[JJH\È™XÛÜ™ÚÚ[[X™\ÂˆÛÛœİ^Üİ\™HHØš™Xİ™œ›ÛQ[šY\ÊÒÒSË›X\
+type ProgressRow = {
+  discovery_id: string;
+  responses: Record<string, string> | null;
+  revealed_clues: number;
+  is_completed: boolean;
+};
 
-ÚÚ[
-HOˆÜÚÚ[JJH\È™XÛÜ™ÚÚ[[X™\Â‚ˆ]İ[™\ÜÛœÙ\ÈHÂˆ]İ[ÛÜ™ÈHÂˆ]İ[ÛY\ÈHÂ‚ˆ›Üˆ
-ÛÛœİ›İÈÙˆ›ÙÜ™\ÜÊHÂˆÛÛœİ™\ÛÛ™YHÙ][[X]\Ñ\ØÛİ™\J›İË™\ØÛİ™\WÚY
-NÂˆYˆ
-\™\ÛÛ™Y
-HÛÛ[YNÂ‚ˆÛÛœİ™\ÜÛœÙ\ÈH›İËœ™\ÜÛœÙ\ÈÏÈßNÂˆÛÛœİ˜[Y\ÈHØš™Xİ˜[Y\Ê™\ÜÛœÙ\ÊK™š[\Š
-˜[YJHOˆ˜[YOËš[J
-JNÂˆÛÛœİÛÜ™ÈH˜[Y\Ëš›Ú[ŠˆŠKš[J
-KœÜ]
-×ÊËÊK™š[\Š›ÛÛX[ŠK›[™İÂˆÛÛœİ[™ØYÙ[Y[HX]›Z[ŠKŒÍH
-È˜[Y\Ë›[™İ
-ˆŒH
-ÈÛÜ™ÈÈL
-NÂˆÛÛœİÛÛ\][ÛˆH›İËš\×ØÛÛ\]YÈHˆMNÂˆÛÛœİ[™\[™[˜ÙHHX]›X^
-Ì‹HH›İËœ™]™X[YØÛY\È
-ˆŒJNÂˆÛÛœİ]šY[˜ÙHH[™ØYÙ[Y[
-ˆÛÛ\][Ûˆ
-ˆ[™\[™[˜ÙNÂ‚ˆİ[™\ÜÛœÙ\È
-ÏH˜[Y\Ë›[™İÂˆİ[ÛÜ™È
-ÏHÛÜ™ÎÂˆİ[ÛY\È
-ÏH›İËœ™]™X[YØÛY\ÎÂ‚ˆ›Üˆ
-ÛÛœİ][HÙˆ™\ÛÛ™Y™\ØÛİ™\KœÚÚ[›Øİ\ÊHÂˆYˆ
-TÒÒSËš[˜ÛY\Ê][H\ÈÚÚ[
-JHÛÛ[YNÂˆ^Üİ\™VÚ][H\ÈÚÚ[H
-ÏHNÂˆØÛÜ™\ÖÚ][H\ÈÚÚ[H
-ÏH]šY[˜ÙNÂˆBˆB‚ˆÛÛœİÚÚ[ÈHÒÒSË›X\
+const meta: Record<Skill, { label: string; description: string }> = {
+  observe: { label: "Observation", description: "Noticing words, structure, repetition, contrast, and explicit claims." },
+  context: { label: "Context", description: "Reading verses within their literary, historical, and canonical setting." },
+  connect: { label: "Connections", description: "Tracing cross-references, themes, echoes, and related passages." },
+  probe: { label: "Questioning", description: "Asking careful questions that expose assumptions and deepen attention." },
+  test: { label: "Testing", description: "Checking conclusions against the text and the wider witness of Scripture." },
+  theology: { label: "Theology", description: "Forming text-supported conclusions about God, Christ, humanity, and redemption." },
+  reflect: { label: "Reflection", description: "Recognizing how Scripture addresses motives, fears, beliefs, and worship." },
+  apply: { label: "Application", description: "Turning understanding into specific obedience and faithful practice." },
+};
 
-ÚÚ[
-HOˆ
-ÂˆÚÚ[ˆ‹‹›Y]VÜÚÚ[Kˆ^Üİ\™Nˆ^Üİ\™VÜÚÚ[Kˆ\˜Ù[YÙNˆ^Üİ\™VÜÚÚ[HÈX]›Z[ŠLX]œ›İ[™
+export default async function LearningProfilePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-ØÛÜ™\ÖÜÚÚ[HÈ^Üİ\™VÜÚÚ[JH
-ˆL
-JHˆˆJJNÂ‚ˆÛÛœİ]šY[˜ÙYHÚÚ[Ë™š[\Š
-][JHOˆ][K™^Üİ\™Hˆ
-NÂˆÛÛœİİ›Û™Ù\İHË‹‹™]šY[˜ÙYKœÛÜ
+  const [{ data: profile }, { data: rows }] = await Promise.all([
+    supabase.from("profiles").select("full_name").eq("id", user.id).single(),
+    supabase
+      .from("emmaus_discovery_progress")
+      .select("discovery_id, responses, revealed_clues, is_completed")
+      .eq("user_id", user.id),
+  ]);
 
-KŠHOˆ‹œ\˜Ù[YÙHHKœ\˜Ù[YÙJVÌNÂˆÛÛœİÜ›İİHË‹‹™]šY[˜ÙYKœÛÜ
+  const progress = (rows ?? []) as ProgressRow[];
+  const scores = Object.fromEntries(SKILLS.map((skill) => [skill, 0])) as Record<Skill, number>;
+  const exposure = Object.fromEntries(SKILLS.map((skill) => [skill, 0])) as Record<Skill, number>;
 
-KŠHOˆKœ\˜Ù[YÙHH‹œ\˜Ù[YÙJVÌNÂˆÛÛœİÛÛ\]YH›ÙÜ™\ÜË™š[\Š
-][JHOˆ][Kš\×ØÛÛ\]Y
-K›[™İÂˆÛÛœİ]™\˜YÙUÛÜ™ÈHİ[™\ÜÛœÙ\ÈÈX]œ›İ[™
-İ[ÛÜ™ÈÈİ[™\ÜÛœÙ\ÊHˆÂˆÛÛœİš\œİ˜[YHH›Ùš[OË™[Û˜[YOËš[J
-KœÜ]
-ˆŠVÌH™œšY[™Â‚ˆ™]\›ˆ
-ˆXZ[ˆÛ\ÜÓ˜[YOH›Z[‹Z\ØÜ™Y[ˆ™ËYÜ˜YY[]ËXˆœ›ÛK\Û]KNMLšXKZ[™YÛËNMLË\Û]KNL‹L^]Ú]HÎœ‹LLˆ‚ˆ]ˆÛ\ÜÓ˜[YOH›^X]]ÈX^]ËMMKNÛNœMˆÛNœKLLˆ‚ˆXY\ˆÛ\ÜÓ˜[YOHœ›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒ—HMˆÚYİËL˜XÚÙ›ÜX›\ˆÛNœNH‚ˆ[šÈ™YH‹Ù[[X]\ËİØ[ÈˆÛ\ÜÓ˜[YOH^\ÛH›ÛX›XÚÈ^X[X™\‹LÌ¸¡¤˜XÚÈÈØ[ÏÓ[šÏ‚ˆÛ\ÜÓ˜[YOH›]MÈ^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒ™[WH^Z[™YÛËLÌ‘[[X]\ÈX\›š[™È›Ùš[OÜ‚ˆHÛ\ÜÓ˜[YOH›]LÈ^M›ÛX›XÚÈ˜XÚÚ[™Ë]YÚÛN^M’İÈ[İH\™HX\›š[™ËÙš\œİ˜[Y_KÚO‚ˆÛ\ÜÓ˜[YOH›]MHX^]ËLŞ^[ÈXY[™ËN^Z[™YÛËLLÍÍH•\È›Ùš[H\Ù\È[İ\ˆXİX[\ØÛİ™\HÛÜšÈÈY[YHİYHİ™[™İÈ[™Ü›İİÜÜ[š]Y\Ëˆ]\È›İHYX\İ\™HÙˆÜ\š]X[X]\š]KÜ‚ˆÚXY\‚‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›]MÈÜšYØ\MÛN™ÜšYXÛÛËLˆÎ™ÜšYXÛÛËM‚ˆY]šXÈ˜[YO^ØÛÛ\]YHX™[HÛÛ\]Y\ØÛİ™\šY\ÈˆÏ‚ˆY]šXÈ˜[YO^İİ[™\ÜÛœÙ\ßHX™[H•Üš][ˆ™\ÜÛœÙ\ÈˆÏ‚ˆY]šXÈ˜[YO^Ø]™\˜YÙUÛÜ™ßHX™[H]™\˜YÙHÛÜ™ÈˆÏ‚ˆY]šXÈ˜[YO^İİ[ÛY\ßHX™[HÛY\È\ÙYˆÏ‚ˆÜÙXİ[Û‚‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›]NÜšYØ\MHÎ™ÜšYXÛÛËLˆ‚ˆ[œÚYÚ^YXœ›İÏHİ\œ™[İ™[™İˆ]O^Üİ›Û™Ù\İË›X™[ÏÈ“[Ü™H]šY[˜ÙH™YYYŸH\ØÜš\[Û^Üİ›Û™Ù\İË™\ØÜš\[ÛˆÏÈÛÛ\]H[ˆ[\˜Xİ]™H\ØÛİ™\HÈ™YÚ[ˆZ[[™ÈH›Ùš[KˆŸHÏ‚ˆ[œÚYÚ^YXœ›İÏH‘Ü›İİÜÜ[š]Hˆ]O^ÙÜ›İİË›X™[ÏÈ“[Ü™H]šY[˜ÙH™YYYŸH\ØÜš\[Û^ÙÜ›İİÈ[[X]\ÈØ[ˆ™XÛÛ[Y[™\ØÛİ™\šY\È]›İšYH[Ü™H˜XİXÙH[ˆ	ÙÜ›İİ›X™[ÓİÙ\Ø\ÙJ
-_K˜ˆ•H›Ùš[H™XÛÛY\È[Ü™H\ÙY[\È[İ\ˆÛÛ\]YÛÜšÈÜ›İÜËˆŸHÏ‚ˆÜÙXİ[Û‚‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›]N›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒWHMˆÛNœN‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^X[X™\‹LÌ”ÚÚ[]šY[˜ÙOÜ‚ˆˆÛ\ÜÓ˜[YOH›]Lˆ^LŞ›ÛX›XÚÈ–[İ\ˆİYH]\›Ú‚ˆÛ\ÜÓ˜[YOH›]LÈX^]ËLŞ^Z[™YÛËLLÍH”\˜Ù[YÙ\È™Y›XİÛÛ\][Û‹Üš][ˆ[™ØYÙ[Y[[™[™\[™[ÛÜšÈÚ][ˆ\ØÛİ™\šY\È]^\˜Ú\ÙHXXÚÚÚ[Ü‚‚ˆ]ˆÛ\ÜÓ˜[YOH›]MÈÜšYØ\MHY™ÜšYXÛÛËLˆ‚ˆÜÚÚ[Ë›X\
+  let totalResponses = 0;
+  let totalWords = 0;
+  let totalClues = 0;
 
-][JHOˆ
-ˆ\XÛHÙ^O^Ú][KœÚÚ[HÛ\ÜÓ˜[YOHœ›İ[™YLŞ›Ü™\ˆ›Ü™\‹]Ú]KÌL™ËX›XÚËÌŒMH‚ˆ]ˆÛ\ÜÓ˜[YOH™›^][\ËY[™\İYKX™]ÙY[ˆØ\M‚ˆ]‚ˆÈÛ\ÜÓ˜[YOH^^›ÛX›XÚÈÚ][K›X™[OÚÏ‚ˆÛ\ÜÓ˜[YOH›]Lˆ^\ÛHXY[™ËMˆ^Z[™YÛËLLÍŒÚ][K™\ØÜš\[ÛŸOÜ‚ˆÙ]‚ˆÜ[ˆÛ\ÜÓ˜[YOH^L›ÛX›XÚÈ^X[X™\‹LÌÚ][Kœ\˜Ù[YÙ_IOÜÜ[‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH›]MHLˆİ™\™›İËZY[ˆ›İ[™YY[™Ë]Ú]KÌL‚ˆ]ˆÛ\ÜÓ˜[YOHšY[›İ[™YY[™ËX[X™\‹LÌˆİ[O^ŞÈÚYˆ	Ú][Kœ\˜Ù[YÙ_IX_HÏ‚ˆÙ]‚ˆÛ\ÜÓ˜[YOH›]LÈ^^È›ÛX›Û^Z[™YÛËLLÍH‘]šY[˜ÙHœ›ÛHÚ][K™^Üİ\™_HÚ][K™^Üİ\™HOOHHÈ™\ØÛİ™\Hˆˆ™\ØÛİ™\šY\ÈŸOÜ‚ˆØ\XÛO‚ˆ
-J_BˆÙ]‚ˆÜÙXİ[Û‚‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›]NÜšYØ\MHÎ™ÜšYXÛÛËVÌKŒ™œ—Ëœ—H‚ˆ]ˆÛ\ÜÓ˜[YOHœ›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒWHMˆÛNœN‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^Z[™YÛËLÌ’İÈ[[X]\ÈÚ[Y\Ü‚ˆˆÛ\ÜÓ˜[YOH›]Lˆ^LŞ›ÛX›XÚÈ‘İZY[˜ÙH]Ú[™Ù\È\È[İHÜ›İÏÚ‚ˆ]ˆÛ\ÜÓ˜[YOH›]MˆÜXÙK^KM‚ˆY\][Ûˆ]OH‘™]Ù\ˆ[›™XÙ\ÜØ\HÛY\Èˆ^H”İ›Û™È[™\[™[[™ØYÙ[Y[[İÜÈ]\™H\ØÛİ™\šY\ÈÈ™YÚ[ˆÚ]\ÜÈØØY™›Û[™ËˆˆÏ‚ˆY\][Ûˆ]OH‘Y\\ˆ›ÛİË]\]Y\İ[ÛœÈˆ^HÛÛœÚ\İ[ØœÙ\˜][Ûˆ[™\İ[™ÈØ[ˆ[›ØÚÈ]Y\İ[ÛœÈ™\]Z\š[™ÈŞ[\Ú\ÈXÜ›ÜÜÈ\ÜØYÙ\ËˆˆÏ‚ˆY\][Ûˆ]OH•\™Ù]Y™XÛÛ[Y[™][ÛœÈˆ^H‘[[X]\ÈØ[ˆ™XÛÛ[Y[™\ØÛİ™\šY\È]İ™[™İ[ˆ\ÜË\˜XİXÙYÚÚ[ÈÚ]İ]YÛ›Üš[™È[İ\ˆİ›Û™Ù\İ[\™\İËˆˆÏ‚ˆY\][Ûˆ]OH“›ÈÜ\š]X[˜[šÚ[™Èˆ^H•\È›Ùš[H]˜[X]\ÈİYH™Z]š[ÜˆÛ›Kˆ]Ù\È›İYX\İ\™H˜Z][™\ÜËÚ\ÙÛKÛ[™\ÜËÜˆÛÜÙ[™\ÜÈÈÛÙˆˆÏ‚ˆÙ]‚ˆÙ]‚‚ˆ]ˆÛ\ÜÓ˜[YOHœ›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹X[X™\‹LÌÌŒ™ËX[X™\‹LÌÌLMˆÛNœN‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^X[X™\‹LŒ“™^˜Z][İ\Ü‚ˆˆÛ\ÜÓ˜[YOH›]LÈ^L›ÛX›XÚÈ”˜XİXÙH›İYÚØÜš\\™KÚ‚ˆÛ\ÜÓ˜[YOH›]LÈXY[™ËMÈ^X[X™\‹MLÍÍHHX\›š[™È›Ùš[H™XÛÛY\ÈYX[š[™Ù[›İYÚÛÛ[YY][[ÛˆÈÛÙ	ÜÈÛÜ™ˆÚÛÜÙH[›İ\ˆ™]šY]ÙY\ØÛİ™\H[™]H]šY[˜ÙHÜ›İÈ˜]\˜[KÜ‚ˆ[šÈ™YH‹Ù[[X]\ËÙ\ØÛİ™\ˆˆÛ\ÜÓ˜[YOH›]Mˆ[›[™KY›^›İ[™YY[™ËX[X™\‹LÌMHKLÈ›ÛX›XÚÈ^\Û]KNMLÚYİË[ÈÚÛÜÙHH\ØÛİ™\H8¡¤Ó[šÏ‚ˆÙ]‚ˆÜÙXİ[Û‚ˆÙ]‚ˆÛXZ[‚ˆ
-NÂŸB‚™[˜İ[ÛˆY]šXÊÈ˜[YKX™[NˆÈ˜[YNˆ[X™\ÈX™[ˆİš[™ÈJHÂˆ™]\›ˆ]ˆÛ\ÜÓ˜[YOHœ›İ[™YLŞ›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒ—HMHÚYİË^Û\ÜÓ˜[YOH^LŞ›ÛX›XÚÈ^X[X™\‹LÌİ˜[Y_OÜÛ\ÜÓ˜[YOH›]Lˆ›ÛX›XÚÈÛX™[OÜÙ]ÂŸB‚™[˜İ[Ûˆ[œÚYÚ
-È^YXœ›İË]K\ØÜš\[ÛˆNˆÈ^YXœ›İÎˆİš[™ÎÈ]Nˆİš[™ÎÈ\ØÜš\[Ûˆİš[™ÈJHÂˆ™]\›ˆ\XÛHÛ\ÜÓ˜[YOHœ›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒ—HMˆÚYİË^ÛNœNÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^Z[™YÛËLÌÙ^YXœ›İßOÜˆÛ\ÜÓ˜[YOH›]LÈ^LŞ›ÛX›XÚÈİ]_OÚÛ\ÜÓ˜[YOH›]LÈXY[™ËMÈ^Z[™YÛËLLÍHÙ\ØÜš\[ÛŸOÜØ\XÛOÂŸB‚™[˜İ[ÛˆY\][ÛŠÈ]K^NˆÈ]Nˆİš[™ÎÈ^ˆİš[™ÈJHÂˆ™]\›ˆ]ˆÛ\ÜÓ˜[YOHœ›İ[™YL›Ü™\ˆ›Ü™\‹]Ú]KÌL™ËX›XÚËÌŒMÈÛ\ÜÓ˜[YOH™›ÛX›XÚÈİ]_OÚÏÛ\ÜÓ˜[YOH›]Lˆ^\ÛHXY[™ËMˆ^Z[™YÛËLLÍŒİ^OÜÙ]ÂŸB
+  for (const row of progress) {
+    const resolved = getEmmausDiscovery(row.discovery_id);
+    if (!resolved) continue;
+
+    const responses = row.responses ?? {};
+    const values = Object.values(responses).filter((value) => value?.trim());
+    const words = values.join(" ").trim().split(/\s+/).filter(Boolean).length;
+    const engagement = Math.min(1, 0.35 + values.length * 0.1 + words / 500);
+    const completion = row.is_completed ? 1 : 0.55;
+    const independence = Math.max(0.72, 1 - row.revealed_clues * 0.05);
+    const evidence = engagement * completion * independence;
+
+    totalResponses += values.length;
+    totalWords += words;
+    totalClues += row.revealed_clues;
+
+    for (const item of resolved.discovery.skillFocus) {
+      if (!SKILLS.includes(item as Skill)) continue;
+      exposure[item as Skill] += 1;
+      scores[item as Skill] += evidence;
+    }
+  }
+
+  const skills = SKILLS.map((skill) => ({
+    skill,
+    ...meta[skill],
+    exposure: exposure[skill],
+    percentage: exposure[skill] ? Math.min(100, Math.round((scores[skill] / exposure[skill]) * 100)) : 0,
+  }));
+
+  const evidenced = skills.filter((item) => item.exposure > 0);
+  const strongest = [...evidenced].sort((a, b) => b.percentage - a.percentage)[0];
+  const growth = [...evidenced].sort((a, b) => a.percentage - b.percentage)[0];
+  const completed = progress.filter((item) => item.is_completed).length;
+  const averageWords = totalResponses ? Math.round(totalWords / totalResponses) : 0;
+  const firstName = profile?.full_name?.trim().split(" ")[0] || "friend";
+
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 pb-28 text-white lg:pb-12">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+        <header className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur sm:p-9">
+          <Link href="/emmaus/walk" className="text-sm font-black text-amber-300">â† Back to Walk</Link>
+          <p className="mt-7 text-xs font-black uppercase tracking-[0.2em] text-indigo-300">Emmaus Learning Profile</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">How you are learning, {firstName}.</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">This profile uses your actual discovery work to identify study strengths and growth opportunities. It is not a measure of spiritual maturity.</p>
+        </header>
+
+        <section className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Metric value={completed} label="Completed discoveries" />
+          <Metric value={totalResponses} label="Written responses" />
+          <Metric value={averageWords} label="Average words" />
+          <Metric value={totalClues} label="Clues used" />
+        </section>
+
+        <section className="mt-8 grid gap-5 lg:grid-cols-2">
+          <Insight eyebrow="Current strength" title={strongest?.label ?? "More evidence needed"} description={strongest?.description ?? "Complete an interactive discovery to begin building the profile."} />
+          <Insight eyebrow="Growth opportunity" title={growth?.label ?? "More evidence needed"} description={growth ? `Emmaus can recommend discoveries that provide more practice in ${growth.label.toLowerCase()}.` : "The profile becomes more useful as your completed work grows."} />
+        </section>
+
+        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 sm:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Skill evidence</p>
+          <h2 className="mt-2 text-3xl font-black">Your study pattern</h2>
+          <p className="mt-3 max-w-3xl text-indigo-100/65">Percentages reflect completion, written engagement, and independent work within discoveries that exercise each skill.</p>
+
+          <div className="mt-7 grid gap-5 md:grid-cols-2">
+            {skills.map((item) => (
+              <article key={item.skill} className="rounded-3xl border border-white/10 bg-black/20 p-5">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <h3 className="text-xl font-black">{item.label}</h3>
+                    <p className="mt-2 text-sm leading-6 text-indigo-100/60">{item.description}</p>
+                  </div>
+                  <span className="text-2xl font-black text-amber-300">{item.percentage}%</span>
+                </div>
+                <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full bg-amber-300" style={{ width: `${item.percentage}%` }} />
+                </div>
+                <p className="mt-3 text-xs font-bold text-indigo-100/45">Evidence from {item.exposure} {item.exposure === 1 ? "discovery" : "discoveries"}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 sm:p-8">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-300">How Emmaus will adapt</p>
+            <h2 className="mt-2 text-3xl font-black">Guidance that changes as you grow</h2>
+            <div className="mt-6 space-y-4">
+              <Adaptation title="Fewer unnecessary clues" text="Strong independent engagement allows future discoveries to begin with less scaffolding." />
+              <Adaptation title="Deeper follow-up questions" text="Consistent observation and testing can unlock questions requiring synthesis across passages." />
+              <Adaptation title="Targeted recommendations" text="Emmaus can recommend discoveries that strengthen less-practiced skills without ignoring your strongest interests." />
+              <Adaptation title="No spiritual ranking" text="This profile evaluates study behavior only. It does not measure faithfulness, wisdom, holiness, or closeness to God." />
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 sm:p-8">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">Next faithful step</p>
+            <h2 className="mt-3 text-2xl font-black">Practice through Scripture.</h2>
+            <p className="mt-3 leading-7 text-amber-50/75">A learning profile becomes meaningful through continued attention to God's Word. Choose another reviewed discovery and let the evidence grow naturally.</p>
+            <Link href="/emmaus/discover" className="mt-6 inline-flex rounded-full bg-amber-300 px-5 py-3 font-black text-slate-950 shadow-lg">Choose a Discovery â†’</Link>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function Metric({ value, label }: { value: number; label: string }) {
+  return <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 shadow-xl"><p className="text-3xl font-black text-amber-300">{value}</p><p className="mt-2 font-black">{label}</p></div>;
+}
+
+function Insight({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
+  return <article className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-xl sm:p-8"><p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-300">{eyebrow}</p><h2 className="mt-3 text-3xl font-black">{title}</h2><p className="mt-3 leading-7 text-indigo-100/65">{description}</p></article>;
+}
+
+function Adaptation({ title, text }: { title: string; text: string }) {
+  return <div className="rounded-2xl border border-white/10 bg-black/20 p-4"><h3 className="font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-indigo-100/60">{text}</p></div>;
+}

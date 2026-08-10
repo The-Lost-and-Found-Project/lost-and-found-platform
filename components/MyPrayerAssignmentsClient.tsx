@@ -1,139 +1,478 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçH\ÙHÛY[Â‚š[\ÜÈ\ÙTİ]HHœ›ÛHœ™XXİÂ‚\HØ]YÛÜSÜ[ÛˆHÈYˆİš[™ÎÈ˜[YNˆİš[™ÈNÂ‚\H\ÜÚYÛ™Y™\]Y\İHÂˆYˆİš[™ÎÂˆÜ™X]YØ]ˆİš[™ÎÂˆ˜[YNˆİš[™ÎÂˆ[XZ[ˆİš[™ÎÂˆÛ™Nˆİš[™È[Âˆ™Y™\œ™YØÛÛXİˆİš[™È[ÂˆÛÛXİÜ™\]Y\İYˆ›ÛÛX[ÂˆØ]YÛÜWÚYˆİš[™È[Âˆ™\]Y\İİ^ˆİš[™ÎÂˆ\×ÜX›XÎˆ›ÛÛX[Âˆ\×Ø[›Û[[İ\Îˆ›ÛÛX[Âˆİ]\Îˆİš[™ÎÂˆ›Ûİ×İ\Û™YYYˆ›ÛÛX[Âˆ›Ûİ×İ\Ù]Nˆİš[™È[Âˆ[œİÙ\™Yˆ›ÛÛX[Âˆ˜Z\ÙWÜ™\Üˆİš[™È[Âˆ˜^Y\—ØÛİ[ˆ[X™\Âˆ\İØXİ[Û—Ø]ˆİš[™ÎÂˆXİ[Û—ØÛÛXİYØ]ˆİš[™È[ÂˆXİ[Û—Ü˜^YYØ]ˆİš[™È[ÂˆXİ[Û—İ\]WÜÙ[Ø]ˆİš[™È[ÂŸNÂ‚\H›ÜÈHÂˆ™\]Y\İÎˆ\ÜÚYÛ™Y™\]Y\İ×NÂˆØ]YÛÜšY\ÎˆØ]YÛÜSÜ[Û–×NÂŸNÂ‚‹ËÈHš^YÙ]ÙˆXİ[Ûˆ][\È]™\H\ÜÚYÛ›Y[Ù]ËˆÛÛXİB‹ËÈ™\]Y\İ\ˆˆÛ›HXİX[HÚİÜÈ\›ÜˆHÚ]™[ˆ™\]Y\İÚ[ˆ^H\ÚÙYÂ‹ËÈ™HÛÛXİY
-ÛÛXİÜ™\]Y\İY
-H8 %]™\[Û™H[Ø^\ÈÙ]ÈHİ\ˆÛË‚\HXİ[Û’Ù^HH˜Xİ[Û—ØÛÛXİYØ]ˆ˜Xİ[Û—Ü˜^YYØ]ˆ˜Xİ[Û—İ\]WÜÙ[Ø]Â‚˜ÛÛœİPÕSÓ—ÒUSTÎˆÂˆÙ^NˆXİ[Û’Ù^NÂˆX™[ˆİš[™ÎÂˆËÈYˆÙ]Û›H™[]˜[Ú[ˆ\È™YXØ]H\ÈYH›ÜˆH™\]Y\İ‚ˆÚİÒYÎˆ
-ˆ\ÜÚYÛ™Y™\]Y\İ
-HOˆ›ÛÛX[ÂŸV×HHÂˆÂˆÙ^Nˆ˜Xİ[Û—ØÛÛXİYØ]‹ˆX™[ˆ”™XXÚYİ]ÈH™\]Y\İ\ˆ‹ˆÚİÒYˆ
-ŠHOˆ‹˜ÛÛXİÜ™\]Y\İYˆKˆÈÙ^Nˆ˜Xİ[Û—Ü˜^YYØ]‹X™[ˆ”˜^YY›Üˆ\È™\]Y\İˆKˆÈÙ^Nˆ˜Xİ[Û—İ\]WÜÙ[Ø]‹X™[ˆ”Ù[[H[ˆ\]HˆK—NÂ‚™[˜İ[ÛˆXİ[Û’][\Ñ›ÜŠˆ\ÜÚYÛ™Y™\]Y\İ
-HÂˆ™]\›ˆPÕSÓ—ÒUSTË™š[\Š
-][JHOˆZ][KœÚİÒYˆ][KœÚİÒYŠŠJNÂŸB‚‹ËÈ“™]ÈˆH›ÈXİ[Ûˆ][\ÈÚXÚÙYÙ™ˆY]ˆ“Û™ÛÚ[™ÈˆH]X\İÛ™HXİ[Û‚‹ËÈZÙ[ˆ]›İY][œİÙ\™YˆÛÛ\]Yˆ\Èš]™[ˆ\™[HHH[œİÙ\™Y‹ËÈ˜^Y\ˆXİ[Û‹Ú[˜ÙH]	ÜÈHÛ™H[˜[XšYİ[İ\ÈÚYÛ˜[H\ÜÚYÛ›Y[\Â‹ËÈÛ™K‚™[˜İ[Ûˆ\Ó™]Êˆ\ÜÚYÛ™Y™\]Y\İ
-Nˆ›ÛÛX[ˆÂˆ™]\›ˆ
-ˆ\‹˜[œİÙ\™Y	‰‚ˆ\‹˜Xİ[Û—ØÛÛXİYØ]	‰‚ˆ\‹˜Xİ[Û—Ü˜^YYØ]	‰‚ˆ\‹˜Xİ[Û—İ\]WÜÙ[Ø]ˆ
-NÂŸB™[˜İ[Ûˆ\ÓÛ™ÛÚ[™Êˆ\ÜÚYÛ™Y™\]Y\İ
-Nˆ›ÛÛX[ˆÂˆ™]\›ˆ\‹˜[œİÙ\™Y	‰ˆZ\Ó™]ÊŠNÂŸB‚˜ÛÛœİ’ST”ÈHÂˆÈÙ^Nˆ˜[‹X™[ˆ[ˆKˆÈÙ^Nˆ›™]È‹X™[ˆ“™]È\ÜÚYÛ›Y[ÈˆKˆÈÙ^Nˆ›Û™ÛÚ[™È‹X™[ˆ“Û™ÛÚ[™ÈˆKˆÈÙ^Nˆ˜ÛÛ\]Y‹X™[ˆÛÛ\]YˆK—H\ÈÛÛœİÂ‚\Hš[\’Ù^HH
-\[Ùˆ’ST”ÊVÛ[X™\—VÈšÙ^H—NÂ‚™^ÜY˜][[˜İ[Ûˆ^T˜^Y\\ÜÚYÛ›Y[ĞÛY[
-Âˆ™\]Y\İÎˆ[š]X[™\]Y\İËˆØ]YÛÜšY\ËŸNˆ›ÜÊHÂˆÛÛœİÜ™\]Y\İËÙ]™\]Y\İ×HH\ÙTİ]O\ÜÚYÛ™Y™\]Y\İ×OŠ[š]X[™\]Y\İÊNÂˆÛÛœİÙš[\‹Ù]š[\—HH\ÙTİ]Oš[\’Ù^OŠ˜[ŠNÂˆÛÛœİÙ^[™YYËÙ]^[™YY×HH\ÙTİ]OÙ]İš[™ÏŠ™]ÈÙ]
+"use client";
 
-JNÂˆÛÛœİØ[œİÙ\š[™ÒYÙ][œİÙ\š[™ÒYHH\ÙTİ]Oİš[™È[Š[
-NÂˆÛÛœİØ[œİÙ\“›İKÙ][œİÙ\“›İWHH\ÙTİ]JˆŠNÂˆÛÛœİØ[œİÙ\”Ø]š[™ËÙ][œİÙ\”Ø]š[™×HH\ÙTİ]J˜[ÙJNÂˆÛÛœİÜØ]™Q\œ›Ü‹Ù]Ø]™Q\œ›Ü—HH\ÙTİ]JˆŠNÂ‚ˆÛÛœİØ]YÛÜSX\ˆ™XÛÜ™İš[™Ëİš[™ÏˆHßNÂˆØ]YÛÜšY\Ë™›Ü‘XXÚ
+import { useState } from "react";
 
-ÊHOˆÂˆØ]YÛÜSX\ØËšYHHË›˜[YNÂˆJNÂ‚ˆÛÛœİÛİ[ÈHÂˆ[ˆ™\]Y\İË›[™İˆ™]Îˆ™\]Y\İË™š[\Š\Ó™]ÊK›[™İˆÛ™ÛÚ[™Îˆ™\]Y\İË™š[\Š\ÓÛ™ÛÚ[™ÊK›[™İˆÛÛ\]Yˆ™\]Y\İË™š[\Š
-ŠHOˆ‹˜[œİÙ\™Y
-K›[™İˆNÂ‚ˆÛÛœİš\ÚX›T™\]Y\İÈH™\]Y\İË™š[\Š
-ŠHOˆÂˆYˆ
-š[\ˆOOH›™]ÈŠH™]\›ˆ\Ó™]ÊŠNÂˆYˆ
-š[\ˆOOH›Û™ÛÚ[™ÈŠH™]\›ˆ\ÓÛ™ÛÚ[™ÊŠNÂˆYˆ
-š[\ˆOOH˜ÛÛ\]YŠH™]\›ˆ‹˜[œİÙ\™YÂˆ™]\›ˆYNÂˆJNÂ‚ˆ[˜İ[ÛˆÙÙÛQ^[™Y
-Yˆİš[™ÊHÂˆÙ]^[™YYÊ
-™]ŠHOˆÂˆÛÛœİ™^H™]ÈÙ]
-™]ŠNÂˆYˆ
-™^š\ÊY
-JHÂˆ™^™[]JY
-NÂˆH[ÙHÂˆ™^˜Y
-Y
-NÂˆBˆ™]\›ˆ™^ÂˆJNÂˆB‚ˆ\Ş[˜È[˜İ[Ûˆ\]T™\]Y\İ
-Yˆİš[™ËÚ[™Ù\Îˆ\X[\ÜÚYÛ™Y™\]Y\İŠHÂˆÛÛœİ™]š[İ\ÈH™\]Y\İË™š[™
+type CategoryOption = { id: string; name: string };
 
-ŠHOˆ‹šYOOHY
-NÂˆYˆ
-\™]š[İ\ÊH™]\›ˆ˜[ÙNÂ‚ˆÙ]Ø]™Q\œ›ÜŠˆŠNÂˆÙ]™\]Y\İÊ
-™]ŠHO‚ˆ™]‹›X\
+type AssignedRequest = {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  preferred_contact: string | null;
+  contact_requested: boolean;
+  category_id: string | null;
+  request_text: string;
+  is_public: boolean;
+  is_anonymous: boolean;
+  status: string;
+  follow_up_needed: boolean;
+  follow_up_date: string | null;
+  answered: boolean;
+  praise_report: string | null;
+  prayer_count: number;
+  last_action_at: string;
+  action_contacted_at: string | null;
+  action_prayed_at: string | null;
+  action_update_sent_at: string | null;
+};
 
-ŠHOˆ
-‹šYOOHYÈÈ‹‹œ‹‹‹˜Ú[™Ù\ÈHˆŠJBˆ
-NÂ‚ˆHÂˆÛÛœİ™\ÜÛœÙHH]ØZ]™]Ú
-‹Ø\KÜ˜^Y\‹X\ÜÚYÛ›Y[Ëİ\]H‹ÂˆY]Ùˆ”ÔÕ‹ˆXY\œÎˆÈÛÛ[U\Hˆ˜\XØ][Û‹ÚœÛÛˆˆKˆ›ÙNˆ”ÓÓ‹œİš[™ÚYJÈ™\]Y\İYˆYÚ[™Ù\ÈJKˆJNÂˆÛÛœİ›ÙHH]ØZ]™\ÜÛœÙKšœÛÛŠ
-NÂ‚ˆYˆ
-\™\ÜÛœÙK›ÚÊHÂˆ›İÈ™]È\œ›ÜŠ›ÙOË™\œ›ÜˆÏÈ‘˜Z[YÈØ]™H\ÜÚYÛ›Y[ŠNÂˆBˆ™]\›ˆYNÂˆHØ]Ú
-\œ›ÜŠHÂˆÙ]™\]Y\İÊ
-™]ŠHO‚ˆ™]‹›X\
+type Props = {
+  requests: AssignedRequest[];
+  categories: CategoryOption[];
+};
 
-ŠHOˆ
-‹šYOOHYÈ™]š[İ\ÈˆŠJBˆ
-NÂˆÙ]Ø]™Q\œ›ÜŠˆ\œ›Üˆ[œİ[˜Ù[Ùˆ\œ›Ü‚ˆÈ\œ›Ü‹›Y\ÜØYÙBˆˆ‘˜Z[YÈØ]™H\ÜÚYÛ›Y[ˆX\ÙHHYØZ[‹ˆ‚ˆ
-NÂˆ™]\›ˆ˜[ÙNÂˆBˆB‚ˆËÈÚXÚÚ[™È[ˆXİ[Ûˆ][Hİ[\È]Û™H[™[\È\İØXİ[Û—Ø]ÛÈBˆËÈYZ[ˆ\Ú›Ø\™	ÜÈ™^\ÈÚ[˜ÙH\İXİ[Ûˆˆ™\Ù]ÈÈ™\›Ëˆ[˜ÚXÚÚ[™ÂˆËÈ\İÛX\œÈH[Y\İ[\›Üˆ]][H8 %]Ù\Û‰İİXÚˆËÈ\İØXİ[Û—Ø]Ú[˜ÙH[™Ú[™ÈHZ\İZÙH\Û‰İH™]ÈXİ[ÛˆZÙ[‹‚ˆ\Ş[˜È[˜İ[ÛˆÙÙÛPXİ[ÛŠˆ\ÜÚYÛ™Y™\]Y\İÙ^NˆXİ[Û’Ù^JHÂˆÛÛœİ\ÑÛ™HH›ÛÛX[Š–ÚÙ^WJNÂˆÛÛœİÚ[™Ù\Îˆ\X[\ÜÚYÛ™Y™\]Y\İˆH\ÑÛ™BˆÈÈÚÙ^WNˆ[BˆˆÂˆÚÙ^WNˆ™]È]J
-KÒTÓÔİš[™Ê
-Kˆ\İØXİ[Û—Ø]ˆ™]È]J
-KÒTÓÔİš[™Ê
-Kˆİ]\ÎˆÙ^HOOH˜Xİ[Û—İ\]WÜÙ[Ø]ˆÈ‘›ÛİËU\ˆˆXİ]™HØ\™H‹ˆNÂˆ]ØZ]\]T™\]Y\İ
-‹šYÚ[™Ù\ÊNÂˆB‚ˆ[˜İ[ÛˆÜ[[œİÙ\™Y[Ù[
-Yˆİš[™ÊHÂˆÛÛœİ™\]Y\İH™\]Y\İË™š[™
+// The fixed set of action items every assignment gets. "Contact the
+// requester" only actually shows up for a given request when they asked to
+// be contacted (contact_requested) â€” everyone always gets the other two.
+type ActionKey = "action_contacted_at" | "action_prayed_at" | "action_update_sent_at";
 
-ŠHOˆ‹šYOOHY
-NÂˆÙ][œİÙ\š[™ÒY
-Y
-NÂˆÙ][œİÙ\“›İJ™\]Y\İËœ˜Z\ÙWÜ™\ÜÏÈˆŠNÂˆB‚ˆ[˜İ[ÛˆÛÜÙP[œİÙ\™Y[Ù[
+const ACTION_ITEMS: {
+  key: ActionKey;
+  label: string;
+  // If set, only relevant when this predicate is true for the request.
+  showIf?: (r: AssignedRequest) => boolean;
+}[] = [
+  {
+    key: "action_contacted_at",
+    label: "Reached out to the requester",
+    showIf: (r) => r.contact_requested,
+  },
+  { key: "action_prayed_at", label: "Prayed for this request" },
+  { key: "action_update_sent_at", label: "Sent them an update" },
+];
 
-HÂˆÙ][œİÙ\š[™ÒY
-[
-NÂˆÙ][œİÙ\“›İJˆŠNÂˆB‚ˆ\Ş[˜È[˜İ[ÛˆÛÛ™š\›P[œİÙ\™Y
+function actionItemsFor(r: AssignedRequest) {
+  return ACTION_ITEMS.filter((item) => !item.showIf || item.showIf(r));
+}
 
-HÂˆYˆ
-X[œİÙ\š[™ÒY
-H™]\›ÂˆÙ][œİÙ\”Ø]š[™ÊYJNÂ‚ˆÛÛœİØ]™YH]ØZ]\]T™\]Y\İ
-[œİÙ\š[™ÒYÂˆ[œİÙ\™YˆYKˆİ]\Îˆ”™\ÛÛ™Y‹ˆ˜Z\ÙWÜ™\Üˆ[œİÙ\“›İKš[J
-H[ˆJNÂ‚ˆÙ][œİÙ\”Ø]š[™Ê˜[ÙJNÂˆYˆ
-\Ø]™Y
-H™]\›ÂˆÙ][œİÙ\š[™ÒY
-[
-NÂˆÙ][œİÙ\“›İJˆŠNÂˆB‚ˆ™]\›ˆ
-ˆ]ˆÛ\ÜÓ˜[YOH›^X]]ÈX^]ËM^MKLMˆÛNœMˆ‚ˆHÛ\ÜÓ˜[YOH^L›ÛX›Û^YÜ˜^KNL‚ˆ^H˜^Y\ˆ\ÜÚYÛ›Y[ÂˆÚO‚ˆÛ\ÜÓ˜[YOH›]Lˆ^YÜ˜^KMŒ‚ˆH˜^Y\ˆ™\]Y\İÈİ\œ™[H\ÜÚYÛ™YÈ[İKˆÛ›H[İHØ[ˆÙYH\Âˆ\İ‚ˆÜ‚ˆÜØ]™Q\œ›Üˆ	‰ˆ
-ˆ›ÛOH˜[\ˆÛ\ÜÓ˜[YOH›]LÈ^\ÛH^\™YMŒ‚ˆÜØ]™Q\œ›ÜŸBˆÜ‚ˆ
-_B‚ˆ]ˆÛ\ÜÓ˜[YOH›]Mˆ›^›^]Ü˜\][\ËXÙ[\ˆØ\Lˆ‚ˆÑ’ST”Ë›X\
+// "New" = no action items checked off yet. "Ongoing" = at least one action
+// taken but not yet answered. "Completed" is driven purely by the Answered
+// Prayer action, since that's the one unambiguous signal the assignment is
+// done.
+function isNew(r: AssignedRequest): boolean {
+  return (
+    !r.answered &&
+    !r.action_contacted_at &&
+    !r.action_prayed_at &&
+    !r.action_update_sent_at
+  );
+}
+function isOngoing(r: AssignedRequest): boolean {
+  return !r.answered && !isNew(r);
+}
 
-ŠHOˆ
-ˆ]Û‚ˆÙ^O^Ù‹šÙ^_Bˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ê
-HOˆÙ]š[\Š‹šÙ^J_BˆÛ\ÜÓ˜[YO^Ø›İ[™YY[LÈKLKH^\ÛH›Û[YY][HÚYİË\ÛH˜[œÚ][Ûˆ	Âˆš[\ˆOOH‹šÙ^BˆÈ˜™ËZ[™YÛËMŒ^]Ú]H‚ˆˆ˜›Ü™\ˆ›Ü™\‹Z[™YÛËLŒ™ËZ[™YÛËML^Z[™YÛËMÌİ™\˜™ËZ[™YÛËLL‚ˆXBˆ‚ˆÙ‹›X™[H
-ØÛİ[ÖÙ‹šÙ^W_JBˆØ]Û‚ˆ
-J_BˆÙ]‚‚ˆ]ˆÛ\ÜÓ˜[YOH›]MˆÜXÙK^KLÈ‚ˆİš\ÚX›T™\]Y\İË›[™İOOH	‰ˆ
-ˆÛ\ÜÓ˜[YOH^YÜ˜^KML‚ˆÙš[\ˆOOH˜[‚ˆÈ“›İ[™È\È\ÜÚYÛ™YÈ[İHšYÚ›İËˆ‚ˆˆ“›È\ÜÚYÛ›Y[ÈX]Ú\Èš[\‹ˆŸBˆÜ‚ˆ
-_B‚ˆİš\ÚX›T™\]Y\İË›X\
+const FILTERS = [
+  { key: "all", label: "All" },
+  { key: "new", label: "New assignments" },
+  { key: "ongoing", label: "Ongoing" },
+  { key: "completed", label: "Completed" },
+] as const;
 
-ŠHOˆÂˆÛÛœİ^[™YH^[™YYËš\Ê‹šY
-NÂˆÛÛœİÛš\]Bˆ‹œ™\]Y\İİ^›[™İˆLˆÈ	Ü‹œ™\]Y\İİ^œÛXÙJL
-_K‹‹˜ˆˆ‹œ™\]Y\İİ^Â‚ˆ™]\›ˆ
-ˆ]‚ˆÙ^O^Ü‹šYBˆÛ\ÜÓ˜[YO^Ø›İ[™Y[È›Ü™\ˆ™Ë]Ú]HÚYİË\ÛH	Âˆ‹˜[œİÙ\™YÈ˜›Ü™\‹Y[Y\˜[LŒˆˆ˜›Ü™\‹YÜ˜^KLŒ‚ˆXBˆ‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ê
-HOˆÙÙÛQ^[™Y
-‹šY
-_BˆÛ\ÜÓ˜[YOH™›^ËY[][\Ë\İ\Ø\LÈMKLÈ^[Y‚ˆ‚ˆİ™ÂˆšY]Ğ›ŞHŒ‚ˆš[H››Û™H‚ˆİ›ÚÙOH˜İ\œ™[ÛÛÜˆ‚ˆİ›ÚÙUÚYHŒˆ‚ˆÛ\ÜÓ˜[YO^Ø]LHMËMÚš[šËL^YÜ˜^KM˜[œÚ][Û‹]˜[œÙ›Ü›H	Âˆ^[™YÈœ›İ]KNLˆˆˆ‚ˆXBˆ‚ˆ]H“NH›ˆ‹Mˆˆˆİ›ÚÙS[™XØ\Hœ›İ[™ˆİ›ÚÙS[™Z›Ú[Hœ›İ[™ˆÏ‚ˆÜİ™Ï‚‚ˆ]ˆÛ\ÜÓ˜[YOH›Z[‹]ËL›^LH‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\ËXÙ[\ˆØ\^LÈØ\^KLH‚ˆÜ[ˆÛ\ÜÓ˜[YOH^\ÛH›Û[YY][H^YÜ˜^KNL‚ˆÜ‹›˜[Y_BˆÜÜ[‚ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËYÜ˜^KLLLˆKLH^^È›Û[YY][H^YÜ˜^KMŒ‚ˆÜ‹˜[œİÙ\™YÈ[œİÙ\™Yˆˆ\Ó™]ÊŠHÈ“™]Èˆˆ’[ˆ›ÙÜ™\ÜÈŸBˆÜÜ[‚ˆÜ‹˜Ø]YÛÜWÚY	‰ˆØ]YÛÜSX\Ü‹˜Ø]YÛÜWÚYH	‰ˆ
-ˆÜ[ˆÛ\ÜÓ˜[YOH^^È^YÜ˜^KM‚ˆØØ]YÛÜSX\Ü‹˜Ø]YÛÜWÚY_BˆÜÜ[‚ˆ
-_BˆÜ‹™›Ûİ×İ\Û™YYY	‰ˆ\‹˜[œİÙ\™Y	‰ˆ
-ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËX›YKMLLˆKLH^^È›Û[YY][H^X›YKMŒ‚ˆ›ÛİË]\ˆÜÜ[‚ˆ
-_BˆÜ‹˜[œİÙ\™Y	‰ˆ
-ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËY[Y\˜[MLLˆKLH^^È›Û[YY][H^Y[Y\˜[MŒ‚ˆ[œİÙ\™YˆÜÜ[‚ˆ
-_BˆÙ]‚ˆÈY^[™Y	‰ˆ
-ˆÛ\ÜÓ˜[YOH›]LH[˜Ø]H^\ÛH^YÜ˜^KML‚ˆÜÛš\]BˆÜ‚ˆ
-_BˆÙ]‚ˆØ]Û‚‚ˆÙ^[™Y	‰ˆ
-ˆ]ˆÛ\ÜÓ˜[YOH˜›Ü™\‹]›Ü™\‹YÜ˜^KLLMH‹MHM‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\Ë\İ\\İYKX™]ÙY[ˆØ\M‚ˆ]ˆÛ\ÜÓ˜[YOH›Z[‹]ËL›^LH‚ˆÛ\ÜÓ˜[YOH^YÜ˜^KNLÜ‹œ™\]Y\İİ^OÜ‚‚ˆ]ˆÛ\ÜÓ˜[YOH›]Lˆ›^›^]Ü˜\Ø\^MØ\^KLH^\ÛH^YÜ˜^KML‚ˆÜ[Ü‹›˜[Y_OÜÜ[‚ˆBˆ™Y^ØXZ[Î‰Ü‹™[XZ[XBˆÛ\ÜÓ˜[YOH^Z[™YÛËMŒİ™\^Z[™YÛËML‚ˆ‚ˆÜ‹™[XZ[BˆØO‚ˆÜ‹œÛ™H	‰ˆÜ[Ü‹œÛ™_OÜÜ[ŸBˆÜ‹˜Ø]YÛÜWÚY	‰ˆØ]YÛÜSX\Ü‹˜Ø]YÛÜWÚYH	‰ˆ
-ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËYÜ˜^KLLLˆKLH^^È›Û[YY][H^YÜ˜^KMÌ‚ˆØØ]YÛÜSX\Ü‹˜Ø]YÛÜWÚY_BˆÜÜ[‚ˆ
-_BˆÜ[ˆÛ\ÜÓ˜[YOH^^È^YÜ˜^KM‚ˆÜ‹š\×ÜX›XÈÈ”X›XÈˆˆ”š]˜]HŸBˆÜ‹š\×Ø[›Û[[İ\ÈÈˆ0­È[›Û[[İ\ÈÛˆØ[ˆˆˆŸBˆÜÜ[‚ˆÜ‹˜ÛÛXİÜ™\]Y\İY	‰ˆ
-ˆÜ[ˆÛ\ÜÓ˜[YOH^^È^X[X™\‹MŒ‚ˆØ[ÈÛÛXİˆÜ‹œ™Y™\œ™YØÛÛXİÈ
-	Ü‹œ™Y™\œ™YØÛÛXİJXˆˆŸBˆÜÜ[‚ˆ
-_BˆÜ[ˆÛ\ÜÓ˜[YOH^^È^YÜ˜^KM‚ˆÜ‹œ˜^Y\—ØÛİ[H˜^YYˆÜÜ[‚ˆÙ]‚‚ˆÜ‹˜[œİÙ\™Y	‰ˆ‹œ˜Z\ÙWÜ™\Ü	‰ˆ
-ˆ]ˆÛ\ÜÓ˜[YOH›]LÈ›İ[™Y[Y™ËY[Y\˜[MLLÈKLˆ^\ÛH^Y[Y\˜[N‚ˆÜ‹œ˜Z\ÙWÜ™\ÜBˆÙ]‚ˆ
-_BˆÙ]‚‚ˆ]ˆÛ\ÜÓ˜[YOH™›^Úš[šËL›^XÛÛ][\ËY[™Ø\Lˆ‚ˆÈ\‹˜[œİÙ\™Y	‰ˆ
-ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ê
-HOˆÜ[[œİÙ\™Y[Ù[
-‹šY
-_BˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËYÜ˜YY[]Ë\ˆœ›ÛKY[Y\˜[MŒË]X[MŒLÈKLKH^^È›Û[YY][H^]Ú]HÚYİË\ÛH˜[œÚ][Ûˆİ™\™œ›ÛKY[Y\˜[MLİ™\Ë]X[ML‚ˆ‚ˆ[œİÙ\™Y˜^Y\‚ˆØ]Û‚ˆ
-_BˆÙ]‚ˆÙ]‚‚ˆÈ\‹˜[œİÙ\™Y	‰ˆ
-ˆ]ˆÛ\ÜÓ˜[YOH›]M›Ü™\‹]›Ü™\‹YÜ˜^KLLM‚ˆÛ\ÜÓ˜[YOH^^È›Û[YY][H\\˜Ø\ÙH˜XÚÚ[™Ë]ÚYH^YÜ˜^KM‚ˆXİ[ÛˆÚXÚÛ\İˆÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›]LˆÜXÙK^KLˆ‚ˆØXİ[Û’][\Ñ›ÜŠŠK›X\
+type FilterKey = (typeof FILTERS)[number]["key"];
 
-][JHOˆÂˆÛÛœİÛ™HH›ÛÛX[Š–Ú][KšÙ^WJNÂˆ™]\›ˆ
-ˆX™[ˆÙ^O^Ú][KšÙ^_BˆÛ\ÜÓ˜[YOH™›^][\ËXÙ[\ˆØ\Lˆ^\ÛH^YÜ˜^KMÌ‚ˆ‚ˆ[œ]ˆ\OH˜ÚXÚØ›Ş‚ˆÚXÚÙY^ÙÛ™_BˆÛÚ[™ÙO^Ê
-HOˆÙÙÛPXİ[ÛŠ‹][KšÙ^J_BˆÛ\ÜÓ˜[YOHœ›İ[™Y›Ü™\‹YÜ˜^KLÌ‚ˆÏ‚ˆÜ[ˆÛ\ÜÓ˜[YO^ÙÛ™HÈ^YÜ˜^KM[™K]›İYÚˆˆˆŸO‚ˆÚ][K›X™[BˆÜÜ[‚ˆÛX™[‚ˆ
-NÂˆJ_BˆÙ]‚ˆÙ]‚ˆ
-_B‚ˆÈ\‹˜[œİÙ\™Y	‰ˆ
-ˆ]ˆÛ\ÜÓ˜[YOH›]M›^›^]Ü˜\][\ËXÙ[\ˆØ\M›Ü™\‹]›Ü™\‹YÜ˜^KLLM^\ÛH‚ˆX™[Û\ÜÓ˜[YOH™›^][\ËXÙ[\ˆØ\Lˆ^YÜ˜^KMÌ‚ˆ[œ]ˆ\OH˜ÚXÚØ›Ş‚ˆÚXÚÙY^Ü‹™›Ûİ×İ\Û™YYYBˆÛÚ[™ÙO^ÊJHO‚ˆ\]T™\]Y\İ
-‹šYÂˆ›Ûİ×İ\Û™YYYˆK\™Ù]˜ÚXÚÙYˆİ]\ÎˆK\™Ù]˜ÚXÚÙYÈ‘›ÛİËU\ˆˆXİ]™HØ\™H‹ˆJBˆBˆÛ\ÜÓ˜[YOHœ›İ[™Y›Ü™\‹YÜ˜^KLÌ‚ˆÏ‚ˆ›ÛİË]\™YYYˆÛX™[‚‚ˆÜ‹™›Ûİ×İ\Û™YYY	‰ˆ
-ˆ[œ]ˆ\OH™]H‚ˆ˜[YO^Ü‹™›Ûİ×İ\Ù]HÏÈˆŸBˆÛÚ[™ÙO^ÊJHO‚ˆ\]T™\]Y\İ
-‹šYÂˆ›Ûİ×İ\Ù]NˆK\™Ù]˜[YH[ˆJBˆBˆÛ\ÜÓ˜[YOHœ›İ[™Y[Y›Ü™\ˆ›Ü™\‹YÜ˜^KLÌLˆKLH^\ÛHÚYİË\ÛH‚ˆÏ‚ˆ
-_BˆÙ]‚ˆ
-_BˆÙ]‚ˆ
-_BˆÙ]‚ˆ
-NÂˆJ_BˆÙ]‚‚ˆØ[œİÙ\š[™ÒY	‰ˆ
-ˆ]‚ˆÛ\ÜÓ˜[YOH™š^Y[œÙ]L‹ML›^][\ËY[™\İYKXÙ[\ˆ™ËX›XÚËÍMÛNš][\ËXÙ[\ˆ‚ˆÛÛXÚÏ^ØÛÜÙP[œİÙ\™Y[Ù[Bˆ‚ˆ]‚ˆÛ\ÜÓ˜[YOHËY[X^]Ë[Y›İ[™YL™Ë]Ú]HMˆÚYİË^‚ˆÛÛXÚÏ^ÊJHOˆKœİÜ›ÜYØ][ÛŠ
-_Bˆ‚ˆˆÛ\ÜÓ˜[YOH^[È›Û\Ù[ZX›Û^YÜ˜^KNL‚ˆX\šÈ\È˜^Y\ˆ\È[œİÙ\™YˆÚ‚ˆÛ\ÜÓ˜[YOH›]Lˆ^\ÛH^YÜ˜^KMŒ‚ˆ\È[İ™\ÈH\ÜÚYÛ›Y[ÈÛÛ\]Yˆ[İHØ[ˆX]™HH]ZXÚÂˆ›İHX›İ]İÈ]Ù[8 %İ[HÜ[Û˜[‚ˆÜ‚‚ˆ^\™XBˆ˜[YO^Ø[œİÙ\“›İ_BˆÛÚ[™ÙO^ÊJHOˆÙ][œİÙ\“›İJK\™Ù]˜[YJ_Bˆ›İÜÏ^ÍBˆXÙZÛ\H[H\]H[İIÙZÙHÈ™[Y[X™\ˆ
-Ü[Û˜[
-K‹‹ˆ‚ˆÛ\ÜÓ˜[YOH›]MËY[›İ[™Y[È›Ü™\ˆ›Ü™\‹YÜ˜^KLÌLÈKLˆ^\ÛH›Øİ\Î˜›Ü™\‹Z[™YÛËML›Øİ\Î›İ][™K[›Û™H›Øİ\Îœš[™ËLH›Øİ\Îœš[™ËZ[™YÛËML‚ˆÏ‚‚ˆ]ˆÛ\ÜÓ˜[YOH›]M›^\İYKY[™Ø\Lˆ‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^ØÛÜÙP[œİÙ\™Y[Ù[BˆÛ\ÜÓ˜[YOHœ›İ[™YY[›Ü™\ˆ›Ü™\‹YÜ˜^KLŒMKLˆ^\ÛH›Û[YY][H^YÜ˜^KMÌ˜[œÚ][Ûˆİ™\˜™ËYÜ˜^KML‚ˆ‚ˆØ[˜Ù[ˆØ]Û‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^ØÛÛ™š\›P[œİÙ\™YBˆ\ØX›Y^Ø[œİÙ\”Ø]š[™ßBˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËYÜ˜YY[]Ë\ˆœ›ÛKY[Y\˜[MŒË]X[MŒMKLˆ^\ÛH›Û[YY][H^]Ú]HÚYİË\ÛH˜[œÚ][Ûˆİ™\™œ›ÛKY[Y\˜[MLİ™\Ë]X[ML\ØX›Y›ÜXÚ]KMŒ‚ˆ‚ˆØ[œİÙ\”Ø]š[™ÈÈ”Ø]š[™Ë‹‹ˆˆˆÛÛ™š\›H[œİÙ\™YŸBˆØ]Û‚ˆÙ]‚ˆÙ]‚ˆÙ]‚ˆ
-_BˆÙ]‚ˆ
-NÂŸB
+export default function MyPrayerAssignmentsClient({
+  requests: initialRequests,
+  categories,
+}: Props) {
+  const [requests, setRequests] = useState<AssignedRequest[]>(initialRequests);
+  const [filter, setFilter] = useState<FilterKey>("all");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [answeringId, setAnsweringId] = useState<string | null>(null);
+  const [answerNote, setAnswerNote] = useState("");
+  const [answerSaving, setAnswerSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+
+  const categoryMap: Record<string, string> = {};
+  categories.forEach((c) => {
+    categoryMap[c.id] = c.name;
+  });
+
+  const counts = {
+    all: requests.length,
+    new: requests.filter(isNew).length,
+    ongoing: requests.filter(isOngoing).length,
+    completed: requests.filter((r) => r.answered).length,
+  };
+
+  const visibleRequests = requests.filter((r) => {
+    if (filter === "new") return isNew(r);
+    if (filter === "ongoing") return isOngoing(r);
+    if (filter === "completed") return r.answered;
+    return true;
+  });
+
+  function toggleExpanded(id: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  async function updateRequest(id: string, changes: Partial<AssignedRequest>) {
+    const previous = requests.find((r) => r.id === id);
+    if (!previous) return false;
+
+    setSaveError("");
+    setRequests((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, ...changes } : r))
+    );
+
+    try {
+      const response = await fetch("/api/prayer-assignments/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: id, changes }),
+      });
+      const body = await response.json();
+
+      if (!response.ok) {
+        throw new Error(body?.error ?? "Failed to save assignment");
+      }
+      return true;
+    } catch (error) {
+      setRequests((prev) =>
+        prev.map((r) => (r.id === id ? previous : r))
+      );
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Failed to save assignment. Please try again."
+      );
+      return false;
+    }
+  }
+
+  // Checking an action item stamps it done and bumps last_action_at so the
+  // Admin dashboard's "days since last action" resets to zero. Unchecking
+  // just clears the timestamp for that item â€” it doesn't touch
+  // last_action_at, since undoing a mistake isn't a new action taken.
+  async function toggleAction(r: AssignedRequest, key: ActionKey) {
+    const isDone = Boolean(r[key]);
+    const changes: Partial<AssignedRequest> = isDone
+      ? { [key]: null }
+      : {
+          [key]: new Date().toISOString(),
+          last_action_at: new Date().toISOString(),
+          status: key === "action_update_sent_at" ? "Follow-Up" : "Active Care",
+        };
+    await updateRequest(r.id, changes);
+  }
+
+  function openAnsweredModal(id: string) {
+    const request = requests.find((r) => r.id === id);
+    setAnsweringId(id);
+    setAnswerNote(request?.praise_report ?? "");
+  }
+
+  function closeAnsweredModal() {
+    setAnsweringId(null);
+    setAnswerNote("");
+  }
+
+  async function confirmAnswered() {
+    if (!answeringId) return;
+    setAnswerSaving(true);
+
+    const saved = await updateRequest(answeringId, {
+      answered: true,
+      status: "Resolved",
+      praise_report: answerNote.trim() || null,
+    });
+
+    setAnswerSaving(false);
+    if (!saved) return;
+    setAnsweringId(null);
+    setAnswerNote("");
+  }
+
+  return (
+    <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+      <h1 className="text-2xl font-bold text-gray-900">
+        My Prayer Assignments
+      </h1>
+      <p className="mt-2 text-gray-600">
+        The prayer requests currently assigned to you. Only you can see this
+        list.
+      </p>
+      {saveError && (
+        <p role="alert" className="mt-3 text-sm text-red-600">
+          {saveError}
+        </p>
+      )}
+
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        {FILTERS.map((f) => (
+          <button
+            key={f.key}
+            type="button"
+            onClick={() => setFilter(f.key)}
+            className={`rounded-full px-3 py-1.5 text-sm font-medium shadow-sm transition ${
+              filter === f.key
+                ? "bg-indigo-600 text-white"
+                : "border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+            }`}
+          >
+            {f.label} ({counts[f.key]})
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-6 space-y-3">
+        {visibleRequests.length === 0 && (
+          <p className="text-gray-500">
+            {filter === "all"
+              ? "Nothing is assigned to you right now."
+              : "No assignments match this filter."}
+          </p>
+        )}
+
+        {visibleRequests.map((r) => {
+          const expanded = expandedIds.has(r.id);
+          const snippet =
+            r.request_text.length > 90
+              ? `${r.request_text.slice(0, 90)}...`
+              : r.request_text;
+
+          return (
+            <div
+              key={r.id}
+              className={`rounded-lg border bg-white shadow-sm ${
+                r.answered ? "border-emerald-200" : "border-gray-200"
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => toggleExpanded(r.id)}
+                className="flex w-full items-start gap-3 px-4 py-3 text-left"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className={`mt-1 h-4 w-4 shrink-0 text-gray-400 transition-transform ${
+                    expanded ? "rotate-90" : ""
+                  }`}
+                >
+                  <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span className="text-sm font-medium text-gray-900">
+                      {r.name}
+                    </span>
+                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                      {r.answered ? "Answered" : isNew(r) ? "New" : "In progress"}
+                    </span>
+                    {r.category_id && categoryMap[r.category_id] && (
+                      <span className="text-xs text-gray-400">
+                        {categoryMap[r.category_id]}
+                      </span>
+                    )}
+                    {r.follow_up_needed && !r.answered && (
+                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
+                        Follow-up
+                      </span>
+                    )}
+                    {r.answered && (
+                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600">
+                        Answered
+                      </span>
+                    )}
+                  </div>
+                  {!expanded && (
+                    <p className="mt-1 truncate text-sm text-gray-500">
+                      {snippet}
+                    </p>
+                  )}
+                </div>
+              </button>
+
+              {expanded && (
+                <div className="border-t border-gray-100 px-5 pb-5 pt-4">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-gray-900">{r.request_text}</p>
+
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
+                        <span>{r.name}</span>
+                        <a
+                          href={`mailto:${r.email}`}
+                          className="text-indigo-600 hover:text-indigo-500"
+                        >
+                          {r.email}
+                        </a>
+                        {r.phone && <span>{r.phone}</span>}
+                        {r.category_id && categoryMap[r.category_id] && (
+                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                            {categoryMap[r.category_id]}
+                          </span>
+                        )}
+                        <span className="text-xs text-gray-400">
+                          {r.is_public ? "Public" : "Private"}
+                          {r.is_anonymous ? " Â· Anonymous on wall" : ""}
+                        </span>
+                        {r.contact_requested && (
+                          <span className="text-xs text-amber-600">
+                            Wants contact
+                            {r.preferred_contact ? ` (${r.preferred_contact})` : ""}
+                          </span>
+                        )}
+                        <span className="text-xs text-gray-400">
+                          {r.prayer_count} prayed
+                        </span>
+                      </div>
+
+                      {r.answered && r.praise_report && (
+                        <div className="mt-3 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                          {r.praise_report}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      {!r.answered && (
+                        <button
+                          type="button"
+                          onClick={() => openAnsweredModal(r.id)}
+                          className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500"
+                        >
+                          Answered Prayer
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {!r.answered && (
+                    <div className="mt-4 border-t border-gray-100 pt-4">
+                      <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                        Action checklist
+                      </p>
+                      <div className="mt-2 space-y-2">
+                        {actionItemsFor(r).map((item) => {
+                          const done = Boolean(r[item.key]);
+                          return (
+                            <label
+                              key={item.key}
+                              className="flex items-center gap-2 text-sm text-gray-700"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={done}
+                                onChange={() => toggleAction(r, item.key)}
+                                className="rounded border-gray-300"
+                              />
+                              <span className={done ? "text-gray-400 line-through" : ""}>
+                                {item.label}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {!r.answered && (
+                    <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 text-sm">
+                      <label className="flex items-center gap-2 text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={r.follow_up_needed}
+                          onChange={(e) =>
+                            updateRequest(r.id, {
+                              follow_up_needed: e.target.checked,
+                              status: e.target.checked ? "Follow-Up" : "Active Care",
+                            })
+                          }
+                          className="rounded border-gray-300"
+                        />
+                        Follow-up needed
+                      </label>
+
+                      {r.follow_up_needed && (
+                        <input
+                          type="date"
+                          value={r.follow_up_date ?? ""}
+                          onChange={(e) =>
+                            updateRequest(r.id, {
+                              follow_up_date: e.target.value || null,
+                            })
+                          }
+                          className="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm"
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {answeringId && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
+          onClick={closeAnsweredModal}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold text-gray-900">
+              Mark this prayer as answered
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              This moves the assignment to Completed. You can leave a quick
+              note about how it went â€” totally optional.
+            </p>
+
+            <textarea
+              value={answerNote}
+              onChange={(e) => setAnswerNote(e.target.value)}
+              rows={4}
+              placeholder="Any update you'd like to remember (optional)..."
+              className="mt-4 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={closeAnsweredModal}
+                className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmAnswered}
+                disabled={answerSaving}
+                className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:from-emerald-500 hover:to-teal-500 disabled:opacity-60"
+              >
+                {answerSaving ? "Saving..." : "Confirm Answered"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

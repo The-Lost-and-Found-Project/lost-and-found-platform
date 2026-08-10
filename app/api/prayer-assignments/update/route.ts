@@ -1,30 +1,86 @@
-þŠmþ&yºÞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™^™\]Y\Ý™^™\ÜÛœÙHHœ›ÛH›™^ÜÙ\™\ˆŽÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹ÜÝ\X˜\ÙKÜÙ\™\ˆŽÂš[\ÜÈÜ™X]PYZ[ÛY[Hœ›ÛHÛX‹ÜÝ\X˜\ÙKØYZ[ˆŽÂ‚˜ÛÛœÝSÕÑQÑ’QSÈHÂˆ˜XÝ[Û—ØÛÛXÝYØ]‹ˆ˜XÝ[Û—Ü˜^YYØ]‹ˆ˜XÝ[Û—Ý\]WÜÙ[Ø]‹ˆ›\ÝØXÝ[Û—Ø]‹ˆ™›ÛÝ×Ý\Û™YYY‹ˆ™›ÛÝ×Ý\Ù]H‹ˆ˜[œÝÙ\™Y‹ˆœÝ]\È‹ˆœ˜Z\ÙWÜ™\Ü‹—H\ÈÛÛœÝÂ‚˜ÛÛœÝSÕÑQÔÕUTÑTÈHÂˆ”ÝX›Z]Y‹”™]šY]ÙY‹\ÜÚYÛ™Y‹XÝ]™HØ\™H‹‘›ÛÝËU\‹ˆ”™\ÛÛ™Y‹ÛÜÙY‹“™YYÈ™X\ÜÚYÛ›Y[‹‘\ØØ[]Y‹ˆ•[˜X›HÈÛÛXÝ‹•Ú]˜]Ûˆ‹—NÂ‚™^Ü\Þ[˜È[˜Ý[ÛˆÔÕ
-™\]Y\Ýˆ™^™\]Y\Ý
-HÂˆžHÂˆÛÛœÝ›ÙHH]ØZ]™\]Y\ÝšœÛÛŠ
-NÂˆÛÛœÝÈ™\]Y\ÝYÚ[™Ù\ÈHH›ÙHÏÈßNÂ‚ˆYˆ
-\™\]Y\ÝYXÚ[™Ù\È\[ÙˆÚ[™Ù\ÈOOH›Øš™XÝŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆ“Z\ÜÚ[™È™\]Y\ÝYÜˆÚ[™Ù\ÈˆKˆÈÝ]\ÎˆBˆ
-NÂˆB‚ˆÛÛœÝ[˜[YšY[HØš™XÝšÙ^\ÊÚ[™Ù\ÊK™š[™
-ˆ
-Ù^JHOˆPSÕÑQÑ’QSËš[˜ÛY\ÊÙ^H\È
-\[ÙˆSÕÑQÑ’QSÊVÛ[X™\—JBˆ
-NÂˆYˆ
-[˜[YšY[
-HÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆšY[›Ý[ÝÙYˆ	Ú[˜[YšY[XKˆÈÝ]\ÎˆBˆ
-NÂˆB‚ˆYˆ
-Ú[™Ù\ËœÝ]\È	‰ˆPSÕÑQÔÕUTÑTËš[˜ÛY\ÊÚ[™Ù\ËœÝ]\ÊJHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›ÜŽˆ’[˜[Y˜^Y\ˆÛÜšÙ›ÝÈÝ]\ÈˆKÈÝ]\ÎˆJNÂˆB‚ˆÛÛœÝÝ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-NÂˆÛÛœÝÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]Ý\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂ‚ˆYˆ
-]\Ù\ŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›ÜŽˆ“›Ý]][XØ]YˆKÈÝ]\ÎˆHJNÂˆB‚ˆÛÛœÝYZ[ˆHÜ™X]PYZ[ÛY[
+const ALLOWED_FIELDS = [
+  "action_contacted_at",
+  "action_prayed_at",
+  "action_update_sent_at",
+  "last_action_at",
+  "follow_up_needed",
+  "follow_up_date",
+  "answered",
+  "status",
+  "praise_report",
+] as const;
 
-NÂˆÛÛœÝÈ]K\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\ÝÈŠBˆ\]JÚ[™Ù\ÊBˆ™\JšY‹™\]Y\ÝY
-Bˆ™\J˜\ÜÚYÛ™YÝÈ‹\Ù\‹šY
-Bˆ™\J˜\˜Ú]™Y‹˜[ÙJBˆœÙ[XÝ
-ˆšYXÝ[Û—ØÛÛXÝYØ]XÝ[Û—Ü˜^YYØ]XÝ[Û—Ý\]WÜÙ[Ø]\ÝØXÝ[Û—Ø]›ÛÝ×Ý\Û™YYY›ÛÝ×Ý\Ù]K[œÝÙ\™YÝ]\Ë˜Z\ÙWÜ™\Ü‚ˆ
-Bˆ›X^X™TÚ[™ÛJ
-NÂ‚ˆYˆ
-\œ›ÜŠH›ÝÈ\œ›ÜŽÂˆYˆ
-Y]JHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆ\ÜÚYÛ›Y[›Ý›Ý[™Üˆ›ÈÛ™Ù\ˆ\ÜÚYÛ™YÈ[ÝHˆKˆÈÝ]\ÎˆBˆ
-NÂˆB‚ˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈÝXØÙ\ÜÎˆYK™\]Y\Ýˆ]HJNÂˆHØ]Ú
-\œŠHÂˆÛÛœÛÛK™\œ›ÜŠ\]H˜^Y\ˆ\ÜÚYÛ›Y[\œ›ÜŽˆ‹\œŠNÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆ•[™^XÝY\œ›Üˆ\][™È˜^Y\ˆ\ÜÚYÛ›Y[ˆKˆÈÝ]\ÎˆLBˆ
-NÂˆBŸB
+const ALLOWED_STATUSES = [
+  "Submitted", "Reviewed", "Assigned", "Active Care", "Follow-Up",
+  "Resolved", "Closed", "Needs Reassignment", "Escalated",
+  "Unable to Contact", "Withdrawn",
+];
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { requestId, changes } = body ?? {};
+
+    if (!requestId || !changes || typeof changes !== "object") {
+      return NextResponse.json(
+        { error: "Missing requestId or changes" },
+        { status: 400 }
+      );
+    }
+
+    const invalidField = Object.keys(changes).find(
+      (key) => !ALLOWED_FIELDS.includes(key as (typeof ALLOWED_FIELDS)[number])
+    );
+    if (invalidField) {
+      return NextResponse.json(
+        { error: `Field not allowed: ${invalidField}` },
+        { status: 400 }
+      );
+    }
+
+    if (changes.status && !ALLOWED_STATUSES.includes(changes.status)) {
+      return NextResponse.json({ error: "Invalid prayer workflow status" }, { status: 400 });
+    }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("prayer_requests")
+      .update(changes)
+      .eq("id", requestId)
+      .eq("assigned_to", user.id)
+      .eq("archived", false)
+      .select(
+        "id, action_contacted_at, action_prayed_at, action_update_sent_at, last_action_at, follow_up_needed, follow_up_date, answered, status, praise_report"
+      )
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) {
+      return NextResponse.json(
+        { error: "Assignment not found or no longer assigned to you" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, request: data });
+  } catch (err) {
+    console.error("update prayer assignment error:", err);
+    return NextResponse.json(
+      { error: "Unexpected error updating prayer assignment" },
+      { status: 500 }
+    );
+  }
+}

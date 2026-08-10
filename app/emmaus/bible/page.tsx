@@ -1,12 +1,42 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\Ü[šÈœ›ÛH›™^Û[šÈÂš[\ÜÈ[[X]\ĞÛÛ[XÚÜÈHœ›ÛHÛX‹Ù[[X]\ËØÛÛ[\XÚÜËÜ™YÚ\İHÂ‚™^ÜY˜][[˜İ[Ûˆ[[X]\ĞšX›TYÙJ
-HÂˆ™]\›ˆ
-ˆXZ[ˆÛ\ÜÓ˜[YOH›Z[‹Z\ØÜ™Y[ˆ™ËYÜ˜YY[]ËXˆœ›ÛK\İÛ™KMLšXK]Ú]HËZ[™YÛËMLÍŒ‹L‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH˜™Ë\Û]KNML^]Ú]H‚ˆ]ˆÛ\ÜÓ˜[YOH›^X]]ÈX^]ËMMKLLˆÛNœMˆÛNœKLMˆ‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒ™[WH^X[X™\‹LÌ‘[[X]\ÈšX›OÜ‚ˆHÛ\ÜÓ˜[YOH›]LÈ^M›ÛX›XÚÈ˜XÚÚ[™Ë]YÚÛN^M”™XYØÜš\\™Kˆ›ÛİÈH^ÚO‚ˆÛ\ÜÓ˜[YOH›]MHX^]ËLŞ^[ÈXY[™ËN^Z[™YÛËLLÍÍHÚÛÜÙHH™]šY]ÙY\ÜØYÙHÛÛXİ[Û‹[ˆ[İ™H[ÈHİZYY\ØÛİ™\HÚ[ˆ[İH\™H™XYKÜ‚ˆÙ]‚ˆÜÙXİ[Û‚‚ˆ]ˆÛ\ÜÓ˜[YOH›^X]]ÈX^]ËMMKLLÛNœMˆÛNœKLM‚ˆ]ˆÛ\ÜÓ˜[YOH™ÜšYØ\MˆÎ™ÜšYXÛÛËLˆ‚ˆÙ[[X]\ĞÛÛ[XÚÜË›X\
+import Link from "next/link";
+import { emmausContentPacks } from "@/lib/emmaus/content-packs/registry";
 
-XÚÊHOˆ
-ˆ\XÛHÙ^O^ÜXÚËšYHÛ\ÜÓ˜[YOHœ›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹\Û]KLŒ™Ë]Ú]HMˆÚYİË^ÛNœN‚ˆ]ˆÛ\ÜÓ˜[YOH™›^][\Ë\İ\\İYKX™]ÙY[ˆØ\M‚ˆ]‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒM™[WH^Z[™YÛËMÌÜXÚË˜›ÛÚßHÜXÚË˜Ú\\ŸOÜ‚ˆˆÛ\ÜÓ˜[YOH›]Lˆ^LŞ›ÛX›XÚÈ^\Û]KNMLÜXÚË]_OÚ‚ˆÙ]‚ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËY[Y\˜[LLLÈKLH^^È›ÛX›XÚÈØ\][^™H^Y[Y\˜[NÜXÚËœİ]\ßOÜÜ[‚ˆÙ]‚ˆÛ\ÜÓ˜[YOH›]MXY[™ËMÈ^\Û]KMŒÜXÚË™\ØÜš\[ÛŸOÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›]MˆÜXÙK^KLÈ‚ˆÜXÚË™\ØÛİ™\šY\Ë›X\
+export default function EmmausBiblePage() {
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-stone-50 via-white to-indigo-50/60 pb-28">
+      <section className="bg-slate-950 text-white">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Emmaus Bible</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">Read Scripture. Follow the text.</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">Choose a reviewed passage collection, then move into a guided discovery when you are ready.</p>
+        </div>
+      </section>
 
-\ØÛİ™\JHOˆ
-ˆ[šÈÙ^O^Ù\ØÛİ™\KšYH™Y^ØÙ[[X]\ËØÛÛ[ÉÜXÚËšYKÙ\ØÛİ™\KÉÙ\ØÛİ™\KšYXHÛ\ÜÓ˜[YOH˜›ØÚÈ›İ[™YL›Ü™\ˆ›Ü™\‹\Û]KLŒ™Ë\Û]KMLM˜[œÚ][Ûˆİ™\˜›Ü™\‹Z[™YÛËLÌİ™\˜™ËZ[™YÛËML‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™Ë]ÚYH^Z[™YÛËMÌÙ\ØÛİ™\Kœ\ÜØYÙ_OÜ‚ˆÈÛ\ÜÓ˜[YOH›]LH›ÛX›XÚÈ^\Û]KNMLÙ\ØÛİ™\K]_OÚÏ‚ˆÛ\ÜÓ˜[YOH›]Lˆ^\ÛHXY[™ËMˆ^\Û]KMŒÙ\ØÛİ™\KœİX]_OÜ‚ˆÓ[šÏ‚ˆ
-J_BˆÙ]‚ˆØ\XÛO‚ˆ
-J_BˆÙ]‚ˆÙ]‚ˆÛXZ[‚ˆ
-NÂŸB
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+        <div className="grid gap-6 lg:grid-cols-2">
+          {emmausContentPacks.map((pack) => (
+            <article key={pack.id} className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl sm:p-8">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-indigo-700">{pack.book} {pack.chapter}</p>
+                  <h2 className="mt-2 text-3xl font-black text-slate-950">{pack.title}</h2>
+                </div>
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black capitalize text-emerald-800">{pack.status}</span>
+              </div>
+              <p className="mt-4 leading-7 text-slate-600">{pack.description}</p>
+              <div className="mt-6 space-y-3">
+                {pack.discoveries.map((discovery) => (
+                  <Link key={discovery.id} href={`/emmaus/content/${pack.id}/discovery/${discovery.id}`} className="block rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-indigo-300 hover:bg-indigo-50">
+                    <p className="text-xs font-black uppercase tracking-wide text-indigo-700">{discovery.passage}</p>
+                    <h3 className="mt-1 font-black text-slate-950">{discovery.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{discovery.subtitle}</p>
+                  </Link>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </main>
+  );
+}

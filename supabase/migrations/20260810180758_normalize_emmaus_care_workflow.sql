@@ -1,9 +1,80 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçKKH™\İÜ™HH]HTHš]š[YÙ\È™\]Z\™Y›Üˆ]][XØ]Y[[X]\È›ÙÜ™\ÜË‚‹KH“È™[XZ[œÈ]]Üš]]]™H[™[Z]È]™\HÜ\˜][ÛˆÈ]]ZY
+-- Restore the Data API privileges required for authenticated Emmaus progress.
+-- RLS remains authoritative and limits every operation to auth.uid().
+grant select, insert, update, delete
+on table public.emmaus_discovery_progress
+to authenticated;
 
-K‚™Ü˜[Ù[Xİ[œÙ\\]K[]B›ÛˆX›HX›XË™[[X]\×Ù\ØÛİ™\WÜ›ÙÜ™\ÜÂÈ]][XØ]YÂ‚‹KHXØÛİ[XØÙ\ÜÈ
-›Ùš[\Ëš\×ØXİ]™JH\È[[[Û˜[HÙ\\˜]Hœ›ÛHB‹KH›Û[Y\‰ÜÈ]˜Z[Xš[]H›Üˆ™]ÈZ[š\İH\ÜÚYÛ›Y[Ëˆ›İ][Û—Üİ]\È\Â‹KH™]Z[™Y\ÈHÛÛ\]Xš[]HšY[›ÜˆH^\İ[™È\ÜÚYÛ›Y[[˜İ[Û‹‚˜[\ˆX›HX›XËœ›Ùš[\ÂˆYÛÛ[[ˆYˆ›İ^\İÈZ[š\İWØ]˜Z[Xš[]H^›İ[Y˜][	Ø]˜Z[X›IËˆYÛÛ[[ˆYˆ›İ^\İÈZ\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[[YÙ\ˆ›İ[Y˜][ˆYÛÛ[[ˆYˆ›İ^\İÈ]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™Y›ÛÛX[ˆ›İ[Y˜][˜[ÙNÂ‚˜[\ˆX›HX›XËœ›Ùš[\Âˆ›ÜÛÛœİ˜Z[Yˆ^\İÈ›Ùš[\×ÛZ[š\İWØ]˜Z[Xš[]WØÚXÚÎÂ‚˜[\ˆX›HX›XËœ›Ùš[\ÂˆYÛÛœİ˜Z[›Ùš[\×ÛZ[š\İWØ]˜Z[Xš[]WØÚXÚÂˆÚXÚÈ
-Z[š\İWØ]˜Z[Xš[]H[ˆ
-	Ø]˜Z[X›IË	Û[Z]Y	Ë	Ø]Ø^IË	Ú[˜Xİ]™IÊJNÂ‚\]HX›XËœ›Ùš[\ÂœÙ]Z[š\İWØ]˜Z[Xš[]HHØ\ÙH›İ][Û—Üİ]\ÂˆÚ[ˆ	ØXİ]™IÈ[ˆ	Ø]˜Z[X›IÂˆÚ[ˆ	Ü]\ÙYÛ™YÛXİ	È[ˆ	Û[Z]Y	ÂˆÚ[ˆ	Ü]\ÙYÜØX˜˜]XØ[	È[ˆ	Ø]Ø^IÂˆÚ[ˆ	Ú[˜Xİ]™IÈ[ˆ	Ú[˜Xİ]™IÂˆ[ÙH	Ø]˜Z[X›IÂ™[™Â‚˜Ü™X]HÜˆ™\XÙH[˜İ[ÛˆX›XËœŞ[˜×ÛZ[š\İWØ]˜Z[Xš[]J
-Bœ™]\›œÈšYÙÙ\‚›[™İXYÙHÜÜ[œÙXİ\š]H[›ÚÙ\‚œÙ]ÙX\˜ÚÜ]HX›XÂ˜\È		˜™YÚ[‚ˆYˆ×ÛÜH	ÒS”ÑT•	ÂˆÜˆ™]Ë›Z[š\İWØ]˜Z[Xš[]H\È\İ[˜İœ›ÛHÛ›Z[š\İWØ]˜Z[Xš[]H[‚ˆ™]Ëœ›İ][Û—Üİ]\ÈHØ\ÙH™]Ë›Z[š\İWØ]˜Z[Xš[]BˆÚ[ˆ	Ø]˜Z[X›IÈ[ˆ	ØXİ]™IÂˆÚ[ˆ	Û[Z]Y	È[ˆ	Ü]\ÙYÛ™YÛXİ	ÂˆÚ[ˆ	Ø]Ø^IÈ[ˆ	Ü]\ÙYÜØX˜˜]XØ[	ÂˆÚ[ˆ	Ú[˜Xİ]™IÈ[ˆ	Ú[˜Xİ]™IÂˆ[™Âˆ[ÚYˆ™]Ëœ›İ][Û—Üİ]\È\È\İ[˜İœ›ÛHÛœ›İ][Û—Üİ]\È[‚ˆ™]Ë›Z[š\İWØ]˜Z[Xš[]HHØ\ÙH™]Ëœ›İ][Û—Üİ]\ÂˆÚ[ˆ	ØXİ]™IÈ[ˆ	Ø]˜Z[X›IÂˆÚ[ˆ	Ü]\ÙYÛ™YÛXİ	È[ˆ	Û[Z]Y	ÂˆÚ[ˆ	Ü]\ÙYÜØX˜˜]XØ[	È[ˆ	Ø]Ø^IÂˆÚ[ˆ	Ú[˜Xİ]™IÈ[ˆ	Ú[˜Xİ]™IÂˆ[ÙH™]Ë›Z[š\İWØ]˜Z[Xš[]Bˆ[™Âˆ[™YÂ‚ˆ™]\›ˆ™]ÎÂ™[™Â‰	Â‚™›ÜšYÙÙ\ˆYˆ^\İÈŞ[˜×ÛZ[š\İWØ]˜Z[Xš[]HÛˆX›XËœ›Ùš[\ÎÂ˜Ü™X]HšYÙÙ\ˆŞ[˜×ÛZ[š\İWØ]˜Z[Xš[]B˜™Y›Ü™H[œÙ\Üˆ\]HÙˆZ[š\İWØ]˜Z[Xš[]K›İ][Û—Üİ]\Â›ÛˆX›XËœ›Ùš[\Â™›ÜˆXXÚ›İÈ^Xİ]H[˜İ[ÛˆX›XËœŞ[˜×ÛZ[š\İWØ]˜Z[Xš[]J
-NÂ‚‹KH›Ü›X[^™HH\İÜ˜[Ø\™HY™XŞXÛHÚ]İ]\ØØ\™[™È^\İ[™È™\]Y\İË‚\]HX›XËœ˜^Y\—Ü™\]Y\İÂœÙ]İ]\ÈHØ\ÙHİ]\ÂˆÚ[ˆ	Ó™]ÉÈ[ˆ	ÔİX›Z]Y	ÂˆÚ[ˆ	Ğ™Z[™È˜^YY›Ü‰È[ˆ	ĞXİ]™HØ\™IÂˆÚ[ˆ	ĞÛÛXİY	È[ˆ	Ñ›ÛİËU\	ÂˆÚ[ˆ	ÓÛ™ÛÚ[™ÉÈ[ˆ	ĞXİ]™HØ\™IÂˆÚ[ˆ	Ñ›ÛİËU\™YYY	È[ˆ	Ñ›ÛİËU\	ÂˆÚ[ˆ	Ğ[œİÙ\™Y	È[ˆ	Ô™\ÛÛ™Y	Âˆ[ÙHİ]\Â™[™Ú\™Hİ]\È[ˆ
-ˆ	Ó™]ÉË	Ğ™Z[™È˜^YY›Ü‰Ë	ĞÛÛXİY	Ë	ÓÛ™ÛÚ[™ÉËˆ	Ñ›ÛİËU\™YYY	Ë	Ğ[œİÙ\™Y	ÂŠNÂ
+-- Account access (profiles.is_active) is intentionally separate from a
+-- volunteer's availability for new ministry assignments. rotation_status is
+-- retained as a compatibility field for the existing assignment function.
+alter table public.profiles
+  add column if not exists ministry_availability text not null default 'available',
+  add column if not exists missed_assignment_count integer not null default 0,
+  add column if not exists availability_review_required boolean not null default false;
+
+alter table public.profiles
+  drop constraint if exists profiles_ministry_availability_check;
+
+alter table public.profiles
+  add constraint profiles_ministry_availability_check
+  check (ministry_availability in ('available', 'limited', 'away', 'inactive'));
+
+update public.profiles
+set ministry_availability = case rotation_status
+  when 'active' then 'available'
+  when 'paused_neglect' then 'limited'
+  when 'paused_sabbatical' then 'away'
+  when 'inactive' then 'inactive'
+  else 'available'
+end;
+
+create or replace function public.sync_ministry_availability()
+returns trigger
+language plpgsql
+security invoker
+set search_path = public
+as $$
+begin
+  if tg_op = 'INSERT'
+     or new.ministry_availability is distinct from old.ministry_availability then
+    new.rotation_status := case new.ministry_availability
+      when 'available' then 'active'
+      when 'limited' then 'paused_neglect'
+      when 'away' then 'paused_sabbatical'
+      when 'inactive' then 'inactive'
+    end;
+  elsif new.rotation_status is distinct from old.rotation_status then
+    new.ministry_availability := case new.rotation_status
+      when 'active' then 'available'
+      when 'paused_neglect' then 'limited'
+      when 'paused_sabbatical' then 'away'
+      when 'inactive' then 'inactive'
+      else new.ministry_availability
+    end;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists sync_ministry_availability on public.profiles;
+create trigger sync_ministry_availability
+before insert or update of ministry_availability, rotation_status
+on public.profiles
+for each row execute function public.sync_ministry_availability();
+
+-- Normalize the pastoral care lifecycle without discarding existing requests.
+update public.prayer_requests
+set status = case status
+  when 'New' then 'Submitted'
+  when 'Being Prayed For' then 'Active Care'
+  when 'Contacted' then 'Follow-Up'
+  when 'Ongoing' then 'Active Care'
+  when 'Follow-Up Needed' then 'Follow-Up'
+  when 'Answered' then 'Resolved'
+  else status
+end
+where status in (
+  'New', 'Being Prayed For', 'Contacted', 'Ongoing',
+  'Follow-Up Needed', 'Answered'
+);

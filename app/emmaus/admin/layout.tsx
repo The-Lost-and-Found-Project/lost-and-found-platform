@@ -1,12 +1,24 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™Y\™XİHœ›ÛH›™^Û˜]šYØ][ÛˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂ‚™^ÜY˜][\Ş[˜È[˜İ[Ûˆ[[X]\ĞYZ[“^[İ]
-ÂˆÚ[™[‹ŸNˆÂˆÚ[™[ˆ™XXİ”™XXİ›ÙNÂŸJHÂˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 
-NÂˆÛÛœİÈ]NˆÈ\Ù\ˆHHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂˆYˆ
-]\Ù\ŠH™Y\™Xİ
-‹ÛÙÚ[ˆŠNÂ‚ˆÛÛœİÈ]Nˆ›Ùš[HHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
-œ›ÛK\×ØXİ]™HŠBˆ™\JšY‹\Ù\‹šY
-BˆœÚ[™ÛJ
-NÂ‚ˆYˆ
-›Ùš[OËœ›ÛHOOH˜YZ[ˆˆ›Ùš[Kš\×ØXİ]™HOOH˜[ÙJHÂˆ™Y\™Xİ
-‹Ù[[X]\ËİØ[ÈŠNÂˆB‚ˆ™]\›ˆÚ[™[ÂŸB
+export default async function EmmausAdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, is_active")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "admin" || profile.is_active === false) {
+    redirect("/emmaus/walk");
+  }
+
+  return children;
+}

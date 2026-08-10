@@ -1,18 +1,65 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™Y\™XİHœ›ÛH›™^Û˜]šYØ][ÛˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\Ü›Ùš[PÛY[œ›ÛHØÛÛ\Û™[ËÔ›Ùš[PÛY[Â‚™^ÜY˜][\Ş[˜È[˜İ[Ûˆ›Ùš[TYÙJ
-HÂˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import ProfileClient from "@/components/ProfileClient";
 
-NÂˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂ‚ˆYˆ
-]\Ù\ŠH™Y\™Xİ
-‹ÛÙÚ[ˆŠNÂ‚ˆÛÛœİÈ]Nˆ›Ùš[HHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
-ˆ™[Û˜[YK]˜]\—İ\›˜]›Üš]WÜØÜš\\™K]WÛÙ—ÜØ[˜][Û‹]WÛÙ—Ø˜\\ÛK›ÛK™]šY]×Ü›ÛKZ[š\İWØ]˜Z[Xš[]KZ\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[™Z[œİ][Y[Ü™\]Y\İYØ]‚ˆ
-Bˆ™\JšY‹\Ù\‹šY
-BˆœÚ[™ÛJ
-NÂ‚ˆÛÛœİš\œİ˜[YHH›Ùš[OË™[Û˜[YOËš[J
-KœÜ]
-ˆŠVÌH™œšY[™Â‚ˆ™]\›ˆ
-ˆXZ[ˆÛ\ÜÓ˜[YOH›œ\YÙH‹LŒ‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOHœ™[]]™Hİ™\™›İËZY[ˆ™Ë\Û]KNML^]Ú]H‚ˆ]ˆ\šXKZY[HYHˆÛ\ÜÓ˜[YOH˜XœÛÛ]H[œÙ]L™ËVÜ˜YX[YÜ˜YY[
-Ú\˜ÛWØ]ÎIWÌL	K™Ø˜JLNŒÍËŒÊK˜[œÜ\™[ÌÌœ™[JK˜YX[YÜ˜YY[
-Ú\˜ÛWØ]ÌL	WÌL	K™Ø˜JKNLËŒN
-K˜[œÜ\™[Ì™[JWHˆÏ‚ˆ]ˆÛ\ÜÓ˜[YOH›œ\Ú[™[]]™HKLMÛNœKLŒ‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒ™[WH^X[X™\‹LÌ–[İ\ˆ›Ùš[OÜ‚ˆHÛ\ÜÓ˜[YOH›]M^M›ÛX›XÚÈ˜XÚÚ[™Ë]YÚÛN^M–[İ\ˆİÜHX]\œËÙš\œİ˜[Y_KÚO‚ˆÛ\ÜÓ˜[YOH›]MHX^]ËLŞ^[ÈXY[™ËN^Z[™YÛËLLÍÍH“X[˜YÙHH\œÛÛ˜[]Z[Ë˜Z]Z[\İÛ™\Ë[™XØÛİ[[™›Ü›X][Ûˆ]Ú\H[İ\ˆ^\šY[˜ÙHXÜ›ÜÜÈHÜİ[™›İ[™›Ú™XİÜ‚ˆÙ]‚ˆÜÙXİ[Û‚‚ˆ]ˆÛ\ÜÓ˜[YOH›œ\Ú[KLLÛNœKLM‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH™ÜšYØ\MHY™ÜšYXÛÛËLÈ‚ˆ›Ùš[U˜[YHXÛÛH¼'äiˆ]OH™HÛ›İÛˆˆ^H’ÙY\[İ\ˆ˜[YH[™›Ùš[H[™›Ü›X][Ûˆİ\œ™[ÛÈH]›Ü›HØ[ˆÙ\™H[İH\œÛÛ˜[KˆˆÏ‚ˆ›Ùš[U˜[YHXÛÛH¼'äåˆˆ]OH”™[Y[X™\ˆ[İ\ˆ[˜ÚÜœÈˆ^H”™XÛÜ™[\Ü[˜Z]Z[\İÛ™\È[™HØÜš\\™H]ÛÛ[Y\ÈÈÚ\H[İ\ˆØ[ËˆˆÏ‚ˆ›Ùš[U˜[YHXÛÛH¼'æèHˆ]OH“X[˜YÙH[İ\ˆXØÙ\ÜÈˆ^HØ\™K]X[H[™YZ[š\İ˜]]™HÛÛ›ÛÈ™[XZ[ˆ]˜Z[X›HÛ›HÈH›Û\È[™XYH]]Üš^™YˆˆÏ‚ˆÜÙXİ[Û‚‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›]LLİ™\™›İËZY[ˆ›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹\Û]KLŒ™Ë]Ú]KÎLˆÚYİËL‚ˆ›Ùš[PÛY[ˆ[XZ[^İ\Ù\‹™[XZ[ÏÈˆŸBˆÜ™X]Y]^İ\Ù\‹˜Ü™X]YØ]Bˆ[š]X[[˜[YO^Ü›Ùš[OË™[Û˜[YHÏÈˆŸBˆ[š]X[]˜]\•\›^Ü›Ùš[OË˜]˜]\—İ\›ÏÈˆŸBˆ[š]X[˜]›Üš]TØÜš\\™O^Ü›Ùš[OË™˜]›Üš]WÜØÜš\\™HÏÈˆŸBˆ[š]X[]SÙ”Ø[˜][Û^Ü›Ùš[OË™]WÛÙ—ÜØ[˜][ÛˆÏÈˆŸBˆ[š]X[]SÙ˜\\ÛO^Ü›Ùš[OË™]WÛÙ—Ø˜\\ÛHÏÈˆŸBˆ\Ô™X[YZ[^Ü›Ùš[OËœ›ÛHOOH˜YZ[ˆŸBˆ[š]X[™]šY]Ô›ÛO^Ü›Ùš[OËœ™]šY]×Ü›ÛHÏÈˆŸBˆ\ĞØ\™UX[SY[X™\^ÖÈ˜YZ[ˆ‹œ˜^Y\—İX[H‹œ\İÜˆ—Kš[˜ÛY\Ê›Ùš[OËœ›ÛHÏÈˆŠ_Bˆ[š]X[›İ][Û”İ]\Ï^Ü›Ùš[OË›Z[š\İWØ]˜Z[Xš[]HÏÈ˜]˜Z[X›HŸBˆ[š]X[Z\ÜÙY\ÜÚYÛ›Y[Ûİ[^Ü›Ùš[OË›Z\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ÏÈBˆ[š]X[™Z[œİ][Y[™\]Y\İY]^Ü›Ùš[OËœ™Z[œİ][Y[Ü™\]Y\İYØ]ÏÈ[BˆÏ‚ˆÜÙXİ[Û‚ˆÙ]‚ˆÛXZ[‚ˆ
-NÂŸB‚™[˜İ[Ûˆ›Ùš[U˜[YJÈXÛÛ‹]K^NˆÈXÛÛˆİš[™ÎÈ]Nˆİš[™ÎÈ^ˆİš[™ÈJHÂˆ™]\›ˆ\XÛHÛ\ÜÓ˜[YOH›œXØ\™MˆÜ[ˆÛ\ÜÓ˜[YOH^LŞˆ\šXKZY[HYHÚXÛÛŸOÜÜ[ˆÛ\ÜÓ˜[YOH›]MH^^›ÛX›XÚÈ^\Û]KNMLİ]_OÚÛ\ÜÓ˜[YOH›]LÈXY[™ËMÈ^\Û]KMŒİ^OÜØ\XÛOÂŸB
+export default async function ProfilePage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select(
+      "full_name, avatar_url, favorite_scripture, date_of_salvation, date_of_baptism, role, preview_role, ministry_availability, missed_assignment_count, reinstatement_requested_at"
+    )
+    .eq("id", user.id)
+    .single();
+
+  const firstName = profile?.full_name?.trim().split(" ")[0] || "friend";
+
+  return (
+    <main className="lfp-page pb-20">
+      <section className="relative overflow-hidden bg-slate-950 text-white">
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_85%_10%,rgba(124,58,237,0.3),transparent_32rem),radial-gradient(circle_at_10%_100%,rgba(245,190,67,0.18),transparent_28rem)]" />
+        <div className="lfp-shell relative py-14 sm:py-20">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Your Profile</p>
+          <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">Your story matters, {firstName}.</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">Manage the personal details, faith milestones, and account information that shape your experience across The Lost and Found Project.</p>
+        </div>
+      </section>
+
+      <div className="lfp-shell py-10 sm:py-14">
+        <section className="grid gap-5 md:grid-cols-3">
+          <ProfileValue icon="ğŸ‘¤" title="Be known" text="Keep your name and profile information current so the platform can serve you personally." />
+          <ProfileValue icon="ğŸ“–" title="Remember your anchors" text="Record important faith milestones and the Scripture that continues to shape your walk." />
+          <ProfileValue icon="ğŸ›¡" title="Manage your access" text="Care-team and administrative controls remain available only to the roles already authorized." />
+        </section>
+
+        <section className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-white/92 shadow-2xl">
+          <ProfileClient
+            email={user.email ?? ""}
+            createdAt={user.created_at}
+            initialFullName={profile?.full_name ?? ""}
+            initialAvatarUrl={profile?.avatar_url ?? ""}
+            initialFavoriteScripture={profile?.favorite_scripture ?? ""}
+            initialDateOfSalvation={profile?.date_of_salvation ?? ""}
+            initialDateOfBaptism={profile?.date_of_baptism ?? ""}
+            isRealAdmin={profile?.role === "admin"}
+            initialPreviewRole={profile?.preview_role ?? ""}
+            isCareTeamMember={["admin", "prayer_team", "pastor"].includes(profile?.role ?? "")}
+            initialRotationStatus={profile?.ministry_availability ?? "available"}
+            initialMissedAssignmentCount={profile?.missed_assignment_count ?? 0}
+            initialReinstatementRequestedAt={profile?.reinstatement_requested_at ?? null}
+          />
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function ProfileValue({ icon, title, text }: { icon: string; title: string; text: string }) {
+  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
+}

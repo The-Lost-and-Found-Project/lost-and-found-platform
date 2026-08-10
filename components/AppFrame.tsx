@@ -1,5 +1,29 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçH\ÙHÛY[Â‚š[\ÜÈ\ÙT]˜[YHHœ›ÛH›™^Û˜]šYØ][ÛˆÂš[\Ü›İÛS˜]ˆœ›ÛHØÛÛ\Û™[ËĞ›İÛS˜]ˆÂš[\Ü›İ][Û”İ]\Ó[Ù[œ›ÛHØÛÛ\Û™[ËÔ›İ][Û”İ]\Ó[Ù[Âš[\Ü\]S›İYšY\ˆœ›ÛHØÛÛ\Û™[ËÕ\]S›İYšY\ˆÂ‚™^ÜY˜][[˜İ[Ûˆ\œ˜[YJÂˆXY\‹ˆÚ[™[‹ŸNˆÂˆXY\ˆ™XXİ”™XXİ›ÙNÂˆÚ[™[ˆ™XXİ”™XXİ›ÙNÂŸJHÂˆÛÛœİ]˜[YHH\ÙT]˜[YJ
-NÂˆÛÛœİ\Ñ[[X]\ÈH]˜[YKœİ\ÕÚ]
-‹Ù[[X]\ÈŠNÂ‚ˆ™]\›ˆ
-ˆ‚ˆÈZ\Ñ[[X]\È	‰ˆXY\ŸBˆXZ[ˆYH›XZ[‹XÛÛ[ˆÛ\ÜÓ˜[YO^Ú\Ñ[[X]\ÈÈˆˆˆœ‹LŸHX’[™^^ËL_O‚ˆØÚ[™[ŸBˆÛXZ[‚ˆÈZ\Ñ[[X]\È	‰ˆ›İÛS˜]ˆÏŸBˆÈZ\Ñ[[X]\È	‰ˆ›İ][Û”İ]\Ó[Ù[ÏŸBˆ\]S›İYšY\ˆÏ‚ˆÏ‚ˆ
-NÂŸB
+"use client";
+
+import { usePathname } from "next/navigation";
+import BottomNav from "@/components/BottomNav";
+import RotationStatusModal from "@/components/RotationStatusModal";
+import UpdateNotifier from "@/components/UpdateNotifier";
+
+export default function AppFrame({
+  header,
+  children,
+}: {
+  header: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const isEmmaus = pathname.startsWith("/emmaus");
+
+  return (
+    <>
+      {!isEmmaus && header}
+      <main id="main-content" className={isEmmaus ? "" : "pb-24"} tabIndex={-1}>
+        {children}
+      </main>
+      {!isEmmaus && <BottomNav />}
+      {!isEmmaus && <RotationStatusModal />}
+      <UpdateNotifier />
+    </>
+  );
+}

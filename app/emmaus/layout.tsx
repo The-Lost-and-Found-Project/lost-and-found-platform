@@ -1,9 +1,25 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™Y\™XİHœ›ÛH›™^Û˜]šYØ][ÛˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\Ü[[X]\Ğ›İÛS˜]ˆœ›ÛHØÛÛ\Û™[ËÙ[[X]\ËÑ[[X]\Ğ›İÛS˜]ˆÂ‚™^ÜY˜][\Ş[˜È[˜İ[Ûˆ[[X]\Ó^[İ]
-ÂˆÚ[™[‹ŸNˆÂˆÚ[™[ˆ™XXİ”™XXİ›ÙNÂŸJHÂˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import EmmausBottomNav from "@/components/emmaus/EmmausBottomNav";
 
-NÂˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂ‚ˆYˆ
-]\Ù\ŠHÂˆ™Y\™Xİ
-‹ÛÙÚ[ˆŠNÂˆB‚ˆ™]\›ˆ
-ˆ]ˆÛ\ÜÓ˜[YOH›Z[‹Z\ØÜ™Y[ˆ‹LÎœ‹L‚ˆØÚ[™[ŸBˆ[[X]\Ğ›İÛS˜]ˆÏ‚ˆÙ]‚ˆ
-NÂŸB
+export default async function EmmausLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  return (
+    <div className="min-h-screen pb-24 lg:pb-0">
+      {children}
+      <EmmausBottomNav />
+    </div>
+  );
+}

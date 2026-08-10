@@ -1,125 +1,266 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™^™\]Y\İ™^™\ÜÛœÙHHœ›ÛH›™^ÜÙ\™\ˆÂš[\ÜÈÜ™X]PYZ[ÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØYZ[ˆÂ‚˜ÛÛœİÑU‘S—ÑVT×ÓTÈHÈ
-ˆ
-ˆŒ
-ˆŒ
-ˆLÂ‚‹ËÈ[œÈZ[HšXH™\˜Ù[Ü›Ûˆ
-ÙYH™\˜Ù[šœÛÛŠKˆÛİ™\œÈ›İ\ˆ[™ÜÈZ[Û‚‹ËÈHØ[YHËY^KZYHÚYÛ˜[
-\İØXİ[Û—Ø][\YÚ[™]™\ˆH˜^Y\‚‹ËÈ\™\ˆÚXÚÜÈÙ™ˆ[ˆXİ[Ûˆ][HÛˆÜ˜^Y\‹X\ÜÚYÛ›Y[ÊN‚‹ËÂ‹ËÈKˆYZ[œËÜ\İÜœÈÙ]H[™Y[\X›İ]™\]Y\İÈ]]™HÛÛ™B‹ËÈÊÈ^\ÈÚ]İ][ˆXİ[Ûˆ™Z[™ÈZÙ[‹‚‹ËÈ‹ˆHİX›Z][™ÈY[X™\ˆÙ]È\ÚÙYÈÚXÚÈ[ˆÛˆZ\ˆİÛˆ™\]Y\İ‹ËÈšXHH›İ\ˆÜ[ÛœÈ]Û^KZ›İ\›™^OØÚXÚÚ[OY‹‚‹ËÈËˆ[ˆ[˜][™Y\ÜÚYÛ›Y[[Z]È™]ÈZ[š\İH\ÜÚYÛ›Y[Ë›YÜÈB‹ËÈ›Û[Y\ˆ›Üˆ[X[ˆ™]šY]Ë[™™X\ÜÚYÛœÈH™\]Y\İˆ]™]™\‚‹ËÈ\ØX›\ÈÙÚ[ˆÜˆ]]ÛX]XØ[HXXİ]˜]\È[ˆXØÛİ[‚‹ËÂ‹ËÈÛÛXš[™Y[ÈÛ™HÜ›Ûˆ›Øˆ
-˜]\ˆ[ˆÙ]™\˜[
-HÈİ^HÚ][ˆ™\˜Ù[	ÜÂ‹ËÈ\‹\›Ú™XİÜ›Ûˆ›Øˆ[Z][Û™ÜÚYHH^\İ[™ÈÙYZÛKYYÙ\İ[™‹ËÈ\˜Ú]™K\İ[K\™\]Y\İÈ›ØœËˆÙHÛ‰İÙ[™[XZ[›Üˆ[HÙˆ\È8 %‹ËÈ[œÙ\[™È[È›İYšXØ][ÛœØ\È[›İYÚÚ[˜ÙHH›İYšXØ][Û‹XÜ™X]Y‹ËÈÙXšÛÚÈ]]ÛX]XØ[H\›œÈ]™\H[œÙ\[ÈH\Ú›İYšXØ][ÛˆÛË‚‹ËÂ‹ËÈY\ˆYZ[—ÚYWÛ›İYšYYØ]ÈÚXÚÚ[—Û›İYšYYØ]XXÚ˜XÚÈH\İ‹ËÈ[YHÙHYÙY›ÜˆHÚ]™[ˆ™\]Y\İ
-Ø]YY[˜ÙKØ[YH\È™Y›Ü™KˆH™YÛXİ‹ËÈ]\ÙH]Ù[ˆ\È˜]\˜[HÙ[‹[[Z][™È8 %Û˜ÙHÛÛY[Û™H\È]\ÙYB‹ËÈ›İ][ÛˆšYÙÙ\ˆİÜÈ\ÜÚYÛš[™ÈÈ[H[™Z\ˆ^\İ[™È\ÜÚYÛ›Y[Â‹ËÈÙ]™X\ÜÚYÛ™Y]Ø^KÛÈ\™IÜÈ›İ[™ÈYÈ™K]šYÙÙ\ˆH]\ÙHB‹ËÈ™^[YH\ÈÜ›Ûˆ[œË‚™^Ü\Ş[˜È[˜İ[ÛˆÑU
-™\]Y\İˆ™^™\]Y\İ
-HÂˆÛÛœİ]]XY\ˆH™\]Y\İšXY\œË™Ù]
-˜]]Üš^˜][ÛˆŠNÂˆYˆ
-]]XY\ˆOOH™X\™\ˆ	Ü›ØÙ\ÜË™[‹Ô“Ó—ÔÑPÔ‘UX
-HÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ•[˜]]Üš^™YˆKÈİ]\ÎˆHJNÂˆB‚ˆHÂˆÛÛœİİ\X˜\ÙHHÜ™X]PYZ[ÛY[
+import { NextRequest, NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-NÂˆÛÛœİİ]Ù™ˆH™]È]J]K››İÊ
-HHÑU‘S—ÑVT×ÓTÊKÒTÓÔİš[™Ê
-NÂ‚ˆÛÛœİÈ]Nˆİ[T™\]Y\İË\œ›Üˆİ[Q\œ›ÜˆHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆœÙ[Xİ
-ˆšY™\]Y\İİ^˜[YK\×Ø[›Û[[İ\Ë\Ù\—ÚY\ÜÚYÛ™YİË\İØXİ[Û—Ø]YZ[—ÚYWÛ›İYšYYØ]ÚXÚÚ[—Û›İYšYYØ]‚ˆ
-Bˆ™\J˜[œİÙ\™Y‹˜[ÙJBˆ™\J˜\˜Ú]™Y‹˜[ÙJBˆ›J›\İØXİ[Û—Ø]‹İ]Ù™ŠNÂ‚ˆYˆ
-İ[Q\œ›ÜŠH›İÈİ[Q\œ›ÜÂ‚ˆÛÛœİ™\İ[HÂˆYZ[œÓ›İYšYYˆˆİ[P\ÜÚYÛ›Y[Ûİ[ˆˆY[X™\œÓ›İYšYYˆˆ]\ÙY›Ü“™YÛXİˆˆNÂ‚ˆYˆ
-İ[T™\]Y\İÈ	‰ˆİ[T™\]Y\İË›[™İˆ
-HÂˆËÈKKHYZ[‹Ü\İÜˆ[™Nˆ\ÜÚYÛ™Y
-ÈYH›ÜˆH
-™KJ[YÙHKKBˆÛÛœİYQ›ÜYZ[“YÙHHİ[T™\]Y\İË™š[\Šˆ
-ŠHO‚ˆ‹˜\ÜÚYÛ™YİÈ	‰‚ˆ
-\‹˜YZ[—ÚYWÛ›İYšYYØ]‹˜YZ[—ÚYWÛ›İYšYYØ]Hİ]Ù™ŠBˆ
-NÂ‚ˆYˆ
-YQ›ÜYZ[“YÙK›[™İˆ
-HÂˆÛÛœİ\ÜÚYÛ™YRYÈH\œ˜^K™œ›ÛJˆ™]ÈÙ]
-YQ›ÜYZ[“YÙK›X\
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
-ŠHOˆ‹˜\ÜÚYÛ™YİÈ\Èİš[™ÊJBˆ
-NÂ‚ˆÛÛœİÈ]Nˆ\ÜÚYÛ™Y\Ë\œ›Üˆ\ÜÚYÛ™Y\Ñ\œ›ÜˆHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
-šY[Û˜[YKZ\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ŠBˆš[ŠšY‹\ÜÚYÛ™YRYÊNÂ‚ˆYˆ
-\ÜÚYÛ™Y\Ñ\œ›ÜŠH›İÈ\ÜÚYÛ™Y\Ñ\œ›ÜÂ‚ˆÛÛœİ\ÜÚYÛ™YS˜[YPRYˆ™XÛÜ™İš[™Ëİš[™ÏˆHßNÂˆ
-\ÜÚYÛ™Y\ÈÏÈ×JK™›Ü‘XXÚ
+// Runs daily via Vercel Cron (see vercel.json). Covers four things built on
+// the same 7-day-idle signal (last_action_at, bumped whenever a prayer
+// partner checks off an action item on /prayer-assignments):
+//
+//   1. Admins/pastors get a bundled alert about requests that have gone
+//      7+ days without an action being taken.
+//   2. The submitting member gets asked to check in on their own request
+//      via the four options at /my-journey?checkin=<id>.
+//   3. An unattended assignment limits new ministry assignments, flags the
+//      volunteer for human review, and reassigns the request. It never
+//      disables login or automatically deactivates an account.
+//
+// Combined into one cron job (rather than several) to stay within Vercel's
+// per-project cron job limit alongside the existing weekly-digest and
+// archive-stale-requests jobs. We don't send email for any of this â€”
+// inserting into `notifications` is enough, since the notification-created
+// webhook automatically turns every insert into a push notification too.
+//
+// Dedup: admin_idle_notified_at / checkin_notified_at each track the last
+// time we nudged for a given request+audience, same as before. The neglect
+// pause itself is naturally self-limiting â€” once someone is paused, the
+// rotation trigger stops assigning to them and their existing assignments
+// get reassigned away, so there's nothing left to re-trigger a pause the
+// next time this cron runs.
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-JHOˆÂˆ\ÜÚYÛ™YS˜[YPRYØKšYHHK™[Û˜[YHÏÈZ\ˆ˜^Y\ˆ\™\ˆÂˆJNÂ‚ˆÛÛœİÈ]NˆYZ[œË\œ›ÜˆYZ[œÑ\œ›ÜˆHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
-šYŠBˆš[Šœ›ÛH‹È˜YZ[ˆ‹œ\İÜˆ—JNÂ‚ˆYˆ
-YZ[œÑ\œ›ÜŠH›İÈYZ[œÑ\œ›ÜÂ‚ˆYˆ
-YZ[œÈ	‰ˆYZ[œË›[™İˆ
-HÂˆÛÛœİ[™\ÈHYQ›ÜYZ[“YÙK›X\
+  try {
+    const supabase = createAdminClient();
+    const cutoff = new Date(Date.now() - SEVEN_DAYS_MS).toISOString();
 
-ŠHOˆÂˆÛÛœİ^\ÈHX]™›ÛÜŠˆ
-]K››İÊ
-HH™]È]J‹›\İØXİ[Û—Ø]
-K™Ù][YJ
-JHÂˆ
-L
-ˆŒ
-ˆŒ
-ˆ
-Bˆ
-NÂˆÛÛœİX™[H‹š\×Ø[›Û[[İ\ÈÈ[ˆ[›Û[[İ\È™\]Y\İˆˆ‹›˜[YHÏÈH™\]Y\İÂˆÛÛœİ\ÜÚYÛ™YS˜[YHH\ÜÚYÛ™YS˜[YPRYÜ‹˜\ÜÚYÛ™YİÈ\Èİš[™×HÏÈZ\ˆ˜^Y\ˆ\™\ˆÂˆ™]\›ˆ	ÛX™[H
-\ÜÚYÛ™YÈ	Ø\ÜÚYÛ™YS˜[Y_JH8 %	Ù^\ßH^\ÈÚ[˜ÙH\İXİ[Û˜ÂˆJNÂ‚ˆÛÛœİ]HBˆYQ›ÜYZ[“YÙK›[™İOOHBˆÈH˜^Y\ˆ™\]Y\İ™YYÈ][[Ûˆ‚ˆˆ	ÙYQ›ÜYZ[“YÙK›[™İH˜^Y\ˆ™\]Y\İÈ™YY][[Û˜ÂˆÛÛœİ›ÙHH	Û[™\ËœÛXÙJJKš›Ú[ŠÈŠ_IÂˆ[™\Ë›[™İˆHÈÈ[™	Û[™\Ë›[™İH_H[Ü™Xˆˆ‚ˆK˜Â‚ˆÛÛœİÈ\œ›Üˆ[œÙ\\œ›ÜˆHH]ØZ]İ\X˜\ÙK™œ›ÛJ››İYšXØ][ÛœÈŠKš[œÙ\
-ˆYZ[œË›X\
+    const { data: staleRequests, error: staleError } = await supabase
+      .from("prayer_requests")
+      .select(
+        "id, request_text, name, is_anonymous, user_id, assigned_to, last_action_at, admin_idle_notified_at, checkin_notified_at"
+      )
+      .eq("answered", false)
+      .eq("archived", false)
+      .lte("last_action_at", cutoff);
 
-YZ[ŠHOˆ
-Âˆ\Ù\—ÚYˆYZ[‹šYˆ\NˆšYWØ\ÜÚYÛ›Y[‹ˆ]Kˆ›ÙKˆ[šÎˆ‹ØYZ[ˆ‹ˆJJBˆ
-NÂ‚ˆYˆ
-[œÙ\\œ›ÜŠH›İÈ[œÙ\\œ›ÜÂ‚ˆÛÛœİÈ\œ›Üˆ\]Q\œ›ÜˆHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆ\]JÈYZ[—ÚYWÛ›İYšYYØ]ˆ™]È]J
-KÒTÓÔİš[™Ê
-HJBˆš[ŠˆšY‹ˆYQ›ÜYZ[“YÙK›X\
+    if (staleError) throw staleError;
 
-ŠHOˆ‹šY
-Bˆ
-NÂ‚ˆYˆ
-\]Q\œ›ÜŠH›İÈ\]Q\œ›ÜÂ‚ˆ™\İ[˜YZ[œÓ›İYšYYHYZ[œË›[™İÂˆ™\İ[œİ[P\ÜÚYÛ›Y[Ûİ[HYQ›ÜYZ[“YÙK›[™İÂˆBˆB‚ˆËÈKKHY[X™\ˆÚXÚËZ[ˆİÛ™\ˆ
-ÈYH›ÜˆH
-™KJ[YÙHKKBˆÛÛœİYQ›Ü“Y[X™\“YÙHHİ[T™\]Y\İË™š[\Šˆ
-ŠHO‚ˆ‹\Ù\—ÚY	‰‚ˆ
-\‹˜ÚXÚÚ[—Û›İYšYYØ]‹˜ÚXÚÚ[—Û›İYšYYØ]Hİ]Ù™ŠBˆ
-NÂ‚ˆYˆ
-YQ›Ü“Y[X™\“YÙK›[™İˆ
-HÂˆÛÛœİÈ\œ›Üˆ[œÙ\\œ›ÜˆHH]ØZ]İ\X˜\ÙK™œ›ÛJ››İYšXØ][ÛœÈŠKš[œÙ\
-ˆYQ›Ü“Y[X™\“YÙK›X\
+    const result = {
+      adminsNotified: 0,
+      staleAssignmentCount: 0,
+      membersNotified: 0,
+      pausedForNeglect: 0,
+    };
 
-ŠHOˆ
-Âˆ\Ù\—ÚYˆ‹\Ù\—ÚYˆ\Nˆ˜ÚXÚ×Ú[—Û™YYY‹ˆ]Nˆ’İÉÜÈ\È˜^Y\ˆ™\]Y\İÛÚ[™ÏÈ‹ˆ›ÙNˆ]	ÜÈ™Y[ˆX›İ]HÙYZÈÚ[˜ÙH\™HØ\È[ˆ\]HÛˆ‰Ü‹œ™\]Y\İİ^œÛXÙJˆˆLŒˆ
-_H‹ˆ]\ÈÛ›İÈYˆ[İHİ[™YY˜^Y\‹]	ÜÈ™Y[ˆ[œİÙ\™YÜˆ[İIÙZÙHÈ\]HÜˆ™[[İ™H]˜ˆ[šÎˆÛ^KZ›İ\›™^OØÚXÚÚ[IÜ‹šYXˆJJBˆ
-NÂ‚ˆYˆ
-[œÙ\\œ›ÜŠH›İÈ[œÙ\\œ›ÜÂ‚ˆÛÛœİÈ\œ›Üˆ\]Q\œ›ÜˆHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆ\]JÈÚXÚÚ[—Û›İYšYYØ]ˆ™]È]J
-KÒTÓÔİš[™Ê
-HJBˆš[ŠˆšY‹ˆYQ›Ü“Y[X™\“YÙK›X\
+    if (staleRequests && staleRequests.length > 0) {
+      // --- Admin/pastor bundle: assigned + due for a (re-)nudge ---
+      const dueForAdminNudge = staleRequests.filter(
+        (r) =>
+          r.assigned_to &&
+          (!r.admin_idle_notified_at || r.admin_idle_notified_at <= cutoff)
+      );
 
-ŠHOˆ‹šY
-Bˆ
-NÂ‚ˆYˆ
-\]Q\œ›ÜŠH›İÈ\]Q\œ›ÜÂ‚ˆ™\İ[›Y[X™\œÓ›İYšYYHYQ›Ü“Y[X™\“YÙK›[™İÂˆB‚ˆËÈKKH™YÛXİ]]Ë\]\ÙNˆ\ÜÚYÛ™YH\ÈHİ[H\ÜÚYÛ›Y[[™\ÂˆËÈİ[Xİ]™[H\XÚ\][™È[ˆ›İ][ÛˆKKBˆÛÛœİİ[P\ÜÚYÛ™YRYÈH\œ˜^K™œ›ÛJˆ™]ÈÙ]
-ˆİ[T™\]Y\İË™š[\Š
-ŠHOˆ‹˜\ÜÚYÛ™YİÊK›X\
+      if (dueForAdminNudge.length > 0) {
+        const assigneeIds = Array.from(
+          new Set(dueForAdminNudge.map((r) => r.assigned_to as string))
+        );
 
-ŠHOˆ‹˜\ÜÚYÛ™YİÈ\Èİš[™ÊBˆ
-Bˆ
-NÂ‚ˆYˆ
-İ[P\ÜÚYÛ™YRYË›[™İˆ
-HÂˆÛÛœİÈ]Nˆ›İ][Û”›Ùš[\Ë\œ›Üˆ›İ][Û”›Ùš[\Ñ\œ›ÜˆHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
-šY[Û˜[YKZ\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ŠBˆš[ŠšY‹İ[P\ÜÚYÛ™YRYÊBˆ™\Jœ›İ][Û—Üİ]\È‹˜Xİ]™HŠNÂ‚ˆYˆ
-›İ][Û”›Ùš[\Ñ\œ›ÜŠH›İÈ›İ][Û”›Ùš[\Ñ\œ›ÜÂ‚ˆ›Üˆ
-ÛÛœİœÙˆ›İ][Û”›Ùš[\ÈÏÈ×JHÂˆÛÛœİÈ\œ›Üˆ]\ÙQ\œ›ÜˆHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆ\]JÂˆZ[š\İWØ]˜Z[Xš[]Nˆ›[Z]Y‹ˆZ\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ˆ
-œ›Z\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ÏÈ
-H
-ÈKˆ]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™YˆYKˆ]\ÙYØ]ˆ™]È]J
-KÒTÓÔİš[™Ê
-KˆJBˆ™\JšY‹œšY
-Bˆ™\Jœ›İ][Û—Üİ]\È‹˜Xİ]™HŠNÂ‚ˆYˆ
-]\ÙQ\œ›ÜŠH›İÈ]\ÙQ\œ›ÜÂ‚ˆÛÛœİÈ]NˆXİ]™P\ÜÚYÛ›Y[ÈHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆœÙ[Xİ
-ˆšYÛÛXİÜ™\]Y\İY˜^Y\—ØÛİ[Xİ[Û—ØÛÛXİYØ]Xİ[Û—Ü˜^YYØ]‚ˆ
-Bˆ™\J˜\ÜÚYÛ™YİÈ‹œšY
-Bˆ™\J˜[œİÙ\™Y‹˜[ÙJBˆ™\J˜\˜Ú]™Y‹˜[ÙJNÂ‚ˆ›Üˆ
-ÛÛœİ™\HÙˆXİ]™P\ÜÚYÛ›Y[ÈÏÈ×JHÂˆÛÛœİÈ]Nˆ™]Ğ\ÜÚYÛ™YRY\œ›Üˆ™X\ÜÚYÛ‘\œ›ÜˆHH]ØZ]İ\X˜\ÙKœœÊˆœ™X\ÜÚYÛ—Ü˜^Y\—Ü™\]Y\İ‹ˆÈ™\]Y\İÚYˆ™\KšY^ÛYWİ\Ù\—ÚYˆœšYBˆ
-NÂ‚ˆYˆ
-™X\ÜÚYÛ‘\œ›ÜŠHÂˆÛÛœÛÛK™\œ›ÜŠœ™X\ÜÚYÛ—Ü˜^Y\—Ü™\]Y\İ\œ›Üˆ‹™X\ÜÚYÛ‘\œ›ÜŠNÂˆÛÛ[YNÂˆB‚ˆYˆ
-[™]Ğ\ÜÚYÛ™YRY
-HÛÛ[YNÂ‚ˆÛÛœİ˜^YY^Bˆ
-™\Kœ˜^Y\—ØÛİ[ÏÈ
-Hˆ™\K˜Xİ[Û—Ü˜^YYØ]ˆÈ]\È[™XYH™Y[ˆ˜^YY›Ü‰Ü™\Kœ˜^Y\—ØÛİ[È
-	Ü™\Kœ˜^Y\—ØÛİ[H[YIÜ™\Kœ˜^Y\—ØÛİ[OOHHÈˆˆˆœÈŸJXˆˆŸK˜ˆˆ’]\È›İ™Y[ˆ˜^YY›ÜˆY]ˆÂ‚ˆÛÛœİÛÛXİ^H™\K˜ÛÛXİÜ™\]Y\İYˆÈ™\K˜Xİ[Û—ØÛÛXİYØ]ˆÈ•HİX›Z]\ˆ\ÚÙYÈ™HÛÛXİY[™\È[™XYH™Y[ˆ™XXÚYİ]Ëˆ‚ˆˆ•HİX›Z]\ˆ\ÚÙYÈ™HÛÛXİY[™\È›İ™Y[ˆ™XXÚYİ]ÈY]ˆ‚ˆˆ•HİX›Z]\ˆY›İ™\]Y\İ\™XİÛÛXİˆÂ‚ˆ]ØZ]İ\X˜\ÙK™œ›ÛJ››İYšXØ][ÛœÈŠKš[œÙ\
-Âˆ\Ù\—ÚYˆ™]Ğ\ÜÚYÛ™YRYˆ\Nˆœ˜^Y\—Ü™X\ÜÚYÛ™Y‹ˆ]NˆH˜^Y\ˆ™\]Y\İ\È™Y[ˆ™X\ÜÚYÛ™YÈ[İH‹ˆ›ÙNˆ\È™\]Y\İØ\È™]š[İ\ÛH\ÜÚYÛ™YÈ	Üœ™[Û˜[YH˜H˜^Y\ˆ\™\ˆŸH[™Ø\È™]\›™Y›Üˆ[Y[HØ\™Kˆ	Ü˜^YY^H	ØÛÛXİ^Xˆ[šÎˆ‹Ü˜^Y\‹X\ÜÚYÛ›Y[È‹ˆJNÂˆB‚ˆ]ØZ]İ\X˜\ÙK™œ›ÛJ››İYšXØ][ÛœÈŠKš[œÙ\
-Âˆ\Ù\—ÚYˆœšYˆ\Nˆœ›İ][Û—Ü]\ÙY‹ˆ]Nˆ“™]È˜^Y\ˆ\ÜÚYÛ›Y[È\™H[\Ü˜\š[H[Z]Y‹ˆ›ÙNˆ[ˆ\ÜÚYÛ›Y[Ù[ÊÈ^\ÈÚ]İ][ˆ\]KÛÈ]Ø\È™X\ÜÚYÛ™Y›Üˆ[Y[HØ\™Kˆ[İ\ˆÙÚ[ˆ™[XZ[œÈXİ]™KˆHØ\™HXY\ˆÚ[™]šY]È[İ\ˆZ[š\İH]˜Z[Xš[]H™Y›Ü™H™]È\ÜÚYÛ›Y[È™\İ[YKˆ‹ˆ[šÎˆ‹Ü›Ùš[H‹ˆJNÂ‚ˆ™\İ[œ]\ÙY›Ü“™YÛXİ
-ÏHNÂˆBˆBˆB‚ˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈİXØÙ\ÜÎˆYK‹‹œ™\İ[JNÂˆHØ]Ú
-\œŠHÂˆÛÛœÛÛK™\œ›ÜŠ››İYK\İ[KX\ÜÚYÛ›Y[È\œ›Üˆ‹\œŠNÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ•[™^XİY\œ›Üˆ[›š[™Èİ[KX\ÜÚYÛ›Y[YÙ\ÈˆKˆÈİ]\ÎˆLBˆ
-NÂˆBŸB
+        const { data: assignees, error: assigneesError } = await supabase
+          .from("profiles")
+          .select("id, full_name, missed_assignment_count")
+          .in("id", assigneeIds);
+
+        if (assigneesError) throw assigneesError;
+
+        const assigneeNameById: Record<string, string> = {};
+        (assignees ?? []).forEach((a) => {
+          assigneeNameById[a.id] = a.full_name ?? "their prayer partner";
+        });
+
+        const { data: admins, error: adminsError } = await supabase
+          .from("profiles")
+          .select("id")
+          .in("role", ["admin", "pastor"]);
+
+        if (adminsError) throw adminsError;
+
+        if (admins && admins.length > 0) {
+          const lines = dueForAdminNudge.map((r) => {
+            const days = Math.floor(
+              (Date.now() - new Date(r.last_action_at).getTime()) /
+                (1000 * 60 * 60 * 24)
+            );
+            const label = r.is_anonymous ? "An anonymous request" : r.name ?? "A request";
+            const assigneeName = assigneeNameById[r.assigned_to as string] ?? "their prayer partner";
+            return `${label} (assigned to ${assigneeName}) â€” ${days} days since last action`;
+          });
+
+          const title =
+            dueForAdminNudge.length === 1
+              ? "A prayer request needs attention"
+              : `${dueForAdminNudge.length} prayer requests need attention`;
+          const body = `${lines.slice(0, 5).join("; ")}${
+            lines.length > 5 ? `; and ${lines.length - 5} more` : ""
+          }.`;
+
+          const { error: insertError } = await supabase.from("notifications").insert(
+            admins.map((admin) => ({
+              user_id: admin.id,
+              type: "idle_assignment",
+              title,
+              body,
+              link: "/admin",
+            }))
+          );
+
+          if (insertError) throw insertError;
+
+          const { error: updateError } = await supabase
+            .from("prayer_requests")
+            .update({ admin_idle_notified_at: new Date().toISOString() })
+            .in(
+              "id",
+              dueForAdminNudge.map((r) => r.id)
+            );
+
+          if (updateError) throw updateError;
+
+          result.adminsNotified = admins.length;
+          result.staleAssignmentCount = dueForAdminNudge.length;
+        }
+      }
+
+      // --- Member check-in: owner + due for a (re-)nudge ---
+      const dueForMemberNudge = staleRequests.filter(
+        (r) =>
+          r.user_id &&
+          (!r.checkin_notified_at || r.checkin_notified_at <= cutoff)
+      );
+
+      if (dueForMemberNudge.length > 0) {
+        const { error: insertError } = await supabase.from("notifications").insert(
+          dueForMemberNudge.map((r) => ({
+            user_id: r.user_id,
+            type: "check_in_needed",
+            title: "How's this prayer request going?",
+            body: `It's been about a week since there was an update on: "${r.request_text.slice(
+              0,
+              120
+            )}". Let us know if you still need prayer, it's been answered, or you'd like to update or remove it.`,
+            link: `/my-journey?checkin=${r.id}`,
+          }))
+        );
+
+        if (insertError) throw insertError;
+
+        const { error: updateError } = await supabase
+          .from("prayer_requests")
+          .update({ checkin_notified_at: new Date().toISOString() })
+          .in(
+            "id",
+            dueForMemberNudge.map((r) => r.id)
+          );
+
+        if (updateError) throw updateError;
+
+        result.membersNotified = dueForMemberNudge.length;
+      }
+
+      // --- Neglect auto-pause: assignee has a stale assignment and is
+      // still actively participating in rotation ---
+      const staleAssigneeIds = Array.from(
+        new Set(
+          staleRequests.filter((r) => r.assigned_to).map((r) => r.assigned_to as string)
+        )
+      );
+
+      if (staleAssigneeIds.length > 0) {
+        const { data: rotationProfiles, error: rotationProfilesError } = await supabase
+          .from("profiles")
+          .select("id, full_name, missed_assignment_count")
+          .in("id", staleAssigneeIds)
+          .eq("rotation_status", "active");
+
+        if (rotationProfilesError) throw rotationProfilesError;
+
+        for (const rp of rotationProfiles ?? []) {
+          const { error: pauseError } = await supabase
+            .from("profiles")
+            .update({
+              ministry_availability: "limited",
+              missed_assignment_count: (rp.missed_assignment_count ?? 0) + 1,
+              availability_review_required: true,
+              paused_at: new Date().toISOString(),
+            })
+            .eq("id", rp.id)
+            .eq("rotation_status", "active");
+
+          if (pauseError) throw pauseError;
+
+          const { data: activeAssignments } = await supabase
+            .from("prayer_requests")
+            .select(
+              "id, contact_requested, prayer_count, action_contacted_at, action_prayed_at"
+            )
+            .eq("assigned_to", rp.id)
+            .eq("answered", false)
+            .eq("archived", false);
+
+          for (const req of activeAssignments ?? []) {
+            const { data: newAssigneeId, error: reassignError } = await supabase.rpc(
+              "reassign_prayer_request",
+              { request_id: req.id, exclude_user_id: rp.id }
+            );
+
+            if (reassignError) {
+              console.error("reassign_prayer_request error:", reassignError);
+              continue;
+            }
+
+            if (!newAssigneeId) continue;
+
+            const prayedText =
+              (req.prayer_count ?? 0) > 0 || req.action_prayed_at
+                ? `It has already been prayed for${req.prayer_count ? ` (${req.prayer_count} time${req.prayer_count === 1 ? "" : "s"})` : ""}.`
+                : "It has not been prayed for yet.";
+
+            const contactText = req.contact_requested
+              ? req.action_contacted_at
+                ? "The submitter asked to be contacted and has already been reached out to."
+                : "The submitter asked to be contacted and has not been reached out to yet."
+              : "The submitter did not request direct contact.";
+
+            await supabase.from("notifications").insert({
+              user_id: newAssigneeId,
+              type: "prayer_reassigned",
+              title: "A prayer request has been reassigned to you",
+              body: `This request was previously assigned to ${rp.full_name || "a prayer partner"} and was returned for timely care. ${prayedText} ${contactText}`,
+              link: "/prayer-assignments",
+            });
+          }
+
+          await supabase.from("notifications").insert({
+            user_id: rp.id,
+            type: "rotation_paused",
+            title: "New prayer assignments are temporarily limited",
+            body: "An assignment went 7+ days without an update, so it was reassigned for timely care. Your login remains active. A care leader will review your ministry availability before new assignments resume.",
+            link: "/profile",
+          });
+
+          result.pausedForNeglect += 1;
+        }
+      }
+    }
+
+    return NextResponse.json({ success: true, ...result });
+  } catch (err) {
+    console.error("notify-stale-assignments error:", err);
+    return NextResponse.json(
+      { error: "Unexpected error running stale-assignment nudges" },
+      { status: 500 }
+    );
+  }
+}

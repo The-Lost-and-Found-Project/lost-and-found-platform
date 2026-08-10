@@ -1,28 +1,59 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™^™\]Y\İ™^™\ÜÛœÙHHœ›ÛH›™^ÜÙ\™\ˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\ÜÈÜ™X]PYZ[ÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØYZ[ˆÂ‚˜ÛÛœİSÕÑQĞURSP’SUHHÈ˜]˜Z[X›H‹›[Z]Y‹˜]Ø^H‹š[˜Xİ]™H—NÂ‚™^Ü\Ş[˜È[˜İ[ÛˆÔÕ
-™\]Y\İˆ™^™\]Y\İ
-HÂˆHÂˆÛÛœİÈ\Ù\’Y]˜Z[Xš[]HHH]ØZ]™\]Y\İšœÛÛŠ
-NÂˆYˆ
-]\Ù\’YPSÕÑQĞURSP’SUKš[˜ÛY\Ê]˜Z[Xš[]JJHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ“Z\ÜÚ[™ÈÜˆ[˜[Y]˜Z[Xš[]HˆKÈİ]\ÎˆJNÂˆB‚ˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-NÂˆÛÛœİÈ]NˆÈ\Ù\ˆHHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂˆYˆ
-]\Ù\ŠH™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ“›İ]][XØ]YˆKÈİ]\ÎˆHJNÂ‚ˆÛÛœİÈ]NˆØ[\”›Ùš[HHH]ØZ]İ\X˜\ÙK™œ›ÛJœ›Ùš[\ÈŠKœÙ[Xİ
-œ›ÛHŠK™\JšY‹\Ù\‹šY
-KœÚ[™ÛJ
-NÂˆYˆ
-Ø[\”›Ùš[OËœ›ÛHOOH˜YZ[ˆŠH™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›ÜˆYZ[œÈÛ›HˆKÈİ]\ÎˆÈJNÂ‚ˆÛÛœİYZ[ˆHÜ™X]PYZ[ÛY[
+const ALLOWED_AVAILABILITY = ["available", "limited", "away", "inactive"];
 
-NÂˆYˆ
-]˜Z[Xš[]HOOH˜]˜Z[X›HŠHÂˆÛÛœİÈ]Nˆ™\ÜÛœÚXš[]Y\Ë\œ›Üˆ™\ÜÛœÚXš[]Y\Ñ\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆœÙ[Xİ
-šYŠBˆ™\J˜\ÜÚYÛ™YİÈ‹\Ù\’Y
-Bˆ™\J˜[œİÙ\™Y‹˜[ÙJBˆ™\J˜\˜Ú]™Y‹˜[ÙJNÂˆYˆ
-™\ÜÛœÚXš[]Y\Ñ\œ›ÜŠH›İÈ™\ÜÛœÚXš[]Y\Ñ\œ›ÜÂ‚ˆ›Üˆ
-ÛÛœİ™\ÜÛœÚXš[]HÙˆ™\ÜÛœÚXš[]Y\ÈÏÈ×JHÂˆÛÛœİÈ]Nˆ™]Ğ\ÜÚYÛ™YK\œ›Üˆ™X\ÜÚYÛ‘\œ›ÜˆHH]ØZ]YZ[‹œœÊœ™X\ÜÚYÛ—Ü˜^Y\—Ü™\]Y\İ‹Âˆ™\]Y\İÚYˆ™\ÜÛœÚXš[]KšYˆ^ÛYWİ\Ù\—ÚYˆ\Ù\’YˆJNÂˆYˆ
-™X\ÜÚYÛ‘\œ›ÜŠH›İÈ™X\ÜÚYÛ‘\œ›ÜÂ‚ˆÛÛœİÈ\œ›Üˆİ]\Ñ\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆ\]JÈİ]\Îˆ™]Ğ\ÜÚYÛ™YHÈ\ÜÚYÛ™Yˆˆ“™YYÈ™X\ÜÚYÛ›Y[ˆJBˆ™\JšY‹™\ÜÛœÚXš[]KšY
-NÂˆYˆ
-İ]\Ñ\œ›ÜŠH›İÈİ]\Ñ\œ›ÜÂˆBˆB‚ˆÛÛœİÚ[™Ù\ÈHÂˆZ[š\İWØ]˜Z[Xš[]Nˆ]˜Z[Xš[]Kˆ]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™Yˆ˜[ÙKˆ]\ÙYØ]ˆ]˜Z[Xš[]HOOH˜]˜Z[X›HˆÈ[ˆ™]È]J
-KÒTÓÔİš[™Ê
-KˆNÂˆÛÛœİÈ\œ›ÜˆHH]ØZ]YZ[‹™œ›ÛJœ›Ùš[\ÈŠK\]JÚ[™Ù\ÊK™\JšY‹\Ù\’Y
-NÂˆYˆ
-\œ›ÜŠH›İÈ\œ›ÜÂ‚ˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈİXØÙ\ÜÎˆYHJNÂˆHØ]Ú
-\œ›ÜŠHÂˆÛÛœÛÛK™\œ›ÜŠœÙ]X]˜Z[Xš[]H\œ›Üˆ‹\œ›ÜŠNÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ•[™^XİY\œ›Üˆ\][™ÈZ[š\İH]˜Z[Xš[]HˆKÈİ]\ÎˆLJNÂˆBŸB
+export async function POST(request: NextRequest) {
+  try {
+    const { userId, availability } = await request.json();
+    if (!userId || !ALLOWED_AVAILABILITY.includes(availability)) {
+      return NextResponse.json({ error: "Missing or invalid availability" }, { status: 400 });
+    }
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+    const { data: callerProfile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+    if (callerProfile?.role !== "admin") return NextResponse.json({ error: "Admins only" }, { status: 403 });
+
+    const admin = createAdminClient();
+    if (availability !== "available") {
+      const { data: responsibilities, error: responsibilitiesError } = await admin
+        .from("prayer_requests")
+        .select("id")
+        .eq("assigned_to", userId)
+        .eq("answered", false)
+        .eq("archived", false);
+      if (responsibilitiesError) throw responsibilitiesError;
+
+      for (const responsibility of responsibilities ?? []) {
+        const { data: newAssignee, error: reassignError } = await admin.rpc("reassign_prayer_request", {
+          request_id: responsibility.id,
+          exclude_user_id: userId,
+        });
+        if (reassignError) throw reassignError;
+
+        const { error: statusError } = await admin
+          .from("prayer_requests")
+          .update({ status: newAssignee ? "Assigned" : "Needs Reassignment" })
+          .eq("id", responsibility.id);
+        if (statusError) throw statusError;
+      }
+    }
+
+    const changes = {
+      ministry_availability: availability,
+      availability_review_required: false,
+      paused_at: availability === "available" ? null : new Date().toISOString(),
+    };
+    const { error } = await admin.from("profiles").update(changes).eq("id", userId);
+    if (error) throw error;
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("set-availability error:", error);
+    return NextResponse.json({ error: "Unexpected error updating ministry availability" }, { status: 500 });
+  }
+}

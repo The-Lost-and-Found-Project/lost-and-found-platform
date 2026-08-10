@@ -1,34 +1,64 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçH\ÙHÛY[Â‚š[\ÜÈ\ÙQY™™Xİ\ÙSY[[Ë\ÙTİ]HHœ›ÛHœ™XXİÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØÛY[Â‚‹ËÈZ[š\İH]˜Z[Xš[]HÛÛ›ÛÈ™]ÈØ\™H\ÜÚYÛ›Y[ÈÛ›Kˆ]™]™\ˆ\ØX›\Â‹ËÈÙÚ[ÈXØÛİ[XØÙ\ÜÈ™[XZ[œÈ[ˆ^XÚ]YZ[š\İ˜]]™HXÚ\Ú[Û‹‚™^ÜY˜][[˜İ[Ûˆ›İ][Û”İ]\Ó[Ù[
+"use client";
 
-HÂˆÛÛœİİ\X˜\ÙHH\ÙSY[[Ê
+import { useEffect, useMemo, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
-HOˆÜ™X]PÛY[
+// Ministry availability controls new care assignments only. It never disables
+// login; account access remains an explicit administrative decision.
+export default function RotationStatusModal() {
+  const supabase = useMemo(() => createClient(), []);
+  const [availability, setAvailability] = useState<string | null>(null);
+  const [missedAssignmentCount, setMissedAssignmentCount] = useState(0);
+  const [dismissed, setDismissed] = useState(false);
 
-K×JNÂˆÛÛœİØ]˜Z[Xš[]KÙ]]˜Z[Xš[]WHH\ÙTİ]Oİš[™È[Š[
-NÂˆÛÛœİÛZ\ÜÙY\ÜÚYÛ›Y[Ûİ[Ù]Z\ÜÙY\ÜÚYÛ›Y[Ûİ[HH\ÙTİ]J
-NÂˆÛÛœİÙ\ÛZ\ÜÙYÙ]\ÛZ\ÜÙYHH\ÙTİ]J˜[ÙJNÂ‚ˆ\ÙQY™™Xİ
+  useEffect(() => {
+    let cancelled = false;
 
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
 
-HOˆÂˆ]Ø[˜Ù[YH˜[ÙNÂ‚ˆ\Ş[˜È[˜İ[ÛˆØY
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("ministry_availability, missed_assignment_count")
+        .eq("id", user.id)
+        .single();
 
-HÂˆÛÛœİÈ]NˆÈ\Ù\ˆHHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂˆYˆ
-]\Ù\ˆØ[˜Ù[Y
-H™]\›Â‚ˆÛÛœİÈ]Nˆ›Ùš[HHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[Xİ
-›Z[š\İWØ]˜Z[Xš[]KZ\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ŠBˆ™\JšY‹\Ù\‹šY
-BˆœÚ[™ÛJ
-NÂ‚ˆYˆ
-XØ[˜Ù[Y
-HÂˆÙ]]˜Z[Xš[]J›Ùš[OË›Z[š\İWØ]˜Z[Xš[]HÏÈ˜]˜Z[X›HŠNÂˆÙ]Z\ÜÙY\ÜÚYÛ›Y[Ûİ[
-›Ùš[OË›Z\ÜÙYØ\ÜÚYÛ›Y[ØÛİ[ÏÈ
-NÂˆBˆB‚ˆ›ÚYØY
+      if (!cancelled) {
+        setAvailability(profile?.ministry_availability ?? "available");
+        setMissedAssignmentCount(profile?.missed_assignment_count ?? 0);
+      }
+    }
 
-NÂˆ™]\›ˆ
+    void load();
+    return () => { cancelled = true; };
+  }, [supabase]);
 
-HOˆÈØ[˜Ù[YHYNÈNÂˆKÜİ\X˜\ÙWJNÂ‚ˆYˆ
-\ÛZ\ÜÙY
-]˜Z[Xš[]HOOH›[Z]Yˆ	‰ˆ]˜Z[Xš[]HOOHš[˜Xİ]™HŠJHÂˆ™]\›ˆ[ÂˆB‚ˆÛÛœİ[Z]YH]˜Z[Xš[]HOOH›[Z]YÂ‚ˆ™]\›ˆ
-ˆ]ˆÛ\ÜÓ˜[YOH™š^Y[œÙ]L‹ML›^][\ËXÙ[\ˆ\İYKXÙ[\ˆ™ËX›XÚËÍM‚ˆ]ˆÛ\ÜÓ˜[YOHËY[X^]Ë\ÛH›İ[™YL™Ë]Ú]HMˆÚYİË^‚ˆˆÛ\ÜÓ˜[YOH^[È›Û\Ù[ZX›Û^YÜ˜^KNL‚ˆÛ[Z]YÈ“™]È˜^Y\ˆ\ÜÚYÛ›Y[È\™H[Z]Yˆˆ–[İH\™H›İ™XÙZ]š[™ÈZ[š\İH\ÜÚYÛ›Y[ÈŸBˆÚ‚ˆÛ\ÜÓ˜[YOH›]Lˆ^\ÛHXY[™ËMˆ^YÜ˜^KMŒ‚ˆÛ[Z]YˆÈ[ˆ[˜][™Y™\]Y\İØ\È™X\ÜÚYÛ™YÛÈH\œÛÛˆ™XÙZ]™\È[Y[HØ\™Kˆ[İ\ˆÙÚ[ˆ[™›Ü›X[\XØÙ\ÜÈ™[XZ[ˆXİ]™Kˆ	ÛZ\ÜÙY\ÜÚYÛ›Y[Ûİ[HˆÈHØ\™HXY\ˆ]\İ™]šY]È™\X]YZ\ÜÙY\ÜÚYÛ›Y[È™Y›Ü™H™]È\ÜÚYÛ›Y[È™\İ[YKˆˆˆ–[İHØ[ˆ™]\›ˆÈ]˜Z[X›Hœ›ÛH[İ\ˆ›Ùš[HÚ[ˆ[İH\™H™XYKˆŸXˆˆ–[İ\ˆZ[š\İH]˜Z[Xš[]H\È[˜Xİ]™K][İ\ˆXØÛİ[[™ÙÚ[ˆ™[XZ[ˆXİ]™Kˆ[ˆYZ[š\İ˜]ÜˆØ[ˆ™\İÜ™H\ÜÚYÛ›Y[]˜Z[Xš[]HY\ˆH[X[ˆ™]šY]ËˆŸBˆÜ‚ˆ]Û‚ˆ\OH˜]Ûˆ‚ˆÛÛXÚÏ^Ê
-HOˆÙ]\ÛZ\ÜÙY
-YJ_BˆÛ\ÜÓ˜[YOH›]MHZ[‹ZLLH›İ[™YY[™ËZ[™YÛËMŒMHKLˆ^\ÛH›Û\Ù[ZX›Û^]Ú]Hİ™\˜™ËZ[™YÛËML‚ˆ‚ˆÛÛ[YBˆØ]Û‚ˆÙ]‚ˆÙ]‚ˆ
-NÂŸB
+  if (dismissed || (availability !== "limited" && availability !== "inactive")) {
+    return null;
+  }
+
+  const limited = availability === "limited";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+        <h2 className="text-lg font-semibold text-gray-900">
+          {limited ? "New prayer assignments are limited" : "You are not receiving ministry assignments"}
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-gray-600">
+          {limited
+            ? `An unattended request was reassigned so the person receives timely care. Your login and normal app access remain active. ${missedAssignmentCount >= 2 ? "A care leader must review repeated missed assignments before new assignments resume." : "You can return to Available from your Profile when you are ready."}`
+            : "Your ministry availability is inactive, but your account and login remain active. An administrator can restore assignment availability after a human review."}
+        </p>
+        <button
+          type="button"
+          onClick={() => setDismissed(true)}
+          className="mt-5 min-h-11 rounded-full bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+        >
+          Continue
+        </button>
+      </div>
+    </div>
+  );
+}

@@ -1,48 +1,126 @@
-þŠmþ&yºÞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™^™\]Y\Ý™^™\ÜÛœÙHHœ›ÛH›™^ÜÙ\™\ˆŽÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹ÜÝ\X˜\ÙKÜÙ\™\ˆŽÂš[\ÜÈÜ™X]PYZ[ÛY[Hœ›ÛHÛX‹ÜÝ\X˜\ÙKØYZ[ˆŽÂ‚‹ËÈH›Û™È[›ÝYÚÈ™H\›X[™[ˆ˜[ˆ\˜][Û‹ˆÝ\X˜\ÙIÜÈYZ[ˆTHZÙ\ÈB‹ËÈ\˜][ÛˆÝš[™È˜]\ˆ[ˆH›ÛÛX[‹ÛÈ\È\ÈHÝ[™\™Ø^HÂ‹ËÈ\ØX›HÚYÛ‹Z[ˆ[™Yš[š][H
-[[^XÚ]H™XXÝ]˜]Y
-K‚˜ÛÛœÝT“PS‘S•ÐSˆHŽÍŒŽÈËÈLYX\œÂ‚‹ËÈ]È[ˆYZ[ˆXÝ]˜]KÙXXÝ]˜]H[›Ý\ˆ\Ù\‰ÜÈXØÛÝ[ˆXXÝ]˜][™Â‹ËÈ›Ý›\È›Ùš[\Ëš\×ØXÝ]™H
-ÛÈHRH[™[žH“ËX˜\ÙYÚXÚÜÈ™Y›XÝ‹ËÈ][[YYX][JH[™˜[œÈH[™\›Z[™ÈÝ\X˜\ÙH]]\Ù\ˆÛÈ^IÜ™B‹ËÈXÝX[HØÚÙYÝ]ÙˆÚYÛš[™È[‹›Ý\ÝY[ˆ[ˆH\‚™^Ü\Þ[˜È[˜Ý[ÛˆÔÕ
-™\]Y\Ýˆ™^™\]Y\Ý
-HÂˆžHÂˆÛÛœÝ›ÙHH]ØZ]™\]Y\ÝšœÛÛŠ
-NÂˆÛÛœÝÈ\Ù\’Y\ÐXÝ]™K™\ÜÛœÚXš[]PXÝ[ÛˆHH›ÙHÏÈßNÂ‚ˆYˆ
-]\Ù\’Y\[Ùˆ\ÐXÝ]™HOOH˜›ÛÛX[ˆŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆ“Z\ÜÚ[™ÈÜˆ[˜[Y\Ù\’YÚ\ÐXÝ]™HˆKˆÈÝ]\ÎˆBˆ
-NÂˆB‚ˆÛÛœÝÝ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-NÂˆÛÛœÝÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]Ý\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂ‚ˆYˆ
-]\Ù\ŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›ÜŽˆ“›Ý]][XØ]YˆKÈÝ]\ÎˆHJNÂˆB‚ˆÛÛœÝÈ]NˆØ[\”›Ùš[HHH]ØZ]Ý\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[XÝ
-œ›ÛHŠBˆ™\JšY‹\Ù\‹šY
-BˆœÚ[™ÛJ
-NÂ‚ˆYˆ
-Ø[\”›Ùš[OËœ›ÛHOOH˜YZ[ˆŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›ÜŽˆYZ[œÈÛ›HˆKÈÝ]\ÎˆÈJNÂˆB‚ˆYˆ
-\Ù\’YOOH\Ù\‹šY
-HÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆ–[ÝHØ[‰ÝXXÝ]˜]H[Ý\ˆÝÛˆXØÛÝ[\™KˆˆKˆÈÝ]\ÎˆBˆ
-NÂˆB‚ˆÛÛœÝYZ[ˆHÜ™X]PYZ[ÛY[
+// A "long enough to be permanent" ban duration. Supabase's admin API takes a
+// duration string rather than a boolean, so this is the standard way to
+// disable sign-in indefinitely (until explicitly reactivated).
+const PERMANENT_BAN = "876000h"; // 100 years
 
-NÂ‚ˆYˆ
-Z\ÐXÝ]™JHÂˆÛÛœÝÈ]Nˆ™\ÜÛœÚXš[]Y\Ë\œ›ÜŽˆ™\ÜÛœÚXš[]Y\Ñ\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\ÝÈŠBˆœÙ[XÝ
-šYŠBˆ™\J˜\ÜÚYÛ™YÝÈ‹\Ù\’Y
-Bˆ™\J˜[œÝÙ\™Y‹˜[ÙJBˆ™\J˜\˜Ú]™Y‹˜[ÙJNÂ‚ˆYˆ
-™\ÜÛœÚXš[]Y\Ñ\œ›ÜŠH›ÝÈ™\ÜÛœÚXš[]Y\Ñ\œ›ÜŽÂ‚ˆYˆ
+// Lets an admin activate/deactivate another user's account. Deactivating
+// both flips profiles.is_active (so the UI and any RLS-based checks reflect
+// it immediately) and bans the underlying Supabase Auth user so they're
+// actually locked out of signing in, not just hidden in the app.
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { userId, isActive, responsibilityAction } = body ?? {};
 
-™\ÜÛœÚXš[]Y\ÏË›[™ÝÏÈ
-Hˆ	‰ˆVÈ˜[×Ü™X\ÜÚYÛˆ‹œ™]\›—Ý×Ü]Y]YH—Kš[˜ÛY\Ê™\ÜÛœÚXš[]PXÝ[ÛŠJHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÂˆ\œ›ÜŽˆXÝ]™HØ\™H™\ÜÛœÚXš[]Y\È]\Ý™H™X\ÜÚYÛ™Y™Y›Ü™HXXÝ]˜][Û‹ˆ‹ˆÛÙNˆPÕU‘WÔ‘TÔÓ”ÒP’SUQTÈ‹ˆÛÝ[ˆ™\ÜÛœÚXš[]Y\ÏË›[™ÝÏÈˆKÈÝ]\ÎˆHJNÂˆB‚ˆ›Üˆ
-ÛÛœÝ™\ÜÛœÚXš[]HÙˆ™\ÜÛœÚXš[]Y\ÈÏÈ×JHÂˆYˆ
-™\ÜÛœÚXš[]PXÝ[ÛˆOOHœ™]\›—Ý×Ü]Y]YHŠHÂˆÛÛœÝÈ\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\ÝÈŠBˆ\]JÈ\ÜÚYÛ™YÝÎˆ[Ý]\Îˆ“™YYÈ™X\ÜÚYÛ›Y[ˆJBˆ™\JšY‹™\ÜÛœÚXš[]KšY
-Bˆ™\J˜\ÜÚYÛ™YÝÈ‹\Ù\’Y
-NÂˆYˆ
-\œ›ÜŠH›ÝÈ\œ›ÜŽÂˆH[ÙHYˆ
-™\ÜÛœÚXš[]PXÝ[ÛˆOOH˜[×Ü™X\ÜÚYÛˆŠHÂˆÛÛœÝÈ]Nˆ™]Ð\ÜÚYÛ™YK\œ›ÜˆHH]ØZ]YZ[‹œœÊœ™X\ÜÚYÛ—Ü˜^Y\—Ü™\]Y\Ý‹Âˆ™\]Y\ÝÚYˆ™\ÜÛœÚXš[]KšYˆ^ÛYWÝ\Ù\—ÚYˆ\Ù\’YˆJNÂˆYˆ
-\œ›ÜŠH›ÝÈ\œ›ÜŽÂˆYˆ
-™]Ð\ÜÚYÛ™YJHÂˆÛÛœÝÈ\œ›ÜŽˆ\ÜÚYÛ™Y\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\ÝÈŠBˆ\]JÈÝ]\Îˆ\ÜÚYÛ™YˆJBˆ™\JšY‹™\ÜÛœÚXš[]KšY
-Bˆ™\J˜\ÜÚYÛ™YÝÈ‹™]Ð\ÜÚYÛ™YJNÂˆYˆ
-\ÜÚYÛ™Y\œ›ÜŠH›ÝÈ\ÜÚYÛ™Y\œ›ÜŽÂˆH[ÙHÂˆÛÛœÝÈ\œ›ÜŽˆ]Y]YQ\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\ÝÈŠBˆ\]JÈ\ÜÚYÛ™YÝÎˆ[Ý]\Îˆ“™YYÈ™X\ÜÚYÛ›Y[ˆJBˆ™\JšY‹™\ÜÛœÚXš[]KšY
-NÂˆYˆ
-]Y]YQ\œ›ÜŠH›ÝÈ]Y]YQ\œ›ÜŽÂˆBˆBˆBˆB‚ˆÛÛœÝÈ\œ›ÜŽˆ›Ùš[Q\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ›Ùš[\ÈŠBˆ\]J\ÐXÝ]™HÈÈ\×ØXÝ]™NˆYHHˆÈ\×ØXÝ]™Nˆ˜[ÙKZ[š\ÝžWØ]˜Z[Xš[]Nˆš[˜XÝ]™HˆJBˆ™\JšY‹\Ù\’Y
-NÂ‚ˆYˆ
-›Ùš[Q\œ›ÜŠH›ÝÈ›Ùš[Q\œ›ÜŽÂ‚ˆÛÛœÝÈ\œ›ÜŽˆ]]\œ›ÜˆHH]ØZ]YZ[‹˜]]˜YZ[‹\]U\Ù\žRY
-ˆ\Ù\’YˆÈ˜[—Ù\˜][ÛŽˆ\ÐXÝ]™HÈ››Û™HˆˆT“PS‘S•ÐSˆBˆ
-NÂ‚ˆYˆ
-]]\œ›ÜŠH›ÝÈ]]\œ›ÜŽÂ‚ˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈÝXØÙ\ÜÎˆYHJNÂˆHØ]Ú
-\œŠHÂˆÛÛœÛÛK™\œ›ÜŠœÙ]XXÝ]™H\œ›ÜŽˆ‹\œŠNÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆ•[™^XÝY\œ›Üˆ\][™ÈXØÛÝ[Ý]\ÈˆKˆÈÝ]\ÎˆLBˆ
-NÂˆBŸB
+    if (!userId || typeof isActive !== "boolean") {
+      return NextResponse.json(
+        { error: "Missing or invalid userId/isActive" },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const { data: callerProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (callerProfile?.role !== "admin") {
+      return NextResponse.json({ error: "Admins only" }, { status: 403 });
+    }
+
+    if (userId === user.id) {
+      return NextResponse.json(
+        { error: "You can't deactivate your own account here." },
+        { status: 400 }
+      );
+    }
+
+    const admin = createAdminClient();
+
+    if (!isActive) {
+      const { data: responsibilities, error: responsibilitiesError } = await admin
+        .from("prayer_requests")
+        .select("id")
+        .eq("assigned_to", userId)
+        .eq("answered", false)
+        .eq("archived", false);
+
+      if (responsibilitiesError) throw responsibilitiesError;
+
+      if ((responsibilities?.length ?? 0) > 0 && !["bulk_reassign", "return_to_queue"].includes(responsibilityAction)) {
+        return NextResponse.json({
+          error: "Active care responsibilities must be reassigned before deactivation.",
+          code: "ACTIVE_RESPONSIBILITIES",
+          count: responsibilities?.length ?? 0,
+        }, { status: 409 });
+      }
+
+      for (const responsibility of responsibilities ?? []) {
+        if (responsibilityAction === "return_to_queue") {
+          const { error } = await admin
+            .from("prayer_requests")
+            .update({ assigned_to: null, status: "Needs Reassignment" })
+            .eq("id", responsibility.id)
+            .eq("assigned_to", userId);
+          if (error) throw error;
+        } else if (responsibilityAction === "bulk_reassign") {
+          const { data: newAssignee, error } = await admin.rpc("reassign_prayer_request", {
+            request_id: responsibility.id,
+            exclude_user_id: userId,
+          });
+          if (error) throw error;
+          if (newAssignee) {
+            const { error: assignedError } = await admin
+              .from("prayer_requests")
+              .update({ status: "Assigned" })
+              .eq("id", responsibility.id)
+              .eq("assigned_to", newAssignee);
+            if (assignedError) throw assignedError;
+          } else {
+            const { error: queueError } = await admin
+              .from("prayer_requests")
+              .update({ assigned_to: null, status: "Needs Reassignment" })
+              .eq("id", responsibility.id);
+            if (queueError) throw queueError;
+          }
+        }
+      }
+    }
+
+    const { error: profileError } = await admin
+      .from("profiles")
+      .update(isActive ? { is_active: true } : { is_active: false, ministry_availability: "inactive" })
+      .eq("id", userId);
+
+    if (profileError) throw profileError;
+
+    const { error: authError } = await admin.auth.admin.updateUserById(
+      userId,
+      { ban_duration: isActive ? "none" : PERMANENT_BAN }
+    );
+
+    if (authError) throw authError;
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("set-active error:", err);
+    return NextResponse.json(
+      { error: "Unexpected error updating account status" },
+      { status: 500 }
+    );
+  }
+}

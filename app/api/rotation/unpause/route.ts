@@ -1,22 +1,56 @@
-þŠmþ&yºÞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™^™\ÜÛœÙHHœ›ÛH›™^ÜÙ\™\ˆŽÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹ÜÝ\X˜\ÙKÜÙ\™\ˆŽÂš[\ÜÈÜ™X]PYZ[ÛY[Hœ›ÛHÛX‹ÜÝ\X˜\ÙKØYZ[ˆŽÂ‚‹ËÈHš\œÝZ\ÜÙY\ÜÚYÛ›Y[Ø[ˆ™H™\ÝÜ™YÈ]˜Z[X›HžHH›Û[Y\‹‚‹ËÈ™\X]YZ\ÜÙ\È™\]Z\™HHØ\™HXY\‰ÜÈ™]šY]È›ÝYÚHYZ[ˆÛÜšÙ›ÝË‚™^Ü\Þ[˜È[˜Ý[ÛˆÔÕ
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-HÂˆžHÂˆÛÛœÝÝ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+// A first missed assignment can be restored to Available by the volunteer.
+// Repeated misses require a care leader's review through the admin workflow.
+export async function POST() {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-NÂˆÛÛœÝÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]Ý\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂ‚ˆYˆ
-]\Ù\ŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›ÜŽˆ“›Ý]][XØ]YˆKÈÝ]\ÎˆHJNÂˆB‚ˆÛÛœÝYZ[ˆHÜ™X]PYZ[ÛY[
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
 
-NÂ‚ˆÛÛœÝÈ]Nˆ›Ùš[HHH]ØZ]YZ[‚ˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[XÝ
-œ›Ý][Û—ÜÝ]\ËZ\ÜÙYØ\ÜÚYÛ›Y[ØÛÝ[ŠBˆ™\JšY‹\Ù\‹šY
-BˆœÚ[™ÛJ
-NÂ‚ˆYˆ
-›Ùš[OËœ›Ý][Û—ÜÝ]\ÈOOHœ]\ÙYÛ™YÛXÝŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆ–[Ý\ˆXØÛÝ[\Û‰ÝÝ\œ™[H]\ÙY›Üˆ[˜XÝ]š]KˆˆKˆÈÝ]\ÎˆBˆ
-NÂˆB‚ˆYˆ
+    const admin = createAdminClient();
 
-›Ùš[K›Z\ÜÙYØ\ÜÚYÛ›Y[ØÛÝ[ÏÈ
-HHŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆHØ\™HXY\ˆ]\Ý™]šY]È™\X]YZ\ÜÙY\ÜÚYÛ›Y[È™Y›Ü™H™]È\ÜÚYÛ›Y[È™\Ý[YKˆˆKˆÈÝ]\ÎˆÈBˆ
-NÂˆB‚ˆÛÛœÝÈ\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ›Ùš[\ÈŠBˆ\]JÈ›Ý][Û—ÜÝ]\Îˆ˜XÝ]™H‹Z[š\ÝžWØ]˜Z[Xš[]Nˆ˜]˜Z[X›H‹]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™Yˆ˜[ÙK]\ÙYØ]ˆ[JBˆ™\JšY‹\Ù\‹šY
-Bˆ™\Jœ›Ý][Û—ÜÝ]\È‹œ]\ÙYÛ™YÛXÝŠNÂ‚ˆYˆ
-\œ›ÜŠH›ÝÈ\œ›ÜŽÂ‚ˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈÝXØÙ\ÜÎˆYHJNÂˆHØ]Ú
-\œŠHÂˆÛÛœÛÛK™\œ›ÜŠœ›Ý][Ûˆ[œ]\ÙH\œ›ÜŽˆ‹\œŠNÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆ•[™^XÝY\œ›Üˆ[œ]\Ú[™È[Ý\ˆXØÛÝ[ˆKˆÈÝ]\ÎˆLBˆ
-NÂˆBŸB
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("rotation_status, missed_assignment_count")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.rotation_status !== "paused_neglect") {
+      return NextResponse.json(
+        { error: "Your account isn't currently paused for inactivity." },
+        { status: 400 }
+      );
+    }
+
+    if ((profile.missed_assignment_count ?? 0) >= 2) {
+      return NextResponse.json(
+        { error: "A care leader must review repeated missed assignments before new assignments resume." },
+        { status: 403 }
+      );
+    }
+
+    const { error } = await admin
+      .from("profiles")
+      .update({ rotation_status: "active", ministry_availability: "available", availability_review_required: false, paused_at: null })
+      .eq("id", user.id)
+      .eq("rotation_status", "paused_neglect");
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("rotation unpause error:", err);
+    return NextResponse.json(
+      { error: "Unexpected error unpausing your account" },
+      { status: 500 }
+    );
+  }
+}

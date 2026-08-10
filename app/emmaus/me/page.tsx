@@ -1,21 +1,60 @@
-þŠmþ&yºÞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\Ü[šÈœ›ÛH›™^Û[šÈŽÂš[\ÜÈ™Y\™XÝHœ›ÛH›™^Û˜]šYØ][ÛˆŽÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹ÜÝ\X˜\ÙKÜÙ\™\ˆŽÂ‚™^ÜY˜][\Þ[˜È[˜Ý[Ûˆ[[X]\ÓYTYÙJ
-HÂˆÛÛœÝÝ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 
-NÂˆÛÛœÝÈ]NˆÈ\Ù\ˆHHH]ØZ]Ý\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂˆYˆ
-]\Ù\ŠH™Y\™XÝ
-‹ÛÙÚ[ˆŠNÂ‚ˆÛÛœÝÞÈ]Nˆ›Ùš[HKÈ]Nˆ›ÙÜ™\ÜÈWHH]ØZ]›ÛZ\ÙK˜[
-ÂˆÝ\X˜\ÙK™œ›ÛJœ›Ùš[\ÈŠKœÙ[XÝ
-™[Û˜[YK›ÛK\×ØXÝ]™HŠK™\JšY‹\Ù\‹šY
-KœÚ[™ÛJ
-KˆÝ\X˜\ÙK™œ›ÛJ™[[X]\×Ù\ØÛÝ™\žWÜ›ÙÜ™\ÜÈŠKœÙ[XÝ
-šY\×ØÛÛ\]YŠK™\J\Ù\—ÚY‹\Ù\‹šY
-KˆJNÂ‚ˆÛÛœÝ›ÝÜÈH›ÙÜ™\ÜÈÏÈ×NÂˆÛÛœÝÛÛ\]YH›ÝÜË™š[\Š
-›ÝÊHOˆ›ÝËš\×ØÛÛ\]Y
-K›[™ÝÂˆÛÛœÝ[”›ÙÜ™\ÜÈH›ÝÜË›[™ÝHÛÛ\]YÂˆÛÛœÝš\œÝ˜[YHH›Ùš[OË™[Û˜[YOËš[J
-KœÜ]
-ˆŠVÌH™œšY[™ŽÂˆÛÛœÝØ[“Ü[”ÝY[ÈH›Ùš[OËœ›ÛHOOH˜YZ[ˆˆ	‰ˆ›Ùš[Kš\×ØXÝ]™HOOH˜[ÙNÂ‚ˆ™]\›ˆ
-ˆXZ[ˆÛ\ÜÓ˜[YOH›Z[‹Z\ØÜ™Y[ˆ™ËYÜ˜YY[]ËXˆœ›ÛK\Û]KNMLšXKZ[™YÛËNMLË\Û]KNL‹LŽ^]Ú]H‚ˆ]ˆÛ\ÜÓ˜[YOH›^X]]ÈX^]ËM^MKLLÛNœMˆÛNœKLM‚ˆXY\ˆÛ\ÜÓ˜[YOHœ›Ý[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒ—HMˆÚYÝËLžÛNœNH‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒ™[WH^X[X™\‹LÌ“^H[[X]\ÏÜ‚ˆHÛ\ÜÓ˜[YOH›]LÈ^M›ÛX›XÚÈ˜XÚÚ[™Ë]YÚÛN^Mž’ÙY\Ø[Ú[™ËÙš\œÝ˜[Y_KÚO‚ˆÛ\ÜÓ˜[YOH›]MHX^]ËLÞ^[ÈXY[™ËN^Z[™YÛËLLÍÍH”™]šY]È[Ý\ˆ›Ý\›™^KÛÛ[YHH\ØÛÝ™\žKÜˆœš[™ÈÚ]\ÈÛˆ[Ý\ˆX\È˜^Y\‹Ü‚ˆÚXY\‚‚ˆÙXÝ[ÛˆÛ\ÜÓ˜[YOH›]MÈÜšYØ\MÛN™ÜšYXÛÛËLˆ‚ˆY]šXÈ˜[YO^Ú[”›ÙÜ™\ÜßHX™[H‘\ØÛÝ™\šY\È[ˆ›ÙÜ™\ÜÈˆÏ‚ˆY]šXÈ˜[YO^ØÛÛ\]YHX™[H‘\ØÛÝ™\šY\ÈÛÛ\]YˆÏ‚ˆÜÙXÝ[Û‚‚ˆÙXÝ[ÛˆÛ\ÜÓ˜[YOH›]NÜšYØ\MHY™ÜšYXÛÛËLÈ‚ˆXÝ[Ûˆ™YH‹Ù[[X]\ËÝØ[Èˆ]OHÛÛ[YH[Ý\ˆ›Ý\›™^Hˆ\ØÜš\[ÛH”™]\›ˆÈH™^YX[š[™Ù[Ý\[ˆ[Ý\ˆØ[ËˆˆÏ‚ˆXÝ[Ûˆ™YH‹Ù[[X]\ËÜ›Ùš[KÛX\›š[™Èˆ]OH“X\›š[™È›Ùš[Hˆ\ØÜš\[ÛH”ÙYHÝYH]\›œÈÚ]Ý]\›š[™ÈÜ›ÝÝ[ÈHÜ\š]X[ØÛÜ™KˆˆÏ‚ˆXÝ[Ûˆ™YH‹Ù[[X]\ËÜ˜^Y\ˆˆ]OH”˜^Y\ˆˆ\ØÜš\[ÛH”Ú\™HH™\]Y\ÝÜˆ˜^HÚ]HÚY\ˆÛÛ[][š]KˆˆÏ‚ˆÜÙXÝ[Û‚‚ˆØØ[“Ü[”ÝY[È	‰ˆ
-ˆÙXÝ[ÛˆÛ\ÜÓ˜[YOH›]LL›Ý[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹X[X™\‹LÌÌH™ËX[X™\‹LÌÌLMˆÛNœN‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒM™[WH^X[X™\‹LŒYZ[š\Ý˜]]™HÛÛÏÜ‚ˆˆÛ\ÜÓ˜[YOH›]Lˆ^Lž›ÛX›XÚÈ‘›Ý[™\ˆÝY[ÏÚ‚ˆÛ\ÜÓ˜[YOH›]LÈX^]ËLžXY[™ËMÈ^X[X™\‹MLÍÍHÛÛ[XZ[[™È[™™]šY]ÈÛÛÈ\™HÙ\Ý]ÚYHHX\›™\ˆ]Ü‚ˆ[šÈ™YH‹Ù[[X]\ËØYZ[‹Ù\Ú›Ø\™ˆÛ\ÜÓ˜[YOH›]Mˆ[›[™KY›^›Ý[™YY[™ËX[X™\‹LÌMHKLÈ›ÛX›XÚÈ^\Û]KNML“Ü[ˆ›Ý[™\ˆÝY[ÏÓ[šÏ‚ˆÜÙXÝ[Û‚ˆ
-_BˆÙ]‚ˆÛXZ[‚ˆ
-NÂŸB‚™[˜Ý[ÛˆY]šXÊÈ˜[YKX™[NˆÈ˜[YNˆ[X™\ŽÈX™[ˆÝš[™ÈJHÂˆ™]\›ˆ]ˆÛ\ÜÓ˜[YOHœ›Ý[™YLÞ›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒ—HMˆÛ\ÜÓ˜[YOH^M›ÛX›XÚÈ^X[X™\‹LÌžÝ˜[Y_OÜÛ\ÜÓ˜[YOH›]Lˆ›ÛX›XÚÈžÛX™[OÜÙ]ŽÂŸB‚™[˜Ý[ÛˆXÝ[ÛŠÈ™Y‹]K\ØÜš\[ÛˆNˆÈ™YŽˆÝš[™ÎÈ]NˆÝš[™ÎÈ\ØÜš\[ÛŽˆÝš[™ÈJHÂˆ™]\›ˆ[šÈ™Y^Ú™YŸHÛ\ÜÓ˜[YOHœ›Ý[™YLÞ›Ü™\ˆ›Ü™\‹]Ú]KÌL™ËX›XÚËÌŒMˆ˜[œÚ][ÛˆÝ™\Ž˜›Ü™\‹Z[™YÛËLÌÍÝ™\Ž˜™Ë]Ú]KÌLˆÛ\ÜÓ˜[YOH^^›ÛX›XÚÈžÝ]_OÚÛ\ÜÓ˜[YOH›]LÈ^\ÛHXY[™ËMˆ^Z[™YÛËLLÍHžÙ\ØÜš\[ÛŸOÜÛ\ÜÓ˜[YOH›]MH^\ÛH›ÛX›XÚÈ^X[X™\‹LÌ“Ü[ˆ8¡¤ÜÓ[šÏŽÂŸB
+export default async function EmmausMePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const [{ data: profile }, { data: progress }] = await Promise.all([
+    supabase.from("profiles").select("full_name, role, is_active").eq("id", user.id).single(),
+    supabase.from("emmaus_discovery_progress").select("id, is_completed").eq("user_id", user.id),
+  ]);
+
+  const rows = progress ?? [];
+  const completed = rows.filter((row) => row.is_completed).length;
+  const inProgress = rows.length - completed;
+  const firstName = profile?.full_name?.trim().split(" ")[0] || "friend";
+  const canOpenStudio = profile?.role === "admin" && profile.is_active !== false;
+
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 pb-28 text-white">
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+        <header className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl sm:p-9">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">My Emmaus</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">Keep walking, {firstName}.</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">Review your journey, continue a discovery, or bring what is on your heart to prayer.</p>
+        </header>
+
+        <section className="mt-7 grid gap-4 sm:grid-cols-2">
+          <Metric value={inProgress} label="Discoveries in progress" />
+          <Metric value={completed} label="Discoveries completed" />
+        </section>
+
+        <section className="mt-8 grid gap-5 md:grid-cols-3">
+          <Action href="/emmaus/walk" title="Continue Your Journey" description="Return to the next meaningful step in your walk." />
+          <Action href="/emmaus/profile/learning" title="Learning Profile" description="See study patterns without turning growth into a spiritual score." />
+          <Action href="/emmaus/prayer" title="Prayer" description="Share a request or pray with the wider community." />
+        </section>
+
+        {canOpenStudio && (
+          <section className="mt-10 rounded-[2rem] border border-amber-300/25 bg-amber-300/10 p-6 sm:p-8">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-200">Administrative tools</p>
+            <h2 className="mt-2 text-2xl font-black">Founder Studio</h2>
+            <p className="mt-3 max-w-2xl leading-7 text-amber-50/75">Content-building and review tools are kept outside the learner path.</p>
+            <Link href="/emmaus/admin/dashboard" className="mt-6 inline-flex rounded-full bg-amber-300 px-5 py-3 font-black text-slate-950">Open Founder Studio</Link>
+          </section>
+        )}
+      </div>
+    </main>
+  );
+}
+
+function Metric({ value, label }: { value: number; label: string }) {
+  return <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6"><p className="text-4xl font-black text-amber-300">{value}</p><p className="mt-2 font-black">{label}</p></div>;
+}
+
+function Action({ href, title, description }: { href: string; title: string; description: string }) {
+  return <Link href={href} className="rounded-3xl border border-white/10 bg-black/20 p-6 transition hover:border-indigo-300/40 hover:bg-white/10"><h2 className="text-xl font-black">{title}</h2><p className="mt-3 text-sm leading-6 text-indigo-100/65">{description}</p><p className="mt-5 text-sm font-black text-amber-300">Open â†’</p></Link>;
+}

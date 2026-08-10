@@ -1,31 +1,104 @@
-þŠmþ&yºÞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™^™\]Y\Ý™^™\ÜÛœÙHHœ›ÛH›™^ÜÙ\™\ˆŽÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹ÜÝ\X˜\ÙKÜÙ\™\ˆŽÂš[\ÜÈÜ™X]PYZ[ÛY[Hœ›ÛHÛX‹ÜÝ\X˜\ÙKØYZ[ˆŽÂ‚‹ËÈÛ›H\ÙHÛÛ[[œÈØ[ˆ]™\ˆ™HÝXÚY›ÝYÚ\È›Ý]H8 %[ˆ[ÝÛ\Ý‹ËÈ˜]\ˆ[ˆ\ÜÚ[™ÈÚ]]™\ˆ˜Ú[™Ù\ÈˆØš™XÝHÛY[Ù[™ÈÝ˜ZYÚ‹ËÈ›ÝYÚÛÈ\ÈØ[‰Ý™H\›™Y[ÈHÙ[™\šXÈ\]H[žHÛÛ[[ˆ‚‹ËÈ[™Ú[]™[ˆžH[ˆYZ[‰ÜÈÝÛˆÛÛ\›ÛZ\ÙYœ›ÝÜÙ\ˆÙ\ÜÚ[Û‹‚˜ÛÛœÝSÕÑQÑ’QSÈHÂˆœÝ]\È‹ˆ˜\ÜÚYÛ™YÝÈ‹ˆ™›ÛÝ×Ý\Û™YYY‹ˆ™›ÛÝ×Ý\Ù]H‹ˆ˜[œÝÙ\™Y‹ˆœ˜Z\ÙWÜ™\Ü‹ˆ›[Ù\˜][Û—ÜÝ]\È‹ˆ™›YÙÙY‹ˆ™›Y×Ü™X\ÛÛˆ‹ˆœ™\]Y\ÝÝ^‹ˆ˜Ø]YÛÜžWÚY‹ˆš\×ÜX›XÈ‹ˆš\×Ø[›Ûž[[Ý\È‹—NÂ‚˜ÛÛœÝSÕÑQÔÕUTÑTÈHÂˆ”ÝX›Z]Y‹”™]šY]ÙY‹\ÜÚYÛ™Y‹XÝ]™HØ\™H‹‘›ÛÝËU\‹ˆ”™\ÛÛ™Y‹ÛÜÙY‹“™YYÈ™X\ÜÚYÛ›Y[‹‘\ØØ[]Y‹ˆ•[˜X›HÈÛÛXÝ‹•Ú]˜]Ûˆ‹—NÂ‚‹ËÈ˜XÚÜÈ]™\žH˜^Y\‹\™\]Y\Ý[Ù\˜][ÛˆXÝ[Ûˆ[ˆHYZ[ˆ\Ú›Ø\™8 %‹ËÈ\›Ý™K[žKX[X[›YË\ÜÚYÛ‹Y][™H›ÛÝË]\Ø[œÝÙ\™Y‹ËÈÙÙÛ\Ëˆ\ÙH\ÙYÈÛÈÝ˜ZYÚœ›ÛHHœ›ÝÜÙ\ˆÈÝ\X˜\ÙHÚ]B‹ËÈ[›ÛˆÙ^KÚXÚYX[[™›Ü˜Ù[Y[\[™Y[\™[HÛˆ“ÈÛXÚY\È]‹ËÈ\™[‰Ý™\œÚ[Û‹XÛÛ›ÛY[ž]Ú\™Kˆ\È›Ý]H™K]™\šYšY\ÈHØ[\ˆ\Â‹ËÈ[ˆYZ[ˆÛˆHÙ\™\ˆ
-X]Ú[™ÈHØ[YH]\›ˆ[™XYH\ÙY›Ü‚‹ËÈ[]KÜÙ]\›ÛKÜÙ]XXÝ]™JH™Y›Ü™HXZÚ[™È[žHÚ[™ÙK\Ú[™ÈB‹ËÈÙ\šXÙK\›ÛHÛY[È\™›Ü›HHXÝX[Üš]K‚™^Ü\Þ[˜È[˜Ý[ÛˆÔÕ
-™\]Y\Ýˆ™^™\]Y\Ý
-HÂˆžHÂˆÛÛœÝ›ÙHH]ØZ]™\]Y\ÝšœÛÛŠ
-NÂˆÛÛœÝÈ™\]Y\ÝYÚ[™Ù\ÈHH›ÙHÏÈßNÂ‚ˆYˆ
-\™\]Y\ÝYXÚ[™Ù\È\[ÙˆÚ[™Ù\ÈOOH›Øš™XÝŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆ“Z\ÜÚ[™È™\]Y\ÝYÜˆÚ[™Ù\ÈˆKˆÈÝ]\ÎˆBˆ
-NÂˆB‚ˆÛÛœÝ[˜[YšY[HØš™XÝšÙ^\ÊÚ[™Ù\ÊK™š[™
-ˆ
-Ù^JHOˆPSÕÑQÑ’QSËš[˜ÛY\ÊÙ^JBˆ
-NÂˆYˆ
-[˜[YšY[
-HÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆšY[›Ý[ÝÙYˆ	Ú[˜[YšY[XKˆÈÝ]\ÎˆBˆ
-NÂˆB‚ˆYˆ
-Ú[™Ù\ËœÝ]\È	‰ˆPSÕÑQÔÕUTÑTËš[˜ÛY\ÊÚ[™Ù\ËœÝ]\ÊJHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›ÜŽˆ’[˜[Y˜^Y\ˆÛÜšÙ›ÝÈÝ]\ÈˆKÈÝ]\ÎˆJNÂˆB‚ˆÛÛœÝÝ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-NÂˆÛÛœÝÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]Ý\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂ‚ˆYˆ
-]\Ù\ŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›ÜŽˆ“›Ý]][XØ]YˆKÈÝ]\ÎˆHJNÂˆB‚ˆÛÛœÝÈ]NˆØ[\”›Ùš[HHH]ØZ]Ý\X˜\ÙBˆ™œ›ÛJœ›Ùš[\ÈŠBˆœÙ[XÝ
-œ›ÛHŠBˆ™\JšY‹\Ù\‹šY
-BˆœÚ[™ÛJ
-NÂ‚ˆYˆ
-Ø[\”›Ùš[OËœ›ÛHOOH˜YZ[ˆŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›ÜŽˆYZ[œÈÛ›HˆKÈÝ]\ÎˆÈJNÂˆB‚ˆÛÛœÝYZ[ˆHÜ™X]PYZ[ÛY[
+// Only these columns can ever be touched through this route â€” an allowlist
+// rather than passing whatever "changes" object the client sends straight
+// through, so this can't be turned into a generic "update any column"
+// endpoint even by an admin's own compromised browser session.
+const ALLOWED_FIELDS = [
+  "status",
+  "assigned_to",
+  "follow_up_needed",
+  "follow_up_date",
+  "answered",
+  "praise_report",
+  "moderation_status",
+  "flagged",
+  "flag_reason",
+  "request_text",
+  "category_id",
+  "is_public",
+  "is_anonymous",
+];
 
-NÂˆÛÛœÝÈ]K\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\ÝÈŠBˆ\]JÚ[™Ù\ÊBˆ™\JšY‹™\]Y\ÝY
-BˆœÙ[XÝ
-ˆšYÝ]\Ë\ÜÚYÛ™YÝË›ÛÝ×Ý\Û™YYY›ÛÝ×Ý\Ù]K[œÝÙ\™Y˜Z\ÙWÜ™\Ü[Ù\˜][Û—ÜÝ]\Ë›YÙÙY›Y×Ü™X\ÛÛ‹™\]Y\ÝÝ^Ø]YÛÜžWÚY\×ÜX›XË\×Ø[›Ûž[[Ý\È‚ˆ
-BˆœÚ[™ÛJ
-NÂ‚ˆYˆ
-\œ›ÜŠH›ÝÈ\œ›ÜŽÂ‚ˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈÝXØÙ\ÜÎˆYK™\]Y\Ýˆ]HJNÂˆHØ]Ú
-\œŠHÂˆÛÛœÛÛK™\œ›ÜŠ\]H˜^Y\ˆ™\]Y\Ý\œ›ÜŽˆ‹\œŠNÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›ÜŽˆ•[™^XÝY\œ›Üˆ\][™È˜^Y\ˆ™\]Y\ÝˆKˆÈÝ]\ÎˆLBˆ
-NÂˆBŸB
+const ALLOWED_STATUSES = [
+  "Submitted", "Reviewed", "Assigned", "Active Care", "Follow-Up",
+  "Resolved", "Closed", "Needs Reassignment", "Escalated",
+  "Unable to Contact", "Withdrawn",
+];
+
+// Backs every prayer-request moderation action in the admin dashboard â€”
+// approve, deny, manual flag, assign, edit, and the follow-up/answered
+// toggles. These used to go straight from the browser to Supabase with the
+// anon key, which meant enforcement depended entirely on RLS policies that
+// aren't version-controlled anywhere. This route re-verifies the caller is
+// an admin on the server (matching the same pattern already used for
+// delete/set-role/set-active) before making any change, using the
+// service-role client to perform the actual write.
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { requestId, changes } = body ?? {};
+
+    if (!requestId || !changes || typeof changes !== "object") {
+      return NextResponse.json(
+        { error: "Missing requestId or changes" },
+        { status: 400 }
+      );
+    }
+
+    const invalidField = Object.keys(changes).find(
+      (key) => !ALLOWED_FIELDS.includes(key)
+    );
+    if (invalidField) {
+      return NextResponse.json(
+        { error: `Field not allowed: ${invalidField}` },
+        { status: 400 }
+      );
+    }
+
+    if (changes.status && !ALLOWED_STATUSES.includes(changes.status)) {
+      return NextResponse.json({ error: "Invalid prayer workflow status" }, { status: 400 });
+    }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const { data: callerProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (callerProfile?.role !== "admin") {
+      return NextResponse.json({ error: "Admins only" }, { status: 403 });
+    }
+
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("prayer_requests")
+      .update(changes)
+      .eq("id", requestId)
+      .select(
+        "id, status, assigned_to, follow_up_needed, follow_up_date, answered, praise_report, moderation_status, flagged, flag_reason, request_text, category_id, is_public, is_anonymous"
+      )
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, request: data });
+  } catch (err) {
+    console.error("update prayer request error:", err);
+    return NextResponse.json(
+      { error: "Unexpected error updating prayer request" },
+      { status: 500 }
+    );
+  }
+}

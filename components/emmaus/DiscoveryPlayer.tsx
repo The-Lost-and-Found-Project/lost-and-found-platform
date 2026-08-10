@@ -1,113 +1,283 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçH\ÙHÛY[Â‚š[\Ü[šÈœ›ÛH›™^Û[šÈÂš[\ÜÈ\ÙQY™™Xİ\ÙSY[[Ë\ÙTİ]HHœ›ÛHœ™XXİÂ‚\H\ØÛİ™\T^Y\”›ÜÈHÂˆ]OÎˆİš[™ÎÂˆİX]OÎˆİš[™ÎÂˆ™Y™\™[˜ÙOÎˆİš[™ÎÂˆ˜[œÛ][ÛÎˆİš[™ÎÂˆ\ÜØYÙOÎˆ\œ˜^OÈ™\œÙNˆ[X™\È^ˆİš[™ÈOÂˆ›Û\ÏÎˆÂˆØœÙ\™OÎˆİš[™ÎÂˆÛÛ™\Îˆİš[™ÎÂˆ™Y›XİÎˆİš[™ÎÂˆ˜^OÎˆİš[™ÎÂˆNÂŸNÂ‚\Hİ\Ù^HHÙ[ÛÛYHˆœ˜^Y\ˆˆœ™XYˆ›ØœÙ\™Hˆ˜İ\š[ÜÚ]Hˆœ›Ø™Hˆ˜ÛÛ›™Xİˆ˜\Hˆš›İ\›˜[ˆ˜ÛÜÚ[™Ô˜^Y\ˆˆ˜ÛÛ[YHÂ\H™\ÜÛœÙRÙ^HH›ØœÙ\™Hˆœ›Ø™Hˆ˜ÛÛ›™Xİˆ˜\Hˆš›İ\›˜[Â\H™\ÜÛœÙ\ÈH™XÛÜ™™\ÜÛœÙRÙ^Kİš[™ÏÂ‚\Hİ\š[ÜÚ]T]HÂˆYˆİš[™ÎÂˆX™[ˆİš[™ÎÂˆÛYNˆİš[™ÎÂˆ›Ø™Nˆİš[™ÎÂˆÛÛ›™Xİ[Ûˆİš[™ÎÂŸNÂ‚˜ÛÛœİİ\Îˆ\œ˜^OÈÙ^Nˆİ\Ù^NÈX™[ˆİš[™ÈOˆHÂˆÈÙ^NˆÙ[ÛÛYH‹X™[ˆ™YÚ[ˆˆKˆÈÙ^Nˆœ˜^Y\ˆ‹X™[ˆ”]\ÙHˆKˆÈÙ^Nˆœ™XY‹X™[ˆ”™XYˆKˆÈÙ^Nˆ›ØœÙ\™H‹X™[ˆ“ØœÙ\™HˆKˆÈÙ^Nˆ˜İ\š[ÜÚ]H‹X™[ˆ•ÛÛ™\ˆˆKˆÈÙ^Nˆœ›Ø™H‹X™[ˆ‘^Ü™HˆKˆÈÙ^Nˆ˜ÛÛ›™Xİ‹X™[ˆÛÛ›™XİˆKˆÈÙ^Nˆ˜\H‹X™[ˆ”™\ÜÛ™ˆKˆÈÙ^Nˆš›İ\›˜[‹X™[ˆ”™[Y[X™\ˆˆKˆÈÙ^Nˆ˜ÛÜÚ[™Ô˜^Y\ˆ‹X™[ˆ”˜^HˆKˆÈÙ^Nˆ˜ÛÛ[YH‹X™[ˆÛÛ[YHˆK—NÂ‚˜ÛÛœİ˜[˜XÚÔ\ÜØYÙHHÂˆÈ™\œÙNˆK^ˆ’[ˆH™YÚ[›š[™ÈØ\ÈHÛÜ™[™HÛÜ™Ø\ÈÚ]ÛÙ[™HÛÜ™Ø\ÈÛÙˆˆKˆÈ™\œÙNˆ‹^ˆ•HØ[YHØ\È[ˆH™YÚ[›š[™ÈÚ]ÛÙˆˆKˆÈ™\œÙNˆË^ˆ[[™ÜÈÙ\™HXYHH[NÈ[™Ú]İ][HØ\È›İ[H[™ÈXYH]Ø\ÈXYKˆˆKˆÈ™\œÙNˆ^ˆ’[ˆ[HØ\ÈY™NÈ[™HY™HØ\ÈHYÚÙˆY[‹ˆˆKˆÈ™\œÙNˆK^ˆ[™HYÚÚ[™][ˆ\šÛ™\ÜÎÈ[™H\šÛ™\ÜÈÛÛ\™Z[™Y]›İˆˆK—NÂ‚˜ÛÛœİİ\š[ÜÚ]T]Îˆİ\š[ÜÚ]T]×HHÂˆÂˆYˆ˜™YÚ[›š[™È‹ˆX™[ˆ’[ˆH™YÚ[›š[™È‹ˆÛYNˆ’›ÚˆÜ[œÈÚ]HØ[YH™YHÛÜ™È]™YÚ[ˆÙ[™\Ú\Ëˆ]\È[›ZÙ[HÈ™HXØÚY[[ˆ‹ˆ›Ø™Nˆ•Ú]Ù\È›ÚˆÛÛ[][šXØ]HX›İ]™\İ\ÈHXÚ[™È[H™Y›Ü™HÜ™X][Ûˆ]Ù[ÈÚ]Ûİ[Ú[™ÙHYˆHÛÜ™™YØ[ˆÈ^\İ]\È‹ˆÛÛ›™Xİ[Ûˆ”™XYÙ[™\Ú\ÈNŒx $ÌÈ™\ÚYH›ÚˆNŒx $ÌËˆ\İ]™\H\˜[[[İH›İXÙH™Y›Ü™H^Z[š[™È[HÙˆ[Kˆ‹ˆKˆÂˆYˆÛÜ™‹ˆX™[ˆ•HÛÜ™‹ˆÛYNˆ’›ÚˆÛİ[]™HÜš][ˆH˜[YH™\İ\È[[YYX][K]HÚÜÙHH]H]Ø\œšYYYX[š[™È[ˆ›İ™]Ú\Ú[™Ü™YZÈİYÚˆ‹ˆ›Ø™Nˆ•ÚHZYÚ	İHÛÜ™	È™H[ˆ\›ÜšX]H]H›ÜˆHÛ™HÚÈ™]™X[ÈÛÙÈÚ]Ù\ÈHÛÜ™È]Ú[[˜ÙHØ[››İÈ‹ˆÛÛ›™Xİ[ÛˆÛÛ\\™H›ÚˆNŒx $ÌÈÚ]Xœ™]ÜÈNŒx $ÌÈ[™ÛÛÜÜÚX[œÈNŒMx $ÌMËˆÚ]Ú\™YÛZ[\È\™HXYHX›İ]Úš\İÈ‹ˆKˆÂˆYˆÚ]YÛÙ‹ˆX™[ˆ•Ú]ÛÙ‹ˆÛYNˆ’›Úˆ\İ[™İZ\Ú\ÈHÛÜ™œ›ÛHÛÙÚ[HXÚ[™ÈHÛÜ™[ˆ]\›˜[™[][ÛœÚ\Ú]ÛÙˆ‹ˆ›Ø™Nˆ•Ú]Ù\ÈH˜\ÙH	İÚ]ÛÙ	È™\]Z\™H[İHÈÛÙÙ]\ˆX›İ]\İ[˜İ[Û‹™[][ÛœÚ\[™]\›š]OÈ‹ˆÛÛ›™Xİ[Ûˆ”™XY›ÚˆMÎH[™›ÚˆMÎŒˆÚ]ÈÜÙH™\œÙ\ÈYÈH˜\ÙH	İÚ]ÛÙ	È[ˆ›ÚˆNŒOÈ‹ˆKˆÂˆYˆØ\ËYÛÙ‹ˆX™[ˆ•Ø\ÈÛÙ‹ˆÛYNˆ’›ÚˆÙ\È›İØ^HHÛÜ™Y\™[H™\Ù[X›YÛÙÜˆ™\™\Ù[YÛÙˆ\Èİ][Y[\È\™Xİˆ‹ˆ›Ø™Nˆ’İÈÙ\È	İHÛÜ™Ø\ÈÛÙ	ÈÚ\HHØ^H[İH[™\œİ[™™\İ\È›İYÚİ]H™\İÙˆ›Ú‰ÜÈÛÜÜ[È‹ˆÛÛ›™Xİ[ÛˆÛÛ\\™H›ÚˆNŒHÚ]›ÚˆŒŒˆİÈÈHÜ[š[™È[™ÛÜÚ[™ÈÙXİ[ÛœÈÙˆHÛÜÜ[™Z[™›Ü˜ÙHÛ™H[›İ\È‹ˆK—NÂ‚™^ÜY˜][[˜İ[Ûˆ\ØÛİ™\T^Y\ŠÂˆ]HH•H]\›˜[ÛÜ™‹ˆİX]HHHİZYY\ØÛİ™\H›İYÚ›ÚˆH‹ˆ™Y™\™[˜ÙHH’›ÚˆNŒx $ÍH‹ˆ˜[œÛ][ÛˆH’Ò•ˆ‹ˆ\ÜØYÙHH˜[˜XÚÔ\ÜØYÙKˆ›Û\ÈHßKŸNˆ\ØÛİ™\T^Y\”›ÜÊHÂˆÛÛœİÜİ\[™^Ù]İ\[™^HH\ÙTİ]J
-NÂˆÛÛœİÜÙ[XİY]YÙ]Ù[XİY]YHH\ÙTİ]Jİ\š[ÜÚ]T]ÖÌKšY
-NÂˆÛÛœİÜ™\ÜÛœÙ\ËÙ]™\ÜÛœÙ\×HH\ÙTİ]O™\ÜÛœÙ\ÏŠÈØœÙ\™Nˆˆ‹›Ø™Nˆˆ‹ÛÛ›™Xİˆˆ‹\Nˆˆ‹›İ\›˜[ˆˆˆJNÂˆÛÛœİÜİ\Y]HH\ÙTİ]J
+"use client";
 
-HOˆ]K››İÊ
-JNÂˆÛÛœİİÜ˜YÙRÙ^HH\ÙSY[[Ê
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
-HOˆ[[X]\Ë\^Y\‹]Œ‰ÜÛYÚYJ]J_N‰Ü™Y™\™[˜Ù_Xİ]K™Y™\™[˜ÙWJNÂˆÛÛœİİ\œ™[Hİ\ÖÜİ\[™^NÂˆÛÛœİÙ[XİY]Hİ\š[ÜÚ]T]Ë™š[™
+type DiscoveryPlayerProps = {
+  title?: string;
+  subtitle?: string;
+  reference?: string;
+  translation?: string;
+  passage?: Array<{ verse: number; text: string }>;
+  prompts?: {
+    observe?: string;
+    wonder?: string;
+    reflect?: string;
+    pray?: string;
+  };
+};
 
-]
-HOˆ]šYOOHÙ[XİY]Y
-HÏÈİ\š[ÜÚ]T]ÖÌNÂˆÛÛœİ›ÙÜ™\ÜÈHX]œ›İ[™
+type StepKey = "welcome" | "prayer" | "read" | "observe" | "curiosity" | "probe" | "connect" | "apply" | "journal" | "closingPrayer" | "continue";
+type ResponseKey = "observe" | "probe" | "connect" | "apply" | "journal";
+type Responses = Record<ResponseKey, string>;
 
-İ\[™^È
-İ\Ë›[™İHJJH
-ˆL
-NÂ‚ˆ\ÙQY™™Xİ
+type CuriosityPath = {
+  id: string;
+  label: string;
+  clue: string;
+  probe: string;
+  connection: string;
+};
 
+const steps: Array<{ key: StepKey; label: string }> = [
+  { key: "welcome", label: "Begin" },
+  { key: "prayer", label: "Pause" },
+  { key: "read", label: "Read" },
+  { key: "observe", label: "Observe" },
+  { key: "curiosity", label: "Wonder" },
+  { key: "probe", label: "Explore" },
+  { key: "connect", label: "Connect" },
+  { key: "apply", label: "Respond" },
+  { key: "journal", label: "Remember" },
+  { key: "closingPrayer", label: "Pray" },
+  { key: "continue", label: "Continue" },
+];
 
-HOˆÂˆHÂˆÛÛœİØ]™YHÚ[™İË›ØØ[İÜ˜YÙK™Ù]][JİÜ˜YÙRÙ^JNÂˆYˆ
-\Ø]™Y
-H™]\›ÂˆÛÛœİ\œÙYH”ÓÓ‹œ\œÙJØ]™Y
-H\ÈÈİ\[™^Îˆ[X™\ÈÙ[XİY]YÎˆİš[™ÎÈ™\ÜÛœÙ\ÏÎˆ\X[™\ÜÛœÙ\ÏˆNÂˆYˆ
-[X™\‹š\Ò[YÙ\Š\œÙYœİ\[™^
-JHÙ]İ\[™^
-X]›Z[ŠX]›X^
-\œÙYœİ\[™^ÏÈ
-Kİ\Ë›[™İHJJNÂˆYˆ
-\œÙYœÙ[XİY]Y	‰ˆİ\š[ÜÚ]T]ËœÛÛYJ
-]
-HOˆ]šYOOH\œÙYœÙ[XİY]Y
-JHÙ]Ù[XİY]Y
-\œÙYœÙ[XİY]Y
-NÂˆYˆ
-\œÙYœ™\ÜÛœÙ\ÊHÙ]™\ÜÛœÙ\Ê
-İ\œ™[™\ÜÛœÙ\ÊHOˆ
-È‹‹˜İ\œ™[™\ÜÛœÙ\Ë‹‹œ\œÙYœ™\ÜÛœÙ\ÈJJNÂˆHØ]ÚÂˆÚ[™İË›ØØ[İÜ˜YÙKœ™[[İ™R][JİÜ˜YÙRÙ^JNÂˆBˆKÜİÜ˜YÙRÙ^WJNÂ‚ˆ\ÙQY™™Xİ
+const fallbackPassage = [
+  { verse: 1, text: "In the beginning was the Word, and the Word was with God, and the Word was God." },
+  { verse: 2, text: "The same was in the beginning with God." },
+  { verse: 3, text: "All things were made by him; and without him was not any thing made that was made." },
+  { verse: 4, text: "In him was life; and the life was the light of men." },
+  { verse: 5, text: "And the light shineth in darkness; and the darkness comprehended it not." },
+];
 
+const curiosityPaths: CuriosityPath[] = [
+  {
+    id: "beginning",
+    label: "In the beginning",
+    clue: "John opens with the same three words that begin Genesis. That is unlikely to be accidental.",
+    probe: "What does John communicate about Jesus by placing Him before creation itself? What would change if the Word began to exist later?",
+    connection: "Read Genesis 1:1â€“3 beside John 1:1â€“3. List every parallel you notice before explaining any of them.",
+  },
+  {
+    id: "word",
+    label: "The Word",
+    clue: "John could have written the name Jesus immediately, but he chose a title that carried meaning in both Jewish and Greek thought.",
+    probe: "Why might 'the Word' be an appropriate title for the One who reveals God? What does a word do that silence cannot?",
+    connection: "Compare John 1:1â€“3 with Hebrews 1:1â€“3 and Colossians 1:15â€“17. What shared claims are made about Christ?",
+  },
+  {
+    id: "with-god",
+    label: "With God",
+    clue: "John distinguishes the Word from God while placing the Word in eternal relationship with God.",
+    probe: "What does the phrase 'with God' require you to hold together about distinction, relationship, and eternity?",
+    connection: "Read John 17:5 and John 17:24. What do those verses add to the phrase 'with God' in John 1:1?",
+  },
+  {
+    id: "was-god",
+    label: "Was God",
+    clue: "John does not say the Word merely resembled God or represented God. His statement is direct.",
+    probe: "How does 'the Word was God' shape the way you understand Jesus throughout the rest of John's Gospel?",
+    connection: "Compare John 1:1 with John 20:28. How do the opening and closing sections of the Gospel reinforce one another?",
+  },
+];
 
-HOˆÂˆÚ[™İË›ØØ[İÜ˜YÙKœÙ]][JİÜ˜YÙRÙ^K”ÓÓ‹œİš[™ÚYJÈİ\[™^Ù[XİY]Y™\ÜÛœÙ\ÈJJNÂˆKÜ™\ÜÛœÙ\ËÙ[XİY]Yİ\[™^İÜ˜YÙRÙ^WJNÂ‚ˆ[˜İ[Ûˆ\]T™\ÜÛœÙJÙ^Nˆ™\ÜÛœÙRÙ^K˜[YNˆİš[™ÊHÂˆÙ]™\ÜÛœÙ\Ê
-İ\œ™[™\ÜÛœÙ\ÊHOˆ
-È‹‹˜İ\œ™[™\ÜÛœÙ\ËÚÙ^WNˆ˜[YHJJNÂˆB‚ˆ[˜İ[Ûˆ[İ™J\™Xİ[ÛˆHLJHÂˆÙ]İ\[™^
+export default function DiscoveryPlayer({
+  title = "The Eternal Word",
+  subtitle = "A guided discovery through John 1",
+  reference = "John 1:1â€“5",
+  translation = "KJV",
+  passage = fallbackPassage,
+  prompts = {},
+}: DiscoveryPlayerProps) {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [selectedPathId, setSelectedPathId] = useState(curiosityPaths[0].id);
+  const [responses, setResponses] = useState<Responses>({ observe: "", probe: "", connect: "", apply: "", journal: "" });
+  const [startedAt] = useState(() => Date.now());
+  const storageKey = useMemo(() => `emmaus-player-v2:${slugify(title)}:${reference}`, [title, reference]);
+  const current = steps[stepIndex];
+  const selectedPath = curiosityPaths.find((path) => path.id === selectedPathId) ?? curiosityPaths[0];
+  const progress = Math.round((stepIndex / (steps.length - 1)) * 100);
 
-[™^
-HOˆX]›Z[ŠX]›X^
-[™^
-È\™Xİ[Û‹
-Kİ\Ë›[™İHJJNÂˆÚ[™İËœØÜ›ÛÊÈÜˆ™Z]š[ÜˆœÛ[ÛİˆJNÂˆB‚ˆ[˜İ[Ûˆ™\İ\
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(storageKey);
+      if (!saved) return;
+      const parsed = JSON.parse(saved) as { stepIndex?: number; selectedPathId?: string; responses?: Partial<Responses> };
+      if (Number.isInteger(parsed.stepIndex)) setStepIndex(Math.min(Math.max(parsed.stepIndex ?? 0, 0), steps.length - 1));
+      if (parsed.selectedPathId && curiosityPaths.some((path) => path.id === parsed.selectedPathId)) setSelectedPathId(parsed.selectedPathId);
+      if (parsed.responses) setResponses((currentResponses) => ({ ...currentResponses, ...parsed.responses }));
+    } catch {
+      window.localStorage.removeItem(storageKey);
+    }
+  }, [storageKey]);
 
-HÂˆÙ]İ\[™^
-
-NÂˆÙ]Ù[XİY]Y
-İ\š[ÜÚ]T]ÖÌKšY
-NÂˆÙ]™\ÜÛœÙ\ÊÈØœÙ\™Nˆˆ‹›Ø™Nˆˆ‹ÛÛ›™Xİˆˆ‹\Nˆˆ‹›İ\›˜[ˆˆˆJNÂˆÚ[™İË›ØØ[İÜ˜YÙKœ™[[İ™R][JİÜ˜YÙRÙ^JNÂˆB‚ˆÛÛœİ[\ÙYZ[]\ÈHX]›X^
-KX]œ›İ[™
+  useEffect(() => {
+    window.localStorage.setItem(storageKey, JSON.stringify({ stepIndex, selectedPathId, responses }));
+  }, [responses, selectedPathId, stepIndex, storageKey]);
 
-]K››İÊ
-HHİ\Y]
-HÈŒ
-JNÂ‚ˆ™]\›ˆ
-ˆXZ[ˆÛ\ÜÓ˜[YOH›Z[‹Z\ØÜ™Y[ˆ™ËYÜ˜YY[]ËXˆœ›ÛK\Û]KNMLšXKZ[™YÛËNMLË\Û]KNL^]Ú]H‚ˆ]ˆÛ\ÜÓ˜[YOH›^X]]ÈX^]ËMMKMˆÛNœMˆÛNœKLL‚ˆXY\ˆÛ\ÜÓ˜[YOHœ›İ[™YLŞ›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒ—HMHÚYİËL˜XÚÙ›ÜX›\ˆÛNœMÈ‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\Ë\İ\\İYKX™]ÙY[ˆØ\M‚ˆ]‚ˆÛ\ÜÓ˜[YOH^^È›Û\Ù[ZX›Û\\˜Ø\ÙH˜XÚÚ[™ËVÌŒŒ™[WH^X[X™\‹LÌ‘[[X]\È\ØÛİ™\OÜ‚ˆHÛ\ÜÓ˜[YOH›]Lˆ^LŞ›ÛX›XÚÈÛN^Mİ]_OÚO‚ˆÛ\ÜÓ˜[YOH›]Lˆ^Z[™YÛËLLÍÌÜİX]_OÜ‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOHœ›İ[™YL›Ü™\ˆ›Ü™\‹]Ú]KÌL™ËX›XÚËÌŒMKLÈ^\šYÚ‚ˆÛ\ÜÓ˜[YOH™›ÛX›ÛÜ™Y™\™[˜Ù_OÜ‚ˆÛ\ÜÓ˜[YOH^^È^Z[™YÛËLLÍŒİ˜[œÛ][ÛŸOÜ‚ˆÙ]‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH›]MˆLˆİ™\™›İËZY[ˆ›İ[™YY[™Ë]Ú]KÌL‚ˆ]ˆÛ\ÜÓ˜[YOHšY[›İ[™YY[™ËYÜ˜YY[]Ë\ˆœ›ÛKX[X™\‹MË[Ü˜[™ÙKML˜[œÚ][Û‹X[ˆİ[O^ŞÈÚYˆ	Ü›ÙÜ™\ÜßIX_HÏ‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH›]LÈ›^][\ËXÙ[\ˆ\İYKX™]ÙY[ˆ^^È^Z[™YÛËLLÍŒ‚ˆÜ[Øİ\œ™[›X™[OÜÜ[‚ˆÜ[Ü›ÙÜ™\ÜßIH›İYÚ\ÈØ[ÏÜÜ[‚ˆÙ]‚ˆÚXY\‚‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›]Mˆ›İ[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]HMˆ^\Û]KNLÚYİËLÛNœLL‚ˆØİ\œ™[šÙ^HOOHÙ[ÛÛYHˆ	‰ˆ
-ˆ]ˆÛ\ÜÓ˜[YOHœKMÈ^XÙ[\ˆÛNœKLLˆ‚ˆÛ\ÜÓ˜[YOH^\ÛH›Û\Ù[ZX›Û\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^Z[™YÛËMÌ•Ø[ÈÚ]Úš\İ›İYÚ\ÈÛÜ™Ü‚ˆˆÛ\ÜÓ˜[YOH›]M^M›ÛX›XÚÈ”ÛİÈİÛ‹ˆÛ™H™\œÙHX^H™H[›İYÚÚ‚ˆÛ\ÜÓ˜[YOH›^X]]È]MHX^]ËL^[ÈXY[™ËN^\Û]KMŒ•\È\È›İH]›İ[Û˜[ÚXÚÛ\İˆ[İHÚ[ØœÙ\™HÛÜÙ[KÚÛÜÙHÚ]XZÙ\È[İHİ\š[İ\Ë›ÛİÈHÛÛ›™Xİ[Û‹[™™]\›ˆÈH^Ú]Ú\œ\ˆ]Y\İ[ÛœËÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›^X]]È]NÜšYX^]ËLØ\LÈÛN™ÜšYXÛÛËLÈ‚ˆİ]X™[H”\ÜØYÙHˆ˜[YO^Ü™Y™\™[˜Ù_HÏ‚ˆİ]X™[H‘^XİYˆ˜[YOHŒŒ8 $ÌÍHZ[ˆˆÏ‚ˆİ]X™[H‘\ˆ˜[YOHœ˜[˜Ú[™ÈİYHˆÏ‚ˆÙ]‚ˆ]Ûˆ\OH˜]ÛˆˆÛÛXÚÏ^Ê
-HOˆ[İ™JJ_HÛ\ÜÓ˜[YOH›]LL›İ[™YY[™ËZ[™YÛËMŒMÈKLÈ›ÛX›Û^]Ú]HÚYİË[È™YÚ[ˆ\ÈØ[ÏØ]Û‚ˆÙ]‚ˆ
-_B‚ˆØİ\œ™[šÙ^HOOHœ˜^Y\ˆˆ	‰ˆ
-ˆİ\^[İ]^YXœ›İÏH”]\ÙHˆ]OH™YÚ[ˆÚ]˜^Y\ˆˆ\ØÜš\[ÛH”İYH™YÚ[œÈÚ]\[™[˜ÙK›İ\™›Ü›X[˜ÙKˆ‚ˆ˜^Y\Ø\™‘˜]\‹[šÈ[İH›ÜˆÚ]š[™È\È[İ\ˆÛÜ™ˆ]ZY]H\İ˜Xİ[ÛœÈ\›İ[™YH[™Ú][ˆYKˆÜ[ˆ^H^Y\ÈÈÙYHÚ][İH]™H™]™X[YÚ]™HYHÚ\ÙÛHÈ[™\œİ[™]˜Z][K[™Ú\H^HX\È™XÙZ]™H][X›Kˆ[YH›İÚ[\HØZ[ˆÛ›İÛYÙK]Û›İÈ[İH[Ü™HY\H[™Ø[È[Ü™HÛÜÙ[HÚ]Úš\İˆ[ˆ™\İ\ÉÈ˜[YK[Y[‹Ô˜^Y\Ø\™‚ˆÔİ\^[İ]‚ˆ
-_B‚ˆØİ\œ™[šÙ^HOOHœ™XYˆ	‰ˆ
-ˆİ\^[İ]^YXœ›İÏH”™XYˆ]OH”™XY™Y›Ü™H™XXÚ[™È›Üˆ[ˆ^[˜][Ûˆˆ\ØÜš\[ÛH”™XYH\ÜØYÙHÚXÙKˆÛˆHÙXÛÛ™™XY[™Ë^HÜXÚX[][[ÛˆÈ™\œÙHKˆ‚ˆ]ˆÛ\ÜÓ˜[YOHœÜXÙK^KM›İ[™YLŞ™Ë\İÛ™KMLMHÛNœMÈ‚ˆÜ\ÜØYÙK›X\
+  function updateResponse(key: ResponseKey, value: string) {
+    setResponses((currentResponses) => ({ ...currentResponses, [key]: value }));
+  }
 
-][JHOˆÙ^O^Ú][K™\œÙ_HÛ\ÜÓ˜[YOH^[ÈXY[™ËNH^\Û]KNİ\Û\ÜÓ˜[YOH›\‹Lˆ›ÛX›XÚÈ^Z[™YÛËMÌÚ][K™\œÙ_OÜİ\Ú][K^OÜŠ_BˆÙ]‚ˆÛYPØ\™]OH“ÛÚÈØ\™Y[H’›ÚˆXZÙ\ÈÙ]™\˜[XZ›ÜˆÛZ[\È™Y›Ü™H[›ÙXÚ[™È™\İ\ÈH˜[YKˆÈ›İ\Ú\İHÛÜ™[™ËĞÛYPØ\™‚ˆÔİ\^[İ]‚ˆ
-_B‚ˆØİ\œ™[šÙ^HOOH›ØœÙ\™Hˆ	‰ˆ
-ˆ›Û\İ\^YXœ›İÏH“ØœÙ\™Hˆ]OH”İ^H[œÚYHH^ˆ›Û\^Ü›Û\Ë›ØœÙ\™H“\İ]X\İš]™HØœÙ\˜][ÛœÈœ›ÛH™\œÙHH[Û™Kˆ›İXÙH™\X]YÛÜ™Ë[YH[™İXYÙK™[][ÛœÚ\Ë[™ÛZ[\ËˆÈ›İ^Z[ˆ[HY]ˆŸH˜[YO^Ü™\ÜÛœÙ\Ë›ØœÙ\™_HÛÚ[™ÙO^Ê˜[YJHOˆ\]T™\ÜÛœÙJ›ØœÙ\™H‹˜[YJ_HXÙZÛ\HŒKˆH™\œÙH™YÚ[œË‹‹—Œ‹ˆHÛÜ™	İØ\ÉÈ\X\œË‹‹ˆˆÏ‚ˆ
-_B‚ˆØİ\œ™[šÙ^HOOH˜İ\š[ÜÚ]Hˆ	‰ˆ
-ˆİ\^[İ]^YXœ›İÏH•ÛÛ™\ˆˆ]OHÚÛÜÙHÚ][İHØ[È[™\İYØ]Hˆ\ØÜš\[ÛH–[İ\ˆÚÚXÙHÚ[™Ù\ÈH™^Ù]Ùˆ]Y\İ[ÛœËˆ[İHØ[ˆ™]\›ˆ]\ˆ[™›ÛİÈ[›İ\ˆ]ˆ‚ˆ]ˆÛ\ÜÓ˜[YOH™ÜšYØ\LÈÛN™ÜšYXÛÛËLˆ‚ˆØİ\š[ÜÚ]T]Ë›X\
+  function move(direction: 1 | -1) {
+    setStepIndex((index) => Math.min(Math.max(index + direction, 0), steps.length - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
-]
-HOˆ
-ˆ]ÛˆÙ^O^Ü]šYH\OH˜]ÛˆˆÛÛXÚÏ^Ê
-HOˆÙ]Ù[XİY]Y
-]šY
-_HÛ\ÜÓ˜[YO^Ø›İ[™YL›Ü™\ˆMH^[Y˜[œÚ][Ûˆ	ÜÙ[XİY]YOOH]šYÈ˜›Ü™\‹Z[™YÛËMŒ™ËZ[™YÛËMLš[™ËLˆš[™ËZ[™YÛËLLˆˆ˜›Ü™\‹\Û]KLŒİ™\˜›Ü™\‹Z[™YÛËLÌŸXO‚ˆÛ\ÜÓ˜[YOH™›ÛX›XÚÈ^\Û]KNMLÜ]›X™[OÜ‚ˆÛ\ÜÓ˜[YOH›]Lˆ^\ÛHXY[™ËMˆ^\Û]KMŒÜ]˜ÛY_OÜ‚ˆØ]Û‚ˆ
-J_BˆÙ]‚ˆÛYPØ\™]OHHÛYK›İ[ˆ[œİÙ\ˆÜÙ[XİY]˜ÛY_OĞÛYPØ\™‚ˆÔİ\^[İ]‚ˆ
-_B‚ˆØİ\œ™[šÙ^HOOHœ›Ø™Hˆ	‰ˆ
-ˆ›Û\İ\^YXœ›İÏH‘^Ü™Hˆ]O^Ø›Ø™Nˆ	ÜÙ[XİY]›X™[XH›Û\^Ü›Û\ËÛÛ™\ˆÙ[XİY]œ›Ø™_H˜[YO^Ü™\ÜÛœÙ\Ëœ›Ø™_HÛÚ[™ÙO^Ê˜[YJHOˆ\]T™\ÜÛœÙJœ›Ø™H‹˜[YJ_HXÙZÛ\H•ÛÜšÈ›İYÚHÛÜ™[™ÈØ\™Y[Kˆ^Z[ˆÚ]H˜\ÙH™\]Z\™\È[İHÈÛÛ˜ÛYK‹‹ˆˆÏ‚ˆ
-_B‚ˆØİ\œ™[šÙ^HOOH˜ÛÛ›™Xİˆ	‰ˆ
-ˆ›Û\İ\^YXœ›İÏHÛÛ›™Xİˆ]OH“]ØÜš\\™H[\œ™]ØÜš\\™Hˆ›Û\^ÜÙ[XİY]˜ÛÛ›™Xİ[ÛŸH˜[YO^Ü™\ÜÛœÙ\Ë˜ÛÛ›™XİHÛÚ[™ÙO^Ê˜[YJHOˆ\]T™\ÜÛœÙJ˜ÛÛ›™Xİ‹˜[YJ_HXÙZÛ\H”\ÜØYÙHHÚİÜË‹‹ˆ\ÜØYÙHˆYË‹‹ˆHÛÛ›™Xİ[Ûˆ\X\œÈÈ™K‹‹ˆˆÏ‚ˆ
-_B‚ˆØİ\œ™[šÙ^HOOH˜\Hˆ	‰ˆ
-ˆ›Û\İ\^YXœ›İÏH”™\ÜÛ™ˆ]OH“[İ™Hœ›ÛHÛÛ˜Û\Ú[ÛˆÈÛÛšXİ[Ûˆˆ›Û\^Ü›Û\Ëœ™Y›Xİ•Ú]Ù\È\È]™]™X[X›İ]™\İ\ÏÈY[YHÛ™H™[YY‹™X\‹š[Üš]KÜˆXš]]Úİ[Ú[™ÙHYˆ\È\ÈYKˆŸH˜[YO^Ü™\ÜÛœÙ\Ë˜\_HÛÚ[™ÙO^Ê˜[YJHOˆ\]T™\ÜÛœÙJ˜\H‹˜[YJ_HXÙZÛ\H™XØ]\ÙH™\İ\È\Ë‹‹‹H™YYË‹‹ˆˆÏ‚ˆ
-_B‚ˆØİ\œ™[šÙ^HOOHš›İ\›˜[ˆ	‰ˆ
-ˆ›Û\İ\^YXœ›İÏH”™[Y[X™\ˆˆ]OHØ\\™HH\ØÛİ™\H[ˆ[İ\ˆİÛˆÛÜ™Èˆ›Û\H”İ[[X\š^™HHİ›Û™Ù\İÛÛ˜Û\Ú[Ûˆ[İH™XXÚYHØÜš\\™H]İ\ÜÈ][™Û™H]Y\İ[Ûˆ[İHİ[Ø[È\œİYKˆˆ˜[YO^Ü™\ÜÛœÙ\Ëš›İ\›˜[HÛÚ[™ÙO^Ê˜[YJHOˆ\]T™\ÜÛœÙJš›İ\›˜[‹˜[YJ_HXÙZÛ\H•Ù^HH\ØÛİ™\™Y‹‹ˆHÛX\™\İ]šY[˜ÙHØ\Ë‹‹ˆHİ[Ø[È[™\œİ[™‹‹ˆˆÏ‚ˆ
-_B‚ˆØİ\œ™[šÙ^HOOH˜ÛÜÚ[™Ô˜^Y\ˆˆ	‰ˆ
-ˆİ\^[İ]^YXœ›İÏH”˜^Hˆ]OH\ÚÈÛÙÈXZÙH]š\ÚX›H[ˆ[İ\ˆY™Hˆ\ØÜš\[ÛH’[™›Ü›X][Ûˆ\È›İH\İ[˜][Û‹ˆ˜Z][™\ÜÛœÙH\Ëˆ‚ˆ˜^Y\Ø\™‘˜]\‹[šÈ[İH›ÜˆYY][™ÈÚ]YH›İYÚ[İ\ˆÛÜ™Ù^KˆÈ›İ[İÈ\È]È™[XZ[ˆÛ›H[ˆ^HZ[™È[]Y\H[ˆ^HX\ˆÚİÈYHÚ\™H[İH\™HØ[[™ÈYHÈ\İØ™^K›Ü™Ú]™KÙ\™KÜˆÜ›İËˆÚ]™HYHÛİ\˜YÙHÈ]™HÚ]H]™H\ØÛİ™\™Y[™Ú\ÙÛHÈÚ\™H]˜Z][KˆÛÛ[YHÚ\[™ÈYH[ÈH[XYÙHÙˆÚš\İˆ[ˆ™\İ\ÉÈ˜[YK[Y[‹Ô˜^Y\Ø\™‚ˆÔİ\^[İ]‚ˆ
-_B‚ˆØİ\œ™[šÙ^HOOH˜ÛÛ[YHˆ	‰ˆ
-ˆ]ˆÛ\ÜÓ˜[YOHœKMˆ^XÙ[\ˆÛNœKLL‚ˆÛ\ÜÓ˜[YOH^\ÛH›Û\Ù[ZX›Û\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^X[X™\‹MÌ•\ÈØ[ÈÛÛ[Y\ÏÜ‚ˆˆÛ\ÜÓ˜[YOH›]LÈ^M›ÛX›XÚÈ•Ú\™HÚ[[İ\ˆİ\š[ÜÚ]HXY™^ÏÚ‚ˆÛ\ÜÓ˜[YOH›^X]]È]MX^]ËL^[ÈXY[™ËN^\Û]KMŒ–[İHÜ[\›Ş[X][HÙ[\ÙYZ[]\ßHZ[]^Ù[\ÙYZ[]\ÈOOHHÈˆˆˆœÈŸH[™\İYØ][™Èİ›Û™ÏÜÙ[XİY]›X™[OÜİ›Û™Ï‹ˆ™]\›ˆÈ›ÚˆNŒH[™›ÛİÈ[›İ\ˆ]ÜˆÛÛ[YH^Üš[™ÈØÜš\\™KÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›^X]]È]NÜšYX^]ËLØ\LÈÛN™ÜšYXÛÛËLÈ‚ˆİ]X™[H”š[X\HÜ›İİˆ˜[YOH“ØœÙ\˜][ÛˆˆÏ‚ˆİ]X™[H”]›ÛİÙYˆ˜[YO^ÜÙ[XİY]›X™[HÏ‚ˆİ]X™[H“™^Üİ\™Hˆ˜[YOHÛÛ[YHØ[Ú[™ÈˆÏ‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH›]NH›^›^]Ü˜\\İYKXÙ[\ˆØ\LÈ‚ˆ]Ûˆ\OH˜]ÛˆˆÛÛXÚÏ^Ê
-HOˆÈÙ]İ\[™^
+  function restart() {
+    setStepIndex(0);
+    setSelectedPathId(curiosityPaths[0].id);
+    setResponses({ observe: "", probe: "", connect: "", apply: "", journal: "" });
+    window.localStorage.removeItem(storageKey);
+  }
 
-NÈÙ]™\ÜÛœÙ\Ê
-˜[YJHOˆ
-È‹‹˜[YK›Ø™Nˆˆ‹ÛÛ›™XİˆˆˆJJNÈ_HÛ\ÜÓ˜[YOHœ›İ[™YY[›Ü™\ˆ›Ü™\‹Z[™YÛËLÌMHKL‹H›Û\Ù[ZX›Û^Z[™YÛËMÌ‘›ÛİÈ[›İ\ˆ]Ø]Û‚ˆ[šÈ™YH‹Ù[[X]\ËØšX›HˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËZ[™YÛËMŒMˆKL‹H›ÛX›Û^]Ú]HÛÛ[YH^Üš[™ÈØÜš\\™OÓ[šÏ‚ˆ]Ûˆ\OH˜]ÛˆˆÛÛXÚÏ^Ü™\İ\HÛ\ÜÓ˜[YOHœ›İ[™YY[›Ü™\ˆ›Ü™\‹\Û]KLÌMHKL‹H›Û\Ù[ZX›Û^\Û]KMŒ”™\İ\\ÈØ[ÏØ]Û‚ˆÙ]‚ˆÙ]‚ˆ
-_B‚ˆØİ\œ™[šÙ^HOOHÙ[ÛÛYHˆ	‰ˆİ\œ™[šÙ^HOOH˜ÛÛ[YHˆ	‰ˆ
-ˆ]ˆÛ\ÜÓ˜[YOH›]N›^][\ËXÙ[\ˆ\İYKX™]ÙY[ˆØ\LÈ›Ü™\‹]›Ü™\‹\Û]KLŒMˆ‚ˆ]Ûˆ\OH˜]ÛˆˆÛÛXÚÏ^Ê
-HOˆ[İ™JLJ_HÛ\ÜÓ˜[YOHœ›İ[™YY[›Ü™\ˆ›Ü™\‹\Û]KLÌMHKL‹H›Û\Ù[ZX›Û^\Û]KMÌ˜XÚÏØ]Û‚ˆ]Ûˆ\OH˜]ÛˆˆÛÛXÚÏ^Ê
-HOˆ[İ™JJ_HÛ\ÜÓ˜[YOHœ›İ[™YY[™ËZ[™YÛËMŒMˆKL‹H›ÛX›Û^]Ú]HØİ\œ™[šÙ^HOOH˜ÛÜÚ[™Ô˜^Y\ˆˆÈÛÛ[YHØ[Ú[™ÈˆˆÛÛ[YHŸOØ]Û‚ˆÙ]‚ˆ
-_BˆÜÙXİ[Û‚ˆÙ]‚ˆÛXZ[‚ˆ
-NÂŸB‚™[˜İ[Ûˆİ\^[İ]
-È^YXœ›İË]K\ØÜš\[Û‹Ú[™[ˆNˆÈ^YXœ›İÎˆİš[™ÎÈ]Nˆİš[™ÎÈ\ØÜš\[Ûˆİš[™ÎÈÚ[™[ˆ™XXİ”™XXİ›ÙHJHÂˆ™]\›ˆ]Û\ÜÓ˜[YOH^\ÛH›Û\Ù[ZX›Û\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^Z[™YÛËMÌÙ^YXœ›İßOÜˆÛ\ÜÓ˜[YOH›]Lˆ^LŞ›ÛX›XÚÈİ]_OÚÛ\ÜÓ˜[YOH›]LÈX^]ËLXY[™ËMÈ^\Û]KMŒÙ\ØÜš\[ÛŸOÜ]ˆÛ\ÜÓ˜[YOH›]MÈØÚ[™[ŸOÙ]Ù]ÂŸB‚™[˜İ[Ûˆ›Û\İ\
-È^YXœ›İË]K›Û\˜[YKÛÚ[™ÙKXÙZÛ\ˆNˆÈ^YXœ›İÎˆİš[™ÎÈ]Nˆİš[™ÎÈ›Û\ˆİš[™ÎÈ˜[YNˆİš[™ÎÈÛÚ[™ÙNˆ
-˜[YNˆİš[™ÊHOˆ›ÚYÈXÙZÛ\ˆİš[™ÈJHÂˆ™]\›ˆİ\^[İ]^YXœ›İÏ^Ù^YXœ›İßH]O^İ]_H\ØÜš\[Û^Ü›Û\O^\™XH˜[YO^İ˜[Y_HÛÚ[™ÙO^Ê]™[
-HOˆÛÚ[™ÙJ]™[\™Ù]˜[YJ_HXÙZÛ\^ÜXÙZÛ\ŸH›İÜÏ^ÌLŸHÛ\ÜÓ˜[YOHËY[›İ[™YL›Ü™\ˆ›Ü™\‹\Û]KLÌM^X˜\ÙHXY[™ËMÈİ][™K[›Û™H˜[œÚ][Ûˆ›Øİ\Î˜›Ü™\‹Z[™YÛËML›Øİ\Îœš[™ËM›Øİ\Îœš[™ËZ[™YÛËLLˆÏÛ\ÜÓ˜[YOH›]Lˆ^\šYÚ^^È^\Û]KM”Ø]™Y]]ÛX]XØ[HÛˆ\È]šXÙOÜÔİ\^[İ]ÂŸB‚™[˜İ[ÛˆÛYPØ\™
-È]KÚ[™[ˆNˆÈ]Nˆİš[™ÎÈÚ[™[ˆ™XXİ”™XXİ›ÙHJHÂˆ™]\›ˆ]ˆÛ\ÜÓ˜[YOH›]MH›İ[™YL›Ü™\ˆ›Ü™\‹X[X™\‹LŒ™ËX[X™\‹MLMHÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒM™[WH^X[X™\‹N¼'éêHİ]_OÜÛ\ÜÓ˜[YOH›]LˆXY[™ËMÈ^\Û]KMÌØÚ[™[ŸOÜÙ]ÂŸB‚™[˜İ[Ûˆ˜^Y\Ø\™
-ÈÚ[™[ˆNˆÈÚ[™[ˆ™XXİ”™XXİ›ÙHJHÂˆ™]\›ˆ›ØÚÜ][İHÛ\ÜÓ˜[YOHœ›İ[™YLŞ›Ü™\ˆ›Ü™\‹Z[™YÛËLŒ™ËZ[™YÛËMLMˆ^[ÈXY[™ËN^\Û]KMÌØÚ[™[ŸOØ›ØÚÜ][İOÂŸB‚™[˜İ[Ûˆİ]
-ÈX™[˜[YHNˆÈX™[ˆİš[™ÎÈ˜[YNˆİš[™ÈJHÂˆ™]\›ˆ]ˆÛ\ÜÓ˜[YOHœ›İ[™YL›Ü™\ˆ›Ü™\‹\Û]KLŒ™Ë]Ú]HMÚYİË\ÛHÛ\ÜÓ˜[YOH™›ÛX›XÚÈ^\Û]KNLİ˜[Y_OÜÛ\ÜÓ˜[YOH›]LH^^È\\˜Ø\ÙH˜XÚÚ[™Ë]ÚYH^\Û]KMLÛX™[OÜÙ]ÂŸB‚™[˜İ[ÛˆÛYÚYJ˜[YNˆİš[™ÊHÂˆ™]\›ˆ˜[YKÓİÙ\Ø\ÙJ
-Kš[J
-Kœ™\XÙJÖ×˜K^ŒNWJËÙË‹HŠKœ™\XÙJ×‹JßJÉÙËˆŠNÂŸB
+  const elapsedMinutes = Math.max(1, Math.round((Date.now() - startedAt) / 60000));
+
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 text-white">
+      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
+        <header className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 shadow-2xl backdrop-blur sm:p-7">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300">Emmaus Discovery</p>
+              <h1 className="mt-2 text-3xl font-black sm:text-4xl">{title}</h1>
+              <p className="mt-2 text-indigo-100/70">{subtitle}</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-right">
+              <p className="font-bold">{reference}</p>
+              <p className="text-xs text-indigo-100/60">{translation}</p>
+            </div>
+          </div>
+          <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
+            <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all" style={{ width: `${progress}%` }} />
+          </div>
+          <div className="mt-3 flex items-center justify-between text-xs text-indigo-100/60">
+            <span>{current.label}</span>
+            <span>{progress}% through this walk</span>
+          </div>
+        </header>
+
+        <section className="mt-6 rounded-[2rem] border border-white/10 bg-white p-6 text-slate-900 shadow-2xl sm:p-10">
+          {current.key === "welcome" && (
+            <div className="py-7 text-center sm:py-12">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-indigo-700">Walk with Christ through His Word</p>
+              <h2 className="mt-4 text-4xl font-black">Slow down. One verse may be enough.</h2>
+              <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600">This is not a devotional checklist. You will observe closely, choose what makes you curious, follow a connection, and return to the text with sharper questions.</p>
+              <div className="mx-auto mt-8 grid max-w-2xl gap-3 sm:grid-cols-3">
+                <Stat label="Passage" value={reference} />
+                <Stat label="Expected" value="20â€“35 min" />
+                <Stat label="Depth" value="Branching study" />
+              </div>
+              <button type="button" onClick={() => move(1)} className="mt-10 rounded-full bg-indigo-600 px-7 py-3 font-bold text-white shadow-lg">Begin This Walk</button>
+            </div>
+          )}
+
+          {current.key === "prayer" && (
+            <StepLayout eyebrow="Pause" title="Begin with prayer" description="Study begins with dependence, not performance.">
+              <PrayerCard>Father, thank You for giving us Your Word. Quiet the distractions around me and within me. Open my eyes to see what You have revealed, give me wisdom to understand it faithfully, and shape my heart to receive it humbly. Help me not simply gain knowledge, but know You more deeply and walk more closely with Christ. In Jesus' name, Amen.</PrayerCard>
+            </StepLayout>
+          )}
+
+          {current.key === "read" && (
+            <StepLayout eyebrow="Read" title="Read before reaching for an explanation" description="Read the passage twice. On the second reading, pay special attention to verse 1.">
+              <div className="space-y-4 rounded-3xl bg-stone-50 p-5 sm:p-7">
+                {passage.map((item) => <p key={item.verse} className="text-lg leading-9 text-slate-800"><sup className="mr-2 font-black text-indigo-700">{item.verse}</sup>{item.text}</p>)}
+              </div>
+              <ClueCard title="Look carefully">John makes several major claims before introducing Jesus by name. Do not rush past the wording.</ClueCard>
+            </StepLayout>
+          )}
+
+          {current.key === "observe" && (
+            <PromptStep eyebrow="Observe" title="Stay inside the text" prompt={prompts.observe || "List at least five observations from verse 1 alone. Notice repeated words, time language, relationships, and claims. Do not explain them yet."} value={responses.observe} onChange={(value) => updateResponse("observe", value)} placeholder="1. The verse begins...\n2. The word 'was' appears..." />
+          )}
+
+          {current.key === "curiosity" && (
+            <StepLayout eyebrow="Wonder" title="Choose what you want to investigate" description="Your choice changes the next set of questions. You can return later and follow another path.">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {curiosityPaths.map((path) => (
+                  <button key={path.id} type="button" onClick={() => setSelectedPathId(path.id)} className={`rounded-2xl border p-5 text-left transition ${selectedPathId === path.id ? "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-100" : "border-slate-200 hover:border-indigo-300"}`}>
+                    <p className="font-black text-slate-950">{path.label}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{path.clue}</p>
+                  </button>
+                ))}
+              </div>
+              <ClueCard title="A clue, not an answer">{selectedPath.clue}</ClueCard>
+            </StepLayout>
+          )}
+
+          {current.key === "probe" && (
+            <PromptStep eyebrow="Explore" title={`Probe: ${selectedPath.label}`} prompt={prompts.wonder || selectedPath.probe} value={responses.probe} onChange={(value) => updateResponse("probe", value)} placeholder="Work through the wording carefully. Explain what the phrase requires you to conclude..." />
+          )}
+
+          {current.key === "connect" && (
+            <PromptStep eyebrow="Connect" title="Let Scripture interpret Scripture" prompt={selectedPath.connection} value={responses.connect} onChange={(value) => updateResponse("connect", value)} placeholder="Passage 1 shows... Passage 2 adds... The connection appears to be..." />
+          )}
+
+          {current.key === "apply" && (
+            <PromptStep eyebrow="Respond" title="Move from conclusion to conviction" prompt={prompts.reflect || "What does this path reveal about Jesus? Identify one belief, fear, priority, or habit that should change if this is true."} value={responses.apply} onChange={(value) => updateResponse("apply", value)} placeholder="Because Jesus is..., I need to..." />
+          )}
+
+          {current.key === "journal" && (
+            <PromptStep eyebrow="Remember" title="Capture the discovery in your own words" prompt="Summarize the strongest conclusion you reached, the Scripture that supports it, and one question you still want to pursue." value={responses.journal} onChange={(value) => updateResponse("journal", value)} placeholder="Today I discovered... The clearest evidence was... I still want to understand..." />
+          )}
+
+          {current.key === "closingPrayer" && (
+            <StepLayout eyebrow="Pray" title="Ask God to make truth visible in your life" description="Information is not the destination. Faithful response is.">
+              <PrayerCard>Father, thank You for meeting with me through Your Word today. Do not allow this truth to remain only in my mind; plant it deeply in my heart. Show me where You are calling me to trust, obey, forgive, serve, or grow. Give me courage to live what I have discovered and wisdom to share it faithfully. Continue shaping me into the image of Christ. In Jesus' name, Amen.</PrayerCard>
+            </StepLayout>
+          )}
+
+          {current.key === "continue" && (
+            <div className="py-6 text-center sm:py-10">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">This walk continues</p>
+              <h2 className="mt-3 text-4xl font-black">Where will your curiosity lead next?</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-slate-600">You spent approximately {elapsedMinutes} minute{elapsedMinutes === 1 ? "" : "s"} investigating <strong>{selectedPath.label}</strong>. Return to John 1:1 and follow another path, or continue exploring Scripture.</p>
+              <div className="mx-auto mt-8 grid max-w-2xl gap-3 sm:grid-cols-3">
+                <Stat label="Primary growth" value="Observation" />
+                <Stat label="Path followed" value={selectedPath.label} />
+                <Stat label="Next posture" value="Continue walking" />
+              </div>
+              <div className="mt-9 flex flex-wrap justify-center gap-3">
+                <button type="button" onClick={() => { setStepIndex(4); setResponses((value) => ({ ...value, probe: "", connect: "" })); }} className="rounded-full border border-indigo-300 px-5 py-2.5 font-semibold text-indigo-700">Follow Another Path</button>
+                <Link href="/emmaus/bible" className="rounded-full bg-indigo-600 px-6 py-2.5 font-bold text-white">Continue Exploring Scripture</Link>
+                <button type="button" onClick={restart} className="rounded-full border border-slate-300 px-5 py-2.5 font-semibold text-slate-600">Restart This Walk</button>
+              </div>
+            </div>
+          )}
+
+          {current.key !== "welcome" && current.key !== "continue" && (
+            <div className="mt-8 flex items-center justify-between gap-3 border-t border-slate-200 pt-6">
+              <button type="button" onClick={() => move(-1)} className="rounded-full border border-slate-300 px-5 py-2.5 font-semibold text-slate-700">Back</button>
+              <button type="button" onClick={() => move(1)} className="rounded-full bg-indigo-600 px-6 py-2.5 font-bold text-white">{current.key === "closingPrayer" ? "Continue Walking" : "Continue"}</button>
+            </div>
+          )}
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function StepLayout({ eyebrow, title, description, children }: { eyebrow: string; title: string; description: string; children: React.ReactNode }) {
+  return <div><p className="text-sm font-semibold uppercase tracking-[0.18em] text-indigo-700">{eyebrow}</p><h2 className="mt-2 text-3xl font-black">{title}</h2><p className="mt-3 max-w-2xl leading-7 text-slate-600">{description}</p><div className="mt-7">{children}</div></div>;
+}
+
+function PromptStep({ eyebrow, title, prompt, value, onChange, placeholder }: { eyebrow: string; title: string; prompt: string; value: string; onChange: (value: string) => void; placeholder: string }) {
+  return <StepLayout eyebrow={eyebrow} title={title} description={prompt}><textarea value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} rows={12} className="w-full rounded-2xl border border-slate-300 p-4 text-base leading-7 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100" /><p className="mt-2 text-right text-xs text-slate-400">Saved automatically on this device</p></StepLayout>;
+}
+
+function ClueCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5"><p className="text-xs font-black uppercase tracking-[0.16em] text-amber-800">ğŸ§© {title}</p><p className="mt-2 leading-7 text-slate-700">{children}</p></div>;
+}
+
+function PrayerCard({ children }: { children: React.ReactNode }) {
+  return <blockquote className="rounded-3xl border border-indigo-200 bg-indigo-50 p-6 text-lg leading-8 text-slate-700">{children}</blockquote>;
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><p className="font-black text-slate-900">{value}</p><p className="mt-1 text-xs uppercase tracking-wide text-slate-500">{label}</p></div>;
+}
+
+function slugify(value: string) {
+  return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}

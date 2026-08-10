@@ -1,60 +1,182 @@
-þŠmþ&yºÞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\Ü[šÈœ›ÛH›™^Û[šÈŽÂš[\ÜÈ™Y\™XÝHœ›ÛH›™^Û˜]šYØ][ÛˆŽÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹ÜÝ\X˜\ÙKÜÙ\™\ˆŽÂš[\ÜÈ[[X]\ÐÛÛ[XÚÜËÙ][[X]\Ñ\ØÛÝ™\žHHœ›ÛHÛX‹Ù[[X]\ËØÛÛ[\XÚÜËÜ™YÚ\ÝžHŽÂ‚\H›ÙÜ™\ÜÔ›ÝÈHÂˆXÚ×ÚYˆÝš[™ÎÂˆ\ØÛÝ™\žWÚYˆÝš[™ÎÂˆÝ\œ™[ÜÝ\ˆ[X™\ŽÂˆ\×ØÛÛ\]Yˆ›ÛÛX[ŽÂˆÛÛ\]YØ]ˆÝš[™È[ÂˆÝ\YØ]ˆÝš[™ÎÂˆ\]YØ]ˆÝš[™ÎÂŸNÂ‚™^ÜY˜][\Þ[˜È[˜Ý[Ûˆ[[X]\ÕØ[ÔYÙJ
-HÂˆÛÛœÝÝ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { emmausContentPacks, getEmmausDiscovery } from "@/lib/emmaus/content-packs/registry";
 
-NÂˆÛÛœÝÈ]NˆÈ\Ù\ˆHHH]ØZ]Ý\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂˆYˆ
-]\Ù\ŠH™Y\™XÝ
-‹ÛÙÚ[ˆŠNÂ‚ˆÛÛœÝÞÈ]Nˆ›Ùš[HKÈ]Nˆ›ÙÜ™\ÜÑ]HWHH]ØZ]›ÛZ\ÙK˜[
-ÂˆÝ\X˜\ÙK™œ›ÛJœ›Ùš[\ÈŠKœÙ[XÝ
-™[Û˜[YK›ÛHŠK™\JšY‹\Ù\‹šY
-KœÚ[™ÛJ
-KˆÝ\X˜\ÙBˆ™œ›ÛJ™[[X]\×Ù\ØÛÝ™\žWÜ›ÙÜ™\ÜÈŠBˆœÙ[XÝ
-œXÚ×ÚY\ØÛÝ™\žWÚYÝ\œ™[ÜÝ\\×ØÛÛ\]YÛÛ\]YØ]Ý\YØ]\]YØ]ŠBˆ™\J\Ù\—ÚY‹\Ù\‹šY
-Bˆ›Ü™\Š\]YØ]‹È\ØÙ[™[™Îˆ˜[ÙHJKˆJNÂ‚ˆÛÛœÝ›ÙÜ™\ÜÈH
-›ÙÜ™\ÜÑ]HÏÈ×JH\È›ÙÜ™\ÜÔ›ÝÖ×NÂˆÛÛœÝ[”›ÙÜ™\ÜÈH›ÙÜ™\ÜË™š[\Š
-][JHOˆZ][Kš\×ØÛÛ\]Y
-NÂˆÛÛœÝÛÛ\]YH›ÙÜ™\ÜË™š[\Š
-][JHOˆ][Kš\×ØÛÛ\]Y
-NÂˆÛÛœÝ]\ÝH[”›ÙÜ™\ÜÖÌHÏÈ[ÂˆÛÛœÝ]\Ý™\ÛÛ™YH]\ÝÈÙ][[X]\Ñ\ØÛÝ™\žJ]\Ý™\ØÛÝ™\žWÚY
-Hˆ[ÂˆÛÛœÝš\œÝ]˜Z[X›HH[[X]\ÐÛÛ[XÚÜÖÌOË™\ØÛÝ™\šY\ÖÌHÏÈ[ÂˆÛÛœÝš\œÝXÚÈH[[X]\ÐÛÛ[XÚÜÖÌHÏÈ[Â‚ˆÛÛœÝÛÛ[YTXÚÈH]\Ý™\ÛÛ™YËœXÚÈÏÈš\œÝXÚÎÂˆÛÛœÝÛÛ[YQ\ØÛÝ™\žHH]\Ý™\ÛÛ™YË™\ØÛÝ™\žHÏÈš\œÝ]˜Z[X›NÂˆÛÛœÝÛÛ[YR™YˆHÛÛ[YTXÚÈ	‰ˆÛÛ[YQ\ØÛÝ™\žBˆÈÙ[[X]\ËØÛÛ[ÉØÛÛ[YTXÚËšYKÙ\ØÛÝ™\žKÉØÛÛ[YQ\ØÛÝ™\žKšYXˆˆ‹Ù[[X]\ËØšX›HŽÂ‚ˆÛÛœÝÝ[\ØÛÝ™\šY\ÈH[[X]\ÐÛÛ[XÚÜËœ™YXÙJ
-Ý[KXÚÊHOˆÝ[H
-ÈXÚË™\ØÛÝ™\šY\Ë›[™Ý
-NÂˆÛÛœÝÛÛ\][Û”\˜Ù[HÝ[\ØÛÝ™\šY\ÈˆÈX]œ›Ý[™
+type ProgressRow = {
+  pack_id: string;
+  discovery_id: string;
+  current_step: number;
+  is_completed: boolean;
+  completed_at: string | null;
+  started_at: string;
+  updated_at: string;
+};
 
-ÛÛ\]Y›[™ÝÈÝ[\ØÛÝ™\šY\ÊH
-ˆL
-HˆÂˆÛÛœÝš\œÝ˜[YHH›Ùš[OË™[Û˜[YOËš[J
-KœÜ]
-ˆŠVÌH™œšY[™ŽÂˆÛÛœÝÝ\ˆH™]È]J
-K™Ù]Ý\œÊ
-NÂˆÛÛœÝÜ™Y][™ÈHÝ\ˆLˆÈ‘ÛÛÙ[Ü›š[™ÈˆˆÝ\ˆNÈ‘ÛÛÙY\››ÛÛˆˆˆ‘ÛÛÙ]™[š[™ÈŽÂ‚ˆ™]\›ˆ
-ˆXZ[ˆÛ\ÜÓ˜[YOH›Z[‹Z\ØÜ™Y[ˆ™ËYÜ˜YY[]ËXˆœ›ÛK\Û]KNMLšXKZ[™YÛËNMLË\Û]KNL‹LŽ^]Ú]HÎœ‹LLˆ‚ˆ]ˆÛ\ÜÓ˜[YOH›^X]]ÈX^]ËMžMKNÛNœMˆÛNœKLLˆ‚ˆXY\ˆÛ\ÜÓ˜[YOHœ›Ý[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒ—HMˆÚYÝËLž˜XÚÙ›ÜX›\ˆÛNœNH‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\Ë\Ý\\ÝYžKX™]ÙY[ˆØ\MH‚ˆ]ˆÛ\ÜÓ˜[YOH›X^]ËLÞ‚ˆÛ\ÜÓ˜[YOH^^È›Û\Ù[ZX›Û\\˜Ø\ÙH˜XÚÚ[™ËVÌŒŒ™[WH^X[X™\‹LÌ‘[[X]\È0­ÈØ[ÈÚ]Úš\Ý›ÝYÚ\ÈÛÜ™Ü‚ˆHÛ\ÜÓ˜[YOH›]LÈ^M›ÛX›XÚÈ˜XÚÚ[™Ë]YÚÛN^MžžÙÜ™Y][™ßKÙš\œÝ˜[Y_KÚO‚ˆÛ\ÜÓ˜[YOH›]M^^XY[™ËN^Z[™YÛËLLÎ‘[[X]\È™[Y[X™\œÈÚ\™H[ÝHÝÜY[™ÙY\ÈH›ØYÜ[‹Ü‚ˆÙ]‚ˆÙ]‚ˆÚXY\‚‚ˆÙXÝ[ÛˆÛ\ÜÓ˜[YOH›]MˆÝ™\™›ÝËZY[ˆ›Ý[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹X[X™\‹LÌÌÌ™ËYÜ˜YY[]ËXœˆœ›ÛKX[X™\‹LÌšXK[Ü˜[™ÙKLÌË\›ÜÙKLÌLHÚYÝËLž‚ˆ]ˆÛ\ÜÓ˜[YOHœ›Ý[™YVÌKŽ™[WH™Ë\Û]KNMLÎMHMˆÛNœNH‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^X[X™\‹LÌžÛ]\ÝÈÛÛ[YHÚ\™H[ÝHYÙ™ˆˆˆ™YÚ[ˆ[Ý\ˆš\œÝ\ØÛÝ™\žHŸOÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›]MÜšYØ\MÈÎ™ÜšYXÛÛËVÌYœ—Ø]]×HÎš][\ËY[™‚ˆ]‚ˆÛ\ÜÓ˜[YOH^\ÛH›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒM[WH^Z[™YÛËLÌžØÛÛ[YQ\ØÛÝ™\žOËœ\ÜØYÙHÏÈ‘[[X]\ÈšX›HXœ˜\žHŸOÜ‚ˆˆÛ\ÜÓ˜[YOH›]Lˆ^LÞ›ÛX›XÚÈÛN^M^žØÛÛ[YQ\ØÛÝ™\žOË]HÏÈÚÛÜÙHH\ÜØYÙHÈ^Ü™HŸOÚ‚ˆÛ\ÜÓ˜[YOH›]MX^]ËLž^[ÈXY[™ËN^Z[™YÛËLLÍÌžØÛÛ[YQ\ØÛÝ™\žOËœÝX]HÏÈ”Ý\Ú]H™]šY]ÙYÛÛ[XÚÈ[™]ÝZYY]Y\Ý[ÛœÈXY[ÝHY\\ˆ[ÈØÜš\\™KˆŸOÜ‚ˆ]ˆÛ\ÜÓ˜[YOH›]Mˆ›^›^]Ü˜\Ø\Lˆ^\ÛH‚ˆ[žØÛÛ[YTXÚÏË]HÏÈÛÛ[Xœ˜\žHŸOÔ[‚ˆ[žØÛÛ[YQ\ØÛÝ™\žOË™\Ý[X]YZ[]\ÈÏÈHZ[]\ÏÔ[‚ˆÛ]\Ý	‰ˆ[”™\Ý[YH]Ý\Û]\Ý˜Ý\œ™[ÜÝ\
-È_OÔ[ŸBˆÙ]‚ˆÙ]‚ˆ[šÈ™Y^ØÛÛ[YR™YŸHÛ\ÜÓ˜[YOHš[›[™KY›^Z[‹ZLLˆ\ÝYžKXÙ[\ˆ›Ý[™YY[™ËX[X™\‹LÌMÈKLËH›ÛX›XÚÈ^\Û]KNMLÚYÝË[È˜[œÚ][ÛˆÝ™\Ž˜™ËX[X™\‹LŒ‚ˆÛ]\ÝÈ”™\Ý[YH\ØÛÝ™\žH8¡¤ˆˆˆ”Ý\\ØÛÝ™\žH8¡¤ˆŸBˆÓ[šÏ‚ˆÙ]‚ˆÙ]‚ˆÜÙXÝ[Û‚‚ˆÙXÝ[ÛˆÛ\ÜÓ˜[YOH›]MÈÜšYØ\MÛN™ÜšYXÛÛËLˆÎ™ÜšYXÛÛËM‚ˆY]šXÐØ\™˜[YO^Ú[”›ÙÜ™\ÜË›[™ÝHX™[H’[ˆ›ÙÜ™\ÜÈˆ\ØÜš\[ÛH‘\ØÛÝ™\šY\ÈØZ][™È›Üˆ[Ý\ˆ™]\›ˆˆÏ‚ˆY]šXÐØ\™˜[YO^ØÛÛ\]Y›[™ÝHX™[HÛÛ\]Yˆ\ØÜš\[ÛH‘š[š\ÚYÝZYY\ØÛÝ™\šY\ÈˆÏ‚ˆY]šXÐØ\™˜[YO^Ø	ØÛÛ\][Û”\˜Ù[IXHX™[H“Xœ˜\žH^Ü™Yˆ\ØÜš\[Û^Ø	ØÛÛ\]Y›[™ÝHÙˆ	ÝÝ[\ØÛÝ™\šY\ßH\ØÛÝ™\šY\ØHÏ‚ˆY]šXÐØ\™˜[YO^Ù[[X]\ÐÛÛ[XÚÜË›[™ÝHX™[HÛÛ[XÚÜÈˆ\ØÜš\[ÛH”™]šY]ÙY\ÜØYÙHÛÛXÝ[ÛœÈˆÏ‚ˆÜÙXÝ[Û‚‚ˆÚ[”›ÙÜ™\ÜË›[™Ýˆ	‰ˆ
-ˆÙXÝ[ÛˆÛ\ÜÓ˜[YOH›]N›Ý[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒWHMˆÛNœN‚ˆ]‚ˆÛ\ÜÓ˜[YOH^^È›Û\Ù[ZX›Û\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^X[X™\‹LÌ–[Ý\ˆXÝ]™HÝYY\ÏÜ‚ˆˆÛ\ÜÓ˜[YOH›]Lˆ^LÞ›ÛX›XÚÈÛÛ[YHÝYZ[™ÏÚ‚ˆÛ\ÜÓ˜[YOH›]LÈ^Z[™YÛËLLÍH–[Ý\ˆ™\ÜÛœÙ\È[™^XÝÝ\\™HØ]™Y]]ÛX]XØ[KÜ‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH›]MˆÜšYØ\MY™ÜšYXÛÛËLˆ‚ˆÚ[”›ÙÜ™\ÜËœÛXÙJ
-K›X\
+export default async function EmmausWalkPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-][JHOˆÂˆÛÛœÝ™\ÛÛ™YHÙ][[X]\Ñ\ØÛÝ™\žJ][K™\ØÛÝ™\žWÚY
-NÂˆYˆ
-\™\ÛÛ™Y
-H™]\›ˆ[Âˆ™]\›ˆ
-ˆ[šÈÙ^O^Ø	Ú][KœXÚ×ÚYKIÚ][K™\ØÛÝ™\žWÚYXH™Y^ØÙ[[X]\ËØÛÛ[ÉÜ™\ÛÛ™YœXÚËšYKÙ\ØÛÝ™\žKÉÜ™\ÛÛ™Y™\ØÛÝ™\žKšYXHÛ\ÜÓ˜[YOHœ›Ý[™YLÞ›Ü™\ˆ›Ü™\‹]Ú]KÌL™ËX›XÚËÌŒMH˜[œÚ][ÛˆÝ™\Ž‹]˜[œÛ]K^KLHÝ™\Ž˜›Ü™\‹X[X™\‹LÌÍÝ™\Ž˜™Ë]Ú]KÌL‚ˆ]ˆÛ\ÜÓ˜[YOH™›^][\Ë\Ý\\ÝYžKX™]ÙY[ˆØ\M‚ˆ]‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒM[WH^Z[™YÛËLÌžÜ™\ÛÛ™Y™\ØÛÝ™\žKœ\ÜØYÙ_OÜ‚ˆÈÛ\ÜÓ˜[YOH›]Lˆ^^›ÛX›XÚÈžÜ™\ÛÛ™Y™\ØÛÝ™\žK]_OÚÏ‚ˆÙ]‚ˆÜ[ˆÛ\ÜÓ˜[YOHœ›Ý[™YY[™Ë]Ú]KÌLLÈKLH^^È›ÛX›XÚÈ^Z[™YÛËLL”Ý\Ú][K˜Ý\œ™[ÜÝ\
-È_OÜÜ[‚ˆÙ]‚ˆÛ\ÜÓ˜[YOH›]LÈ[™KXÛ[\Lˆ^\ÛHXY[™ËMˆ^Z[™YÛËLLÍHžÜ™\ÛÛ™Y™\ØÛÝ™\žKœÝX]_OÜ‚ˆÛ\ÜÓ˜[YOH›]MH^\ÛH›ÛX›XÚÈ^X[X™\‹LÌ”™\Ý[YH8¡¤Ü‚ˆÓ[šÏ‚ˆ
-NÂˆJ_BˆÙ]‚ˆÜÙXÝ[Û‚ˆ
-_B‚ˆÙXÝ[ÛˆÛ\ÜÓ˜[YOH›]N›Ý[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒWHMˆÛNœN‚ˆ]‚ˆÛ\ÜÓ˜[YOH^^È›Û\Ù[ZX›Û\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^Z[™YÛËLÌÚÛÜÙH[›Ý\ˆ\™XÝ[ÛÜ‚ˆˆÛ\ÜÓ˜[YOH›]Lˆ^LÞ›ÛX›XÚÈ•H›ØYÝ^\ÈÜ[‹Ú‚ˆÛ\ÜÓ˜[YOH›]LÈ^Z[™YÛËLLÍH”™]\›ˆÈHÝYK^Ü™HHšX›XØ[™]ÛÜšË˜^KÜˆÚÛÜÙHH™]È\ÜØYÙKÜ‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH›]MˆÜšYØ\MÛN™ÜšYXÛÛËLˆÎ™ÜšYXÛÛËM‚ˆXÝ[ÛØ\™XÛÛH¼'äåˆˆ]OH“Ü[ˆØÜš\\™Hˆ\ØÜš\[ÛHœ›ÝÜÙH™]šY]ÙY\ÜØYÙ\È[™\ØÛÝ™\šY\Ëˆˆ™YH‹Ù[[X]\ËØšX›HˆÏ‚ˆXÝ[ÛØ\™XÛÛH¼'å#Hˆ]OH‘\ØÛÝ™\ˆˆ\ØÜš\[ÛHÚÛÜÙHHÝZYY]Y\Ý[Ûˆ[™›ÛÝÈØÜš\\™HY\\‹ˆˆ™YH‹Ù[[X]\ËÙ\ØÛÝ™\ˆˆÏ‚ˆXÝ[ÛØ\™XÛÛH¼'æcÈˆ]OH‘[\ˆ˜^Y\ˆˆ\ØÜš\[ÛH”Ú\™HH™\]Y\ÝÜˆ˜^HÚ]HÛÛ[][š]Kˆˆ™YH‹Ù[[X]\ËÜ˜^Y\ˆˆÏ‚ˆXÝ[ÛØ\™XÛÛH¼'äiˆ]OH“^H[[X]\Èˆ\ØÜš\[ÛH”™]šY]È[Ý\ˆX\›š[™È›Ùš[H[™\œÛÛ˜[›Ý\›™^Kˆˆ™YH‹Ù[[X]\ËÛYHˆÏ‚ˆÙ]‚ˆÜÙXÝ[Û‚‚ˆÙXÝ[ÛˆÛ\ÜÓ˜[YOH›]NÜšYØ\MHÎ™ÜšYXÛÛËVÌKœ—Ë™œ—H‚ˆ]ˆÛ\ÜÓ˜[YOHœ›Ý[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒWHMˆÛNœN‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\ËY[™\ÝYžKX™]ÙY[ˆØ\M‚ˆ]‚ˆÛ\ÜÓ˜[YOH^^È›Û\Ù[ZX›Û\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^X[X™\‹LÌ]˜Z[X›H›ÝÏÜ‚ˆˆÛ\ÜÓ˜[YOH›]Lˆ^Lž›ÛX›XÚÈ”™]šY]ÙY\ØÛÝ™\šY\ÏÚ‚ˆÙ]‚ˆ[šÈ™YH‹Ù[[X]\ËØšX›HˆÛ\ÜÓ˜[YOH^\ÛH›ÛX›Û^X[X™\‹LÌ•šY]ÈÛÛ\]HXœ˜\žH8¡¤Ó[šÏ‚ˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH›]MHÜšYØ\LÈY™ÜšYXÛÛËLˆ‚ˆÙ[[X]\ÐÛÛ[XÚÜË™›]X\
+  const [{ data: profile }, { data: progressData }] = await Promise.all([
+    supabase.from("profiles").select("full_name, role").eq("id", user.id).single(),
+    supabase
+      .from("emmaus_discovery_progress")
+      .select("pack_id, discovery_id, current_step, is_completed, completed_at, started_at, updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false }),
+  ]);
 
-XÚÊHOˆXÚË™\ØÛÝ™\šY\Ë›X\
+  const progress = (progressData ?? []) as ProgressRow[];
+  const inProgress = progress.filter((item) => !item.is_completed);
+  const completed = progress.filter((item) => item.is_completed);
+  const latest = inProgress[0] ?? null;
+  const latestResolved = latest ? getEmmausDiscovery(latest.discovery_id) : null;
+  const firstAvailable = emmausContentPacks[0]?.discoveries[0] ?? null;
+  const firstPack = emmausContentPacks[0] ?? null;
 
-\ØÛÝ™\žJHOˆ
-ÈXÚË\ØÛÝ™\žHJJJKœÛXÙJ
-K›X\
+  const continuePack = latestResolved?.pack ?? firstPack;
+  const continueDiscovery = latestResolved?.discovery ?? firstAvailable;
+  const continueHref = continuePack && continueDiscovery
+    ? `/emmaus/content/${continuePack.id}/discovery/${continueDiscovery.id}`
+    : "/emmaus/bible";
 
-ÈXÚË\ØÛÝ™\žHJHOˆ
-ˆ[šÈÙ^O^Ù\ØÛÝ™\žKšYH™Y^ØÙ[[X]\ËØÛÛ[ÉÜXÚËšYKÙ\ØÛÝ™\žKÉÙ\ØÛÝ™\žKšYXHÛ\ÜÓ˜[YOHœ›Ý[™YLž›Ü™\ˆ›Ü™\‹]Ú]KÌL™ËX›XÚËÌŒMH˜[œÚ][ÛˆÝ™\Ž‹]˜[œÛ]K^KLHÝ™\Ž˜›Ü™\‹Z[™YÛËLÌÍÝ™\Ž˜™Ë]Ú]KÌL‚ˆÛ\ÜÓ˜[YOH^^È›Û\Ù[ZX›Û\\˜Ø\ÙH˜XÚÚ[™ËVÌŒM[WH^Z[™YÛËLÌžÙ\ØÛÝ™\žKœ\ÜØYÙ_OÜ‚ˆÈÛ\ÜÓ˜[YOH›]Lˆ^^›ÛX›ÛžÙ\ØÛÝ™\žK]_OÚÏ‚ˆÛ\ÜÓ˜[YOH›]Lˆ[™KXÛ[\Lˆ^\ÛHXY[™ËMˆ^Z[™YÛËLLÍHžÙ\ØÛÝ™\žKœÝX]_OÜ‚ˆÛ\ÜÓ˜[YOH›]M^\ÛH›Û\Ù[ZX›Û^X[X™\‹LÌ™YÚ[ˆ\ØÛÝ™\žH8¡¤Ü‚ˆÓ[šÏ‚ˆ
-J_BˆÙ]‚ˆÙ]‚‚ˆ]ˆÛ\ÜÓ˜[YOHœ›Ý[™YVÌœ™[WH›Ü™\ˆ›Ü™\‹X[X™\‹LÌÌŒ™ËX[X™\‹LÌÌLMˆÛNœN‚ˆÛ\ÜÓ˜[YOH^^È›Û\Ù[ZX›Û\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^X[X™\‹LŒHÙ[H™[Z[™\Ü‚ˆˆÛ\ÜÓ˜[YOH›]LÈ^Lž›ÛX›XÚÈ“›ÈÝZ[ˆ›È™\Ù]Ú‚ˆÛ\ÜÓ˜[YOH›]LÈXY[™ËMÈ^X[X™\‹MLÍÍH“Z\ÜÙYH™]È^\ÏÈH›ØY\ÈÝ[\™Kˆ[[X]\È™[Y[X™\œÈ[Ý\ˆÛÜšÈ[™[š]\È[ÝHÈÛÛ[YHÚ]Ý]Ú[YKÜ‚ˆØÛÛ\]Y›[™Ýˆ	‰ˆ
-ˆ]ˆÛ\ÜÓ˜[YOH›]Mˆ›Ü™\‹]›Ü™\‹X[X™\‹LŒÌŒMH‚ˆÛ\ÜÓ˜[YOH™›ÛX›XÚÈ^X[X™\‹LL“[ÜÝ™XÙ[ÛÛ\][ÛÜ‚ˆÛ\ÜÓ˜[YOH›]Lˆ^\ÛHXY[™ËMˆ^X[X™\‹MLÍÌžÙÙ][[X]\Ñ\ØÛÝ™\žJÛÛ\]YÌK™\ØÛÝ™\žWÚY
-OË™\ØÛÝ™\žK]HÏÈÛÛ\]Y\ØÛÝ™\žHŸOÜ‚ˆÙ]‚ˆ
-_BˆÙ]‚ˆÜÙXÝ[Û‚ˆÙ]‚ˆÛXZ[‚ˆ
-NÂŸB‚™[˜Ý[Ûˆ[
-ÈÚ[™[ˆNˆÈÚ[™[Žˆ™XXÝ”™XXÝ›ÙHJHÂˆ™]\›ˆÜ[ˆÛ\ÜÓ˜[YOHœ›Ý[™YY[™Ë]Ú]KÌLLÈKLKH^Z[™YÛËLLÍÍHžØÚ[™[ŸOÜÜ[ŽÂŸB‚™[˜Ý[ÛˆY]šXÐØ\™
-È˜[YKX™[\ØÜš\[ÛˆNˆÈ˜[YNˆ[X™\ˆÝš[™ÎÈX™[ˆÝš[™ÎÈ\ØÜš\[ÛŽˆÝš[™ÈJHÂˆ™]\›ˆ]ˆÛ\ÜÓ˜[YOHœ›Ý[™YLÞ›Ü™\ˆ›Ü™\‹]Ú]KÌL™Ë]Ú]KÖÌŒ—HMHÚYÝË^Û\ÜÓ˜[YOH^LÞ›ÛX›XÚÈ^X[X™\‹LÌžÝ˜[Y_OÜÛ\ÜÓ˜[YOH›]Lˆ›ÛX›XÚÈžÛX™[OÜÛ\ÜÓ˜[YOH›]LH^\ÛHXY[™ËMH^Z[™YÛËLLÍMHžÙ\ØÜš\[ÛŸOÜÙ]ŽÂŸB‚™[˜Ý[ÛˆXÝ[ÛØ\™
-ÈXÛÛ‹]K\ØÜš\[Û‹™YˆNˆÈXÛÛŽˆÝš[™ÎÈ]NˆÝš[™ÎÈ\ØÜš\[ÛŽˆÝš[™ÎÈ™YŽˆÝš[™ÈJHÂˆ™]\›ˆ[šÈ™Y^Ú™YŸHÛ\ÜÓ˜[YOHœ›Ý[™YLÞ›Ü™\ˆ›Ü™\‹]Ú]KÌL™ËX›XÚËÌŒMH˜[œÚ][ÛˆÝ™\Ž‹]˜[œÛ]K^KLHÝ™\Ž˜›Ü™\‹Z[™YÛËLÌÍÝ™\Ž˜™Ë]Ú]KÌLÜ[ˆÛ\ÜÓ˜[YOH^LÞˆ\šXKZY[HYHžÚXÛÛŸOÜÜ[ÈÛ\ÜÓ˜[YOH›]MH^[È›ÛX›XÚÈžÝ]_OÚÏÛ\ÜÓ˜[YOH›]Lˆ^\ÛHXY[™ËMˆ^Z[™YÛËLLÍŒžÙ\ØÜš\[ÛŸOÜÓ[šÏŽÂŸB
+  const totalDiscoveries = emmausContentPacks.reduce((sum, pack) => sum + pack.discoveries.length, 0);
+  const completionPercent = totalDiscoveries > 0 ? Math.round((completed.length / totalDiscoveries) * 100) : 0;
+  const firstName = profile?.full_name?.trim().split(" ")[0] || "friend";
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 pb-28 text-white lg:pb-12">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+        <header className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur sm:p-9">
+          <div className="flex flex-wrap items-start justify-between gap-5">
+            <div className="max-w-3xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300">Emmaus Â· Walk with Christ through His Word</p>
+              <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">{greeting}, {firstName}.</h1>
+              <p className="mt-4 text-xl leading-8 text-indigo-100/80">Emmaus remembers where you stopped and keeps the road open.</p>
+            </div>
+          </div>
+        </header>
+
+        <section className="mt-6 overflow-hidden rounded-[2rem] border border-amber-300/30 bg-gradient-to-br from-amber-300 via-orange-300 to-rose-300 p-1 shadow-2xl">
+          <div className="rounded-[1.8rem] bg-slate-950/95 p-6 sm:p-9">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">{latest ? "Continue where you left off" : "Begin your first discovery"}</p>
+            <div className="mt-4 grid gap-7 lg:grid-cols-[1fr_auto] lg:items-end">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[0.14em] text-indigo-300">{continueDiscovery?.passage ?? "Emmaus Bible Library"}</p>
+                <h2 className="mt-2 text-3xl font-black sm:text-5xl">{continueDiscovery?.title ?? "Choose a passage to explore"}</h2>
+                <p className="mt-4 max-w-2xl text-lg leading-8 text-indigo-100/70">{continueDiscovery?.subtitle ?? "Start with a reviewed content pack and let guided questions lead you deeper into Scripture."}</p>
+                <div className="mt-6 flex flex-wrap gap-2 text-sm">
+                  <Pill>{continuePack?.title ?? "Content Library"}</Pill>
+                  <Pill>{continueDiscovery?.estimatedMinutes ?? 0} minutes</Pill>
+                  {latest && <Pill>Resume at step {latest.current_step + 1}</Pill>}
+                </div>
+              </div>
+              <Link href={continueHref} className="inline-flex min-h-12 justify-center rounded-full bg-amber-300 px-7 py-3.5 font-black text-slate-950 shadow-lg transition hover:bg-amber-200">
+                {latest ? "Resume Discovery â†’" : "Start Discovery â†’"}
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <MetricCard value={inProgress.length} label="In progress" description="Discoveries waiting for your return" />
+          <MetricCard value={completed.length} label="Completed" description="Finished guided discoveries" />
+          <MetricCard value={`${completionPercent}%`} label="Library explored" description={`${completed.length} of ${totalDiscoveries} discoveries`} />
+          <MetricCard value={emmausContentPacks.length} label="Content packs" description="Reviewed passage collections" />
+        </section>
+
+        {inProgress.length > 0 && (
+          <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 sm:p-8">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">Your active studies</p>
+              <h2 className="mt-2 text-3xl font-black">Continue studying</h2>
+              <p className="mt-3 text-indigo-100/65">Your responses and exact step are saved automatically.</p>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {inProgress.slice(0, 4).map((item) => {
+                const resolved = getEmmausDiscovery(item.discovery_id);
+                if (!resolved) return null;
+                return (
+                  <Link key={`${item.pack_id}-${item.discovery_id}`} href={`/emmaus/content/${resolved.pack.id}/discovery/${resolved.discovery.id}`} className="rounded-3xl border border-white/10 bg-black/20 p-5 transition hover:-translate-y-1 hover:border-amber-300/40 hover:bg-white/10">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[0.14em] text-indigo-300">{resolved.discovery.passage}</p>
+                        <h3 className="mt-2 text-xl font-black">{resolved.discovery.title}</h3>
+                      </div>
+                      <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-indigo-100">Step {item.current_step + 1}</span>
+                    </div>
+                    <p className="mt-3 line-clamp-2 text-sm leading-6 text-indigo-100/65">{resolved.discovery.subtitle}</p>
+                    <p className="mt-5 text-sm font-black text-amber-300">Resume â†’</p>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 sm:p-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-300">Choose another direction</p>
+            <h2 className="mt-2 text-3xl font-black">The road stays open.</h2>
+            <p className="mt-3 text-indigo-100/65">Return to a study, explore the biblical network, pray, or choose a new passage.</p>
+          </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <ActionCard icon="ðŸ“–" title="Open Scripture" description="Browse reviewed passages and discoveries." href="/emmaus/bible" />
+            <ActionCard icon="ðŸ”" title="Discover" description="Choose a guided question and follow Scripture deeper." href="/emmaus/discover" />
+            <ActionCard icon="ðŸ™" title="Enter Prayer" description="Share a request or pray with the community." href="/emmaus/prayer" />
+            <ActionCard icon="ðŸ‘¤" title="My Emmaus" description="Review your learning profile and personal journey." href="/emmaus/me" />
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-5 lg:grid-cols-[1.4fr_.6fr]">
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 sm:p-8">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">Available now</p>
+                <h2 className="mt-2 text-2xl font-black">Reviewed discoveries</h2>
+              </div>
+              <Link href="/emmaus/bible" className="text-sm font-bold text-amber-300">View complete library â†’</Link>
+            </div>
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {emmausContentPacks.flatMap((pack) => pack.discoveries.map((discovery) => ({ pack, discovery }))).slice(0, 4).map(({ pack, discovery }) => (
+                <Link key={discovery.id} href={`/emmaus/content/${pack.id}/discovery/${discovery.id}`} className="rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:-translate-y-0.5 hover:border-indigo-300/40 hover:bg-white/10">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-300">{discovery.passage}</p>
+                  <h3 className="mt-2 text-xl font-bold">{discovery.title}</h3>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-indigo-100/65">{discovery.subtitle}</p>
+                  <p className="mt-4 text-sm font-semibold text-amber-300">Begin discovery â†’</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">A gentle reminder</p>
+            <h2 className="mt-3 text-2xl font-black">No guilt. No reset.</h2>
+            <p className="mt-3 leading-7 text-amber-50/75">Missed a few days? The road is still here. Emmaus remembers your work and invites you to continue without shame.</p>
+            {completed.length > 0 && (
+              <div className="mt-6 border-t border-amber-200/20 pt-5">
+                <p className="font-black text-amber-100">Most recent completion</p>
+                <p className="mt-2 text-sm leading-6 text-amber-50/70">{getEmmausDiscovery(completed[0].discovery_id)?.discovery.title ?? "Completed discovery"}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function Pill({ children }: { children: React.ReactNode }) {
+  return <span className="rounded-full bg-white/10 px-3 py-1.5 text-indigo-100/75">{children}</span>;
+}
+
+function MetricCard({ value, label, description }: { value: number | string; label: string; description: string }) {
+  return <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 shadow-xl"><p className="text-3xl font-black text-amber-300">{value}</p><p className="mt-2 font-black">{label}</p><p className="mt-1 text-sm leading-5 text-indigo-100/55">{description}</p></div>;
+}
+
+function ActionCard({ icon, title, description, href }: { icon: string; title: string; description: string; href: string }) {
+  return <Link href={href} className="rounded-3xl border border-white/10 bg-black/20 p-5 transition hover:-translate-y-1 hover:border-indigo-300/40 hover:bg-white/10"><span className="text-3xl" aria-hidden="true">{icon}</span><h3 className="mt-5 text-lg font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-indigo-100/60">{description}</p></Link>;
+}

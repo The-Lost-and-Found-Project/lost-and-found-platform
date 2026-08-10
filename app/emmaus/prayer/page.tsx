@@ -1,2 +1,5 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\Ü˜^Y\•Ø[YÙHœ›ÛHØ\Ü˜^Y\‹ÜYÙHÂ‚™^ÜY˜][[˜İ[Ûˆ[[X]\Ô˜^Y\”YÙJ
-HÂˆ™]\›ˆ˜^Y\•Ø[YÙHÏÂŸB
+import PrayerWallPage from "@/app/prayer/page";
+
+export default function EmmausPrayerPage() {
+  return <PrayerWallPage />;
+}

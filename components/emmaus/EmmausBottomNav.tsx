@@ -1,12 +1,36 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçH\ÙHÛY[Â‚š[\Ü[šÈœ›ÛH›™^Û[šÈÂš[\ÜÈ\ÙT]˜[YHHœ›ÛH›™^Û˜]šYØ][ÛˆÂ‚˜ÛÛœİ][\ÈHÂˆÈ™Yˆ‹Ù[[X]\ËİØ[È‹X™[ˆ•Ø[È‹XÛÛˆ¼'ãèˆKˆÈ™Yˆ‹Ù[[X]\ËØšX›H‹X™[ˆšX›H‹XÛÛˆ¼'äåˆˆKˆÈ™Yˆ‹Ù[[X]\ËÙ\ØÛİ™\ˆ‹X™[ˆ‘\ØÛİ™\ˆ‹XÛÛˆ¼'å#HˆKˆÈ™Yˆ‹Ù[[X]\ËÛYH‹X™[ˆ“YH‹XÛÛˆ¼'äiˆK—NÂ‚™^ÜY˜][[˜İ[Ûˆ[[X]\Ğ›İÛS˜]Š
-HÂˆÛÛœİ]˜[YHH\ÙT]˜[YJ
-NÂ‚ˆ™]\›ˆ
-ˆ˜]ˆÛ\ÜÓ˜[YOH™š^Y[œÙ]^L›İÛKL‹VÍÌH›Ü™\‹]›Ü™\‹\Û]KLŒ™Ë]Ú]KÎMHLˆ‹VÛX^
-\™[K[ŠØY™KX\™XKZ[œÙ]X›İÛJJWHLˆÚYİËVÌËLLÌÌÜ™Ø˜JMKŒË‹ŒLŠWH˜XÚÙ›ÜX›\ˆÎšY[ˆˆ\šXK[X™[H‘[[X]\È˜]šYØ][Ûˆ‚ˆ]ˆÛ\ÜÓ˜[YOH›^X]]ÈÜšYX^]Ë^ÜšYXÛÛËMØ\LH‚ˆÚ][\Ë›X\
+"use client";
 
-][JHOˆÂˆÛÛœİXİ]™HH]˜[YHOOH][Kš™Yˆ]˜[YKœİ\ÕÚ]
-	Ú][Kš™YŸKØ
-NÂˆ™]\›ˆ
-ˆ[šÂˆÙ^O^Ú][Kš™YŸBˆ™Y^Ú][Kš™YŸBˆ\šXKXİ\œ™[^ØXİ]™HÈœYÙHˆˆ[™Yš[™YBˆÛ\ÜÓ˜[YO^Ø›^Z[‹ZLM›^XÛÛ][\ËXÙ[\ˆ\İYKXÙ[\ˆ›İ[™YLLˆKLKH^^È›Û\Ù[ZX›Û˜[œÚ][Ûˆ	ØXİ]™HÈ˜™ËZ[™YÛËML^Z[™YÛËMÌˆˆ^\Û]KMLİ™\˜™Ë\Û]KMLİ™\^\Û]KNLŸXBˆ‚ˆÜ[ˆÛ\ÜÓ˜[YOH^^XY[™Ë[›Û™Hˆ\šXKZY[HYHÚ][KšXÛÛŸOÜÜ[‚ˆÜ[ˆÛ\ÜÓ˜[YOH›]LHÚ][K›X™[OÜÜ[‚ˆÓ[šÏ‚ˆ
-NÂˆJ_BˆÙ]‚ˆÛ˜]‚ˆ
-NÂŸB
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const items = [
+  { href: "/emmaus/walk", label: "Walk", icon: "ğŸ " },
+  { href: "/emmaus/bible", label: "Bible", icon: "ğŸ“–" },
+  { href: "/emmaus/discover", label: "Discover", icon: "ğŸ”" },
+  { href: "/emmaus/me", label: "Me", icon: "ğŸ‘¤" },
+];
+
+export default function EmmausBottomNav() {
+  const pathname = usePathname();
+
+  return (
+    <nav className="fixed inset-x-0 bottom-0 z-[70] border-t border-slate-200 bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden" aria-label="Emmaus navigation">
+      <div className="mx-auto grid max-w-xl grid-cols-4 gap-1">
+        {items.map((item) => {
+          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              className={`flex min-h-14 flex-col items-center justify-center rounded-2xl px-2 py-1.5 text-xs font-semibold transition ${active ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"}`}
+            >
+              <span className="text-xl leading-none" aria-hidden="true">{item.icon}</span>
+              <span className="mt-1">{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}

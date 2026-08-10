@@ -1,31 +1,72 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\ÜÈ™^™\]Y\İ™^™\ÜÛœÙHHœ›ÛH›™^ÜÙ\™\ˆÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKÜÙ\™\ˆÂš[\ÜÈÜ™X]PYZ[ÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØYZ[ˆÂ‚™^Ü\Ş[˜È[˜İ[ÛˆÔÕ
-™\]Y\İˆ™^™\]Y\İ
-HÂˆHÂˆÛÛœİ›ÙHH]ØZ]™\]Y\İšœÛÛŠ
-NÂˆÛÛœİÛÛ[^Bˆ\[Ùˆ›ÙOË˜ÛÛ[^OOHœİš[™ÈˆÈ›ÙK˜ÛÛ[^š[J
-HˆˆÂˆÛÛœİ˜^Y\”™\]Y\İYBˆ\[Ùˆ›ÙOËœ˜^Y\”™\]Y\İYOOHœİš[™Èˆ	‰ˆ›ÙKœ˜^Y\”™\]Y\İYˆÈ›ÙKœ˜^Y\”™\]Y\İYˆˆ[Â‚ˆYˆ
-XÛÛ[^
-HÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ”X\ÙH[\ˆH˜Z\ÙH™\ÜˆˆKˆÈİ]\ÎˆBˆ
-NÂˆB‚ˆÛÛœİİ\X˜\ÙHH]ØZ]Ü™X]PÛY[
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-NÂˆÛÛœİÂˆ]NˆÈ\Ù\ˆKˆHH]ØZ]İ\X˜\ÙK˜]]™Ù]\Ù\Š
-NÂ‚ˆYˆ
-]\Ù\ŠHÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ“›İ]][XØ]YˆKÈİ]\ÎˆHJNÂˆB‚ˆÛÛœİYZ[ˆHÜ™X]PYZ[ÛY[
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const contentText =
+      typeof body?.contentText === "string" ? body.contentText.trim() : "";
+    const prayerRequestId =
+      typeof body?.prayerRequestId === "string" && body.prayerRequestId
+        ? body.prayerRequestId
+        : null;
 
-NÂ‚ˆYˆ
-˜^Y\”™\]Y\İY
-HÂˆÛÛœİÈ]NˆİÛ™Y™\]Y\İHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆœÙ[Xİ
-šYŠBˆ™\JšY‹˜^Y\”™\]Y\İY
-Bˆ™\J\Ù\—ÚY‹\Ù\‹šY
-BˆœÚ[™ÛJ
-NÂ‚ˆYˆ
-[İÛ™Y™\]Y\İ
-HÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈ\œ›Üˆ”˜^Y\ˆ™\]Y\İ›İ›İ[™ˆKÈİ]\ÎˆJNÂˆBˆB‚ˆÛÛœİÈ\œ›Üˆ[œÙ\\œ›ÜˆHH]ØZ]YZ[‹™œ›ÛJœ˜Z\ÙWÜ™\ÜÈŠKš[œÙ\
-Âˆ\Ù\—ÚYˆ\Ù\‹šYˆÛÛ[İ^ˆÛÛ[^ˆ˜^Y\—Ü™\]Y\İÚYˆ˜^Y\”™\]Y\İYˆJNÂ‚ˆYˆ
-[œÙ\\œ›ÜŠH›İÈ[œÙ\\œ›ÜÂ‚ˆYˆ
-˜^Y\”™\]Y\İY
-HÂˆÛÛœİÈ\œ›Üˆ\]Q\œ›ÜˆHH]ØZ]YZ[‚ˆ™œ›ÛJœ˜^Y\—Ü™\]Y\İÈŠBˆ\]JÈ[œİÙ\™YˆYKİ]\Îˆ”™\ÛÛ™YˆJBˆ™\JšY‹˜^Y\”™\]Y\İY
-Bˆ™\J\Ù\—ÚY‹\Ù\‹šY
-NÂ‚ˆYˆ
-\]Q\œ›ÜŠH›İÈ\]Q\œ›ÜÂˆB‚ˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠÈİXØÙ\ÜÎˆYHJNÂˆHØ]Ú
-\œŠHÂˆÛÛœÛÛK™\œ›ÜŠœ˜Z\ÙK\™\ÜİX›Z\ÜÚ[Ûˆ\œ›Üˆ‹\œŠNÂˆ™]\›ˆ™^™\ÜÛœÙKšœÛÛŠˆÈ\œ›Üˆ•[™^XİY\œ›ÜˆÚ\š[™È˜Z\ÙH™\ÜˆKˆÈİ]\ÎˆLBˆ
-NÂˆBŸB
+    if (!contentText) {
+      return NextResponse.json(
+        { error: "Please enter a praise report." },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const admin = createAdminClient();
+
+    if (prayerRequestId) {
+      const { data: ownedRequest } = await admin
+        .from("prayer_requests")
+        .select("id")
+        .eq("id", prayerRequestId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (!ownedRequest) {
+        return NextResponse.json({ error: "Prayer request not found" }, { status: 404 });
+      }
+    }
+
+    const { error: insertError } = await admin.from("praise_reports").insert({
+      user_id: user.id,
+      content_text: contentText,
+      prayer_request_id: prayerRequestId,
+    });
+
+    if (insertError) throw insertError;
+
+    if (prayerRequestId) {
+      const { error: updateError } = await admin
+        .from("prayer_requests")
+        .update({ answered: true, status: "Resolved" })
+        .eq("id", prayerRequestId)
+        .eq("user_id", user.id);
+
+      if (updateError) throw updateError;
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("praise-report submission error:", err);
+    return NextResponse.json(
+      { error: "Unexpected error sharing praise report" },
+      { status: 500 }
+    );
+  }
+}

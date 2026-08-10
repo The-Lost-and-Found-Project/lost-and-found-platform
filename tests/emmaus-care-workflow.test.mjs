@@ -1,45 +1,57 @@
-þŠmþ&yºÞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçZ[\Ü\ÜÙ\œ›ÛH››ÙN˜\ÜÙ\ÜÝšXÝŽÂš[\ÜÈ™XYš[HHœ›ÛH››ÙN™œËÜ›ÛZ\Ù\ÈŽÂš[\Ü]œ›ÛH››ÙNœ]ŽÂš[\Ü\Ýœ›ÛH››ÙN\ÝŽÂ‚˜ÛÛœÝ›ÛÝH›ØÙ\ÜË˜ÝÙ
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import test from "node:test";
 
-NÂ˜ÛÛœÝÛÝ\˜ÙHH
-‹‹œ\ÊHOˆ™XYš[J]š›Ú[Š›ÛÝ‹‹œ\ÊK]ŽŠNÂ‚\Ý
-‘[[X]\ÈX\›™\ˆ˜]šYØ][Ûˆ\Ù\ÈÛÜšÚ[™È›Û‹XYZ[ˆ\Ý[˜][ÛœÈ‹\Þ[˜È
+const root = process.cwd();
+const source = (...parts) => readFile(path.join(root, ...parts), "utf8");
 
-HOˆÂˆÛÛœÝÛ˜]‹œ˜[YKYZ[“^[Ý]\Ú›Ø\™HH]ØZ]›ÛZ\ÙK˜[
-ÂˆÛÝ\˜ÙJ˜ÛÛ\Û™[È‹™[[X]\È‹‘[[X]\Ð›ÝÛS˜]‹ÞŠKˆÛÝ\˜ÙJ˜ÛÛ\Û™[È‹\œ˜[YKÞŠKˆÛÝ\˜ÙJ˜\‹™[[X]\È‹˜YZ[ˆ‹›^[Ý]ÞŠKˆÛÝ\˜ÙJ˜\‹™\Ú›Ø\™‹œYÙKÞŠKˆJNÂ‚ˆ›Üˆ
-ÛÛœÝ\Ý[˜][ÛˆÙˆÈ‹Ù[[X]\ËÝØ[È‹‹Ù[[X]\ËØšX›H‹‹Ù[[X]\ËÙ\ØÛÝ™\ˆ‹‹Ù[[X]\ËÛYH—JHÂˆ\ÜÙ\›X]Ú
-˜]‹™]È™YÑ^
-\Ý[˜][Û‹œ™\XÙP[
-‹È‹—ÈŠJJNÂˆBˆ\ÜÙ\™Ù\Ó›ÝX]Ú
-˜]‹×Ù[[X]\×ØYZ[‹ÊNÂˆ\ÜÙ\›X]Ú
-œ˜[YKÜ]˜[YWœÝ\ÕÚ]
-—Ù[[X]\È—
-KÊNÂˆ\ÜÙ\›X]Ú
-YZ[“^[Ý]Ü›Ùš[W×œ›ÛHOOH˜YZ[ˆ‹ÊNÂˆ\ÜÙ\›X]Ú
-\Ú›Ø\™ÚYˆ
-\Ñ[[X]\Ñ›Ý[™\—
-H™Y\™XÝ
-—Ù[[X]\×ÝØ[È—
-KÊNÂŸJNÂ‚\Ý
-‘[[X]\È›ÙÜ™\ÜÈ\È]][XØ]YX›Hš]š[YÙ\È[ˆY][ÛˆÈ“È‹\Þ[˜È
+test("Emmaus learner navigation uses working non-admin destinations", async () => {
+  const [nav, frame, adminLayout, dashboard] = await Promise.all([
+    source("components", "emmaus", "EmmausBottomNav.tsx"),
+    source("components", "AppFrame.tsx"),
+    source("app", "emmaus", "admin", "layout.tsx"),
+    source("app", "dashboard", "page.tsx"),
+  ]);
 
-HOˆÂˆÛÛœÝZYÜ˜][ÛˆH]ØZ]ÛÝ\˜ÙJœÝ\X˜\ÙH‹›ZYÜ˜][ÛœÈ‹ŒŒŒLNÍNÛ›Ü›X[^™WÙ[[X]\×ØØ\™WÝÛÜšÙ›ÝËœÜ[ŠNÂˆ\ÜÙ\›X]Ú
-ZYÜ˜][Û‹ÙÜ˜[Ù[XÝ[œÙ\\]K[]V×××J™[[X]\×Ù\ØÛÝ™\žWÜ›ÙÜ™\ÜÖ×××JÈ]][XØ]YÊNÂˆ\ÜÙ\™Ù\Ó›ÝX]Ú
-ZYÜ˜][Û‹ÝÈ[›Û‹ÊNÂŸJNÂ‚\Ý
-˜Ø\™HÛÜšÙ›ÝÈÙ\\˜]\ÈXØÛÝ[XØÙ\ÜË]˜Z[Xš[]K[™™\]Y\ÝÝ]\È‹\Þ[˜È
+  for (const destination of ["/emmaus/walk", "/emmaus/bible", "/emmaus/discover", "/emmaus/me"]) {
+    assert.match(nav, new RegExp(destination.replaceAll("/", "\\/")));
+  }
+  assert.doesNotMatch(nav, /\/emmaus\/admin/);
+  assert.match(frame, /pathname\.startsWith\("\/emmaus"\)/);
+  assert.match(adminLayout, /profile\?\.role !== "admin"/);
+  assert.match(dashboard, /if \(isEmmausFounder\) redirect\("\/emmaus\/walk"\)/);
+});
 
-HOˆÂˆÛÛœÝÛZYÜ˜][Û‹Ü›Û‹XXÝ]˜]T›Ý]KÝ]\Ù\×HH]ØZ]›ÛZ\ÙK˜[
-ÂˆÛÝ\˜ÙJœÝ\X˜\ÙH‹›ZYÜ˜][ÛœÈ‹ŒŒŒLNÍNÛ›Ü›X[^™WÙ[[X]\×ØØ\™WÝÛÜšÙ›ÝËœÜ[ŠKˆÛÝ\˜ÙJ˜\‹˜\H‹˜Ü›Ûˆ‹››ÝYžK\Ý[KX\ÜÚYÛ›Y[È‹œ›Ý]KÈŠKˆÛÝ\˜ÙJ˜\‹˜\H‹˜YZ[ˆ‹\Ù\œÈ‹œÙ]XXÝ]™H‹œ›Ý]KÈŠKˆÛÝ\˜ÙJ˜ÛÛ\Û™[È‹YZ[”˜^Y\‘\Ú›Ø\™ÛY[ÞŠKˆJNÂ‚ˆ›Üˆ
-ÛÛœÝ]˜Z[Xš[]HÙˆÈ˜]˜Z[X›H‹›[Z]Y‹˜]Ø^H‹š[˜XÝ]™H—JHÂˆ\ÜÙ\›X]Ú
-ZYÜ˜][Û‹™]È™YÑ^
-	ÉØ]˜Z[Xš[]_IØ
-JNÂˆBˆ\ÜÙ\›X]Ú
-Ü›Û‹ÛZ[š\ÝžWØ]˜Z[Xš[]Nˆ›[Z]Y‹ÊNÂˆ\ÜÙ\›X]Ú
-Ü›Û‹Ø]˜Z[Xš[]WÜ™]šY]×Ü™\]Z\™YˆYKÊNÂˆ\ÜÙ\™Ù\Ó›ÝX]Ú
-Ü›Û‹Û[Ý™YÒ[˜XÝ]™_T•WÑVT×ÓTËÊNÂˆ\ÜÙ\›X]Ú
-XXÝ]˜]T›Ý]KÐPÕU‘WÔ‘TÔÓ”ÒP’SUQTËÊNÂˆ\ÜÙ\›X]Ú
-XXÝ]˜]T›Ý]KØ[×Ü™X\ÜÚYÛ‹ÊNÂˆ\ÜÙ\›X]Ú
-XXÝ]˜]T›Ý]KÜ™]\›—Ý×Ü]Y]YKÊNÂ‚ˆ›Üˆ
-ÛÛœÝÝ]\ÈÙˆÂˆ”ÝX›Z]Y‹”™]šY]ÙY‹\ÜÚYÛ™Y‹XÝ]™HØ\™H‹‘›ÛÝËU\‹ˆ”™\ÛÛ™Y‹ÛÜÙY‹“™YYÈ™X\ÜÚYÛ›Y[‹‘\ØØ[]Y‹ˆ•[˜X›HÈÛÛXÝ‹•Ú]˜]Ûˆ‹ˆJHÂˆ\ÜÙ\›X]Ú
-Ý]\Ù\Ë™]È™YÑ^
-‰ÜÝ]\ßH˜
-JNÂˆBŸJNÂ
+test("Emmaus progress has authenticated table privileges in addition to RLS", async () => {
+  const migration = await source("supabase", "migrations", "20260810180758_normalize_emmaus_care_workflow.sql");
+  assert.match(migration, /grant select, insert, update, delete[\s\S]*emmaus_discovery_progress[\s\S]*to authenticated/);
+  assert.doesNotMatch(migration, /to anon/);
+});
+
+test("care workflow separates account access, availability, and request status", async () => {
+  const [migration, cron, deactivateRoute, statuses] = await Promise.all([
+    source("supabase", "migrations", "20260810180758_normalize_emmaus_care_workflow.sql"),
+    source("app", "api", "cron", "notify-stale-assignments", "route.ts"),
+    source("app", "api", "admin", "users", "set-active", "route.ts"),
+    source("components", "AdminPrayerDashboardClient.tsx"),
+  ]);
+
+  for (const availability of ["available", "limited", "away", "inactive"]) {
+    assert.match(migration, new RegExp(`'${availability}'`));
+  }
+  assert.match(cron, /ministry_availability: "limited"/);
+  assert.match(cron, /availability_review_required: true/);
+  assert.doesNotMatch(cron, /movedToInactive|THIRTY_DAYS_MS/);
+  assert.match(deactivateRoute, /ACTIVE_RESPONSIBILITIES/);
+  assert.match(deactivateRoute, /bulk_reassign/);
+  assert.match(deactivateRoute, /return_to_queue/);
+
+  for (const status of [
+    "Submitted", "Reviewed", "Assigned", "Active Care", "Follow-Up",
+    "Resolved", "Closed", "Needs Reassignment", "Escalated",
+    "Unable to Contact", "Withdrawn",
+  ]) {
+    assert.match(statuses, new RegExp(`"${status}"`));
+  }
+});

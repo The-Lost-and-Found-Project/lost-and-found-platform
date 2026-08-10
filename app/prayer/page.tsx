@@ -1,129 +1,230 @@
-şŠmş&yºŞÃòân¶«Ëñè™æë{Ü™ßì…éez{ì†X§{_?n)ÿ¦Ã©z¶­Š‰ç¢Ú^®h­µçH\ÙHÛY[Â‚š[\ÜÈ\ÙQY™™Xİ\ÙT™Y‹\ÙTİ]HHœ›ÛHœ™XXİÂš[\Ü[šÈœ›ÛH›™^Û[šÈÂš[\ÜÈÜ™X]PÛY[Hœ›ÛHÛX‹Üİ\X˜\ÙKØÛY[Â‚\H˜^Y\”™\]Y\İHÂˆYˆİš[™ÎÂˆÜ™X]YØ]ˆİš[™ÎÂˆ\Ü^WÛ˜[YNˆİš[™È[Âˆ™\]Y\İİ^ˆİš[™ÎÂˆØ]YÛÜWÚYˆİš[™È[Âˆ˜^Y\—ØÛİ[ˆ[X™\Âˆİ]\Îˆİš[™ÎÂŸNÂ‚\HØ]YÛÜHHÈYˆİš[™ÎÈ˜[YNˆİš[™ÈNÂ‚™^ÜY˜][[˜İ[Ûˆ˜^Y\•Ø[YÙJ
-HÂˆÛÛœİÜ™\]Y\İËÙ]™\]Y\İ×HH\ÙTİ]O˜^Y\”™\]Y\İ×OŠ×JNÂˆÛÛœİØØ]YÛÜšY\ËÙ]Ø]YÛÜšY\×HH\ÙTİ]O™XÛÜ™İš[™Ëİš[™ÏŠßJNÂˆÛÛœİÛØY[™ËÙ]ØY[™×HH\ÙTİ]JYJNÂˆÛÛœİÜ[™[™ÒYËÙ][™[™ÒY×HH\ÙTİ]OÙ]İš[™ÏŠ™]ÈÙ]
+"use client";
 
-JNÂˆÛÛœİØÛÛ™š\›YYYËÙ]ÛÛ™š\›YYY×HH\ÙTİ]OÙ]İš[™ÏŠ™]ÈÙ]
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
-JNÂˆÛÛœİÜ˜^Y\‘\œ›ÜœËÙ]˜^Y\‘\œ›Üœ×HH\ÙTİ]O™XÛÜ™İš[™Ëİš[™ÏŠßJNÂˆÛÛœİÙ^[™YYËÙ]^[™YY×HH\ÙTİ]OÙ]İš[™ÏŠ™]ÈÙ]
+type PrayerRequest = {
+  id: string;
+  created_at: string;
+  display_name: string | null;
+  request_text: string;
+  category_id: string | null;
+  prayer_count: number;
+  status: string;
+};
 
-JNÂˆÛÛœİ[‘›YÚYÈH\ÙT™YÙ]İš[™ÏŠ™]ÈÙ]
+type Category = { id: string; name: string };
 
-JNÂˆÛÛœİ™]RÙ^\ÈH\ÙT™YX\İš[™Ëİš[™ÏŠ™]ÈX\
+export default function PrayerWallPage() {
+  const [requests, setRequests] = useState<PrayerRequest[]>([]);
+  const [categories, setCategories] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const [confirmedIds, setConfirmedIds] = useState<Set<string>>(new Set());
+  const [prayerErrors, setPrayerErrors] = useState<Record<string, string>>({});
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const inFlightIds = useRef<Set<string>>(new Set());
+  const retryKeys = useRef<Map<string, string>>(new Map());
+  const confirmationTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
-JNÂˆÛÛœİÛÛ™š\›X][Û•[Y\œÈH\ÙT™YX\İš[™Ë™]\›•\O\[ÙˆÙ][Y[İ]Š™]ÈX\
+  function toggleExpanded(id: string) {
+    setExpandedIds((previous) => {
+      const next = new Set(previous);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
-JNÂ‚ˆ[˜İ[ÛˆÙÙÛQ^[™Y
-Yˆİš[™ÊHÂˆÙ]^[™YYÊ
-™]š[İ\ÊHOˆÂˆÛÛœİ™^H™]ÈÙ]
-™]š[İ\ÊNÂˆYˆ
-™^š\ÊY
-JH™^™[]JY
-NÂˆ[ÙH™^˜Y
-Y
-NÂˆ™]\›ˆ™^ÂˆJNÂˆB‚ˆ\ÙQY™™Xİ
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient();
+      const { data: cats } = await supabase.from("prayer_categories").select("id, name");
+      const categoryMap: Record<string, string> = {};
+      ((cats as Category[]) ?? []).forEach((category) => {
+        categoryMap[category.id] = category.name;
+      });
+      setCategories(categoryMap);
 
+      const { data: requestData } = await supabase
+        .from("prayer_wall_public")
+        .select("id, created_at, display_name, request_text, category_id, prayer_count, status")
+        .order("created_at", { ascending: false });
 
-HOˆÂˆ\Ş[˜È[˜İ[ÛˆØY
+      setRequests((requestData as PrayerRequest[]) ?? []);
+      setLoading(false);
+    }
+    load();
+  }, []);
 
-HÂˆÛÛœİİ\X˜\ÙHHÜ™X]PÛY[
+  useEffect(() => {
+    const timers = confirmationTimers.current;
+    return () => timers.forEach((timer) => clearTimeout(timer));
+  }, []);
 
-NÂˆÛÛœİÈ]NˆØ]ÈHH]ØZ]İ\X˜\ÙK™œ›ÛJœ˜^Y\—ØØ]YÛÜšY\ÈŠKœÙ[Xİ
-šY˜[YHŠNÂˆÛÛœİØ]YÛÜSX\ˆ™XÛÜ™İš[™Ëİš[™ÏˆHßNÂˆ
+  function getAnonKey() {
+    let key = window.localStorage.getItem("lfp_anon_key");
+    if (!key) {
+      key = crypto.randomUUID();
+      window.localStorage.setItem("lfp_anon_key", key);
+    }
+    return key;
+  }
 
-Ø]È\ÈØ]YÛÜV×JHÏÈ×JK™›Ü‘XXÚ
+  async function handlePray(requestId: string) {
+    if (inFlightIds.current.has(requestId)) return;
+    inFlightIds.current.add(requestId);
+    setPendingIds((previous) => new Set(previous).add(requestId));
+    setPrayerErrors((previous) => {
+      const next = { ...previous };
+      delete next[requestId];
+      return next;
+    });
 
-Ø]YÛÜJHOˆÂˆØ]YÛÜSX\ØØ]YÛÜKšYHHØ]YÛÜK›˜[YNÂˆJNÂˆÙ]Ø]YÛÜšY\ÊØ]YÛÜSX\
-NÂ‚ˆÛÛœİÈ]Nˆ™\]Y\İ]HHH]ØZ]İ\X˜\ÙBˆ™œ›ÛJœ˜^Y\—İØ[ÜX›XÈŠBˆœÙ[Xİ
-šYÜ™X]YØ]\Ü^WÛ˜[YK™\]Y\İİ^Ø]YÛÜWÚY˜^Y\—ØÛİ[İ]\ÈŠBˆ›Ü™\Š˜Ü™X]YØ]‹È\ØÙ[™[™Îˆ˜[ÙHJNÂ‚ˆÙ]™\]Y\İÊ
-™\]Y\İ]H\È˜^Y\”™\]Y\İ×JHÏÈ×JNÂˆÙ]ØY[™Ê˜[ÙJNÂˆBˆØY
+    try {
+      const clientRequestId = retryKeys.current.get(requestId) ?? crypto.randomUUID();
+      retryKeys.current.set(requestId, clientRequestId);
+      const response = await fetch("/api/prayer-activities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId, clientRequestId, anonKey: getAnonKey() }),
+      });
+      const result = (await response.json()) as { prayerCount?: number | null; error?: string };
+      if (!response.ok) throw new Error(result.error ?? "Prayer activity request failed");
 
-NÂˆK×JNÂ‚ˆ\ÙQY™™Xİ
+      setRequests((previous) => previous.map((request) => request.id === requestId
+        ? { ...request, prayer_count: typeof result.prayerCount === "number" ? result.prayerCount : request.prayer_count + 1 }
+        : request));
+      retryKeys.current.delete(requestId);
+      setConfirmedIds((previous) => new Set(previous).add(requestId));
+      const existingTimer = confirmationTimers.current.get(requestId);
+      if (existingTimer) clearTimeout(existingTimer);
+      confirmationTimers.current.set(requestId, setTimeout(() => {
+        setConfirmedIds((previous) => {
+          const next = new Set(previous);
+          next.delete(requestId);
+          return next;
+        });
+        confirmationTimers.current.delete(requestId);
+      }, 1800));
+    } catch (error) {
+      console.error("Failed to record prayer activity:", error);
+      setPrayerErrors((previous) => ({ ...previous, [requestId]: "We couldn't record your prayer. Please try again." }));
+    } finally {
+      inFlightIds.current.delete(requestId);
+      setPendingIds((previous) => {
+        const next = new Set(previous);
+        next.delete(requestId);
+        return next;
+      });
+    }
+  }
 
+  return (
+    <main className="lfp-page pb-20">
+      <section className="relative overflow-hidden bg-slate-950 text-white">
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(79,70,229,0.34),transparent_32rem),radial-gradient(circle_at_10%_100%,rgba(245,190,67,0.2),transparent_28rem)]" />
+        <div className="lfp-shell relative py-14 sm:py-20">
+          <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div className="max-w-3xl">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Community Prayer</p>
+              <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">Carry one another before God.</h1>
+              <p className="mt-5 text-lg leading-8 text-indigo-100/75">Share what is on your heart, pray with the community, and remember that no request has to be carried alone.</p>
+            </div>
+            <Link href="/prayer/submit" className="lfp-button bg-amber-300 text-slate-950 shadow-xl hover:bg-amber-200">Submit a Prayer Request</Link>
+          </div>
+        </div>
+      </section>
 
-HOˆÂˆÛÛœİ[Y\œÈHÛÛ™š\›X][Û•[Y\œË˜İ\œ™[Âˆ™]\›ˆ
+      <div className="lfp-shell py-10 sm:py-14">
+        <section className="grid gap-5 md:grid-cols-3">
+          <PrayerValue icon="ğŸ™" title="Share honestly" text="Bring real needs, real burdens, and real hope into a community committed to prayer." />
+          <PrayerValue icon="â™¡" title="Pray faithfully" text="A simple tap records that someone has intentionally prayed for the request." />
+          <PrayerValue icon="ğŸ›¡" title="Protect privacy" text="Requests follow the existing visibility and moderation safeguards already built into the platform." />
+        </section>
 
-HOˆ[Y\œË™›Ü‘XXÚ
+        <section className="mt-14">
+          <div className="max-w-3xl">
+            <p className="lfp-eyebrow">Prayer wall</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Pray with what is happening now</h2>
+            <p className="mt-3 text-lg leading-8 text-slate-600">Open a request, read it carefully, and take a moment to pray before pressing the button.</p>
+          </div>
 
-[Y\ŠHOˆÛX\•[Y[İ]
-[Y\ŠJNÂˆK×JNÂ‚ˆ[˜İ[ÛˆÙ][›Û’Ù^J
-HÂˆ]Ù^HHÚ[™İË›ØØ[İÜ˜YÙK™Ù]][J›œØ[›Û—ÚÙ^HŠNÂˆYˆ
-ZÙ^JHÂˆÙ^HHÜ\Ëœ˜[™ÛUURQ
+          <div className="mt-7 space-y-4">
+            {loading && <div className="lfp-card p-7 text-slate-500">Loading prayer requests...</div>}
 
-NÂˆÚ[™İË›ØØ[İÜ˜YÙKœÙ]][J›œØ[›Û—ÚÙ^H‹Ù^JNÂˆBˆ™]\›ˆÙ^NÂˆB‚ˆ\Ş[˜È[˜İ[Ûˆ[™T˜^J™\]Y\İYˆİš[™ÊHÂˆYˆ
-[‘›YÚYË˜İ\œ™[š\Ê™\]Y\İY
-JH™]\›Âˆ[‘›YÚYË˜İ\œ™[˜Y
-™\]Y\İY
-NÂˆÙ][™[™ÒYÊ
-™]š[İ\ÊHOˆ™]ÈÙ]
-™]š[İ\ÊK˜Y
-™\]Y\İY
-JNÂˆÙ]˜^Y\‘\œ›ÜœÊ
-™]š[İ\ÊHOˆÂˆÛÛœİ™^HÈ‹‹œ™]š[İ\ÈNÂˆ[]H™^Ü™\]Y\İYNÂˆ™]\›ˆ™^ÂˆJNÂ‚ˆHÂˆÛÛœİÛY[™\]Y\İYH™]RÙ^\Ë˜İ\œ™[™Ù]
-™\]Y\İY
-HÏÈÜ\Ëœ˜[™ÛUURQ
+            {!loading && requests.length === 0 && (
+              <div className="lfp-card p-8 text-center">
+                <span className="text-4xl" aria-hidden="true">ğŸ™</span>
+                <h3 className="mt-4 text-2xl font-black text-slate-950">The prayer wall is ready.</h3>
+                <p className="mt-3 text-slate-600">Be the first person to share a request with the community.</p>
+                <Link href="/prayer/submit" className="lfp-button lfp-button-primary mt-6">Submit a Prayer Request</Link>
+              </div>
+            )}
 
-NÂˆ™]RÙ^\Ë˜İ\œ™[œÙ]
-™\]Y\İYÛY[™\]Y\İY
-NÂˆÛÛœİ™\ÜÛœÙHH]ØZ]™]Ú
-‹Ø\KÜ˜^Y\‹XXİ]š]Y\È‹ÂˆY]Ùˆ”ÔÕ‹ˆXY\œÎˆÈÛÛ[U\Hˆ˜\XØ][Û‹ÚœÛÛˆˆKˆ›ÙNˆ”ÓÓ‹œİš[™ÚYJÈ™\]Y\İYÛY[™\]Y\İY[›Û’Ù^NˆÙ][›Û’Ù^J
-HJKˆJNÂˆÛÛœİ™\İ[H
-]ØZ]™\ÜÛœÙKšœÛÛŠ
-JH\ÈÈ˜^Y\Ûİ[Îˆ[X™\ˆ[È\œ›ÜÎˆİš[™ÈNÂˆYˆ
-\™\ÜÛœÙK›ÚÊH›İÈ™]È\œ›ÜŠ™\İ[™\œ›ÜˆÏÈ”˜^Y\ˆXİ]š]H™\]Y\İ˜Z[YŠNÂ‚ˆÙ]™\]Y\İÊ
-™]š[İ\ÊHOˆ™]š[İ\Ë›X\
+            {requests.map((request) => {
+              const expanded = expandedIds.has(request.id);
+              const pending = pendingIds.has(request.id);
+              const confirmed = confirmedIds.has(request.id);
+              const prayerLabel = `${request.prayer_count} ${request.prayer_count === 1 ? "prayer" : "prayers"}`;
+              const snippet = request.request_text.length > 160 ? `${request.request_text.slice(0, 160)}...` : request.request_text;
 
-™\]Y\İ
-HOˆ™\]Y\İšYOOH™\]Y\İYˆÈÈ‹‹œ™\]Y\İ˜^Y\—ØÛİ[ˆ\[Ùˆ™\İ[œ˜^Y\Ûİ[OOH›[X™\ˆˆÈ™\İ[œ˜^Y\Ûİ[ˆ™\]Y\İœ˜^Y\—ØÛİ[
-ÈHBˆˆ™\]Y\İ
-JNÂˆ™]RÙ^\Ë˜İ\œ™[™[]J™\]Y\İY
-NÂˆÙ]ÛÛ™š\›YYYÊ
-™]š[İ\ÊHOˆ™]ÈÙ]
-™]š[İ\ÊK˜Y
-™\]Y\İY
-JNÂˆÛÛœİ^\İ[™Õ[Y\ˆHÛÛ™š\›X][Û•[Y\œË˜İ\œ™[™Ù]
-™\]Y\İY
-NÂˆYˆ
-^\İ[™Õ[Y\ŠHÛX\•[Y[İ]
-^\İ[™Õ[Y\ŠNÂˆÛÛ™š\›X][Û•[Y\œË˜İ\œ™[œÙ]
-™\]Y\İYÙ][Y[İ]
+              return (
+                <article key={request.id} className="lfp-card p-6 sm:p-7">
+                  <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-start">
+                    <button type="button" onClick={() => toggleExpanded(request.id)} aria-expanded={expanded} className="group min-w-0 text-left">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-black text-slate-950">{request.display_name ?? "Anonymous"}</span>
+                        {request.category_id && categories[request.category_id] && (
+                          <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">{categories[request.category_id]}</span>
+                        )}
+                        {(request.status === "Resolved" || request.status === "Closed") && (
+                          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">Answered</span>
+                        )}
+                      </div>
+                      <div className="mt-4 flex items-start gap-3">
+                        <span className={`mt-1 text-xl font-black text-indigo-600 transition ${expanded ? "rotate-90" : "group-hover:translate-x-1"}`} aria-hidden="true">â€º</span>
+                        <p className="whitespace-pre-wrap text-lg leading-8 text-slate-800">{expanded ? request.request_text : snippet}</p>
+                      </div>
+                      <p className="mt-4 text-xs font-semibold text-slate-400">Shared {new Date(request.created_at).toLocaleDateString()}</p>
+                    </button>
 
+                    <div className="sm:min-w-44 sm:text-right">
+                      <button
+                        onClick={() => handlePray(request.id)}
+                        disabled={pending}
+                        aria-label={`${confirmed ? "Prayer recorded for" : "Pray for"} ${request.display_name ?? "this request"}. ${prayerLabel}`}
+                        className={`lfp-button w-full sm:w-auto ${confirmed ? "bg-emerald-100 text-emerald-800" : "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg"}`}
+                      >
+                        {pending ? "Recording..." : confirmed ? "Prayer recorded" : "I Prayed"}
+                      </button>
+                      <p className="mt-2 text-xs font-bold text-slate-500">{prayerLabel}</p>
+                      {prayerErrors[request.id] && <p role="alert" aria-live="polite" className="mt-2 max-w-48 text-sm text-rose-700">{prayerErrors[request.id]}</p>}
+                      <span className="sr-only" role="status" aria-live="polite">{confirmed ? `Prayer recorded. ${prayerLabel}.` : ""}</span>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
 
-HOˆÂˆÙ]ÛÛ™š\›YYYÊ
-™]š[İ\ÊHOˆÂˆÛÛœİ™^H™]ÈÙ]
-™]š[İ\ÊNÂˆ™^™[]J™\]Y\İY
-NÂˆ™]\›ˆ™^ÂˆJNÂˆÛÛ™š\›X][Û•[Y\œË˜İ\œ™[™[]J™\]Y\İY
-NÂˆKN
-JNÂˆHØ]Ú
-\œ›ÜŠHÂˆÛÛœÛÛK™\œ›ÜŠ‘˜Z[YÈ™XÛÜ™˜^Y\ˆXİ]š]Nˆ‹\œ›ÜŠNÂˆÙ]˜^Y\‘\œ›ÜœÊ
-™]š[İ\ÊHOˆ
-È‹‹œ™]š[İ\ËÜ™\]Y\İYNˆ•ÙHÛİ[‰İ™XÛÜ™[İ\ˆ˜^Y\‹ˆX\ÙHHYØZ[‹ˆˆJJNÂˆHš[˜[HÂˆ[‘›YÚYË˜İ\œ™[™[]J™\]Y\İY
-NÂˆÙ][™[™ÒYÊ
-™]š[İ\ÊHOˆÂˆÛÛœİ™^H™]ÈÙ]
-™]š[İ\ÊNÂˆ™^™[]J™\]Y\İY
-NÂˆ™]\›ˆ™^ÂˆJNÂˆBˆB‚ˆ™]\›ˆ
-ˆXZ[ˆÛ\ÜÓ˜[YOH›œ\YÙH‹LŒ‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOHœ™[]]™Hİ™\™›İËZY[ˆ™Ë\Û]KNML^]Ú]H‚ˆ]ˆ\šXKZY[HYHˆÛ\ÜÓ˜[YOH˜XœÛÛ]H[œÙ]L™ËVÜ˜YX[YÜ˜YY[
-Ú\˜ÛWØ]Î	WÌL	K™Ø˜JÎKÌŒKŒÍ
-K˜[œÜ\™[ÌÌœ™[JK˜YX[YÜ˜YY[
-Ú\˜ÛWØ]ÌL	WÌL	K™Ø˜JKNLËŒŠK˜[œÜ\™[Ì™[JWHˆÏ‚ˆ]ˆÛ\ÜÓ˜[YOH›œ\Ú[™[]]™HKLMÛNœKLŒ‚ˆ]ˆÛ\ÜÓ˜[YOH™ÜšYØ\NÎ™ÜšYXÛÛËVÌYœ—Ø]]×HÎš][\ËY[™‚ˆ]ˆÛ\ÜÓ˜[YOH›X^]ËLŞ‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒ™[WH^X[X™\‹LÌÛÛ[][š]H˜^Y\Ü‚ˆHÛ\ÜÓ˜[YOH›]M^M›ÛX›XÚÈ˜XÚÚ[™Ë]YÚÛN^MØ\œHÛ™H[›İ\ˆ™Y›Ü™HÛÙÚO‚ˆÛ\ÜÓ˜[YOH›]MH^[ÈXY[™ËN^Z[™YÛËLLÍÍH”Ú\™HÚ]\ÈÛˆ[İ\ˆX\˜^HÚ]HÛÛ[][š]K[™™[Y[X™\ˆ]›È™\]Y\İ\ÈÈ™HØ\œšYY[Û™KÜ‚ˆÙ]‚ˆ[šÈ™YH‹Ü˜^Y\‹ÜİX›Z]ˆÛ\ÜÓ˜[YOH›œX]Ûˆ™ËX[X™\‹LÌ^\Û]KNMLÚYİË^İ™\˜™ËX[X™\‹LŒ”İX›Z]H˜^Y\ˆ™\]Y\İÓ[šÏ‚ˆÙ]‚ˆÙ]‚ˆÜÙXİ[Û‚‚ˆ]ˆÛ\ÜÓ˜[YOH›œ\Ú[KLLÛNœKLM‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH™ÜšYØ\MHY™ÜšYXÛÛËLÈ‚ˆ˜^Y\•˜[YHXÛÛH¼'æcÈˆ]OH”Ú\™HÛ™\İHˆ^Hœš[™È™X[™YYË™X[\™[œË[™™X[ÜH[ÈHÛÛ[][š]HÛÛ[Z]YÈ˜^Y\‹ˆˆÏ‚ˆ˜^Y\•˜[YHXÛÛH¸¦hHˆ]OH”˜^H˜Z][Hˆ^HHÚ[\H\™XÛÜ™È]ÛÛY[Û™H\È[[[Û˜[H˜^YY›ÜˆH™\]Y\İˆˆÏ‚ˆ˜^Y\•˜[YHXÛÛH¼'æèHˆ]OH”›İXİš]˜XŞHˆ^H”™\]Y\İÈ›ÛİÈH^\İ[™Èš\ÚXš[]H[™[Ù\˜][ÛˆØY™YİX\™È[™XYHZ[[ÈH]›Ü›KˆˆÏ‚ˆÜÙXİ[Û‚‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›]LM‚ˆ]ˆÛ\ÜÓ˜[YOH›X^]ËLŞ‚ˆÛ\ÜÓ˜[YOH›œY^YXœ›İÈ”˜^Y\ˆØ[Ü‚ˆˆÛ\ÜÓ˜[YOH›]Lˆ^LŞ›ÛX›XÚÈ˜XÚÚ[™Ë]YÚ^\Û]KNMLÛN^M”˜^HÚ]Ú]\È\[š[™È›İÏÚ‚ˆÛ\ÜÓ˜[YOH›]LÈ^[ÈXY[™ËN^\Û]KMŒ“Ü[ˆH™\]Y\İ™XY]Ø\™Y[K[™ZÙHH[ÛY[È˜^H™Y›Ü™H™\ÜÚ[™ÈH]Û‹Ü‚ˆÙ]‚‚ˆ]ˆÛ\ÜÓ˜[YOH›]MÈÜXÙK^KM‚ˆÛØY[™È	‰ˆ]ˆÛ\ÜÓ˜[YOH›œXØ\™MÈ^\Û]KML“ØY[™È˜^Y\ˆ™\]Y\İË‹‹Ù]ŸB‚ˆÈ[ØY[™È	‰ˆ™\]Y\İË›[™İOOH	‰ˆ
-ˆ]ˆÛ\ÜÓ˜[YOH›œXØ\™N^XÙ[\ˆ‚ˆÜ[ˆÛ\ÜÓ˜[YOH^Mˆ\šXKZY[HYH¼'æcÏÜÜ[‚ˆÈÛ\ÜÓ˜[YOH›]M^L›ÛX›XÚÈ^\Û]KNML•H˜^Y\ˆØ[\È™XYKÚÏ‚ˆÛ\ÜÓ˜[YOH›]LÈ^\Û]KMŒ™HHš\œİ\œÛÛˆÈÚ\™HH™\]Y\İÚ]HÛÛ[][š]KÜ‚ˆ[šÈ™YH‹Ü˜^Y\‹ÜİX›Z]ˆÛ\ÜÓ˜[YOH›œX]ÛˆœX]Û‹\š[X\H]Mˆ”İX›Z]H˜^Y\ˆ™\]Y\İÓ[šÏ‚ˆÙ]‚ˆ
-_B‚ˆÜ™\]Y\İË›X\
+        <section className="mt-14 rounded-[2rem] bg-gradient-to-br from-indigo-600 to-violet-700 p-7 text-white shadow-2xl sm:p-10">
+          <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">You are not alone</p>
+              <h2 className="mt-3 text-3xl font-black">What can we pray about with you?</h2>
+              <p className="mt-3 max-w-2xl leading-7 text-indigo-100/80">Share as much or as little as you are comfortable sharing. Existing privacy controls remain in place.</p>
+            </div>
+            <Link href="/prayer/submit" className="lfp-button bg-white text-indigo-800 shadow-xl">Submit Your Request</Link>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
 
-™\]Y\İ
-HOˆÂˆÛÛœİ^[™YH^[™YYËš\Ê™\]Y\İšY
-NÂˆÛÛœİ[™[™ÈH[™[™ÒYËš\Ê™\]Y\İšY
-NÂˆÛÛœİÛÛ™š\›YYHÛÛ™š\›YYYËš\Ê™\]Y\İšY
-NÂˆÛÛœİ˜^Y\“X™[H	Ü™\]Y\İœ˜^Y\—ØÛİ[H	Ü™\]Y\İœ˜^Y\—ØÛİ[OOHHÈœ˜^Y\ˆˆˆœ˜^Y\œÈŸXÂˆÛÛœİÛš\]H™\]Y\İœ™\]Y\İİ^›[™İˆMŒÈ	Ü™\]Y\İœ™\]Y\İİ^œÛXÙJMŒ
-_K‹‹˜ˆ™\]Y\İœ™\]Y\İİ^Â‚ˆ™]\›ˆ
-ˆ\XÛHÙ^O^Ü™\]Y\İšYHÛ\ÜÓ˜[YOH›œXØ\™MˆÛNœMÈ‚ˆ]ˆÛ\ÜÓ˜[YOH™ÜšYØ\MHÛN™ÜšYXÛÛËVÌYœ—Ø]]×HÛNš][\Ë\İ\‚ˆ]Ûˆ\OH˜]ÛˆˆÛÛXÚÏ^Ê
-HOˆÙÙÛQ^[™Y
-™\]Y\İšY
-_H\šXKY^[™Y^Ù^[™YHÛ\ÜÓ˜[YOH™Ü›İ\Z[‹]ËL^[Y‚ˆ]ˆÛ\ÜÓ˜[YOH™›^›^]Ü˜\][\ËXÙ[\ˆØ\Lˆ‚ˆÜ[ˆÛ\ÜÓ˜[YOH™›ÛX›XÚÈ^\Û]KNMLÜ™\]Y\İ™\Ü^WÛ˜[YHÏÈ[›Û[[İ\ÈŸOÜÜ[‚ˆÜ™\]Y\İ˜Ø]YÛÜWÚY	‰ˆØ]YÛÜšY\ÖÜ™\]Y\İ˜Ø]YÛÜWÚYH	‰ˆ
-ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËZ[™YÛËMLLÈKLH^^È›ÛX›Û^Z[™YÛËMÌØØ]YÛÜšY\ÖÜ™\]Y\İ˜Ø]YÛÜWÚY_OÜÜ[‚ˆ
-_BˆÊ™\]Y\İœİ]\ÈOOH”™\ÛÛ™Yˆ™\]Y\İœİ]\ÈOOHÛÜÙYŠH	‰ˆ
-ˆÜ[ˆÛ\ÜÓ˜[YOHœ›İ[™YY[™ËY[Y\˜[LLLÈKLH^^È›ÛX›Û^Y[Y\˜[N[œİÙ\™YÜÜ[‚ˆ
-_BˆÙ]‚ˆ]ˆÛ\ÜÓ˜[YOH›]M›^][\Ë\İ\Ø\LÈ‚ˆÜ[ˆÛ\ÜÓ˜[YO^Ø]LH^^›ÛX›XÚÈ^Z[™YÛËMŒ˜[œÚ][Ûˆ	Ù^[™YÈœ›İ]KNLˆˆ™Ü›İ\Zİ™\˜[œÛ]K^LHŸXH\šXKZY[HYH¸ .ÜÜ[‚ˆÛ\ÜÓ˜[YOHÚ]\ÜXÙK\™K]Ü˜\^[ÈXY[™ËN^\Û]KNÙ^[™YÈ™\]Y\İœ™\]Y\İİ^ˆÛš\]OÜ‚ˆÙ]‚ˆÛ\ÜÓ˜[YOH›]M^^È›Û\Ù[ZX›Û^\Û]KM”Ú\™YÛ™]È]J™\]Y\İ˜Ü™X]YØ]
-KÓØØ[Q]Tİš[™Ê
-_OÜ‚ˆØ]Û‚‚ˆ]ˆÛ\ÜÓ˜[YOHœÛN›Z[‹]ËMÛN^\šYÚ‚ˆ]Û‚ˆÛÛXÚÏ^Ê
-HOˆ[™T˜^J™\]Y\İšY
-_Bˆ\ØX›Y^Ü[™[™ßBˆ\šXK[X™[^Ø	ØÛÛ™š\›YYÈ”˜^Y\ˆ™XÛÜ™Y›Üˆˆˆ”˜^H›ÜˆŸH	Ü™\]Y\İ™\Ü^WÛ˜[YHÏÈ\È™\]Y\İŸKˆ	Ü˜^Y\“X™[XBˆÛ\ÜÓ˜[YO^ØœX]ÛˆËY[ÛNËX]]È	ØÛÛ™š\›YYÈ˜™ËY[Y\˜[LL^Y[Y\˜[Nˆˆ˜™ËYÜ˜YY[]Ë\ˆœ›ÛKZ[™YÛËMŒË]š[Û]MŒ^]Ú]HÚYİË[ÈŸXBˆ‚ˆÜ[™[™ÈÈ”™XÛÜ™[™Ë‹‹ˆˆˆÛÛ™š\›YYÈ”˜^Y\ˆ™XÛÜ™Yˆˆ’H˜^YYŸBˆØ]Û‚ˆÛ\ÜÓ˜[YOH›]Lˆ^^È›ÛX›Û^\Û]KMLÜ˜^Y\“X™[OÜ‚ˆÜ˜^Y\‘\œ›ÜœÖÜ™\]Y\İšYH	‰ˆ›ÛOH˜[\ˆ\šXK[]™OHœÛ]HˆÛ\ÜÓ˜[YOH›]LˆX^]ËM^\ÛH^\›ÜÙKMÌÜ˜^Y\‘\œ›ÜœÖÜ™\]Y\İšY_OÜŸBˆÜ[ˆÛ\ÜÓ˜[YOHœÜ‹[Û›Hˆ›ÛOHœİ]\Èˆ\šXK[]™OHœÛ]HØÛÛ™š\›YYÈ˜^Y\ˆ™XÛÜ™Yˆ	Ü˜^Y\“X™[K˜ˆˆŸOÜÜ[‚ˆÙ]‚ˆÙ]‚ˆØ\XÛO‚ˆ
-NÂˆJ_BˆÙ]‚ˆÜÙXİ[Û‚‚ˆÙXİ[ÛˆÛ\ÜÓ˜[YOH›]LM›İ[™YVÌœ™[WH™ËYÜ˜YY[]ËXœˆœ›ÛKZ[™YÛËMŒË]š[Û]MÌMÈ^]Ú]HÚYİËLÛNœLL‚ˆ]ˆÛ\ÜÓ˜[YOH™ÜšYØ\MˆY™ÜšYXÛÛËVÌYœ—Ø]]×HYš][\ËXÙ[\ˆ‚ˆ]‚ˆÛ\ÜÓ˜[YOH^^È›ÛX›XÚÈ\\˜Ø\ÙH˜XÚÚ[™ËVÌŒN[WH^X[X™\‹LÌ–[İH\™H›İ[Û™OÜ‚ˆˆÛ\ÜÓ˜[YOH›]LÈ^LŞ›ÛX›XÚÈ•Ú]Ø[ˆÙH˜^HX›İ]Ú][İOÏÚ‚ˆÛ\ÜÓ˜[YOH›]LÈX^]ËLXY[™ËMÈ^Z[™YÛËLLÎ”Ú\™H\È]XÚÜˆ\È]H\È[İH\™HÛÛY›ÜX›HÚ\š[™Ëˆ^\İ[™Èš]˜XŞHÛÛ›ÛÈ™[XZ[ˆ[ˆXÙKÜ‚ˆÙ]‚ˆ[šÈ™YH‹Ü˜^Y\‹ÜİX›Z]ˆÛ\ÜÓ˜[YOH›œX]Ûˆ™Ë]Ú]H^Z[™YÛËNÚYİË^”İX›Z][İ\ˆ™\]Y\İÓ[šÏ‚ˆÙ]‚ˆÜÙXİ[Û‚ˆÙ]‚ˆÛXZ[‚ˆ
-NÂŸB‚™[˜İ[Ûˆ˜^Y\•˜[YJÈXÛÛ‹]K^NˆÈXÛÛˆİš[™ÎÈ]Nˆİš[™ÎÈ^ˆİš[™ÈJHÂˆ™]\›ˆ\XÛHÛ\ÜÓ˜[YOH›œXØ\™MˆÜ[ˆÛ\ÜÓ˜[YOH^LŞˆ\šXKZY[HYHÚXÛÛŸOÜÜ[ˆÛ\ÜÓ˜[YOH›]MH^^›ÛX›XÚÈ^\Û]KNMLİ]_OÚÛ\ÜÓ˜[YOH›]LÈXY[™ËMÈ^\Û]KMŒİ^OÜØ\XÛOÂŸB
+function PrayerValue({ icon, title, text }: { icon: string; title: string; text: string }) {
+  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
+}
