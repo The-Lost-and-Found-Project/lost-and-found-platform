@@ -10,10 +10,10 @@ export default function ShareButton() {
     // happens to be loaded from (e.g. a raw Vercel deployment URL) — those
     // alternate hostnames aren't authorized for the Turnstile CAPTCHA and
     // will fail for anyone who opens them.
-    const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.lostandfoundproject.org"}/`;
+    const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.lostandfoundproject.org"}/share`;
     const shareData = {
       title: "The Lost and Found Project",
-      text: "Join our community of prayer and encouragement.",
+      text: "I’d like to invite you to The Lost and Found Project—a community for prayer, encouragement, and spiritual growth.",
       url,
     };
 
@@ -39,7 +39,7 @@ export default function ShareButton() {
     <button
       type="button"
       onClick={handleShare}
-      className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+      className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -55,7 +55,7 @@ export default function ShareButton() {
           strokeLinejoin="round"
         />
       </svg>
-      {copied ? "Link copied!" : "Share This App"}
+      {copied ? "Invitation link copied!" : "Share With a Friend"}
     </button>
   );
 }

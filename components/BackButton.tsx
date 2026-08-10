@@ -8,7 +8,7 @@ export default function BackButton() {
 
   // No back button on the public landing page or the main signed-in
   // dashboard — there's nowhere useful to go "back" to from either.
-  if (pathname === "/" || pathname === "/dashboard") return null;
+  if (pathname === "/" || pathname === "/share" || pathname === "/dashboard") return null;
 
   return (
     <button

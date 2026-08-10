@@ -6,15 +6,22 @@ import test from "node:test";
 const root = process.cwd();
 const source = (...parts) => readFile(path.join(root, ...parts), "utf8");
 
-test("community previews use short unique excerpts instead of duplicated tickers", async () => {
-  const [prayers, testimonies] = await Promise.all([
+test("the dashboard restores an accessible scrolling prayer preview without restoring testimony duplication", async () => {
+  const [prayers, ticker, testimonies] = await Promise.all([
     source("components", "PrayerWallTicker.tsx"),
+    source("components", "TickerScroll.tsx"),
     source("components", "TestimonyTicker.tsx"),
   ]);
 
-  assert.match(prayers, /\.limit\(3\)/);
+  assert.match(prayers, /\.limit\(12\)/);
+  assert.match(prayers, /<TickerScroll heightClass="h-64">/);
+  assert.match(prayers, /Open Prayer Wall/);
+  assert.match(prayers, /aria-hidden=\{index >= requests\.length/);
+  assert.match(prayers, /request_text\.slice\(0, 180\)/);
+  assert.match(ticker, /prefers-reduced-motion: reduce/);
+  assert.match(ticker, /pointerenter/);
+  assert.match(ticker, /pointerleave/);
   assert.match(testimonies, /\.limit\(3\)/);
-  assert.doesNotMatch(prayers, /\.\.\.requests, \.\.\.requests/);
   assert.doesNotMatch(testimonies, /\.\.\.testimonies, \.\.\.testimonies/);
 });
 

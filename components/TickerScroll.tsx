@@ -15,13 +15,16 @@ const RESUME_DELAY_MS = 1200;
 
 export default function TickerScroll({
   children,
+  heightClass = "h-80",
 }: {
   children: React.ReactNode;
+  heightClass?: string;
 }) {
   const maskRef = useRef<HTMLDivElement>(null);
   const programmatic = useRef(false);
   const lastUserInput = useRef(0);
   const pointerDown = useRef(false);
+  const hovered = useRef(false);
   // Our own precise, fractional scroll position. We deliberately do NOT use
   // el.scrollTop as the running total: browsers store/report scrollTop as a
   // rounded whole pixel, and at this speed each frame only advances by a
@@ -38,6 +41,7 @@ export default function TickerScroll({
     // flow narrowing above carries through into the nested closures below
     // (it does not narrow across function boundaries on its own).
     const el: HTMLDivElement = current;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     position.current = el.scrollTop;
 
@@ -67,10 +71,22 @@ export default function TickerScroll({
       lastUserInput.current = performance.now();
     }
 
+    function onPointerEnter() {
+      hovered.current = true;
+    }
+
+    function onPointerLeave() {
+      hovered.current = false;
+      pointerDown.current = false;
+      lastUserInput.current = performance.now();
+    }
+
     el.addEventListener("scroll", onScroll, { passive: true });
     el.addEventListener("pointerdown", onPointerDown);
     el.addEventListener("pointerup", onPointerUp);
     el.addEventListener("pointercancel", onPointerUp);
+    el.addEventListener("pointerenter", onPointerEnter);
+    el.addEventListener("pointerleave", onPointerLeave);
 
     function tick(now: number) {
       const dt = now - last;
@@ -79,7 +95,7 @@ export default function TickerScroll({
       const half = el.scrollHeight / 2;
       const idleFor = now - lastUserInput.current;
 
-      if (!pointerDown.current && idleFor > RESUME_DELAY_MS && half > 0) {
+      if (!reduceMotion && !pointerDown.current && !hovered.current && idleFor > RESUME_DELAY_MS && half > 0) {
         let next = position.current + (SCROLL_SPEED_PX_PER_SEC * dt) / 1000;
         while (next >= half) {
           next -= half;
@@ -100,13 +116,15 @@ export default function TickerScroll({
       el.removeEventListener("pointerdown", onPointerDown);
       el.removeEventListener("pointerup", onPointerUp);
       el.removeEventListener("pointercancel", onPointerUp);
+      el.removeEventListener("pointerenter", onPointerEnter);
+      el.removeEventListener("pointerleave", onPointerLeave);
     };
   }, []);
 
   return (
     <div
       ref={maskRef}
-      className="lfp-ticker-mask relative h-80 overflow-y-scroll"
+      className={`lfp-ticker-mask relative ${heightClass} overflow-y-scroll`}
       style={{ touchAction: "pan-y" }}
     >
       <div className="flex flex-col gap-4 px-5 py-4">{children}</div>

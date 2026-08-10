@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import TickerScroll from "./TickerScroll";
 
 type PrayerRequest = {
   id: string;
@@ -26,7 +27,7 @@ export default function PrayerWallTicker() {
         .from("prayer_wall_public")
         .select("id, request_text, created_at")
         .order("created_at", { ascending: false })
-        .limit(3);
+        .limit(12);
 
       if (active) {
         setRequests((data as PrayerRequest[]) ?? []);
@@ -48,27 +49,36 @@ export default function PrayerWallTicker() {
     return null;
   }
 
+  const scrollingRequests = [...requests, ...requests];
+
   return (
     <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="community-prayers-title">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="community-prayers-title" className="text-xl font-black text-slate-950">
           Prayers from our community
         </h2>
-        <Link href="/prayer" className="text-sm font-bold text-indigo-700 hover:text-indigo-600">
-          Open Prayer →
+        <Link href="/prayer" className="inline-flex min-h-11 items-center text-sm font-bold text-indigo-700 hover:text-indigo-600">
+          Open Prayer Wall →
         </Link>
       </div>
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
-        {requests.map((request) => {
-          const excerpt = request.request_text.length > 150
-            ? `${request.request_text.slice(0, 150).trim()}…`
+      <p className="mt-2 text-sm text-slate-500">Recent approved prayers move gently below. Swipe or scroll to browse; movement pauses while you interact.</p>
+      <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70">
+        <TickerScroll heightClass="h-64">
+        {scrollingRequests.map((request, index) => {
+          const excerpt = request.request_text.length > 180
+            ? `${request.request_text.slice(0, 180).trim()}…`
             : request.request_text;
           return (
-            <article key={request.id} className="rounded-2xl bg-slate-50 p-4">
-              <p className="line-clamp-4 leading-6 text-slate-700">&ldquo;{excerpt}&rdquo;</p>
+            <article
+              key={`${request.id}-${index}`}
+              aria-hidden={index >= requests.length ? "true" : undefined}
+              className="rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm"
+            >
+              <p className="line-clamp-3 leading-6 text-slate-700">&ldquo;{excerpt}&rdquo;</p>
             </article>
           );
         })}
+        </TickerScroll>
       </div>
     </section>
   );

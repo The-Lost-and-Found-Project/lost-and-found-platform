@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
       staleAssignmentCount: 0,
       membersNotified: 0,
       pausedForNeglect: 0,
+      followUpsNotified: 0,
     };
 
     if (staleRequests && staleRequests.length > 0) {
@@ -226,6 +227,73 @@ export async function GET(request: NextRequest) {
 
           result.pausedForNeglect += 1;
         }
+      }
+    }
+
+    // --- Due follow-ups: remind the current care owner, or the care leaders
+    // when a request is unassigned. A recent notification suppresses repeat
+    // alerts for seven days while still allowing a newly assigned owner to
+    // receive the reminder immediately.
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: dueFollowUps, error: dueFollowUpsError } = await supabase
+      .from("prayer_requests")
+      .select("id, assigned_to")
+      .eq("follow_up_needed", true)
+      .eq("answered", false)
+      .eq("archived", false)
+      .not("follow_up_date", "is", null)
+      .lte("follow_up_date", today);
+
+    if (dueFollowUpsError) throw dueFollowUpsError;
+
+    if (dueFollowUps && dueFollowUps.length > 0) {
+      const dueIds = dueFollowUps.map((item) => item.id);
+      const { data: recentReminders, error: reminderError } = await supabase
+        .from("notifications")
+        .select("prayer_request_id, user_id")
+        .eq("type", "follow_up_due")
+        .in("prayer_request_id", dueIds)
+        .gte("created_at", cutoff);
+
+      if (reminderError) throw reminderError;
+
+      const recentReminderKeys = new Set(
+        (recentReminders ?? []).map(
+          (notification) => `${notification.prayer_request_id}:${notification.user_id}`
+        )
+      );
+      const unassignedFollowUps = dueFollowUps.filter((item) => !item.assigned_to);
+      const { data: careLeaders, error: careLeadersError } = unassignedFollowUps.length > 0
+        ? await supabase.from("profiles").select("id").in("role", ["admin", "pastor"])
+        : { data: [], error: null };
+
+      if (careLeadersError) throw careLeadersError;
+
+      const reminders: Array<Record<string, string>> = [];
+      for (const followUp of dueFollowUps) {
+        const recipients = followUp.assigned_to
+          ? [{ id: followUp.assigned_to, link: "/prayer-assignments" }]
+          : (careLeaders ?? []).map((leader) => ({ id: leader.id, link: "/admin" }));
+
+        for (const recipient of recipients) {
+          if (recentReminderKeys.has(`${followUp.id}:${recipient.id}`)) continue;
+          reminders.push({
+            user_id: recipient.id,
+            type: "follow_up_due",
+            title: "Prayer follow-up is due",
+            body: "Open the care workspace to review the request and record the next step.",
+            link: recipient.link,
+            prayer_request_id: followUp.id,
+          });
+        }
+      }
+
+      if (reminders.length > 0) {
+        const { error: insertReminderError } = await supabase
+          .from("notifications")
+          .insert(reminders);
+        if (insertReminderError) throw insertReminderError;
+        result.followUpsNotified = reminders.length;
       }
     }
 
