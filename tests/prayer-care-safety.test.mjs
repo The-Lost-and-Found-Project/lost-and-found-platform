@@ -77,6 +77,22 @@ test("removing a care role requires reassignment or queue return", async () => {
   assert.match(client, /CARE_ROLES\.includes\(u\.role \?\? "member"\)/);
 });
 
+test("people directory shows active responsibility counts before risky controls", async () => {
+  const [page, client] = await Promise.all([
+    source("app", "admin", "users", "page.tsx"),
+    source("components", "AdminUsersClient.tsx"),
+  ]);
+
+  assert.match(page, /\.select\("assigned_to"\)/);
+  assert.match(page, /\.eq\("answered", false\)/);
+  assert.match(page, /\.eq\("archived", false\)/);
+  assert.match(page, /active_responsibility_count: responsibilityCounts\.get\(row\.id\) \?\? 0/);
+  assert.match(client, /active_responsibility_count/);
+  assert.match(client, /active care[\s\S]+before role removal or login deactivation/);
+  assert.match(client, /Login active/);
+  assert.match(client, /Deactivate login/);
+});
+
 test("normal login inactivity is never used as an account-deactivation signal", async () => {
   const routes = await Promise.all([
     source("app", "api", "cron", "notify-stale-assignments", "route.ts"),
