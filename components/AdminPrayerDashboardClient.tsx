@@ -60,6 +60,7 @@ type Props = {
 function needsAttention(r: AdminRequest): boolean {
   return (
     r.moderation_status === "pending" ||
+    r.status === "Submitted" ||
     !r.assigned_to ||
     (r.follow_up_needed && !r.answered) ||
     ["Needs Reassignment", "Escalated"].includes(r.status)
@@ -176,12 +177,12 @@ export default function AdminPrayerDashboardClient({
     );
   }
 
-  async function approveRequest(id: string) {
-    await updateRequest(id, {
+  async function approveRequest(request: AdminRequest) {
+    await updateRequest(request.id, {
       moderation_status: "approved",
       flagged: false,
       flag_reason: null,
-      status: "Reviewed",
+      status: request.assigned_to ? "Assigned" : "Reviewed",
     });
   }
 
@@ -583,7 +584,7 @@ export default function AdminPrayerDashboardClient({
                               <>
                                 <button
                                   type="button"
-                                  onClick={() => approveRequest(r.id)}
+                                  onClick={() => approveRequest(r)}
                                   className="min-h-11 rounded-md bg-emerald-600 px-3 py-2 text-xs font-medium text-white shadow-sm hover:bg-emerald-500"
                                 >
                                   Approve
