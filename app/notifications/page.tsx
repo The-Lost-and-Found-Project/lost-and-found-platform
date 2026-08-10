@@ -43,7 +43,12 @@ export default async function NotificationsPage() {
         <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/92 p-5 shadow-xl sm:p-8">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-2xl font-black text-slate-950">Recent updates</h2>
-            <Link href="/settings" className="text-sm font-bold text-indigo-700 hover:text-indigo-600">Notification settings →</Link>
+            <Link
+              href="/settings"
+              className="inline-flex min-h-11 items-center text-sm font-bold text-indigo-700 hover:text-indigo-600"
+            >
+              Notification settings →
+            </Link>
           </div>
           <NotificationsClient initialNotifications={notificationRows} />
         </section>
