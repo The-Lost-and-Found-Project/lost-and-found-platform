@@ -69,6 +69,20 @@ export async function POST(request: NextRequest) {
         }, { status: 409 });
       }
 
+      // Once the admin has chosen how to move active work, remove this user
+      // from rotation before handing anything off. That closes the window in
+      // which a new request could be assigned during deactivation.
+      if ((responsibilities?.length ?? 0) > 0) {
+        const { error: pauseError } = await admin
+          .from("profiles")
+          .update({
+            ministry_availability: "limited",
+            paused_at: new Date().toISOString(),
+          })
+          .eq("id", userId);
+        if (pauseError) throw pauseError;
+      }
+
       for (const responsibility of responsibilities ?? []) {
         if (responsibilityAction === "return_to_queue") {
           const { error } = await admin
