@@ -10,12 +10,6 @@ const EMMAUS_FOUNDER_USER_ID = process.env.EMMAUS_FOUNDER_USER_ID?.trim();
 
 const adminModules = [
   {
-    href: "/admin",
-    title: "Prayer Operations",
-    description: "Moderate requests, coordinate assignments, manage follow-up, and review answered-prayer activity.",
-    icon: "🙏",
-  },
-  {
     href: "/admin/applications",
     title: "Prayer Care Applications",
     description: "Review applicants, document decisions, and protect the standards of the care team.",
@@ -107,17 +101,17 @@ export default async function AdminPage() {
     <main className="lfp-page pb-24">
       <section className="relative overflow-hidden bg-slate-950 text-white">
         <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_85%_10%,rgba(124,58,237,0.34),transparent_34rem),radial-gradient(circle_at_10%_100%,rgba(245,190,67,0.2),transparent_28rem)]" />
-        <div className="lfp-shell relative py-12 sm:py-16">
-          <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div className="lfp-shell relative py-8 sm:py-12">
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
             <div className="max-w-4xl">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Administration Center</p>
-              <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">Lead the mission with clarity, {firstName}.</h1>
-              <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">Review what needs attention, protect community trust, coordinate ministry care, and manage published experiences from one operational home.</p>
+              <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">Lead the mission with clarity, {firstName}.</h1>
+              <p className="mt-4 max-w-3xl leading-7 text-indigo-100/75 sm:text-lg">Start with what needs attention, then open specialized tools only when you need them.</p>
             </div>
             <Link href="/dashboard" className="lfp-button border border-white/20 bg-white/10 text-white hover:bg-white/15">Return to Member App</Link>
           </div>
 
-          <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <AdminStat label="Open prayer requests" value={String(openRequests)} />
             <AdminStat label="Moderation attention" value={String(flaggedRequests)} />
             <AdminStat label="Follow-ups needed" value={String(followUps)} />
@@ -126,7 +120,7 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <div className="lfp-shell py-10 sm:py-14">
+      <div className="lfp-shell py-7 sm:py-10">
         {deliveryIssues > 0 && (
           <section className="mb-8 rounded-3xl border border-amber-300 bg-amber-50 p-5 sm:p-6" role="status">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-800">Delivery health</p>
@@ -137,49 +131,10 @@ export default async function AdminPage() {
           </section>
         )}
         <section>
-          <div className="max-w-3xl">
-            <p className="lfp-eyebrow">Mission control</p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Administrative workspaces</h2>
-            <p className="mt-3 text-lg leading-8 text-slate-600">Each workspace retains its existing role restrictions and operational workflow.</p>
-          </div>
-
-          <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {adminModules.map((module) => (
-              <Link key={module.href} href={module.href} className="lfp-card group block p-6 sm:p-7">
-                <div className="flex items-start justify-between gap-4">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-2xl ring-1 ring-indigo-100" aria-hidden="true">{module.icon}</span>
-                  <span className="font-black text-indigo-700 transition group-hover:translate-x-1">→</span>
-                </div>
-                <h3 className="mt-6 text-2xl font-black tracking-tight text-slate-950">{module.title}</h3>
-                <p className="mt-3 leading-7 text-slate-600">{module.description}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {isEmmausFounder && (
-          <section className="mt-12 overflow-hidden rounded-[2rem] border border-amber-300/30 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-1 shadow-2xl">
-            <div className="rounded-[1.8rem] bg-white/[0.05] p-7 text-white sm:p-9">
-              <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Private Founder Lab</p>
-                  <h2 className="mt-3 text-3xl font-black">Emmaus Founder Studio</h2>
-                  <p className="mt-3 max-w-2xl leading-7 text-indigo-100/70">These tools remain visible only to your founder account while Emmaus is privately developed and reviewed.</p>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  <Link href="/emmaus/admin/dashboard" className="lfp-button bg-amber-300 text-slate-950 shadow-xl">Open Founder Studio</Link>
-                  <Link href="/emmaus/discovery/demo" className="lfp-button border border-white/20 bg-white/10 text-white">Preview Experience</Link>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        <section className="mt-12">
-          <div className="mb-7 max-w-3xl">
+          <div className="mb-5 max-w-3xl">
             <p className="lfp-eyebrow">Prayer operations</p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Requests requiring care and oversight</h2>
-            <p className="mt-3 text-lg leading-8 text-slate-600">The existing moderation, assignment, follow-up, and answered-prayer tools remain fully available below.</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Care queue</h2>
+            <p className="mt-3 leading-7 text-slate-600 sm:text-lg">Review, assign, follow up, and close prayer requests from one focused queue.</p>
           </div>
 
           <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/92 shadow-2xl">
@@ -192,6 +147,48 @@ export default async function AdminPage() {
             />
           </div>
         </section>
+
+        <details className="lfp-card group mt-8 overflow-hidden">
+          <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 marker:content-none sm:px-6 [&::-webkit-details-marker]:hidden">
+            <span>
+              <span className="block text-xs font-black uppercase tracking-[0.16em] text-indigo-600">Administration</span>
+              <span className="mt-1 block text-lg font-black text-slate-950">Other administrative tools</span>
+              <span className="mt-1 block text-sm text-slate-600">Applications, people, content, and analytics</span>
+            </span>
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-700 transition group-open:rotate-180" aria-hidden="true">⌄</span>
+          </summary>
+          <div className="grid gap-3 border-t border-slate-200 bg-slate-50/70 p-4 sm:grid-cols-2 sm:p-6">
+            {adminModules.map((module) => (
+              <Link key={module.href} href={module.href} className="group/tool flex min-h-20 items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-indigo-200 hover:shadow-md">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-xl ring-1 ring-indigo-100" aria-hidden="true">{module.icon}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-black text-slate-950">{module.title}</span>
+                  <span className="mt-1 block text-sm leading-5 text-slate-600">{module.description}</span>
+                </span>
+                <span className="font-black text-indigo-700 transition group-hover/tool:translate-x-1" aria-hidden="true">→</span>
+              </Link>
+            ))}
+          </div>
+        </details>
+
+        {isEmmausFounder && (
+          <details className="group mt-4 overflow-hidden rounded-[2rem] border border-amber-300/30 bg-slate-950 text-white shadow-xl">
+            <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 marker:content-none sm:px-6 [&::-webkit-details-marker]:hidden">
+              <span>
+                <span className="block text-xs font-black uppercase tracking-[0.16em] text-amber-300">Private Founder Lab</span>
+                <span className="mt-1 block text-lg font-black">Emmaus Founder Studio</span>
+              </span>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-amber-300 transition group-open:rotate-180" aria-hidden="true">⌄</span>
+            </summary>
+            <div className="border-t border-white/10 px-5 py-5 sm:px-6">
+              <p className="max-w-2xl leading-7 text-indigo-100/70">Visible only to your founder account while Emmaus is privately developed and reviewed.</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Link href="/emmaus/admin/dashboard" className="lfp-button bg-amber-300 text-slate-950">Open Founder Studio</Link>
+                <Link href="/emmaus/discovery/demo" className="lfp-button border border-white/20 bg-white/10 text-white">Preview Experience</Link>
+              </div>
+            </div>
+          </details>
+        )}
       </div>
     </main>
   );
@@ -199,9 +196,9 @@ export default async function AdminPage() {
 
 function AdminStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-5 backdrop-blur">
-      <p className="text-3xl font-black">{value}</p>
-      <p className="mt-1 text-sm text-indigo-100/60">{label}</p>
+    <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 backdrop-blur sm:p-5">
+      <p className="text-2xl font-black sm:text-3xl">{value}</p>
+      <p className="mt-1 text-xs leading-5 text-indigo-100/70 sm:text-sm">{label}</p>
     </div>
   );
 }
