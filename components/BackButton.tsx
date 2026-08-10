@@ -15,7 +15,7 @@ export default function BackButton() {
       type="button"
       onClick={() => router.back()}
       aria-label="Go back"
-      className="flex items-center justify-center rounded-full p-2 text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
