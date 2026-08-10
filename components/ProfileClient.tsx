@@ -368,7 +368,7 @@ export default function ProfileClient({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-      <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+      <h2 className="text-2xl font-bold text-gray-900">Profile details</h2>
       <p className="mt-2 text-gray-600">
         Manage your account details and how you appear across the app.
       </p>
