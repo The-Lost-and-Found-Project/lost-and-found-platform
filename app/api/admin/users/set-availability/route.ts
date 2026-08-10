@@ -19,7 +19,21 @@ export async function POST(request: NextRequest) {
     if (callerProfile?.role !== "admin") return NextResponse.json({ error: "Admins only" }, { status: 403 });
 
     const admin = createAdminClient();
+    const changes = {
+      ministry_availability: availability,
+      availability_review_required: false,
+      paused_at: availability === "available" ? null : new Date().toISOString(),
+    };
+
     if (availability !== "available") {
+      // Pause assignment eligibility before moving current work so nothing
+      // new can arrive in the middle of the handoff.
+      const { error: pauseError } = await admin
+        .from("profiles")
+        .update(changes)
+        .eq("id", userId);
+      if (pauseError) throw pauseError;
+
       const { data: responsibilities, error: responsibilitiesError } = await admin
         .from("prayer_requests")
         .select("id")
@@ -41,13 +55,10 @@ export async function POST(request: NextRequest) {
           .eq("id", responsibility.id);
         if (statusError) throw statusError;
       }
+
+      return NextResponse.json({ success: true });
     }
 
-    const changes = {
-      ministry_availability: availability,
-      availability_review_required: false,
-      paused_at: availability === "available" ? null : new Date().toISOString(),
-    };
     const { error } = await admin.from("profiles").update(changes).eq("id", userId);
     if (error) throw error;
 
