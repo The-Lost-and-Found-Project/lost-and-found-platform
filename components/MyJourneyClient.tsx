@@ -510,7 +510,7 @@ export default function MyJourneyClient({
         <button
           type="button"
           onClick={openForm}
-          className="inline-flex items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-md"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-md"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -738,7 +738,7 @@ export default function MyJourneyClient({
                     key={type.value}
                     type="button"
                     onClick={() => setEntryType(type.value)}
-                    className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition ${
+                    className={`min-h-11 flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition ${
                       entryType === type.value
                         ? "border-indigo-600 bg-indigo-50 text-indigo-700"
                         : "border-gray-200 text-gray-600 hover:bg-gray-50"
@@ -756,7 +756,7 @@ export default function MyJourneyClient({
                   value={entryDate}
                   onChange={(e) => setEntryDate(e.target.value)}
                   required
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="mt-1 min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
 
@@ -769,7 +769,7 @@ export default function MyJourneyClient({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder={activeType.placeholder}
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="mt-1 min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
 
@@ -790,14 +790,14 @@ export default function MyJourneyClient({
                 <button
                   type="button"
                   onClick={closeForm}
-                  className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                  className="min-h-11 rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
+                  className="min-h-11 rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
                 >
                   {saving ? "Saving…" : "Save"}
                 </button>

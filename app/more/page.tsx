@@ -8,6 +8,8 @@ const GIVE_URL = "https://www.zeffy.com/en-US/donation-form/donate-to-build-god-
 const groups = [
   {
     title: "Account",
+    eyebrow: "Your account",
+    description: "Profile, alerts, privacy, and sign-in.",
     items: [
       { href: "/profile", label: "Profile", description: "Manage your personal information and testimony.", icon: "👤" },
       { href: "/notifications", label: "Notifications", description: "Review recent updates and activity.", icon: "🔔" },
@@ -17,6 +19,8 @@ const groups = [
   },
   {
     title: "Support the mission",
+    eyebrow: "Support and feedback",
+    description: "Give securely or help us improve the platform.",
     items: [
       { href: GIVE_URL, label: "Give", description: "Support the ministry through a secure Zeffy donation.", icon: "♡", external: true },
       { href: "/feedback", label: "Send Feedback", description: "Tell us what is working and what needs improvement.", icon: "💬" },
@@ -24,6 +28,8 @@ const groups = [
   },
   {
     title: "The Lost and Found Project",
+    eyebrow: "About and help",
+    description: "Learn about the ministry or get support.",
     items: [
       { href: "/about", label: "About Us", description: "Learn about our mission, values, and ministry direction.", icon: "✦" },
       { href: "/support", label: "Help and Support", description: "Find assistance with your account or the platform.", icon: "?" },
@@ -53,22 +59,22 @@ export default async function MorePage() {
       </section>
 
       <div className="lfp-shell py-10 sm:py-14">
-        <div className="space-y-12">
+        <div className="space-y-10 sm:space-y-12">
           {groups.map((group) => (
             <section key={group.title}>
-              <LfpSectionHeading eyebrow="Options" title={group.title} />
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <LfpSectionHeading eyebrow={group.eyebrow} title={group.title} description={group.description} />
+              <div className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 md:grid-cols-2">
                 {group.items.map((item) => {
-                  const className = "lfp-card group flex items-start gap-4 p-5 sm:p-6";
+                  const className = "lfp-card group flex items-start gap-4 p-4 sm:p-6";
                   const content = (
                     <>
-                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-xl ring-1 ring-indigo-100" aria-hidden="true">{item.icon}</span>
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-xl ring-1 ring-indigo-100" aria-hidden="true">{item.icon}</span>
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center justify-between gap-3">
                           <span className="text-lg font-black text-slate-950">{item.label}</span>
                           <span className="font-black text-indigo-700 transition group-hover:translate-x-1">→</span>
                         </span>
-                        <span className="mt-2 block leading-7 text-slate-600">{item.description}</span>
+                        <span className="mt-1 block text-sm leading-6 text-slate-600 sm:mt-2 sm:text-base sm:leading-7">{item.description}</span>
                       </span>
                     </>
                   );

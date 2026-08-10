@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { LfpComingSoonCard, LfpFeatureCard, LfpSectionHeading } from "@/components/ui/LfpDesignSystem";
+import { LfpFeatureCard, LfpSectionHeading } from "@/components/ui/LfpDesignSystem";
 
 export default async function CommunityPage() {
   const supabase = await createClient();
@@ -25,12 +25,35 @@ export default async function CommunityPage() {
           <LfpFeatureCard eyebrow="Serve" title="Prayer Care" description="Learn how to serve people through prayer, encouragement, and faithful follow-up." href="/prayer-care-application" action="Learn More" icon="🤲" />
         </div>
 
-        <section className="mt-14">
-          <LfpSectionHeading eyebrow="Coming soon" title="Deeper ways to belong" description="These ministry experiences remain unavailable until the systems, training, and safeguards are ready." />
-          <div className="mt-7 grid gap-5 md:grid-cols-2">
-            <LfpComingSoonCard title="Mentoring" description="A guided relationship between mentors and mentees centered on prayer, Scripture, accountability, and growth." icon="🤝" planned={["Secure matching", "Shared goals", "Meeting rhythm"]} />
-            <LfpComingSoonCard title="Events" description="One place for gatherings, classes, workshops, volunteer opportunities, and community registration." icon="📅" planned={["Registration", "Reminders", "Event details"]} />
-          </div>
+        <section className="mt-12">
+          <details className="lfp-card group overflow-hidden">
+            <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 marker:content-none sm:px-6 [&::-webkit-details-marker]:hidden">
+              <span>
+                <span className="block text-xs font-black uppercase tracking-[0.16em] text-indigo-600">Coming later</span>
+                <span className="mt-1 block text-lg font-black text-slate-950">Mentoring and events</span>
+              </span>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-700 transition group-open:rotate-180" aria-hidden="true">⌄</span>
+            </summary>
+            <div className="border-t border-slate-200 bg-slate-50/70 p-5 sm:p-6">
+              <p className="max-w-3xl leading-7 text-slate-600">These ministry experiences will open after the systems, training, and safeguards are ready.</p>
+              <div className="mt-5 grid gap-4 md:grid-cols-2">
+                <article className="rounded-2xl border border-slate-200 bg-white p-5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl" aria-hidden="true">🤝</span>
+                    <h3 className="text-lg font-black text-slate-950">Mentoring</h3>
+                  </div>
+                  <p className="mt-3 leading-7 text-slate-600">Guided relationships centered on prayer, Scripture, accountability, and growth, with secure matching, shared goals, and a healthy meeting rhythm.</p>
+                </article>
+                <article className="rounded-2xl border border-slate-200 bg-white p-5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl" aria-hidden="true">📅</span>
+                    <h3 className="text-lg font-black text-slate-950">Events</h3>
+                  </div>
+                  <p className="mt-3 leading-7 text-slate-600">Gatherings, classes, workshops, and volunteer opportunities with registration, reminders, and event details in one place.</p>
+                </article>
+              </div>
+            </div>
+          </details>
         </section>
       </div>
     </main>

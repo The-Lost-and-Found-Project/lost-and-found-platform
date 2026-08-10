@@ -45,3 +45,34 @@ test("admin attention view includes reassignment and escalated care", async () =
 
   assert.match(requests, /"Needs Reassignment", "Escalated"/);
 });
+
+test("shared navigation and journey actions meet mobile touch target sizing", async () => {
+  const [header, backButton, journey] = await Promise.all([
+    source("components", "Header.tsx"),
+    source("components", "BackButton.tsx"),
+    source("components", "MyJourneyClient.tsx"),
+  ]);
+
+  assert.match(header, /aria-label="Send feedback"[^>]+h-11 w-11/);
+  assert.match(backButton, /h-11 w-11/);
+  assert.match(journey, /className="inline-flex min-h-11 items-center/);
+  assert.match(journey, /Add To My Journey/);
+});
+
+test("community roadmap is preserved behind a compact accessible disclosure", async () => {
+  const community = await source("app", "community", "page.tsx");
+
+  assert.match(community, /<details/);
+  assert.match(community, /<summary[^>]+min-h-14/);
+  assert.match(community, /Mentoring and events/);
+  assert.match(community, /systems, training, and safeguards/);
+});
+
+test("more page labels each group by purpose instead of repeating options", async () => {
+  const more = await source("app", "more", "page.tsx");
+
+  assert.doesNotMatch(more, /eyebrow="Options"/);
+  assert.match(more, /eyebrow: "Your account"/);
+  assert.match(more, /eyebrow: "Support and feedback"/);
+  assert.match(more, /eyebrow: "About and help"/);
+});
