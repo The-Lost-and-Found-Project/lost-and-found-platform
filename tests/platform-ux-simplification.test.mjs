@@ -47,14 +47,18 @@ test("admin attention view includes reassignment and escalated care", async () =
 });
 
 test("shared navigation and journey actions meet mobile touch target sizing", async () => {
-  const [header, backButton, journey] = await Promise.all([
+  const [header, backButton, notifications, account, journey] = await Promise.all([
     source("components", "Header.tsx"),
     source("components", "BackButton.tsx"),
+    source("components", "NotificationBell.tsx"),
+    source("components", "AuthControls.tsx"),
     source("components", "MyJourneyClient.tsx"),
   ]);
 
   assert.match(header, /aria-label="Send feedback"[^>]+h-11 w-11/);
   assert.match(backButton, /h-11 w-11/);
+  assert.match(notifications, /relative flex h-11 w-11/);
+  assert.match(account, /className="flex h-11 w-11 items-center justify-center/);
   assert.match(journey, /className="inline-flex min-h-11 items-center/);
   assert.match(journey, /Add To My Journey/);
 });

@@ -110,7 +110,7 @@ export default function AuthControls() {
     router.refresh();
   }
 
-  if (loading) return <div className="h-10 w-10" aria-hidden="true" />;
+  if (loading) return <div className="h-11 w-11" aria-hidden="true" />;
   if (!email) return <Link href="/login" className="lfp-button lfp-button-primary">Login</Link>;
 
   const displayName = profile?.full_name?.trim() || email;
@@ -132,15 +132,15 @@ export default function AuthControls() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex items-center rounded-full ring-2 ring-transparent transition hover:ring-indigo-100 focus-visible:ring-indigo-500"
+        className="flex h-11 w-11 items-center justify-center rounded-full ring-2 ring-transparent transition hover:ring-indigo-100 focus-visible:ring-indigo-500"
         aria-label="Account menu"
         aria-haspopup="menu"
         aria-expanded={open}
       >
         {profile?.avatar_url ? (
-          <img src={profile.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover ring-2 ring-white shadow-md" />
+          <img src={profile.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover ring-2 ring-white shadow-md" />
         ) : (
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-black text-white shadow-md">{initial}</span>
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-black text-white shadow-md">{initial}</span>
         )}
       </button>
 
