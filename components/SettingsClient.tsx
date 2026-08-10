@@ -43,15 +43,9 @@ export default function SettingsClient({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-      <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-        Settings
-      </h1>
-      <p className="mt-2 text-gray-600">
-        Control how The Lost and Found Project notifies you and shares your
-        information.
-      </p>
+      <h2 className="text-2xl font-bold tracking-tight text-gray-900">Preferences</h2>
 
-      <div className="mt-8 divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <div className="mt-6 divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm">
         <ToggleRow
           title="Prayer notifications"
           description="Get notified in-app when someone prays for your request."
