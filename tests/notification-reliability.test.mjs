@@ -73,7 +73,10 @@ test("email preferences are enforced for role-related messages", async () => {
 });
 
 test("notification list explains urgency and the next action", async () => {
-  const notifications = await source("components", "NotificationsClient.tsx");
+  const [notifications, page] = await Promise.all([
+    source("components", "NotificationsClient.tsx"),
+    source("app", "notifications", "page.tsx"),
+  ]);
   assert.match(notifications, /Action needed/);
   assert.match(notifications, /Review overdue care/);
   assert.match(notifications, /Respond now/);
@@ -84,6 +87,7 @@ test("notification list explains urgency and the next action", async () => {
   assert.match(notifications, /Care assignments, escalations, and due follow-ups/);
   assert.match(notifications, /role="group" aria-label="Notification view"/);
   assert.match(notifications, /h-11 w-11/);
+  assert.match(page, /inline-flex min-h-11 items-center/);
 });
 
 test("due follow-ups create targeted, deduplicated care reminders", async () => {
