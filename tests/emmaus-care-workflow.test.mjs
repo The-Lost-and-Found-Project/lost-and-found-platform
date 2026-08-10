@@ -48,7 +48,8 @@ test("care workflow separates account access, availability, and request status",
     assert.match(migration, new RegExp(`'${availability}'`));
   }
   assert.match(cron, /ministry_availability: "limited"/);
-  assert.match(cron, /availability_review_required: true/);
+  assert.match(cron, /availability_review_required: requiresHumanReview/);
+  assert.match(cron, /nextMissedAssignmentCount >= 2/);
   assert.doesNotMatch(cron, /movedToInactive|THIRTY_DAYS_MS/);
   assert.match(deactivateRoute, /ACTIVE_RESPONSIBILITIES/);
   assert.match(deactivateRoute, /bulk_reassign/);
