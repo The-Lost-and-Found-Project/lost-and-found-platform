@@ -82,6 +82,22 @@ $$;
 do $$
 begin
   if to_regclass('public.prayer_requests') is not null then
+    -- Keep the legacy values temporarily valid so the currently deployed app
+    -- can continue writing during rollout. Existing rows are normalized below,
+    -- while the new app writes only the new lifecycle values.
+    alter table public.prayer_requests
+      drop constraint if exists prayer_requests_status_check;
+
+    alter table public.prayer_requests
+      add constraint prayer_requests_status_check
+      check (status in (
+        'New', 'Being Prayed For', 'Contacted', 'Ongoing',
+        'Follow-Up Needed', 'Answered',
+        'Submitted', 'Reviewed', 'Assigned', 'Active Care', 'Follow-Up',
+        'Resolved', 'Closed', 'Needs Reassignment', 'Escalated',
+        'Unable to Contact', 'Withdrawn'
+      ));
+
     update public.prayer_requests
     set status = case status
       when 'New' then 'Submitted'
