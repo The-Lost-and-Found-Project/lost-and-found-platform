@@ -80,3 +80,24 @@ test("more page labels each group by purpose instead of repeating options", asyn
   assert.match(more, /eyebrow: "Support and feedback"/);
   assert.match(more, /eyebrow: "About and help"/);
 });
+
+test("admin center puts the live care queue before collapsed secondary tools", async () => {
+  const admin = await source("app", "admin", "page.tsx");
+
+  assert.ok(admin.indexOf("Care queue") < admin.indexOf("Other administrative tools"));
+  assert.match(admin, /<details className="lfp-card group mt-8/);
+  assert.match(admin, /Applications, people, content, and analytics/);
+  assert.doesNotMatch(admin, /title: "Prayer Operations"/);
+  assert.match(admin, /<details[\s\S]+Private Founder Lab/);
+});
+
+test("prayer administration exposes explicit attention and history views", async () => {
+  const requests = await source("components", "AdminPrayerDashboardClient.tsx");
+
+  assert.match(requests, /aria-label="Request queue"/);
+  assert.match(requests, /Attention \(\{attentionCount\}\)/);
+  assert.match(requests, /All requests \(\{requests\.length\}\)/);
+  assert.match(requests, /including \$\{historyCount\} in history/);
+  assert.match(requests, /setAttentionOnly\(false\)/);
+  assert.match(requests, /role="status" aria-live="polite"/);
+});

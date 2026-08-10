@@ -105,6 +105,9 @@ export default function AdminPrayerDashboardClient({
     (r) => r.moderation_status === "pending"
   ).length;
   const attentionCount = requests.filter(needsAttention).length;
+  const historyCount = requests.filter(
+    (r) => r.answered || ["Resolved", "Closed", "Unable to Contact", "Withdrawn"].includes(r.status)
+  ).length;
 
   function toggleExpanded(id: string) {
     setExpandedIds((prev) => {
@@ -261,10 +264,10 @@ export default function AdminPrayerDashboardClient({
     .filter((r) => (attentionOnly ? needsAttention(r) : true));
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Prayer Care Admin</h1>
+          <h3 className="text-xl font-black text-gray-900 sm:text-2xl">Prayer Care Admin</h3>
           <p className="mt-2 text-gray-600">
             Manage incoming prayer requests, assignments, and follow-up.
           </p>
@@ -272,67 +275,85 @@ export default function AdminPrayerDashboardClient({
       </div>
 
       <>
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            aria-pressed={attentionOnly}
-            onClick={() => setAttentionOnly((v) => !v)}
-            className={`min-h-11 rounded-full px-3 py-2 text-sm font-medium shadow-sm transition ${
-              attentionOnly
-                ? "bg-indigo-600 text-white"
-                : "border border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
-            }`}
-          >
-            Needs attention{attentionOnly ? ` (${attentionCount})` : ""}
-          </button>
-          {!attentionOnly && (
-            <span className="text-xs text-gray-400">
-              Showing all requests — {attentionCount} need attention
-            </span>
-          )}
+        <div className="mt-5 grid gap-3 border-t border-slate-100 pt-5 sm:flex sm:flex-wrap sm:items-end">
+          <div>
+            <span className="block text-xs font-bold uppercase tracking-wide text-slate-500">Queue</span>
+            <div className="mt-1 flex rounded-xl border border-slate-200 bg-slate-50 p-1" role="group" aria-label="Request queue">
+              <button
+                type="button"
+                aria-pressed={attentionOnly}
+                onClick={() => setAttentionOnly(true)}
+                className={`min-h-11 flex-1 rounded-lg px-3 py-2 text-sm font-bold transition sm:flex-none ${
+                  attentionOnly ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-white"
+                }`}
+              >
+                Attention ({attentionCount})
+              </button>
+              <button
+                type="button"
+                aria-pressed={!attentionOnly}
+                onClick={() => setAttentionOnly(false)}
+                className={`min-h-11 flex-1 rounded-lg px-3 py-2 text-sm font-bold transition sm:flex-none ${
+                  !attentionOnly ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-white"
+                }`}
+              >
+                All requests ({requests.length})
+              </button>
+            </div>
+          </div>
 
-          <label
-            htmlFor="admin-status-filter"
-            className="ml-2 text-sm font-medium text-gray-700"
-          >
-            Filter by status
-          </label>
-          <select
-            id="admin-status-filter"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
-          >
-            <option value="All">All</option>
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+          <div>
+            <label htmlFor="admin-status-filter" className="block text-xs font-bold uppercase tracking-wide text-slate-500">
+              Status
+            </label>
+            <select
+              id="admin-status-filter"
+              value={statusFilter}
+              onChange={(e) => {
+                const nextStatus = e.target.value;
+                setStatusFilter(nextStatus);
+                if (["Resolved", "Closed", "Unable to Contact", "Withdrawn"].includes(nextStatus)) {
+                  setAttentionOnly(false);
+                }
+              }}
+              className="mt-1 min-h-11 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm sm:w-auto"
+            >
+              <option value="All">All statuses</option>
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {isAdmin && (
             <button
               type="button"
               aria-pressed={flaggedOnly}
               onClick={() => setFlaggedOnly((v) => !v)}
-              className={`min-h-11 rounded-full px-3 py-2 text-sm font-medium shadow-sm transition ${
+              className={`min-h-11 rounded-xl px-3 py-2 text-sm font-bold shadow-sm transition ${
                 flaggedOnly
                   ? "bg-amber-500 text-white"
-                  : "border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                  : "border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"
               }`}
             >
-              Flagged for review{pendingCount > 0 ? ` (${pendingCount})` : ""}
+              Flagged{pendingCount > 0 ? ` (${pendingCount})` : ""}
             </button>
           )}
         </div>
 
-        <div className="mt-6 space-y-3">
+        <p className="mt-4 text-sm text-slate-500" role="status" aria-live="polite">
+          Showing {visibleRequests.length} request{visibleRequests.length === 1 ? "" : "s"}
+          {attentionOnly ? " requiring attention" : `, including ${historyCount} in history`}.
+        </p>
+
+        <div className="mt-4 space-y-3">
           {visibleRequests.length === 0 && (
-            <p className="text-gray-500">
+            <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-slate-600">
               {attentionOnly
-                ? "Nothing needs attention right now. Nice."
-                : "No prayer requests match this filter."}
+                ? "Nothing needs attention right now."
+                : "No prayer requests match these filters."}
             </p>
           )}
 
