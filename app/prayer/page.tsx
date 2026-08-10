@@ -138,13 +138,7 @@ export default function PrayerWallPage() {
       </section>
 
       <div className="lfp-shell py-10 sm:py-14">
-        <section className="grid gap-5 md:grid-cols-3">
-          <PrayerValue icon="🙏" title="Share honestly" text="Bring real needs, real burdens, and real hope into a community committed to prayer." />
-          <PrayerValue icon="♡" title="Pray faithfully" text="A simple tap records that someone has intentionally prayed for the request." />
-          <PrayerValue icon="🛡" title="Protect privacy" text="Requests follow the existing visibility and moderation safeguards already built into the platform." />
-        </section>
-
-        <section className="mt-14">
+        <section>
           <div className="max-w-3xl">
             <p className="lfp-eyebrow">Prayer wall</p>
             <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Pray with what is happening now</h2>
@@ -179,7 +173,7 @@ export default function PrayerWallPage() {
                         {request.category_id && categories[request.category_id] && (
                           <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">{categories[request.category_id]}</span>
                         )}
-                        {(request.status === "Resolved" || request.status === "Closed") && (
+                        {request.status === "Resolved" && (
                           <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">Answered</span>
                         )}
                       </div>
@@ -210,21 +204,7 @@ export default function PrayerWallPage() {
           </div>
         </section>
 
-        <section className="mt-14 rounded-[2rem] bg-gradient-to-br from-indigo-600 to-violet-700 p-7 text-white shadow-2xl sm:p-10">
-          <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">You are not alone</p>
-              <h2 className="mt-3 text-3xl font-black">What can we pray about with you?</h2>
-              <p className="mt-3 max-w-2xl leading-7 text-indigo-100/80">Share as much or as little as you are comfortable sharing. Existing privacy controls remain in place.</p>
-            </div>
-            <Link href="/prayer/submit" className="lfp-button bg-white text-indigo-800 shadow-xl">Submit Your Request</Link>
-          </div>
-        </section>
       </div>
     </main>
   );
-}
-
-function PrayerValue({ icon, title, text }: { icon: string; title: string; text: string }) {
-  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
 }
