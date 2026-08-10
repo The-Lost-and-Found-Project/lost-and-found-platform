@@ -78,4 +78,40 @@ test("notification list explains urgency and the next action", async () => {
   assert.match(notifications, /Review overdue care/);
   assert.match(notifications, /Respond now/);
   assert.match(notifications, /Review assignment/);
+  assert.match(notifications, /Priority/);
+  assert.match(notifications, /follow_up_due/);
+  assert.match(notifications, /prayer_escalated/);
+  assert.match(notifications, /Care assignments, escalations, and due follow-ups/);
+  assert.match(notifications, /role="group" aria-label="Notification view"/);
+  assert.match(notifications, /h-11 w-11/);
+});
+
+test("due follow-ups create targeted, deduplicated care reminders", async () => {
+  const staleCron = await source("app", "api", "cron", "notify-stale-assignments", "route.ts");
+
+  assert.match(staleCron, /\.eq\("follow_up_needed", true\)/);
+  assert.match(staleCron, /\.lte\("follow_up_date", today\)/);
+  assert.match(staleCron, /type: "follow_up_due"/);
+  assert.match(staleCron, /prayer_request_id: followUp\.id/);
+  assert.match(staleCron, /recentReminderKeys/);
+  assert.match(staleCron, /"\/prayer-assignments"/);
+  assert.match(staleCron, /"\/admin"/);
+  assert.doesNotMatch(staleCron, /request_text[\s\S]*follow_up_due/);
+});
+
+test("new escalations notify care owners and leaders without blocking the care update", async () => {
+  const [adminUpdate, assignmentUpdate, alerts] = await Promise.all([
+    source("app", "api", "admin", "prayer-requests", "update", "route.ts"),
+    source("app", "api", "prayer-assignments", "update", "route.ts"),
+    source("lib", "notifications", "care-alerts.ts"),
+  ]);
+
+  assert.match(adminUpdate, /previousRequest\.status !== "Escalated"/);
+  assert.match(assignmentUpdate, /previousRequest\?\.status !== "Escalated"/);
+  assert.match(adminUpdate, /catch \(notificationError\)/);
+  assert.match(assignmentUpdate, /catch \(notificationError\)/);
+  assert.match(alerts, /type: "prayer_escalated"/);
+  assert.match(alerts, /\.in\("role", \["admin", "pastor"\]\)/);
+  assert.match(alerts, /assignedTo !== actorUserId/);
+  assert.doesNotMatch(alerts, /request_text|name|email|phone/);
 });
