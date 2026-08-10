@@ -24,14 +24,14 @@ test("Emmaus learner navigation uses working non-admin destinations", async () =
 });
 
 test("Emmaus progress has authenticated table privileges in addition to RLS", async () => {
-  const migration = await source("supabase", "migrations", "20260810180758_normalize_emmaus_care_workflow.sql");
+  const migration = await source("supabase", "migrations", "20260810184134_normalize_emmaus_care_workflow.sql");
   assert.match(migration, /grant select, insert, update, delete[\s\S]*emmaus_discovery_progress[\s\S]*to authenticated/);
   assert.doesNotMatch(migration, /to anon/);
 });
 
 test("care workflow separates account access, availability, and request status", async () => {
   const [migration, cron, deactivateRoute, statuses] = await Promise.all([
-    source("supabase", "migrations", "20260810180758_normalize_emmaus_care_workflow.sql"),
+    source("supabase", "migrations", "20260810184134_normalize_emmaus_care_workflow.sql"),
     source("app", "api", "cron", "notify-stale-assignments", "route.ts"),
     source("app", "api", "admin", "users", "set-active", "route.ts"),
     source("components", "AdminPrayerDashboardClient.tsx"),
