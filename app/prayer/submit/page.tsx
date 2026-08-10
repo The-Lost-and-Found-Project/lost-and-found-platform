@@ -162,13 +162,7 @@ export default function SubmitPrayerRequestPage() {
       </section>
 
       <div className="lfp-shell py-10 sm:py-14">
-        <section className="grid gap-5 md:grid-cols-3">
-          <InfoCard icon="🙏" title="Share honestly" text="Use your own words. You do not need to make the request sound polished or spiritual." />
-          <InfoCard icon="🛡" title="Choose your privacy" text="Decide whether the request may appear publicly and whether your identity should remain hidden." />
-          <InfoCard icon="♡" title="Request follow-up" text="Ask for personal contact when you would benefit from additional prayer and encouragement." />
-        </section>
-
-        <form onSubmit={handleSubmit} className="mx-auto mt-10 max-w-3xl space-y-8 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl sm:p-10">
+        <form onSubmit={handleSubmit} className="mx-auto max-w-3xl space-y-8 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl sm:p-10">
           <section>
             <p className="lfp-eyebrow">Your information</p>
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
@@ -257,8 +251,4 @@ function Choice({ checked, onChange, title, description }: { checked: boolean; o
       <span><span className="block font-black text-slate-950">{title}</span><span className="mt-1 block text-sm leading-6 text-slate-600">{description}</span></span>
     </label>
   );
-}
-
-function InfoCard({ icon, title, text }: { icon: string; title: string; text: string }) {
-  return <article className="lfp-card p-6"><span className="text-3xl" aria-hidden="true">{icon}</span><h2 className="mt-5 text-xl font-black text-slate-950">{title}</h2><p className="mt-3 leading-7 text-slate-600">{text}</p></article>;
 }
