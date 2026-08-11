@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
+import {
+  getConfirmationStatusUrl,
+  getSafeNextPath,
+} from "@/lib/auth/confirmation";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = getSafeNextPath(searchParams.get("next"));
 
   if (code) {
     const supabase = await createClient();
@@ -38,7 +42,14 @@ export async function GET(request: Request) {
 
       return NextResponse.redirect(`${origin}${next}`);
     }
+
+    console.warn("Email confirmation code exchange failed", {
+      code: error.code,
+      status: error.status,
+    });
   }
 
-  return NextResponse.redirect(`${origin}/login`);
+  return NextResponse.redirect(
+    getConfirmationStatusUrl(origin, code ? "invalid" : "missing")
+  );
 }
