@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import ResendConfirmationForm from "@/components/ResendConfirmationForm";
 
 function getSafeDestination() {
   const requested = new URLSearchParams(window.location.search).get("next");
@@ -22,6 +23,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailNotConfirmed, setEmailNotConfirmed] = useState(false);
 
   // If someone is already signed in and lands on /login (e.g. an old
   // bookmark, a shared link, or just hitting back), send them straight to
@@ -42,6 +44,7 @@ export default function LoginPage() {
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setEmailNotConfirmed(false);
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -50,7 +53,13 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setError(error.message);
+      const isUnconfirmed = error.code === "email_not_confirmed";
+      setEmailNotConfirmed(isUnconfirmed);
+      setError(
+        isUnconfirmed
+          ? "Please confirm your email address before signing in."
+          : error.message
+      );
       setLoading(false);
       return;
     }
@@ -120,9 +129,16 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+              <p
+                role="alert"
+                className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+              >
                 {error}
               </p>
+            )}
+
+            {emailNotConfirmed && (
+              <ResendConfirmationForm initialEmail={email} />
             )}
 
             <button

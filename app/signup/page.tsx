@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getConfirmationRedirectUrl } from "@/lib/auth/confirmation";
 import TurnstileWidget from "@/components/TurnstileWidget";
+import ResendConfirmationForm from "@/components/ResendConfirmationForm";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -73,7 +75,7 @@ export default function SignUpPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: getConfirmationRedirectUrl(window.location.origin),
         data: {
           full_name: fullName,
           phone: phone || null,
@@ -114,6 +116,10 @@ export default function SignUpPage() {
               We just sent a confirmation link to <strong>{email}</strong>.
               Click it to activate your account and get started.
             </p>
+            <p className="mt-3 text-sm text-gray-500">
+              You can safely open the link on this device or another browser.
+            </p>
+            <ResendConfirmationForm initialEmail={email} />
             <Link
               href="/login"
               className="mt-6 inline-block text-sm font-medium text-indigo-600 hover:text-indigo-500"
