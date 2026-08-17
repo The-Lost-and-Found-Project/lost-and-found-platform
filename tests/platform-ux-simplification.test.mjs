@@ -40,7 +40,10 @@ test("community previews use a consistent two-line pattern with accessible full 
   assert.match(card, /Open full \$\{label\}/);
   assert.match(detail, /aria-modal="true"/);
   assert.match(detail, /z-\[100\]/);
-  assert.match(detail, /max-h-\[92dvh\]/);
+  assert.match(detail, /items-center justify-center/);
+  assert.match(detail, /p-3 backdrop-blur-sm sm:p-6/);
+  assert.match(detail, /h-full w-full flex-col overflow-hidden/);
+  assert.doesNotMatch(detail, /sm:max-w-2xl/);
   assert.match(detail, /overflow-y-auto/);
   assert.match(detail, /event\.key === "Escape"/);
   assert.match(detail, /previouslyFocused\?\.focus\(\)/);
