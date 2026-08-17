@@ -32,6 +32,7 @@ const groups = [
     description: "Learn about the ministry or get support.",
     items: [
       { href: "/about", label: "About Us", description: "Learn about our mission, values, and ministry direction.", icon: "✦" },
+      { href: "/apps", label: "Future Apps", description: "See the focused learning apps being prepared by L&F.", icon: "◫" },
       { href: "/support", label: "Help and Support", description: "Find assistance with your account or the platform.", icon: "?" },
     ],
   },

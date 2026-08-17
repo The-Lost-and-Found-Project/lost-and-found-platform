@@ -43,11 +43,47 @@ test("legacy assignment notification endpoints are explicitly retired", async ()
   assert.match(helper, /status: 410/);
 });
 
-test("new praise notifications target administrators only", async () => {
-  const praise = await source("app", "api", "notify-new-praise-admin", "route.ts");
-  assert.match(praise, /\.eq\("role", "admin"\)/);
-  assert.doesNotMatch(praise, /prayer_team|pastor/);
-  assert.match(praise, /email_notifications/);
+test("unused direct-email endpoints are retired to protect delivery credits", async () => {
+  for (const parts of [
+    ["app", "api", "notify-prayer-request", "route.ts"],
+    ["app", "api", "notify-new-request-admin", "route.ts"],
+    ["app", "api", "notify-new-praise-admin", "route.ts"],
+  ]) {
+    const route = await source(...parts);
+    assert.match(route, /retiredEmailResponse/);
+    assert.doesNotMatch(route, /Resend|emails\.send/);
+  }
+  const helper = await source("lib", "retired-email.ts");
+  assert.match(helper, /status: 410/);
+});
+
+test("active repository-controlled emails use current Community language and escaped names", async () => {
+  const [welcome, denied, html, config, confirmation, recovery, standard] = await Promise.all([
+    source("app", "api", "send-welcome-email", "route.ts"),
+    source("app", "api", "notify-content-denied", "route.ts"),
+    source("lib", "email", "html.ts"),
+    source("supabase", "config.toml"),
+    source("supabase", "templates", "confirmation.html"),
+    source("supabase", "templates", "recovery.html"),
+    source("docs", "community-email-standard.md"),
+  ]);
+  assert.match(welcome, /Prayer, Praise, Testimonies, and Future Apps|Explore future L&amp;F apps/);
+  assert.match(welcome, /\$\{SITE_URL\}\/apps/);
+  assert.doesNotMatch(welcome, /our care team|Track your own journey/);
+  assert.match(welcome, /escapeEmailHtml/);
+  assert.match(denied, /escapeEmailHtml/);
+  assert.match(welcome, /renderLfpEmail/);
+  assert.match(welcome, /text,/);
+  assert.match(denied, /renderLfpEmail/);
+  assert.match(denied, /text,/);
+  assert.match(html, /replaceAll\("<", "&lt;"\)/);
+  assert.match(html, /Pray\. Praise\. Testify\./);
+  assert.match(config, /\[auth\.email\.template\.confirmation\]/);
+  assert.match(config, /\[auth\.email\.template\.recovery\]/);
+  assert.match(confirmation, /token_hash=\{\{ \.TokenHash \}\}&type=email/);
+  assert.match(recovery, /\{\{ \.ConfirmationURL \}\}/);
+  assert.doesNotMatch(`${welcome}\n${denied}\n${confirmation}\n${recovery}`, /our care team|Prayer Care Member|Prayer Journey|assigned to you/i);
+  assert.match(standard, /Updating repository files alone does not change the\s+hosted templates/);
 });
 
 test("notification list explains meaningful community updates and retains legacy history", async () => {

@@ -92,8 +92,8 @@ export default function LoginPage() {
             Sign In
           </h1>
           <p className="mt-4 text-gray-600">
-            Sign in to submit prayer requests, share a testimony, and stay
-            connected with our care team.
+            Sign in to submit prayer requests, celebrate praise, share a
+            testimony, and stay connected with the community.
           </p>
         </div>
 

@@ -22,8 +22,8 @@ type SupabaseWebhookPayload = {
 // Fired by a Supabase Database Webhook on every INSERT into public.notifications
 // (configured in the Supabase dashboard: Database > Webhooks). This is what
 // guarantees 1:1 parity between in-app notifications and home-screen push
-// notifications — every trigger that inserts a notification row (assigned,
-// prayed_for, status_change, flagged, content_denied, content_approved,
+// notifications — every current trigger that inserts a notification row
+// (prayed_for, status_change, flagged, content_denied, content_approved,
 // new_request, new_member, new_testimony, new_praise, feedback, etc.)
 // automatically also fires a push, without each trigger needing its own
 // push-sending code.

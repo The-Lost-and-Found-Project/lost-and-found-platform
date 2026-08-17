@@ -6,7 +6,7 @@ import test from "node:test";
 const root = process.cwd();
 
 test("the Prayer Wall supports repeatable, idempotent prayer activity", async () => {
-  const source = await readFile(path.join(root, "app", "prayer", "page.tsx"), "utf8");
+  const source = await readFile(path.join(root, "components", "PrayerWallTicker.tsx"), "utf8");
 
   assert.match(source, /fetch\("\/api\/prayer-activities"/);
   assert.match(source, /retryKeys\.current\.get\(requestId\) \?\? crypto\.randomUUID\(\)/);

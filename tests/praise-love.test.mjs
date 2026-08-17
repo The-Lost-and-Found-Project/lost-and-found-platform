@@ -7,9 +7,10 @@ const root = process.cwd();
 const source = (...parts) => readFile(path.join(root, ...parts), "utf8");
 
 test("Praise Love is unique per Community Member and removable", async () => {
-  const [migration, route, page] = await Promise.all([
+  const [migration, route, ticker, page] = await Promise.all([
     source("supabase", "migrations", "20260817000243_add_unique_praise_loves.sql"),
     source("app", "api", "praise-loves", "route.ts"),
+    source("components", "PraiseTicker.tsx"),
     source("app", "praise", "page.tsx"),
   ]);
 
@@ -20,6 +21,7 @@ test("Praise Love is unique per Community Member and removable", async () => {
   assert.match(route, /auth\.getUser\(\)/);
   assert.match(route, /\.from\("praise_loves"\)[\s\S]*\.delete\(\)/);
   assert.match(route, /error\.code !== "23505"/);
-  assert.match(page, /aria-pressed=\{lovedIds\.has\(selectedReport\.id\)\}/);
-  assert.match(page, /disabled=\{pendingIds\.has\(selectedReport\.id\)\}/);
+  assert.match(ticker, /aria-pressed=\{lovedIds\.has\(selectedReport\.id\)\}/);
+  assert.match(ticker, /disabled=\{pendingIds\.has\(selectedReport\.id\)\}/);
+  assert.match(page, /<PraiseTicker showAll/);
 });

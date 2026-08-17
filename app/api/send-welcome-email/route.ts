@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { escapeEmailHtml, renderLfpEmail } from "@/lib/email/html";
 
 const FROM_ADDRESS =
   "The Lost and Found Project <noreply@lostandfoundproject.org>";
@@ -75,89 +76,41 @@ export async function POST(request: NextRequest) {
     const resend = new Resend(apiKey);
     const firstName =
       typeof fullName === "string" && fullName.trim()
-        ? fullName.trim().split(" ")[0]
+        ? escapeEmailHtml(fullName.trim().split(" ")[0])
         : "friend";
 
-    const html = `
-      <div style="font-family: sans-serif; font-size: 15px; line-height: 1.6; color: #111; max-width: 560px; margin: 0 auto;">
-        <h1 style="font-size: 22px; margin-bottom: 4px;">Welcome to The Lost and Found Project, ${firstName}!</h1>
-        <p style="color: #555; margin-top: 0;">
-          We're so glad you're here.
-        </p>
-
-        <p>
-          The Lost and Found Project exists to help people who feel alone
-          find real community, real prayer, and real support. Whatever
-          season you're walking through, our care team is here to pray with
-          you, encourage you, and walk alongside you &mdash; not just once,
-          but for the long haul.
-        </p>
-
-        <p>
-          Here's what you can do now that you've joined:
-        </p>
-        <ul style="padding-left: 20px;">
-          <li style="margin-bottom: 8px;">
-            <strong>Submit a prayer request</strong> any time you need one,
-            privately or on our public Prayer Wall.
-          </li>
-          <li style="margin-bottom: 8px;">
-            <strong>Pray for others</strong> and read testimonies of healing,
-            provision, and hope from people in our community.
-          </li>
-          <li style="margin-bottom: 8px;">
-            <strong>Track your own journey</strong> &mdash; salvation,
-            baptism, and the milestones along the way.
-          </li>
+    const html = renderLfpEmail({
+      preheader: "Welcome to a community centered on prayer, praise, and testimony.",
+      eyebrow: "Welcome",
+      title: `You belong here, ${firstName}.`,
+      siteUrl: SITE_URL,
+      reason: "You received this one-time welcome because you confirmed a new Community Member account.",
+      bodyHtml: `
+        <p style="margin:0 0 16px;">The Lost and Found Project is a Christian community where people bring needs before God, celebrate His faithfulness, and share stories that help others find hope.</p>
+        <p style="margin:0 0 10px;font-weight:800;color:#0f172a;">You can now:</p>
+        <ul style="margin:0 0 18px;padding-left:22px;">
+          <li style="margin-bottom:8px;"><strong>Request prayer</strong> privately or for the moderated public Prayer ticker.</li>
+          <li style="margin-bottom:8px;"><strong>Pray for others</strong> as often as you are led.</li>
+          <li style="margin-bottom:8px;"><strong>Share praise and testimony</strong> to encourage the community.</li>
+          <li style="margin-bottom:8px;"><strong>Explore future L&amp;F apps</strong> as dedicated learning experiences become ready.</li>
         </ul>
-
-        <p>
-          <strong>Tip:</strong> add this app to your phone's home screen so
-          it opens like any other app. On <strong>iPhone/iPad</strong>, tap
-          the Share icon in Safari, then &ldquo;Add to Home Screen.&rdquo;
-          On <strong>Android</strong>, tap the three-dot menu in Chrome,
-          then &ldquo;Add to Home screen&rdquo; (or &ldquo;Install
-          app&rdquo;).
-        </p>
-
-        <p>
-          None of this happens without people like you. The Lost and Found
-          Project is sustained entirely by the generosity of our community,
-          and a recurring monthly gift &mdash; even a small one &mdash; helps
-          us keep showing up for the next person who needs prayer, support,
-          or simply someone to walk with them. If you're able, would you
-          consider becoming a monthly partner with us?
-        </p>
-
-        <p style="text-align: center; margin: 28px 0;">
-          <a href="${GIVE_URL}" style="display: inline-block; background: linear-gradient(to right, #4f46e5, #7c3aed); color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 9999px; font-weight: 600;">
-            Become a Monthly Partner
-          </a>
-        </p>
-
-        <p>
-          Ready to jump in? Sign in any time to submit a request, browse the
-          Prayer Wall, or update your profile.
-        </p>
-
-        <p style="text-align: center; margin: 20px 0;">
-          <a href="${SITE_URL}/login" style="color: #4f46e5; font-weight: 600;">
-            Sign In to Your Account
-          </a>
-        </p>
-
-        <p style="color: #888; font-size: 13px; margin-top: 32px;">
-          You're not walking this alone. We're honored to walk with you.
-          &mdash; The Lost and Found Project team
-        </p>
-      </div>
-    `;
+        <p style="margin:0 0 16px;"><strong>Using a phone or iPad?</strong> Add the Community App to your Home Screen from your browser&apos;s Share or Install menu.</p>
+        <p style="margin:0;">Participation is free. If you choose to give, your optional support helps the ministry serve more people responsibly.</p>
+      `,
+      actions: [
+        { href: `${SITE_URL}/login`, label: "Open Your Account", primary: true },
+        { href: `${SITE_URL}/apps`, label: "See Future Apps" },
+        { href: GIVE_URL, label: "Give Securely" },
+      ],
+    });
+    const text = `Welcome to The Lost and Found Project, ${firstName}.\n\nYou can request prayer, pray for others as often as you are led, share praise and testimony, and explore future L&F apps.\n\nOpen your account: ${SITE_URL}/login\nFuture apps: ${SITE_URL}/apps\nOptional giving: ${GIVE_URL}\n\nYou received this one-time welcome because you confirmed a new Community Member account.`;
 
     const { error } = await resend.emails.send({
       from: FROM_ADDRESS,
       to: email,
-      subject: "Welcome to The Lost and Found Project",
+      subject: "Welcome — you belong here",
       html,
+      text,
     });
 
     if (error) {

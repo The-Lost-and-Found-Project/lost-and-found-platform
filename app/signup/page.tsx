@@ -219,8 +219,8 @@ export default function SignUpPage() {
                 <option value="female">Female</option>
               </select>
               <p className="mt-1 text-xs text-gray-500">
-                Helps us match you comfortably when you request contact from
-                our care team.
+                Helps administrators support appropriate privacy and safety
+                choices when reviewing a request.
               </p>
             </div>
 

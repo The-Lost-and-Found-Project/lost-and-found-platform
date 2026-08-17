@@ -108,8 +108,8 @@ export default function AccountClient({
         <p className="text-sm font-semibold text-red-800">Danger Zone</p>
         <p className="mt-1 text-sm text-red-700">
           Permanently delete your account. This can&apos;t be undone. If you
-          currently have any prayer requests assigned to you, they&apos;ll be
-          handed off to another care team member first.
+          delete your account, your existing community contributions will be
+          handled according to the ministry&apos;s privacy and record-retention policy.
         </p>
 
         {!confirmingDelete ? (

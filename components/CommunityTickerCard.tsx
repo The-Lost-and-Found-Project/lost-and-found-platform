@@ -4,13 +4,18 @@ type Props = {
   icon: string;
   meta?: React.ReactNode;
   onOpen: () => void;
+  isDuplicate?: boolean;
 };
 
-export default function CommunityTickerCard({ label, content, icon, meta, onOpen }: Props) {
+export default function CommunityTickerCard({ label, content, icon, meta, onOpen, isDuplicate = false }: Props) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <article
+      aria-hidden={isDuplicate ? "true" : undefined}
+      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+    >
       <button
         type="button"
+        tabIndex={isDuplicate ? -1 : 0}
         onClick={onOpen}
         className="flex min-h-28 w-full items-start gap-4 px-5 py-4 text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-200"
         aria-label={`Open full ${label}`}
