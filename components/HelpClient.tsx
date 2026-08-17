@@ -121,7 +121,7 @@ export default function HelpClient({
         <Card
           href="/help/manual/member"
           title="Member Guide"
-          description="Prayer requests, testimonies, praise reports, your profile, and notifications."
+          description="Prayer, Praise, Testimony reactions, notifications, privacy, and your profile."
           icon={bookIcon}
         />
         {showAdminGuide && (

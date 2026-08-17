@@ -24,7 +24,8 @@ type SupabaseWebhookPayload = {
 // guarantees 1:1 parity between in-app notifications and home-screen push
 // notifications — every current trigger that inserts a notification row
 // (prayed_for, status_change, flagged, content_denied, content_approved,
-// new_request, new_member, new_testimony, new_praise, feedback, etc.)
+// new_request, new_member, new_testimony, new_praise, praise_loved,
+// testimony_encouraged, feedback, etc.)
 // automatically also fires a push, without each trigger needing its own
 // push-sending code.
 //

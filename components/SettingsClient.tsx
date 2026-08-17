@@ -7,6 +7,8 @@ import PushNotificationToggle from "@/components/PushNotificationToggle";
 type Settings = {
   email_notifications: boolean;
   prayer_reaction_notifications: boolean;
+  praise_reaction_notifications: boolean;
+  testimony_reaction_notifications: boolean;
   default_anonymous: boolean;
 };
 
@@ -52,6 +54,20 @@ export default function SettingsClient({
           checked={settings.prayer_reaction_notifications}
           onChange={(v) => updateSetting("prayer_reaction_notifications", v)}
           busy={saving === "prayer_reaction_notifications"}
+        />
+        <ToggleRow
+          title="Praise reaction notifications"
+          description="Show an in-app update when someone Loves your praise report."
+          checked={settings.praise_reaction_notifications}
+          onChange={(v) => updateSetting("praise_reaction_notifications", v)}
+          busy={saving === "praise_reaction_notifications"}
+        />
+        <ToggleRow
+          title="Testimony reaction notifications"
+          description="Show an in-app update when your testimony encourages someone."
+          checked={settings.testimony_reaction_notifications}
+          onChange={(v) => updateSetting("testimony_reaction_notifications", v)}
+          busy={saving === "testimony_reaction_notifications"}
         />
         <ToggleRow
           title="Email notifications"

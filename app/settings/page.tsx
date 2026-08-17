@@ -5,6 +5,8 @@ import SettingsClient from "@/components/SettingsClient";
 const DEFAULT_SETTINGS = {
   email_notifications: true,
   prayer_reaction_notifications: true,
+  praise_reaction_notifications: true,
+  testimony_reaction_notifications: true,
   default_anonymous: false,
 };
 
@@ -15,7 +17,7 @@ export default async function SettingsPage() {
 
   const { data: existing } = await supabase
     .from("user_settings")
-    .select("email_notifications, prayer_reaction_notifications, default_anonymous")
+    .select("email_notifications, prayer_reaction_notifications, praise_reaction_notifications, testimony_reaction_notifications, default_anonymous")
     .eq("user_id", user.id)
     .single();
 
@@ -24,7 +26,7 @@ export default async function SettingsPage() {
     const { data: created } = await supabase
       .from("user_settings")
       .insert({ user_id: user.id })
-      .select("email_notifications, prayer_reaction_notifications, default_anonymous")
+      .select("email_notifications, prayer_reaction_notifications, praise_reaction_notifications, testimony_reaction_notifications, default_anonymous")
       .single();
     settings = created;
   }

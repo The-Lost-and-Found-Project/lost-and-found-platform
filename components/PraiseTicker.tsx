@@ -12,6 +12,7 @@ type PraiseReport = {
   content_text: string;
   created_at: string;
   love_count: number;
+  is_own: boolean;
 };
 
 export default function PraiseTicker({
@@ -38,7 +39,7 @@ export default function PraiseTicker({
     async function load() {
       const query = supabase
         .from("praise_wall_public")
-        .select("id, content_text, created_at, love_count")
+        .select("id, content_text, created_at, love_count, is_own")
         .order("created_at", { ascending: false });
       const [{ data }, { data: authData }] = await Promise.all([
         showAll ? query : query.limit(12),
@@ -152,7 +153,9 @@ export default function PraiseTicker({
           content={selectedReport.content_text}
           onClose={() => setSelectedId(null)}
           meta={<>Shared anonymously · {new Date(selectedReport.created_at).toLocaleDateString()}</>}
-          actions={showAll || pageMode ? (
+          actions={(showAll || pageMode) && selectedReport.is_own ? (
+            <p className="text-sm font-bold text-slate-500">This is your praise report. Community reactions are for celebrating with other members.</p>
+          ) : showAll || pageMode ? (
             <div>
               <button
                 type="button"

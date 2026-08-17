@@ -45,11 +45,14 @@ export async function POST(request: Request) {
 
   const { data: praiseReport } = await supabase
     .from("praise_wall_public")
-    .select("id")
+    .select("id, is_own")
     .eq("id", reportId)
     .maybeSingle();
   if (!praiseReport) {
     return NextResponse.json({ error: "This praise report is not available." }, { status: 404 });
+  }
+  if (praiseReport.is_own) {
+    return NextResponse.json({ error: "You cannot react to your own praise report." }, { status: 403 });
   }
 
   const { data: existing, error: existingError } = await supabase

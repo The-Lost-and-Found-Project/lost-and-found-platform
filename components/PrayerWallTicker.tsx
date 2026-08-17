@@ -16,6 +16,7 @@ type PrayerRequest = {
   category_id: string | null;
   prayer_count: number;
   status: string;
+  is_own: boolean;
 };
 
 type Category = { id: string; name: string };
@@ -47,7 +48,7 @@ export default function PrayerWallTicker({
     async function load() {
       const requestQuery = supabase
         .from("prayer_wall_public")
-        .select("id, request_text, created_at, display_name, category_id, prayer_count, status")
+        .select("id, request_text, created_at, display_name, category_id, prayer_count, status, is_own")
         .not("status", "in", CLOSED_PRAYER_STATUS_FILTER)
         .order("prayer_count", { ascending: true })
         .order("created_at", { ascending: true });
@@ -194,7 +195,9 @@ export default function PrayerWallTicker({
           content={selectedRequest.request_text}
           meta={<>{selectedRequest.category_id && categories[selectedRequest.category_id] ? `${categories[selectedRequest.category_id]} · ` : ""}Shared {new Date(selectedRequest.created_at).toLocaleDateString()} · {selectedPrayerLabel}</>}
           onClose={() => setSelectedId(null)}
-          actions={showAll || pageMode ? (
+          actions={(showAll || pageMode) && selectedRequest.is_own ? (
+            <p className="text-sm font-bold text-slate-500">This is your prayer request. Community reactions are for supporting other members.</p>
+          ) : showAll || pageMode ? (
             <div>
               <button
                 type="button"
