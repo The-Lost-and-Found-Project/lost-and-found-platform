@@ -22,7 +22,7 @@ export default async function CommunityPage() {
         <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           <LfpFeatureCard eyebrow="Stories of grace" title="Testimonies" description="Read and share stories of redemption, growth, healing, and God's faithfulness." href="/testimonies" action="View Testimonies" icon="💬" />
           <LfpFeatureCard eyebrow="Celebrate" title="Praise Reports" description="Celebrate answered prayer and encourage others with what God has done." href="/praise" action="Open Praise" icon="🙌" />
-          <LfpFeatureCard eyebrow="Serve" title="Prayer Care" description="Learn how to serve people through prayer, encouragement, and faithful follow-up." href="/prayer-care-application" action="Learn More" icon="🤲" />
+          <LfpFeatureCard eyebrow="Pray together" title="Community Prayer" description="Read approved requests and record each time you intentionally pray with someone." href="/prayer" action="Open Prayer" icon="🙏" />
         </div>
 
         <section className="mt-12">

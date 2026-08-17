@@ -9,18 +9,7 @@ const helpGroups = [
     items: [
       { label: "Submit a prayer request", href: "/prayer/submit" },
       { label: "Pray with the community", href: "/prayer" },
-      { label: "Review your prayer journey", href: "/my-journey" },
-      { label: "Join the Prayer Care Team", href: "/prayer-care-application" },
-    ],
-  },
-  {
-    title: "Spiritual Growth",
-    icon: "📖",
-    items: [
-      { label: "Open Daily Devotions", href: "/devotions" },
-      { label: "Play Bible Trivia", href: "/trivia" },
-      { label: "Record a journey milestone", href: "/my-journey" },
-      { label: "Manage your faith profile", href: "/profile" },
+      { label: "Review your prayer requests", href: "/prayer/my-requests" },
     ],
   },
   {
@@ -52,11 +41,11 @@ const faqs = [
   },
   {
     question: "Who can see my private information?",
-    answer: "Public community areas display only information approved for publication. Sensitive request details are restricted to authorized care-team and administrative workflows.",
+    answer: "Public community areas display only information approved for publication. Private request details are limited to the member who submitted them and authorized administrators.",
   },
   {
     question: "How do I update or record an answered prayer?",
-    answer: "Open My Journey to review your prayer history, add updates, and record answered prayers so the story of God's faithfulness is not lost.",
+    answer: "Open My Prayer Requests from the Prayer page to review your request, make an update, or mark it answered.",
   },
   {
     question: "Why can’t I open Mentoring, Events, or the Study Library yet?",

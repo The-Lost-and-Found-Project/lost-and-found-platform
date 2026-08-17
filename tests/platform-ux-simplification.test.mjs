@@ -25,12 +25,14 @@ test("the dashboard restores an accessible scrolling prayer preview without rest
   assert.doesNotMatch(testimonies, /\.\.\.testimonies, \.\.\.testimonies/);
 });
 
-test("care-team completion does not declare a request answered", async () => {
-  const assignments = await source("components", "MyPrayerAssignmentsClient.tsx");
-
-  assert.match(assignments, /status: "Closed"/);
-  assert.match(assignments, /without declaring the prayer answered/);
-  assert.doesNotMatch(assignments, /answered: true,[\s\S]{0,80}status: "Resolved"/);
+test("members manage their own prayer requests without an assignment workflow", async () => {
+  const [page, client] = await Promise.all([
+    source("app", "prayer", "my-requests", "page.tsx"),
+    source("components", "MyPrayerRequestsClient.tsx"),
+  ]);
+  assert.match(page, /My Prayer Requests/);
+  assert.match(client, /"edit" \| "resolve" \| "withdraw"/);
+  assert.doesNotMatch(client, /assigned_to|careTeam|prayer partner/i);
 });
 
 test("admin navigation fits six destinations without horizontal scrolling", async () => {
@@ -44,30 +46,32 @@ test("user join dates are deterministic during hydration", async () => {
   const users = await source("components", "AdminUsersClient.tsx");
 
   assert.match(users, /formatJoinedDate/);
-  assert.doesNotMatch(users, /new Date\(u\.created_at\)\.toLocaleDateString/);
+  assert.doesNotMatch(users, /new Date\(member\.created_at\)\.toLocaleDateString/);
 });
 
-test("admin attention view includes reassignment and escalated care", async () => {
+test("admin attention view includes submitted and escalated requests", async () => {
   const requests = await source("components", "AdminPrayerDashboardClient.tsx");
 
-  assert.match(requests, /"Needs Reassignment", "Escalated"/);
+  assert.match(requests, /request\.status === "Submitted"/);
+  assert.match(requests, /request\.status === "Escalated"/);
+  assert.doesNotMatch(requests, /Needs Reassignment/);
 });
 
-test("shared navigation and journey actions meet mobile touch target sizing", async () => {
-  const [header, backButton, notifications, account, journey] = await Promise.all([
+test("shared navigation and prayer-request actions meet mobile touch target sizing", async () => {
+  const [header, backButton, notifications, account, requests] = await Promise.all([
     source("components", "Header.tsx"),
     source("components", "BackButton.tsx"),
     source("components", "NotificationBell.tsx"),
     source("components", "AuthControls.tsx"),
-    source("components", "MyJourneyClient.tsx"),
+    source("components", "MyPrayerRequestsClient.tsx"),
   ]);
 
   assert.match(header, /aria-label="Send feedback"[^>]+h-11 w-11/);
   assert.match(backButton, /h-11 w-11/);
   assert.match(notifications, /relative flex h-11 w-11/);
   assert.match(account, /className="flex h-11 w-11 items-center justify-center/);
-  assert.match(journey, /className="inline-flex min-h-11 items-center/);
-  assert.match(journey, /Add To My Journey/);
+  assert.match(requests, /lfp-button/);
+  assert.match(requests, /Mark Answered/);
 });
 
 test("community roadmap is preserved behind a compact accessible disclosure", async () => {
@@ -88,24 +92,23 @@ test("more page labels each group by purpose instead of repeating options", asyn
   assert.match(more, /eyebrow: "About and help"/);
 });
 
-test("admin center puts the live care queue before collapsed secondary tools", async () => {
+test("admin center puts prayer moderation before collapsed secondary tools", async () => {
   const admin = await source("app", "admin", "page.tsx");
 
-  assert.ok(admin.indexOf("Care queue") < admin.indexOf("Other administrative tools"));
+  assert.ok(admin.indexOf("Request review") < admin.indexOf("Other administrative tools"));
   assert.match(admin, /<details className="lfp-card group mt-8/);
-  assert.match(admin, /Applications, people, content, and analytics/);
-  assert.doesNotMatch(admin, /title: "Prayer Operations"/);
+  assert.match(admin, /People, content, and analytics/);
+  assert.doesNotMatch(admin, /Prayer Care Applications|Care queue/);
   assert.match(admin, /<details[\s\S]+Private Founder Lab/);
 });
 
-test("prayer administration exposes explicit attention and history views", async () => {
+test("prayer administration exposes explicit attention and all-request views", async () => {
   const requests = await source("components", "AdminPrayerDashboardClient.tsx");
 
   assert.match(requests, /aria-label="Request queue"/);
   assert.match(requests, /Attention \(\{attentionCount\}\)/);
-  assert.match(requests, /All requests \(\{requests\.length\}\)/);
-  assert.match(requests, /including \$\{historyCount\} in history/);
+  assert.match(requests, /All \(\{requests\.length\}\)/);
   assert.match(requests, /setAttentionOnly\(false\)/);
-  assert.match(requests, /includes\(statusFilter\)[\s\S]+setStatusFilter\("All"\)/);
-  assert.match(requests, /role="status" aria-live="polite"/);
+  assert.match(requests, /statusFilter === "All"/);
+  assert.match(requests, /role="status"/);
 });

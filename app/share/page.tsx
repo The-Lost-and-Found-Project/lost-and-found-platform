@@ -9,15 +9,8 @@ export const metadata: Metadata = {
 const memberWays = [
   "Share prayer requests publicly or privately",
   "Pray with people through the Prayer Wall",
-  "Follow your prayer journey and celebrate answered prayer",
-  "Read devotions, testimonies, and Scripture-centered growth resources",
-];
-
-const careTeamWays = [
-  "Receive prayer requests entrusted to you",
-  "Pray faithfully and record meaningful care steps",
-  "Follow up when someone asks to be contacted",
-  "Escalate needs to care leaders when additional support is appropriate",
+  "Review and update your own prayer requests",
+  "Celebrate answered prayer and share testimony",
 ];
 
 export default function ShareLandingPage() {
@@ -47,31 +40,24 @@ export default function ShareLandingPage() {
           </div>
           <div className="space-y-4 text-lg leading-8 text-slate-600">
             <p>We create a welcoming place for people to share what they are carrying and know that someone is praying with them.</p>
-            <p>Members can participate quietly, share their own journey, or grow into serving others. Prayer Care Team service is optional and begins only after an application and human review.</p>
+            <p>Members can participate quietly, share a request, or pray with someone else. Every member uses the same simple community experience.</p>
           </div>
         </section>
 
         <section className="mt-12" aria-labelledby="choose-path-title">
           <div className="max-w-3xl">
             <p className="lfp-eyebrow">Your place in the community</p>
-            <h2 id="choose-path-title" className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Join as a member. Serve when you’re ready.</h2>
-            <p className="mt-3 leading-7 text-slate-600">Everyone begins with the same community account. Prayer Care Team access adds ministry responsibilities without taking away the regular member experience.</p>
+            <h2 id="choose-path-title" className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">One community. Many ways to encourage.</h2>
+            <p className="mt-3 leading-7 text-slate-600">Everyone joins as a Community Member and can pray, share, celebrate, or simply read at their own pace.</p>
           </div>
 
-          <div className="mt-7 grid gap-5 lg:grid-cols-2">
+          <div className="mt-7 grid gap-5">
             <RoleCard
               eyebrow="For every member"
               title="Pray, read, and grow"
-              description="Use the community for your own prayer journey and encourage others in ways that feel comfortable to you."
+              description="Use the community for prayer and encouragement in ways that feel comfortable to you."
               items={memberWays}
               accent="indigo"
-            />
-            <RoleCard
-              eyebrow="Optional service role"
-              title="Prayer Care Team"
-              description="Apply when you feel called to provide consistent prayer and follow-up within a supported care workflow."
-              items={careTeamWays}
-              accent="amber"
             />
           </div>
         </section>
@@ -81,7 +67,7 @@ export default function ShareLandingPage() {
             <div>
               <p className="text-xs font-black uppercase tracking-[0.16em] text-indigo-700">A thoughtful care experience</p>
               <h2 id="care-expectation-title" className="mt-2 text-2xl font-black text-slate-950">You choose what to share.</h2>
-              <p className="mt-3 max-w-3xl leading-7 text-slate-600">Prayer requests can remain private or be considered for the public Prayer Wall. When personal care is requested, the Prayer Care Team uses clear ownership and follow-up steps so requests are not left unattended.</p>
+              <p className="mt-3 max-w-3xl leading-7 text-slate-600">Prayer requests can remain private or be considered for the Prayer Wall. Authorized administrators review public requests for safety and privacy, while Community Members can pray as often as they are led.</p>
             </div>
             <Link href="/signup" className="lfp-button lfp-button-primary lg:justify-self-end">Create My Account →</Link>
           </div>

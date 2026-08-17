@@ -23,11 +23,6 @@ export default async function HelpPage() {
 
   return (
     <HelpClient
-      showPrayerTeamGuide={
-        effectiveRole === "prayer_team" ||
-        effectiveRole === "pastor" ||
-        effectiveRole === "admin"
-      }
       showAdminGuide={effectiveRole === "admin"}
     />
   );

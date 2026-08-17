@@ -7,8 +7,6 @@ import { createClient } from "@/lib/supabase/client";
 type Category = {
   id: string;
   name: string;
-  default_care_level: string | null;
-  route_to: string | null;
 };
 
 const inputClass = "mt-2 block min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
@@ -32,7 +30,7 @@ export default function SubmitPrayerRequestPage() {
     async function loadCategories() {
       const { data } = await supabase
         .from("prayer_categories")
-        .select("id, name, default_care_level, route_to")
+        .select("id, name")
         .order("sort_order");
       setCategories((data as Category[]) ?? []);
     }
@@ -89,15 +87,6 @@ export default function SubmitPrayerRequestPage() {
       return;
     }
 
-    const newRequestId = result.requestId;
-    fetch("/api/notify-assignment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestId: newRequestId }),
-    }).catch((notificationError) => {
-      console.error("Failed to send assignment notification:", notificationError);
-    });
-
     setSubmitted(true);
     setSubmitting(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -115,6 +104,7 @@ export default function SubmitPrayerRequestPage() {
               <p className="mt-5 text-lg leading-8 text-indigo-100/75">Your prayer request has been received and shared according to the privacy choices you selected. Our community would be honored to pray with you.</p>
               <div className="mt-9 flex flex-wrap justify-center gap-3">
                 <Link href="/prayer" className="lfp-button bg-white text-indigo-800 shadow-xl">Return to Prayer</Link>
+                <Link href="/prayer/my-requests" className="lfp-button border border-white/20 bg-white/10 text-white">View My Prayer Requests</Link>
               </div>
             </div>
           </div>

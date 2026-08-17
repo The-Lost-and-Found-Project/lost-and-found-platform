@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
 
 const FROM_ADDRESS =
-  "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
+  "The Lost and Found Project <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
   "https://app.lostandfoundproject.org";
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
           your account.
         </p>
         <p style="text-align: center; margin: 24px 0;">
-          <a href="${SITE_URL}/my-journey" style="display: inline-block; background: linear-gradient(to right, #4f46e5, #7c3aed); color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 9999px; font-weight: 600;">
+          <a href="${SITE_URL}/prayer/my-requests" style="display: inline-block; background: linear-gradient(to right, #4f46e5, #7c3aed); color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 9999px; font-weight: 600;">
             Revise Your Request
           </a>
         </p>

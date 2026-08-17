@@ -12,28 +12,21 @@ test("user administration controls have contextual names and touch targets", asy
   );
 
   assert.match(users, /aria-label=\{`Role for \$\{accessibleName\}`\}/);
-  assert.match(users, /aria-label=\{`Account status for \$\{accessibleName\}`\}/);
+  assert.match(users, /aria-label=\{`\$\{member\.is_active \? "Deactivate" : "Reactivate"\} account for \$\{accessibleName\}`\}/);
   assert.match(users, /aria-label=\{`Delete account for \$\{accessibleName\}`\}/);
   assert.match(users, /role="alert"\s+aria-live="assertive"/);
   assert.match(users, /min-h-11/);
   assert.match(users, /id="user-directory-search"/);
-  assert.match(users, /role="group" aria-label="Directory view"/);
   assert.match(users, /role="status" aria-live="polite"/);
-  assert.match(users, /<details/);
-  assert.match(users, /These must be reassigned or returned to the team queue/);
-  assert.match(users, /Permanently delete this login and profile/);
+  assert.match(users, /Everyone uses one Community Member identity/);
+  assert.doesNotMatch(users, /assignment|rotation|reassign/i);
 });
 
-test("application decisions expose labels, state, and touch targets", async () => {
-  const applications = await readFile(
-    path.join(root, "components", "AdminApplicationsClient.tsx"),
-    "utf8"
-  );
-
-  assert.match(applications, /htmlFor=\{`deny-note-\$\{app\.id\}`\}/);
-  assert.match(applications, /id=\{`deny-note-\$\{app\.id\}`\}/);
-  assert.match(applications, /aria-expanded=\{showReviewed\}/);
-  assert.match(applications, /aria-controls="reviewed-applications"/);
-  assert.match(applications, /role="alert"\s+aria-live="assertive"/);
-  assert.match(applications, /min-h-11/);
+test("legacy Prayer Care applications are no longer actionable", async () => {
+  const [page, route] = await Promise.all([
+    readFile(path.join(root, "app", "admin", "applications", "page.tsx"), "utf8"),
+    readFile(path.join(root, "app", "api", "admin", "applications", "decide", "route.ts"), "utf8"),
+  ]);
+  assert.match(page, /redirect\("\/admin"\)/);
+  assert.match(route, /retiredPrayerCareResponse/);
 });

@@ -15,8 +15,6 @@ type Profile = {
 
 const ROLE_LABELS: Record<string, string> = {
   member: "Community Member",
-  prayer_team: "Community Prayer Member",
-  pastor: "Community Mentor",
   admin: "Community Admin",
 };
 

@@ -13,7 +13,7 @@ export default async function ProfilePage() {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "full_name, avatar_url, favorite_scripture, date_of_salvation, date_of_baptism, role, preview_role, ministry_availability, missed_assignment_count, reinstatement_requested_at"
+      "full_name, avatar_url, favorite_scripture, date_of_salvation, date_of_baptism, role, preview_role"
     )
     .eq("id", user.id)
     .single();
@@ -35,7 +35,6 @@ export default async function ProfilePage() {
         <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/92 shadow-xl">
           <ProfileClient
             email={user.email ?? ""}
-            createdAt={user.created_at}
             initialFullName={profile?.full_name ?? ""}
             initialAvatarUrl={profile?.avatar_url ?? ""}
             initialFavoriteScripture={profile?.favorite_scripture ?? ""}
@@ -43,10 +42,6 @@ export default async function ProfilePage() {
             initialDateOfBaptism={profile?.date_of_baptism ?? ""}
             isRealAdmin={profile?.role === "admin"}
             initialPreviewRole={profile?.preview_role ?? ""}
-            isCareTeamMember={["admin", "prayer_team", "pastor"].includes(profile?.role ?? "")}
-            initialRotationStatus={profile?.ministry_availability ?? "available"}
-            initialMissedAssignmentCount={profile?.missed_assignment_count ?? 0}
-            initialReinstatementRequestedAt={profile?.reinstatement_requested_at ?? null}
           />
         </section>
       </div>

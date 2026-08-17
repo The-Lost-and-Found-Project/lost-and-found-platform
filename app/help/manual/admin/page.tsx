@@ -5,23 +5,16 @@ import ManualSections, { ManualSection } from "@/components/ManualSections";
 
 const sections: ManualSection[] = [
   {
-    title: "Prayer Care Admin",
+    title: "Prayer Moderation",
     paragraphs: [
-      "The Requests tab is the master view of every prayer request. Flagged requests (auto-detected or reported) sit in their own queue for you to approve, deny, or edit before they go live. From any request you can also mark it answered/archived, which prompts the requester to share a praise report.",
+      "The request review area is the master view of prayer requests. Flagged requests sit in the attention queue so you can approve, deny, edit, or close them before public display. Requests are never assigned to individual members.",
     ],
   },
   {
     title: "Manage Users",
     paragraphs: [
-      "Change a member's role, mark them active/inactive, or delete their account entirely (any active prayer assignments are handed off automatically first, with a note to the new assignee explaining the handoff).",
-      "You can also preview the app as another role for training or troubleshooting — use the small toggle on your own Profile page, and end the preview from the same place.",
-      "If a prayer team member's account has gone Inactive due to missed assignments, you'll see a Pending Reinstatement Requests banner here once they request to come back — approve it to restore them to active rotation.",
-    ],
-  },
-  {
-    title: "Applications",
-    paragraphs: [
-      "Review applications from members who want to join the prayer care team. You're notified automatically whenever a new one comes in.",
+      "Keep normal accounts as Community Members. Grant Community Admin only when a person needs moderation and account-management access. Account deactivation is reversible; deletion is permanent.",
+      "You can preview the app as a Community Member from your own Profile page for training or troubleshooting.",
     ],
   },
   {
@@ -45,7 +38,7 @@ const sections: ManualSection[] = [
   {
     title: "Automatic Emails & Notifications",
     paragraphs: [
-      "The app sends a weekly digest (new members, new requests, and more) and nudges the care team automatically when an assignment has gone quiet — you generally won't need to chase this manually.",
+      "The app keeps in-app notifications. The retired assignment reminder and Prayer Care digest jobs no longer run.",
     ],
   },
 ];

@@ -4,7 +4,7 @@ import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const FROM_ADDRESS =
-  "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
+  "The Lost and Found Project <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
   "https://app.lostandfoundproject.org";

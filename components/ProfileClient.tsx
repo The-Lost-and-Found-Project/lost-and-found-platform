@@ -8,7 +8,6 @@ const MAX_AVATAR_BYTES = 5 * 1024 * 1024; // 5MB
 
 type Props = {
   email: string;
-  createdAt: string;
   initialFullName: string;
   initialAvatarUrl: string;
   initialFavoriteScripture: string;
@@ -16,10 +15,6 @@ type Props = {
   initialDateOfBaptism: string;
   isRealAdmin?: boolean;
   initialPreviewRole?: string;
-  isCareTeamMember?: boolean;
-  initialRotationStatus?: string;
-  initialMissedAssignmentCount?: number;
-  initialReinstatementRequestedAt?: string | null;
 };
 
 const PREVIEW_OPTIONS: {
@@ -39,12 +34,6 @@ const PREVIEW_OPTIONS: {
     label: "Community Member",
     shortLabel: "Member",
     description: "Preview the app as a Community Member would see it.",
-  },
-  {
-    value: "prayer_team",
-    label: "Community Prayer Member",
-    shortLabel: "Prayer",
-    description: "Preview the app as a Community Prayer Member would see it.",
   },
 ];
 
@@ -71,7 +60,6 @@ function formatDate(value: string) {
 
 export default function ProfileClient({
   email,
-  createdAt,
   initialFullName,
   initialAvatarUrl,
   initialFavoriteScripture,
@@ -79,23 +67,12 @@ export default function ProfileClient({
   initialDateOfBaptism,
   isRealAdmin = false,
   initialPreviewRole = "",
-  isCareTeamMember = false,
-  initialRotationStatus = "available",
-  initialMissedAssignmentCount = 0,
-  initialReinstatementRequestedAt = null,
 }: Props) {
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [previewRole, setPreviewRole] = useState(initialPreviewRole);
   const [savingPreview, setSavingPreview] = useState(false);
-
-  const [rotationStatus, setRotationStatus] = useState(initialRotationStatus);
-  const [reinstatementRequestedAt, setReinstatementRequestedAt] = useState(
-    initialReinstatementRequestedAt
-  );
-  const [rotationBusy, setRotationBusy] = useState(false);
-  const [rotationError, setRotationError] = useState("");
 
   const [isEditing, setIsEditing] = useState(false);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
@@ -271,69 +248,6 @@ export default function ProfileClient({
     // "Previewing as..." banner until a full page reload. This event lets
     // it refetch immediately instead.
     window.dispatchEvent(new Event("lf:profile-updated"));
-  }
-
-  // Self-service rotation controls for prayer care team members. Starting
-  // a sabbatical or unpausing immediately reflects in rotationStatus so the
-  // UI updates without waiting on a page reload.
-  async function handleSabbaticalToggle(action: "start" | "end") {
-    setRotationError("");
-    setRotationBusy(true);
-    try {
-      const res = await fetch("/api/rotation/sabbatical", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
-      const resBody = await res.json();
-      if (!res.ok) {
-        setRotationError(resBody?.error ?? "Failed to update your rotation status");
-      } else {
-        setRotationStatus(action === "start" ? "away" : "available");
-      }
-    } catch {
-      setRotationError("Failed to update your rotation status");
-    } finally {
-      setRotationBusy(false);
-    }
-  }
-
-  async function handleUnpause() {
-    setRotationError("");
-    setRotationBusy(true);
-    try {
-      const res = await fetch("/api/rotation/unpause", { method: "POST" });
-      const resBody = await res.json();
-      if (!res.ok) {
-        setRotationError(resBody?.error ?? "Failed to unpause your account");
-      } else {
-        setRotationStatus("available");
-      }
-    } catch {
-      setRotationError("Failed to unpause your account");
-    } finally {
-      setRotationBusy(false);
-    }
-  }
-
-  async function handleRequestReinstatement() {
-    setRotationError("");
-    setRotationBusy(true);
-    try {
-      const res = await fetch("/api/rotation/request-reinstatement", {
-        method: "POST",
-      });
-      const resBody = await res.json();
-      if (!res.ok) {
-        setRotationError(resBody?.error ?? "Failed to request reinstatement");
-      } else {
-        setReinstatementRequestedAt(new Date().toISOString());
-      }
-    } catch {
-      setRotationError("Failed to request reinstatement");
-    } finally {
-      setRotationBusy(false);
-    }
   }
 
   const avatarImage = avatarUrl ? (
@@ -620,105 +534,6 @@ export default function ProfileClient({
           )}
         </form>
       </div>
-
-      {isCareTeamMember && (
-        <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-semibold text-gray-900">
-            Ministry Availability
-          </h2>
-          <p className="mt-1 text-xs text-gray-500">
-            Control whether you&apos;re currently receiving new prayer
-            request assignments. You can still use every other part of the
-            app as a regular member no matter your availability here. Account access is managed separately.
-          </p>
-
-          {rotationError && (
-            <p
-              role="alert"
-              aria-live="assertive"
-              className="mt-3 text-xs text-red-600"
-            >
-              {rotationError}
-            </p>
-          )}
-
-          <div className="mt-4">
-            {rotationStatus === "available" && (
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-                  Available for assignments
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleSabbaticalToggle("start")}
-                  disabled={rotationBusy}
-                  className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
-                >
-                  {rotationBusy ? "Updating..." : "Set Away"}
-                </button>
-              </div>
-            )}
-
-            {rotationStatus === "away" && (
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-                  Away — no new assignments
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleSabbaticalToggle("end")}
-                  disabled={rotationBusy}
-                  className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
-                >
-                  {rotationBusy ? "Updating..." : "Return to Available"}
-                </button>
-              </div>
-            )}
-
-            {rotationStatus === "limited" && (
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
-                  Limited — new assignments paused
-                </span>
-                {initialMissedAssignmentCount < 2 ? (
-                  <button
-                    type="button"
-                    onClick={handleUnpause}
-                    disabled={rotationBusy}
-                    className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
-                  >
-                    {rotationBusy ? "Updating..." : "Return to Available"}
-                  </button>
-                ) : (
-                  <span className="text-xs text-gray-500">A care leader must review repeated missed assignments before availability resumes.</span>
-                )}
-              </div>
-            )}
-
-            {rotationStatus === "inactive" && (
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700">
-                  Inactive for ministry assignments
-                </span>
-                {reinstatementRequestedAt ? (
-                  <span className="text-xs text-gray-500">
-                    Reinstatement requested — waiting on admin approval.
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleRequestReinstatement}
-                    disabled={rotationBusy}
-                    className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
-                  >
-                    {rotationBusy ? "Requesting..." : "Request Reinstatement"}
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       <div className="mt-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">

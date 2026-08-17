@@ -20,7 +20,7 @@ The following routes and data remain intact while migration destinations are dec
 - Devotion routes, content, listening progress, and audio assets
 - Study Companion routes, memberships, and feature settings
 
-## Legacy Prayer Care architecture pending safe retirement
+## Legacy Prayer Care architecture inventory
 
 Do not drop these objects until every trigger, notification, cron job, admin action, and historical data consumer has a replacement or archival plan:
 
@@ -32,6 +32,25 @@ Do not drop these objects until every trigger, notification, cron job, admin act
 - assignment notifications and weekly-digest sections
 - `/prayer-assignments`, `/prayer-care-application`, and old Prayer Journey/member help language
 
+Production inventory before Phase 2:
+
+- 9 prayer requests have a legacy `assigned_to` owner
+- 6 profiles have the legacy `prayer_team` role
+- 1 historical Prayer Care application remains
+- automatic assignment runs from `assign_next_care_team_member_trigger`
+- assignment notices run from two database triggers plus email routes
+- stale-assignment, reinstatement, sabbatical, availability, and reassignment paths remain in code
+
+Phase 2 protection plan:
+
+- copy every live assignment into private `legacy_prayer_care_assignments` before clearing ownership
+- copy every former Prayer Care profile into private `legacy_prayer_care_members` before converting the role to `member`
+- retain original assignment, rotation, application, and journey tables/columns for rollback and future export
+- disable assignment triggers and function execution without dropping the legacy functions
+- redirect old member pages, return HTTP 410 from old mutation endpoints, and replace My Journey with My Prayer Requests
+- keep in-app notification history while moving active prayer links to `/prayer` or `/prayer/my-requests`
+- remove stale-assignment, devotion-publishing, and legacy weekly-digest schedules to avoid unnecessary recurring invocations and email usage
+
 ## Phase 1 completed
 
 - Focused Community Member navigation: Home, Prayer, Praise, Testimonies, Notifications
@@ -40,3 +59,11 @@ Do not drop these objects until every trigger, notification, cron job, admin act
 - Prayer submission no longer asks assignment-related follow-up or care-team-gender questions
 - Prayer Journey link and member-facing assignment language removed from the submission confirmation
 - Existing data and legacy routes remain available for controlled migration and rollback
+
+## Phase 2 verified locally and against production schema
+
+- Production migration dry run completed inside a transaction and rolled back
+- Dry-run assertions confirmed 9 assignment archives, 6 former-role archives, zero remaining live assignments, zero remaining `prayer_team` roles, and removal of automatic assignment triggers
+- Post-rollback verification confirmed production remained unchanged: 9 live legacy assignments, 6 legacy Prayer Care profiles, assignment trigger present, and no archive tables created
+- TypeScript, 71 application tests, ESLint with no errors, and the full Next.js production build pass
+- No paid Supabase branch was created; the real-schema rollback test was used to conserve donated funds

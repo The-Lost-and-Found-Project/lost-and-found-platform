@@ -30,7 +30,7 @@ export default async function GrowPage() {
         <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           <LfpFeatureCard eyebrow="Daily rhythm" title="Devotions" description="Begin a seven-day devotional journey rooted in Scripture, teaching, reflection, and prayer." href="/devotions" action="Start Reading" icon="📖" />
           <LfpFeatureCard eyebrow="Knowledge" title="Bible Trivia" description="Strengthen biblical knowledge through engaging questions across six categories." href="/trivia" action="Play Now" icon="🧠" />
-          <LfpFeatureCard eyebrow="Your story" title="My Journey" description="Reflect on the ways God has been shaping your faith and testimony." href="/my-journey" action="Open Journey" icon="🧭" />
+          <LfpFeatureCard eyebrow="Your prayers" title="My Prayer Requests" description="Review what you shared and record when a prayer is answered." href="/prayer/my-requests" action="Open Requests" icon="🙏" />
           {isEmmausFounder && (
             <LfpFeatureCard eyebrow="Private founder lab" title="Emmaus" description="Continue reviewing the private Scripture-discovery experience while it remains hidden from other users." href="/emmaus/walk" action="Open Emmaus" icon="✦" />
           )}

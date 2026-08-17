@@ -7,11 +7,10 @@ import { NextResponse, type NextRequest } from "next/server";
 const PROTECTED_PREFIXES = [
   "/dashboard",
   "/profile",
-  "/my-journey",
+  "/prayer/my-requests",
   "/settings",
   "/account",
   "/admin",
-  "/prayer-assignments",
   "/notifications",
   "/prayer/submit",
   "/testimonies/submit",

@@ -27,9 +27,9 @@ const programs = [
     description: "Celebrate how God has answered prayer for people in our community.",
   },
   {
-    href: "/my-journey",
-    title: "My Journey",
-    description: "Track the prayers you've submitted and how they're progressing.",
+    href: "/prayer/my-requests",
+    title: "My Prayer Requests",
+    description: "Review, update, or mark answered the prayers you've submitted.",
   },
 ];
 

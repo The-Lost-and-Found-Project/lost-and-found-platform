@@ -1,24 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-const STATUS_OPTIONS = [
-  "Submitted",
-  "Reviewed",
-  "Assigned",
-  "Active Care",
-  "Follow-Up",
-  "Resolved",
-  "Closed",
-  "Needs Reassignment",
-  "Escalated",
-  "Unable to Contact",
-  "Withdrawn",
-];
+const STATUS_OPTIONS = ["Submitted", "Reviewed", "Resolved", "Closed", "Escalated", "Withdrawn"];
 
-type CareTeamMember = { id: string; full_name: string | null; email: string | null };
 type CategoryOption = { id: string; name: string };
-
 type AdminRequest = {
   id: string;
   user_id: string | null;
@@ -26,752 +12,221 @@ type AdminRequest = {
   name: string;
   email: string;
   phone: string | null;
-  preferred_contact: string | null;
-  contact_requested: boolean;
   category_id: string | null;
   request_text: string;
   is_public: boolean;
   is_anonymous: boolean;
   status: string;
-  assigned_to: string | null;
-  follow_up_needed: boolean;
-  follow_up_date: string | null;
   answered: boolean;
   praise_report: string | null;
   prayer_count: number;
   flagged: boolean;
   flag_reason: string | null;
   moderation_status: string;
-  last_action_at: string;
 };
 
-type Props = {
-  requests: AdminRequest[];
-  categories: CategoryOption[];
-  careTeam: CareTeamMember[];
-  isAdmin?: boolean;
-  currentUserId: string;
-};
-
-// A request "needs attention" if it's sitting in moderation, has no one
-// assigned to it, or is marked as needing follow-up but hasn't been marked
-// answered yet. This is the default view so admins land on their to-do list
-// instead of the full firehose of every request ever submitted.
-function needsAttention(r: AdminRequest): boolean {
-  return (
-    r.moderation_status === "pending" ||
-    r.status === "Submitted" ||
-    !r.assigned_to ||
-    (r.follow_up_needed && !r.answered) ||
-    ["Needs Reassignment", "Escalated"].includes(r.status)
-  );
-}
-
-// Whole days since the assigned prayer partner last checked off an action
-// item (or since the request was created/assigned, if none yet). Floors
-// rather than rounds so "0 days" reads as today, not tomorrow.
-function daysSinceLastAction(r: AdminRequest): number {
-  const last = new Date(r.last_action_at).getTime();
-  const diffMs = Date.now() - last;
-  return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+function needsAttention(request: AdminRequest) {
+  return request.moderation_status === "pending" || request.status === "Submitted" || request.status === "Escalated";
 }
 
 export default function AdminPrayerDashboardClient({
   requests: initialRequests,
   categories,
-  careTeam,
-  isAdmin,
-  currentUserId,
-}: Props) {
-  const [requests, setRequests] = useState<AdminRequest[]>(initialRequests);
-  const [statusFilter, setStatusFilter] = useState<string>("All");
-  const [flaggedOnly, setFlaggedOnly] = useState(false);
+}: {
+  requests: AdminRequest[];
+  categories: CategoryOption[];
+  isAdmin?: boolean;
+}) {
+  const [requests, setRequests] = useState(initialRequests);
   const [attentionOnly, setAttentionOnly] = useState(true);
+  const [statusFilter, setStatusFilter] = useState("All");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [editCategoryId, setEditCategoryId] = useState("");
-  const [editIsPublic, setEditIsPublic] = useState(true);
+  const [editIsPublic, setEditIsPublic] = useState(false);
   const [editIsAnonymous, setEditIsAnonymous] = useState(false);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const categoryNames = useMemo(
+    () => new Map(categories.map((category) => [category.id, category.name])),
+    [categories]
+  );
 
-  const categoryMap: Record<string, string> = {};
-  categories.forEach((c) => {
-    categoryMap[c.id] = c.name;
-  });
-
-  const pendingCount = requests.filter(
-    (r) => r.moderation_status === "pending"
-  ).length;
-  const attentionCount = requests.filter(needsAttention).length;
-  const historyCount = requests.filter(
-    (r) => r.answered || ["Resolved", "Closed", "Unable to Contact", "Withdrawn"].includes(r.status)
-  ).length;
-
-  function toggleExpanded(id: string) {
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }
-
-  // Every moderation action (approve/deny/flag/assign/edit/answer) goes
-  // through this one authenticated, server-checked route rather than
-  // writing to Supabase directly from the browser with the anon key — the
-  // server re-verifies the caller is an admin before making any change, and
-  // reconciles local state with whatever the server actually applied
-  // (important for edits, since re-saving request_text can flip
-  // flagged/moderation_status server-side via a DB trigger).
   async function updateRequest(id: string, changes: Partial<AdminRequest>) {
-    setRequests((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, ...changes } : r))
-    );
+    setBusyId(id);
+    setError("");
     try {
-      const res = await fetch("/api/admin/prayer-requests/update", {
+      const response = await fetch("/api/admin/prayer-requests/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requestId: id, changes }),
       });
-      if (res.ok) {
-        const { request: updated } = await res.json();
-        if (updated) {
-          setRequests((prev) =>
-            prev.map((r) => (r.id === id ? { ...r, ...updated } : r))
-          );
-        }
-      } else {
-        console.error("Failed to update prayer request:", await res.text());
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.request) {
+        setError(result.error ?? "The request could not be updated.");
+        return false;
       }
-    } catch (err) {
-      console.error("Failed to update prayer request:", err);
+      setRequests((current) => current.map((request) => request.id === id
+        ? { ...request, ...result.request }
+        : request));
+      return true;
+    } catch {
+      setError("The request could not be updated.");
+      return false;
+    } finally {
+      setBusyId(null);
     }
   }
 
-  async function assignRequest(request: AdminRequest, assigneeId: string) {
-    await updateRequest(request.id, {
-      assigned_to: assigneeId || null,
-      status: assigneeId ? "Assigned" : "Needs Reassignment",
-    });
-    if (!assigneeId) return;
-
-    // Fire-and-forget: the in-app notification is already handled by a DB
-    // trigger. This email gives the assignee the full submission so they
-    // can reach out directly if needed. The route looks everything up
-    // itself server-side from requestId, so no submission details need to
-    // travel through the browser to get there.
-    fetch("/api/notify-assignment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestId: request.id }),
-    }).catch((err) => {
-      console.error("Failed to send assignment notification:", err);
+  function toggleExpanded(id: string) {
+    setExpandedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
     });
   }
 
-  function updatePraiseReportLocal(id: string, value: string) {
-    setRequests((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, praise_report: value } : r))
-    );
-  }
-
-  async function approveRequest(request: AdminRequest) {
-    await updateRequest(request.id, {
-      moderation_status: "approved",
-      flagged: false,
-      flag_reason: null,
-      status: request.assigned_to ? "Assigned" : "Reviewed",
-    });
-  }
-
-  async function denyRequest(request: AdminRequest) {
-    await updateRequest(request.id, { moderation_status: "rejected" });
-
-    if (!request.email) return;
-    fetch("/api/notify-content-denied", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: request.email,
-        name: request.name,
-        userId: request.user_id,
-      }),
-    }).catch((err) => {
-      console.error("Failed to send content-denied notification:", err);
-    });
-  }
-
-  async function manualFlag(id: string) {
-    await updateRequest(id, {
-      flagged: true,
-      moderation_status: "pending",
-      flag_reason: "Manually flagged by admin for review.",
-    });
-  }
-
-  function startEdit(request: AdminRequest) {
+  function beginEdit(request: AdminRequest) {
     setEditingId(request.id);
     setEditText(request.request_text);
     setEditCategoryId(request.category_id ?? "");
     setEditIsPublic(request.is_public);
     setEditIsAnonymous(request.is_anonymous);
-    setExpandedIds((prev) => new Set(prev).add(request.id));
   }
 
-  function cancelEdit() {
-    setEditingId(null);
-  }
-
-  async function handleDeleteRequest(id: string) {
-    setDeletingId(id);
-    const res = await fetch("/api/admin/prayer-requests/delete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestId: id }),
-    });
-    setDeletingId(null);
-    setConfirmingDeleteId(null);
-    if (res.ok) {
-      setRequests((prev) => prev.filter((r) => r.id !== id));
-    } else {
-      const data = await res.json().catch(() => ({}));
-      alert(data.error || "Something went wrong deleting this request.");
+  async function deleteRequest(id: string) {
+    setBusyId(id);
+    setError("");
+    try {
+      const response = await fetch("/api/admin/prayer-requests/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: id }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) setError(result.error ?? "The request could not be deleted.");
+      else setRequests((current) => current.filter((request) => request.id !== id));
+    } catch {
+      setError("The request could not be deleted.");
+    } finally {
+      setBusyId(null);
+      setConfirmingDeleteId(null);
     }
   }
 
-  // Editing request_text re-runs the moderation trigger server-side (it can
-  // flip flagged/moderation_status/flag_reason in either direction), so
-  // this relies on updateRequest reconciling with the server's response
-  // rather than trusting the fields we sent.
-  async function saveEdit(id: string) {
-    await updateRequest(id, {
-      request_text: editText,
-      category_id: editCategoryId || null,
-      is_public: editIsPublic,
-      is_anonymous: editIsAnonymous,
-    });
-    setEditingId(null);
-  }
-
   const visibleRequests = requests
-    .filter((r) => (statusFilter === "All" ? true : r.status === statusFilter))
-    .filter((r) => (flaggedOnly ? r.moderation_status === "pending" : true))
-    .filter((r) => (attentionOnly ? needsAttention(r) : true));
+    .filter((request) => !attentionOnly || needsAttention(request))
+    .filter((request) => statusFilter === "All" || request.status === statusFilter);
+  const attentionCount = requests.filter(needsAttention).length;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h3 className="text-xl font-black text-gray-900 sm:text-2xl">Prayer Care Admin</h3>
-          <p className="mt-2 text-gray-600">
-            Manage incoming prayer requests, assignments, and follow-up.
-          </p>
-        </div>
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.16em] text-indigo-600">Prayer moderation</p>
+        <h3 className="mt-2 text-2xl font-black text-slate-950">Review community requests</h3>
+        <p className="mt-2 text-slate-600">Protect privacy and safety, approve public requests, and record answered prayer. Requests are not assigned to individual members.</p>
       </div>
 
-      <>
-        <div className="mt-5 grid gap-3 border-t border-slate-100 pt-5 sm:flex sm:flex-wrap sm:items-end">
-          <div>
-            <span className="block text-xs font-bold uppercase tracking-wide text-slate-500">Queue</span>
-            <div className="mt-1 flex rounded-xl border border-slate-200 bg-slate-50 p-1" role="group" aria-label="Request queue">
-              <button
-                type="button"
-                aria-pressed={attentionOnly}
-                onClick={() => {
-                  setAttentionOnly(true);
-                  if (["Resolved", "Closed", "Unable to Contact", "Withdrawn"].includes(statusFilter)) {
-                    setStatusFilter("All");
-                  }
-                }}
-                className={`min-h-11 flex-1 rounded-lg px-3 py-2 text-sm font-bold transition sm:flex-none ${
-                  attentionOnly ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-white"
-                }`}
-              >
-                Attention ({attentionCount})
-              </button>
-              <button
-                type="button"
-                aria-pressed={!attentionOnly}
-                onClick={() => setAttentionOnly(false)}
-                className={`min-h-11 flex-1 rounded-lg px-3 py-2 text-sm font-bold transition sm:flex-none ${
-                  !attentionOnly ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-white"
-                }`}
-              >
-                All requests ({requests.length})
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="admin-status-filter" className="block text-xs font-bold uppercase tracking-wide text-slate-500">
-              Status
-            </label>
-            <select
-              id="admin-status-filter"
-              value={statusFilter}
-              onChange={(e) => {
-                const nextStatus = e.target.value;
-                setStatusFilter(nextStatus);
-                if (["Resolved", "Closed", "Unable to Contact", "Withdrawn"].includes(nextStatus)) {
-                  setAttentionOnly(false);
-                }
-              }}
-              className="mt-1 min-h-11 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm shadow-sm sm:w-auto"
-            >
-              <option value="All">All statuses</option>
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {isAdmin && (
-            <button
-              type="button"
-              aria-pressed={flaggedOnly}
-              onClick={() => setFlaggedOnly((v) => !v)}
-              className={`min-h-11 rounded-xl px-3 py-2 text-sm font-bold shadow-sm transition ${
-                flaggedOnly
-                  ? "bg-amber-500 text-white"
-                  : "border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"
-              }`}
-            >
-              Flagged{pendingCount > 0 ? ` (${pendingCount})` : ""}
-            </button>
-          )}
+      <div className="mt-6 flex flex-wrap items-end gap-3 border-t border-slate-100 pt-5">
+        <div className="flex rounded-xl border border-slate-200 bg-slate-50 p-1" role="group" aria-label="Request queue">
+          <button type="button" aria-pressed={attentionOnly} onClick={() => setAttentionOnly(true)} className={`min-h-11 rounded-lg px-3 py-2 text-sm font-bold ${attentionOnly ? "bg-indigo-600 text-white" : "text-slate-700"}`}>Attention ({attentionCount})</button>
+          <button type="button" aria-pressed={!attentionOnly} onClick={() => setAttentionOnly(false)} className={`min-h-11 rounded-lg px-3 py-2 text-sm font-bold ${!attentionOnly ? "bg-indigo-600 text-white" : "text-slate-700"}`}>All ({requests.length})</button>
         </div>
+        <label htmlFor="admin-status-filter" className="text-xs font-bold uppercase tracking-wide text-slate-500">Status
+          <select id="admin-status-filter" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="mt-1 block min-h-11 rounded-xl border border-slate-300 px-3 py-2 text-sm font-normal normal-case tracking-normal text-slate-800">
+            <option value="All">All statuses</option>
+            {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{status}</option>)}
+          </select>
+        </label>
+      </div>
 
-        <p className="mt-4 text-sm text-slate-500" role="status" aria-live="polite">
-          Showing {visibleRequests.length} request{visibleRequests.length === 1 ? "" : "s"}
-          {attentionOnly ? " requiring attention" : `, including ${historyCount} in history`}.
-        </p>
+      {error && <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-rose-800" role="alert">{error}</p>}
+      <p className="mt-4 text-sm text-slate-500" role="status">Showing {visibleRequests.length} request{visibleRequests.length === 1 ? "" : "s"}.</p>
 
-        <div className="mt-4 space-y-3">
-          {visibleRequests.length === 0 && (
-            <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-slate-600">
-              {attentionOnly
-                ? "Nothing needs attention right now."
-                : "No prayer requests match these filters."}
-            </p>
-          )}
+      <div className="mt-4 space-y-3">
+        {visibleRequests.length === 0 && <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-600">Nothing needs attention right now.</p>}
+        {visibleRequests.map((request) => {
+          const expanded = expandedIds.has(request.id);
+          const editing = editingId === request.id;
+          const busy = busyId === request.id;
+          const category = request.category_id ? categoryNames.get(request.category_id) : undefined;
+          return (
+            <article key={request.id} className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${request.moderation_status === "pending" ? "border-amber-300" : "border-slate-200"}`}>
+              <button type="button" onClick={() => toggleExpanded(request.id)} aria-expanded={expanded} aria-controls={`prayer-request-${request.id}`} className="flex min-h-14 w-full items-start gap-3 px-5 py-4 text-left">
+                <span className={`mt-0.5 text-xl font-black text-indigo-600 transition ${expanded ? "rotate-90" : ""}`} aria-hidden="true">›</span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="font-black text-slate-950">{request.name}</span>
+                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-700">{request.status}</span>
+                    {request.moderation_status === "pending" && <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800">Needs review</span>}
+                    {request.answered && <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-800">Answered</span>}
+                  </span>
+                  {!expanded && <span className="mt-2 block truncate text-sm text-slate-500">{request.request_text}</span>}
+                </span>
+              </button>
 
-          {visibleRequests.map((r) => {
-            const expanded = expandedIds.has(r.id);
-            const assignee = careTeam.find((m) => m.id === r.assigned_to);
-            const isMine = r.assigned_to === currentUserId;
-            const snippet =
-              r.request_text.length > 90
-                ? `${r.request_text.slice(0, 90)}...`
-                : r.request_text;
+              {expanded && (
+                <div id={`prayer-request-${request.id}`} className="border-t border-slate-100 px-5 py-5">
+                  {editing ? (
+                    <div className="space-y-4">
+                      <textarea value={editText} onChange={(event) => setEditText(event.target.value)} rows={5} className="block w-full rounded-xl border border-slate-300 px-3 py-2" />
+                      <select value={editCategoryId} onChange={(event) => setEditCategoryId(event.target.value)} className="min-h-11 rounded-xl border border-slate-300 px-3 py-2">
+                        {categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                      </select>
+                      <div className="flex flex-wrap gap-5">
+                        <label className="flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" checked={editIsPublic} onChange={(event) => setEditIsPublic(event.target.checked)} /> Public</label>
+                        <label className="flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" checked={editIsAnonymous} onChange={(event) => setEditIsAnonymous(event.target.checked)} /> Anonymous</label>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <button type="button" disabled={busy} onClick={async () => { if (await updateRequest(request.id, { request_text: editText.trim(), category_id: editCategoryId, is_public: editIsPublic, is_anonymous: editIsAnonymous })) setEditingId(null); }} className="lfp-button lfp-button-primary">{busy ? "Saving..." : "Save"}</button>
+                        <button type="button" onClick={() => setEditingId(null)} className="lfp-button border border-slate-300 bg-white text-slate-800">Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="whitespace-pre-wrap text-lg leading-8 text-slate-800">{request.request_text}</p>
+                      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-500">
+                        <a href={`mailto:${request.email}`} className="text-indigo-700">{request.email}</a>
+                        {request.phone && <span>{request.phone}</span>}
+                        {category && <span>{category}</span>}
+                        <span>{request.is_public ? "Prayer Wall" : "Private"}{request.is_anonymous ? " · Anonymous" : ""}</span>
+                        <span>{request.prayer_count} prayers</span>
+                      </div>
+                    </>
+                  )}
 
-            return (
-              <div
-                key={r.id}
-                className={`rounded-lg border bg-white shadow-sm ${
-                  r.moderation_status === "pending"
-                    ? "border-amber-300 ring-1 ring-amber-100"
-                    : r.moderation_status === "rejected"
-                    ? "border-red-200"
-                    : isMine
-                    ? "border-emerald-300 ring-1 ring-emerald-100"
-                    : "border-gray-200"
-                }`}
-              >
-                <button
-                  type="button"
-                  aria-expanded={expanded}
-                  aria-controls={`prayer-request-${r.id}`}
-                  onClick={() => toggleExpanded(r.id)}
-                  className="flex min-h-11 w-full items-start gap-3 px-4 py-3 text-left"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    className={`mt-1 h-4 w-4 shrink-0 text-gray-400 transition-transform ${
-                      expanded ? "rotate-90" : ""
-                    }`}
-                  >
-                    <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <span className="text-sm font-medium text-gray-900">
-                        {r.name}
-                      </span>
-                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                        {r.status}
-                      </span>
-                      {r.category_id && categoryMap[r.category_id] && (
-                        <span className="text-xs text-gray-400">
-                          {categoryMap[r.category_id]}
-                        </span>
-                      )}
-                      {r.moderation_status === "pending" && (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
-                          Needs review
-                        </span>
-                      )}
-                      {r.moderation_status === "rejected" && (
-                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
-                          Denied
-                        </span>
-                      )}
-                      {!r.assigned_to ? (
-                        <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-500">
-                          Unassigned
-                        </span>
+                  {!editing && (
+                    <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+                      <button type="button" onClick={() => beginEdit(request)} className="lfp-button border border-slate-300 bg-white text-slate-800">Edit</button>
+                      {request.moderation_status === "pending" ? (
+                        <>
+                          <button type="button" disabled={busy} onClick={() => updateRequest(request.id, { moderation_status: "approved", flagged: false, flag_reason: null, status: "Reviewed" })} className="lfp-button bg-emerald-600 text-white">Approve</button>
+                          <button type="button" disabled={busy} onClick={() => updateRequest(request.id, { moderation_status: "rejected", is_public: false })} className="lfp-button bg-rose-600 text-white">Deny</button>
+                        </>
                       ) : (
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                            isMine
-                              ? "bg-emerald-100 text-emerald-700"
-                              : "bg-gray-100 text-gray-600"
-                          }`}
-                        >
-                          Assigned to {assignee?.full_name ?? "Unknown"}
-                          {isMine ? " (you)" : ""}
+                        <button type="button" disabled={busy} onClick={() => updateRequest(request.id, { flagged: true, moderation_status: "pending", flag_reason: "Manually flagged by admin for review." })} className="lfp-button border border-amber-300 bg-amber-50 text-amber-800">Flag for review</button>
+                      )}
+                      <select aria-label={`Status for ${request.name}'s prayer request`} value={request.status} disabled={busy} onChange={(event) => updateRequest(request.id, { status: event.target.value, answered: event.target.value === "Resolved" ? true : request.answered })} className="min-h-11 rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{status}</option>)}
+                      </select>
+                      {confirmingDeleteId === request.id ? (
+                        <span className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-rose-700">Delete permanently?</span>
+                          <button type="button" disabled={busy} onClick={() => deleteRequest(request.id)} className="lfp-button bg-rose-600 text-white">Confirm</button>
+                          <button type="button" onClick={() => setConfirmingDeleteId(null)} className="lfp-button border border-slate-300 bg-white text-slate-800">Cancel</button>
                         </span>
-                      )}
-                      {r.assigned_to && !r.answered && (() => {
-                        const days = daysSinceLastAction(r);
-                        return (
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                              days >= 7
-                                ? "bg-red-50 text-red-600"
-                                : days >= 3
-                                ? "bg-amber-50 text-amber-700"
-                                : "bg-gray-100 text-gray-500"
-                            }`}
-                          >
-                            {days === 0
-                              ? "Action taken today"
-                              : `${days} day${days === 1 ? "" : "s"} since last action`}
-                          </span>
-                        );
-                      })()}
-                      {r.follow_up_needed && !r.answered && (
-                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
-                          Follow-up
-                        </span>
-                      )}
-                      {r.answered && (
-                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600">
-                          Answered
-                        </span>
-                      )}
+                      ) : <button type="button" onClick={() => setConfirmingDeleteId(request.id)} className="lfp-button border border-rose-200 bg-rose-50 text-rose-800">Delete</button>}
                     </div>
-                    {!expanded && (
-                      <p className="mt-1 truncate text-sm text-gray-500">
-                        {snippet}
-                      </p>
-                    )}
-                  </div>
-                </button>
-
-                {expanded && (
-                  <div
-                    id={`prayer-request-${r.id}`}
-                    className="border-t border-gray-100 px-5 pb-5 pt-4"
-                  >
-                    {r.moderation_status === "pending" && (
-                      <div className="mb-3 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
-                        Flagged for review{r.flag_reason ? `: ${r.flag_reason}` : ""}
-                      </div>
-                    )}
-                    {r.moderation_status === "rejected" && (
-                      <div className="mb-3 rounded-md bg-red-50 px-3 py-2 text-xs font-medium text-red-600">
-                        Denied &mdash; hidden from the public Prayer Wall.
-                      </div>
-                    )}
-
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div className="min-w-0 flex-1">
-                        {editingId === r.id ? (
-                          <div className="space-y-3">
-                            <label
-                              htmlFor={`request-text-${r.id}`}
-                              className="block text-xs font-medium text-gray-700"
-                            >
-                              Prayer request
-                            </label>
-                            <textarea
-                              id={`request-text-${r.id}`}
-                              rows={4}
-                              value={editText}
-                              onChange={(e) => setEditText(e.target.value)}
-                              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
-                            />
-                            <div className="flex flex-wrap items-center gap-3">
-                              <select
-                                aria-label={`Category for ${r.name}'s prayer request`}
-                                value={editCategoryId}
-                                onChange={(e) => setEditCategoryId(e.target.value)}
-                                className="min-h-11 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm"
-                              >
-                                <option value="">No category</option>
-                                {categories.map((c) => (
-                                  <option key={c.id} value={c.id}>
-                                    {c.name}
-                                  </option>
-                                ))}
-                              </select>
-                              <label className="flex min-h-11 items-center gap-1.5 text-xs text-gray-700">
-                                <input
-                                  type="checkbox"
-                                  checked={editIsPublic}
-                                  onChange={(e) => setEditIsPublic(e.target.checked)}
-                                  className="rounded border-gray-300"
-                                />
-                                Public
-                              </label>
-                              <label className="flex min-h-11 items-center gap-1.5 text-xs text-gray-700">
-                                <input
-                                  type="checkbox"
-                                  checked={editIsAnonymous}
-                                  onChange={(e) =>
-                                    setEditIsAnonymous(e.target.checked)
-                                  }
-                                  className="rounded border-gray-300"
-                                />
-                                Anonymous on wall
-                              </label>
-                            </div>
-                            <div className="flex gap-2">
-                              <button
-                                type="button"
-                                onClick={() => saveEdit(r.id)}
-                                className="min-h-11 rounded-md bg-indigo-600 px-3 py-2 text-xs font-medium text-white shadow-sm hover:bg-indigo-500"
-                              >
-                                Save
-                              </button>
-                              <button
-                                type="button"
-                                onClick={cancelEdit}
-                                className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-gray-900">{r.request_text}</p>
-                        )}
-
-                        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
-                          <span>{r.name}</span>
-                          <a
-                            href={`mailto:${r.email}`}
-                            className="text-indigo-600 hover:text-indigo-500"
-                          >
-                            {r.email}
-                          </a>
-                          {r.phone && <span>{r.phone}</span>}
-                          {r.category_id && categoryMap[r.category_id] && (
-                            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
-                              {categoryMap[r.category_id]}
-                            </span>
-                          )}
-                          <span className="text-xs text-gray-400">
-                            {r.is_public ? "Public" : "Private"}
-                            {r.is_anonymous ? " · Anonymous on wall" : ""}
-                          </span>
-                          {r.contact_requested && (
-                            <span className="text-xs text-amber-600">
-                              Wants contact
-                              {r.preferred_contact ? ` (${r.preferred_contact})` : ""}
-                            </span>
-                          )}
-                          <span className="text-xs text-gray-400">
-                            {r.prayer_count} prayed
-                          </span>
-                        </div>
-
-                        {isAdmin && editingId !== r.id && (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              aria-label={`Edit ${r.name}'s prayer request`}
-                              onClick={() => startEdit(r)}
-                              className="min-h-11 rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-                            >
-                              Edit
-                            </button>
-                            {r.moderation_status === "pending" ? (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() => approveRequest(r)}
-                                  className="min-h-11 rounded-md bg-emerald-600 px-3 py-2 text-xs font-medium text-white shadow-sm hover:bg-emerald-500"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => denyRequest(r)}
-                                  className="min-h-11 rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white shadow-sm hover:bg-red-500"
-                                >
-                                  Deny
-                                </button>
-                              </>
-                            ) : (
-                              !r.flagged && (
-                                <button
-                                  type="button"
-                                  onClick={() => manualFlag(r.id)}
-                                  className="min-h-11 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 shadow-sm hover:bg-amber-100"
-                                >
-                                  Flag for review
-                                </button>
-                              )
-                            )}
-                            {confirmingDeleteId === r.id ? (
-                              <span className="flex items-center gap-2 text-xs">
-                                <span className="font-medium text-red-600">
-                                  Delete this request?
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteRequest(r.id)}
-                                  disabled={deletingId === r.id}
-                                  className="min-h-11 rounded-md bg-red-600 px-3 py-2 font-medium text-white shadow-sm hover:bg-red-500 disabled:opacity-60"
-                                >
-                                  {deletingId === r.id ? "Deleting…" : "Confirm"}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setConfirmingDeleteId(null)}
-                                  className="min-h-11 rounded-md border border-gray-300 px-3 py-2 font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-                                >
-                                  Cancel
-                                </button>
-                              </span>
-                            ) : (
-                              <button
-                                type="button"
-                                aria-label={`Delete ${r.name}'s prayer request`}
-                                onClick={() => setConfirmingDeleteId(r.id)}
-                                className="min-h-11 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 shadow-sm hover:bg-red-100"
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex shrink-0 flex-col items-end gap-2">
-                        <select
-                          aria-label={`Status for ${r.name}'s prayer request`}
-                          value={r.status}
-                          onChange={(e) =>
-                            updateRequest(r.id, { status: e.target.value })
-                          }
-                          className="min-h-11 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm"
-                        >
-                          {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>
-                              {s}
-                            </option>
-                          ))}
-                        </select>
-                        <select
-                          aria-label={`Assignee for ${r.name}'s prayer request`}
-                          value={r.assigned_to ?? ""}
-                          onChange={(e) => assignRequest(r, e.target.value)}
-                          className="min-h-11 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm"
-                        >
-                          <option value="">Unassigned</option>
-                          {careTeam.map((m) => (
-                            <option key={m.id} value={m.id}>
-                              {m.full_name ?? "Unnamed"}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 text-sm">
-                      <label className="flex min-h-11 items-center gap-2 text-gray-700">
-                        <input
-                          type="checkbox"
-                          checked={r.follow_up_needed}
-                          onChange={(e) =>
-                            updateRequest(r.id, {
-                              follow_up_needed: e.target.checked,
-                            })
-                          }
-                          className="rounded border-gray-300"
-                        />
-                        Follow-up needed
-                      </label>
-                      {r.follow_up_needed && (
-                        <input
-                          aria-label={`Follow-up date for ${r.name}'s prayer request`}
-                          type="date"
-                          value={r.follow_up_date ?? ""}
-                          onChange={(e) =>
-                            updateRequest(r.id, {
-                              follow_up_date: e.target.value || null,
-                            })
-                          }
-                          className="min-h-11 rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm"
-                        />
-                      )}
-                      <label className="flex min-h-11 items-center gap-2 text-gray-700">
-                        <input
-                          type="checkbox"
-                          checked={r.answered}
-                          onChange={(e) =>
-                            updateRequest(r.id, {
-                              answered: e.target.checked,
-                              status: e.target.checked ? "Resolved" : r.status,
-                            })
-                          }
-                          className="rounded border-gray-300"
-                        />
-                        Answered
-                      </label>
-                    </div>
-
-                    {r.answered && (
-                      <div className="mt-3">
-                        <label
-                          htmlFor={`praise-report-${r.id}`}
-                          className="block text-xs font-medium text-gray-500"
-                        >
-                          Praise report
-                        </label>
-                        <textarea
-                          id={`praise-report-${r.id}`}
-                          rows={2}
-                          value={r.praise_report ?? ""}
-                          onChange={(e) =>
-                            updatePraiseReportLocal(r.id, e.target.value)
-                          }
-                          onBlur={(e) =>
-                            updateRequest(r.id, { praise_report: e.target.value })
-                          }
-                          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </>
+                  )}
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
     </div>
   );
 }
