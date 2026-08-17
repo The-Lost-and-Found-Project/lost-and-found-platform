@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import AdminPrayerDashboardClient from "@/components/AdminPrayerDashboardClient";
 import { getEffectiveRole } from "@/lib/effective-role";
+import { needsPrayerExposure } from "@/lib/prayer-distribution";
 
 const adminModules = [
   {
@@ -70,6 +71,7 @@ export default async function AdminPage() {
   const requestRows = requests ?? [];
   const openRequests = requestRows.filter((request) => !request.answered && request.status !== "Closed").length;
   const flaggedRequests = requestRows.filter((request) => request.flagged || request.moderation_status === "pending").length;
+  const underexposedRequests = requestRows.filter(needsPrayerExposure).length;
   const answeredRequests = requestRows.filter((request) => request.answered || request.status === "Resolved").length;
   const firstName = profile?.full_name?.trim().split(" ")[0] || "Administrator";
   return (
@@ -86,9 +88,10 @@ export default async function AdminPage() {
             <Link href="/dashboard" className="lfp-button border border-white/20 bg-white/10 text-white hover:bg-white/15">Return to Member App</Link>
           </div>
 
-          <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-5">
             <AdminStat label="Open prayer requests" value={String(openRequests)} />
             <AdminStat label="Moderation attention" value={String(flaggedRequests)} />
+            <AdminStat label="Needs prayer exposure" value={String(underexposedRequests)} />
             <AdminStat label="Answered prayers" value={String(answeredRequests)} />
             <AdminStat label="Notification delivery issues" value={String(deliveryIssues)} />
           </div>

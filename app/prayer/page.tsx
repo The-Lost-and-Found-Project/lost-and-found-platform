@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { CLOSED_PRAYER_STATUS_FILTER, prayerSupportLabel } from "@/lib/prayer-distribution";
 import CommunityDetailDialog from "@/components/CommunityDetailDialog";
 import CommunityTickerCard from "@/components/CommunityTickerCard";
 
@@ -43,7 +44,9 @@ export default function PrayerWallPage() {
       const { data: requestData } = await supabase
         .from("prayer_wall_public")
         .select("id, created_at, display_name, request_text, category_id, prayer_count, status")
-        .order("created_at", { ascending: false });
+        .not("status", "in", CLOSED_PRAYER_STATUS_FILTER)
+        .order("prayer_count", { ascending: true })
+        .order("created_at", { ascending: true });
 
       setRequests((requestData as PrayerRequest[]) ?? []);
       setLoading(false);
@@ -115,9 +118,7 @@ export default function PrayerWallPage() {
   }
 
   const selectedRequest = requests.find((request) => request.id === selectedId) ?? null;
-  const selectedPrayerLabel = selectedRequest
-    ? `${selectedRequest.prayer_count} ${selectedRequest.prayer_count === 1 ? "prayer" : "prayers"}`
-    : "";
+  const selectedPrayerLabel = selectedRequest ? prayerSupportLabel(selectedRequest.prayer_count) : "";
 
   return (
     <main className="lfp-page pb-20">
@@ -142,8 +143,8 @@ export default function PrayerWallPage() {
         <section>
           <div className="max-w-3xl">
             <p className="lfp-eyebrow">Prayer wall</p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Pray with what is happening now</h2>
-            <p className="mt-3 text-lg leading-8 text-slate-600">Scan the two-line previews, then open a request to read it fully and take a moment to pray.</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Pray where support is needed</h2>
+            <p className="mt-3 text-lg leading-8 text-slate-600">Requests with less prayer activity are gently brought forward. Open a two-line preview to read it fully and take a moment to pray.</p>
           </div>
 
           <div className="mt-7 space-y-4">
@@ -159,7 +160,7 @@ export default function PrayerWallPage() {
             )}
 
             {requests.map((request) => {
-              const prayerLabel = `${request.prayer_count} ${request.prayer_count === 1 ? "prayer" : "prayers"}`;
+              const prayerLabel = prayerSupportLabel(request.prayer_count);
 
               return (
                 <CommunityTickerCard
@@ -168,7 +169,7 @@ export default function PrayerWallPage() {
                   content={request.request_text}
                   icon="🙏"
                   onOpen={() => setSelectedId(request.id)}
-                  meta={<>{request.display_name ?? "Anonymous"} · {prayerLabel}{request.status === "Resolved" ? " · Answered" : ""}</>}
+                  meta={<>{request.display_name ?? "Anonymous"} · {prayerLabel}</>}
                 />
               );
             })}

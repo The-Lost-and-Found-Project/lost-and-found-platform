@@ -68,11 +68,39 @@ test("user join dates are deterministic during hydration", async () => {
 });
 
 test("admin attention view includes submitted and escalated requests", async () => {
-  const requests = await source("components", "AdminPrayerDashboardClient.tsx");
+  const [requests, distribution, admin] = await Promise.all([
+    source("components", "AdminPrayerDashboardClient.tsx"),
+    source("lib", "prayer-distribution.ts"),
+    source("app", "admin", "page.tsx"),
+  ]);
 
   assert.match(requests, /request\.status === "Submitted"/);
   assert.match(requests, /request\.status === "Escalated"/);
+  assert.match(requests, /needsPrayerExposure\(request\)/);
+  assert.match(requests, /Needs prayer exposure/);
+  assert.match(distribution, /request\.prayer_count <= 1/);
+  assert.match(distribution, /request\.is_public === true/);
+  assert.match(admin, /Needs prayer exposure/);
   assert.doesNotMatch(requests, /Needs Reassignment/);
+});
+
+test("Prayer distribution brings under-supported active requests forward without public vanity counts", async () => {
+  const [page, ticker, distribution] = await Promise.all([
+    source("app", "prayer", "page.tsx"),
+    source("components", "PrayerWallTicker.tsx"),
+    source("lib", "prayer-distribution.ts"),
+  ]);
+
+  for (const sourceText of [page, ticker]) {
+    assert.match(sourceText, /\.not\("status", "in", CLOSED_PRAYER_STATUS_FILTER\)/);
+    assert.match(sourceText, /\.order\("prayer_count", \{ ascending: true \}\)/);
+    assert.match(sourceText, /\.order\("created_at", \{ ascending: true \}\)/);
+  }
+  assert.match(page, /prayerSupportLabel/);
+  assert.doesNotMatch(page, /`\$\{request\.prayer_count\} \$\{request\.prayer_count === 1/);
+  assert.match(distribution, /Waiting for prayer/);
+  assert.match(distribution, /Someone is carrying this in prayer/);
+  assert.match(distribution, /People are carrying this in prayer/);
 });
 
 test("shared navigation and prayer-request actions meet mobile touch target sizing", async () => {
