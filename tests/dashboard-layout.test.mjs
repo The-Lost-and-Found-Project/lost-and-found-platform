@@ -5,34 +5,34 @@ import test from "node:test";
 
 const root = process.cwd();
 
-test("community Home keeps the three core actions and voluntary giving", async () => {
+test("community Home is dedicated to Project, app, and funding information", async () => {
   const dashboard = await readFile(
     path.join(root, "app", "dashboard", "page.tsx"),
     "utf8"
   );
 
-  for (const destination of ["/prayer", "/praise", "/testimonies"]) {
-    assert.match(dashboard, new RegExp(`href: "${destination}"`));
-  }
   for (const ticker of ["PrayerWallTicker", "PraiseTicker", "TestimonyTicker"]) {
     assert.doesNotMatch(dashboard, new RegExp(ticker));
   }
-  assert.match(dashboard, /Giving is always optional/);
+  assert.match(dashboard, /About the Project/);
+  assert.match(dashboard, /About the App/);
+  assert.match(dashboard, /Funding the mission/);
+  assert.match(dashboard, /Community participation remains free/);
+  assert.doesNotMatch(dashboard, /href="\/(prayer|praise|testimonies)/);
   assert.doesNotMatch(dashboard, /href="\/(emmaus|trivia|devotions|grow|prayer-assignments|prayer-care-application)/);
 });
 
-test("public landing page routes visitors to the three respective ticker pages", async () => {
+test("public landing page explains the Project, app, and funding without community navigation", async () => {
   const landing = await readFile(path.join(root, "app", "page.tsx"), "utf8");
 
-  for (const destination of ["/prayer", "/praise", "/testimonies"]) {
-    assert.match(landing, new RegExp(`href: "${destination}"`));
-  }
   for (const ticker of ["PrayerWallTicker", "PraiseTicker", "TestimonyTicker"]) {
     assert.doesNotMatch(landing, new RegExp(ticker));
   }
-  assert.match(landing, /Pray\. Praise\. Testify\./);
+  assert.match(landing, /About the Project/);
+  assert.match(landing, /About the Community App/);
+  assert.match(landing, /Funding the mission/);
+  assert.doesNotMatch(landing, /href: "\/(prayer|praise|testimonies)"/);
   assert.doesNotMatch(landing, /care team|Prayer Care|journey/i);
-  assert.match(landing, /href="\/apps"/);
 });
 
 test("Future Apps page offers preserved products without dead in-app links", async () => {

@@ -2,27 +2,22 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-const communityPaths = [
+const GIVE_URL = "https://www.zeffy.com/en-US/donation-form/donate-to-build-god-centered-marriages";
+const communityFocus = [
   {
-    href: "/prayer",
     icon: "🙏",
     title: "Prayer",
-    description: "Bring a need before God and pray with someone in the community.",
-    action: "Open Prayer",
+    description: "A moderated place to share needs and carry one another before God.",
   },
   {
-    href: "/praise",
     icon: "🙌",
     title: "Praise",
-    description: "Celebrate answered prayer and the ways God is showing His faithfulness.",
-    action: "Open Praise",
+    description: "A shared record of answered prayer and God’s everyday faithfulness.",
   },
   {
-    href: "/testimonies",
     icon: "✝️",
     title: "Testimonies",
-    description: "Read stories of grace, restoration, perseverance, and hope.",
-    action: "Read Testimonies",
+    description: "Stories of grace, restoration, perseverance, and hope that point back to God.",
   },
 ];
 
@@ -49,32 +44,42 @@ export default async function HomePage() {
       </section>
 
       <div className="lfp-shell py-12 sm:py-16">
-        <section aria-labelledby="three-ways-title">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="lfp-eyebrow">Pray. Praise. Testify.</p>
-            <h2 id="three-ways-title" className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Three ways to walk with the community</h2>
-            <p className="mt-3 text-lg leading-8 text-slate-600">Each community page brings its stories, actions, and two-line ticker together in one place.</p>
+        <section className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start" aria-labelledby="project-purpose-title">
+          <div>
+            <p className="lfp-eyebrow">About the Project</p>
+            <h2 id="project-purpose-title" className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Helping people move from feeling lost to being found, known, and growing in Christ.</h2>
           </div>
+          <div className="space-y-5 text-lg leading-8 text-slate-600">
+            <p>The Lost and Found Project is a Christian nonprofit ministry creating practical pathways for prayer, discipleship, stronger relationships, and meaningful community.</p>
+            <p>We are building tools that support real spiritual growth without replacing the local church, trusted relationships, or everyday acts of faithfulness.</p>
+          </div>
+        </section>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2 md:items-start xl:grid-cols-3">
-            {communityPaths.map((path) => (
-              <Link key={path.href} href={path.href} className="group lfp-card flex h-full flex-col p-6 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-2xl ring-1 ring-indigo-100" aria-hidden="true">{path.icon}</span>
-                <h3 className="mt-5 text-2xl font-black text-slate-950">{path.title}</h3>
-                <p className="mt-2 flex-1 leading-7 text-slate-600">{path.description}</p>
-                <span className="mt-5 font-black text-indigo-700 group-hover:text-indigo-600">{path.action} →</span>
-              </Link>
+        <section className="mt-14" aria-labelledby="community-app-title">
+          <div className="max-w-3xl">
+            <p className="lfp-eyebrow">About the Community App</p>
+            <h2 id="community-app-title" className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">A focused space to pray, celebrate, and share hope.</h2>
+            <p className="mt-3 text-lg leading-8 text-slate-600">The bottom tabs keep these community spaces close at hand while Home remains a place to understand the mission and its impact.</p>
+          </div>
+          <div className="mt-7 grid gap-5 md:grid-cols-3">
+            {communityFocus.map((focus) => (
+              <article key={focus.title} className="lfp-card p-6">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-2xl ring-1 ring-indigo-100" aria-hidden="true">{focus.icon}</span>
+                <h3 className="mt-5 text-xl font-black text-slate-950">{focus.title}</h3>
+                <p className="mt-2 leading-7 text-slate-600">{focus.description}</p>
+              </article>
             ))}
           </div>
         </section>
 
-        <section className="mt-14 rounded-[2rem] border border-indigo-100 bg-indigo-50/70 p-7 text-center shadow-sm sm:p-10">
-          <h2 className="text-2xl font-black text-slate-950">There is a place for you here.</h2>
-          <p className="mx-auto mt-3 max-w-2xl leading-7 text-slate-600">Create a free Community Member account to submit prayer requests, pray with others, share praise, and tell your testimony.</p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link href="/signup" className="lfp-button lfp-button-primary">Create Account</Link>
-            <Link href="/login" className="lfp-button border border-slate-200 bg-white text-slate-800">Sign In</Link>
-            <Link href="/apps" className="lfp-button border border-indigo-200 bg-white text-indigo-800">Explore Future Apps</Link>
+        <section className="mt-14 rounded-[2rem] border border-amber-200 bg-amber-50/70 p-7 shadow-sm sm:p-10" aria-labelledby="funding-title">
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-800">Funding the mission</p>
+              <h2 id="funding-title" className="mt-2 text-3xl font-black text-slate-950">Built with care and supported by generosity.</h2>
+              <p className="mt-3 max-w-3xl leading-7 text-slate-600">Donations help cover responsible technology, ministry resources, and the work required to serve more people. Giving is always optional, and Community participation remains free.</p>
+            </div>
+            <a href={GIVE_URL} target="_blank" rel="noopener noreferrer" className="lfp-button bg-slate-950 text-white lg:justify-self-end">Give Securely</a>
           </div>
         </section>
       </div>
