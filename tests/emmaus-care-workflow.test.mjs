@@ -37,30 +37,24 @@ test("Emmaus progress has authenticated table privileges in addition to RLS", as
   assert.doesNotMatch(migration, /to anon/);
 });
 
-test("care workflow separates account access, availability, and request status", async () => {
+test("Community rebuild retires active Prayer Care while preserving legacy records", async () => {
   const [migration, cron, deactivateRoute, statuses] = await Promise.all([
-    source("supabase", "migrations", "20260810184134_normalize_emmaus_care_workflow.sql"),
+    source("supabase", "migrations", "20260817005006_retire_prayer_care_architecture.sql"),
     source("app", "api", "cron", "notify-stale-assignments", "route.ts"),
     source("app", "api", "admin", "users", "set-active", "route.ts"),
     source("components", "AdminPrayerDashboardClient.tsx"),
   ]);
 
-  for (const availability of ["available", "limited", "away", "inactive"]) {
-    assert.match(migration, new RegExp(`'${availability}'`));
-  }
-  assert.match(cron, /ministry_availability: "limited"/);
-  assert.match(cron, /availability_review_required: requiresHumanReview/);
-  assert.match(cron, /nextMissedAssignmentCount >= 2/);
-  assert.doesNotMatch(cron, /movedToInactive|THIRTY_DAYS_MS/);
-  assert.match(deactivateRoute, /ACTIVE_RESPONSIBILITIES/);
-  assert.match(deactivateRoute, /bulk_reassign/);
-  assert.match(deactivateRoute, /return_to_queue/);
+  assert.match(migration, /legacy_prayer_care_assignments/);
+  assert.match(migration, /legacy_prayer_care_members/);
+  assert.match(migration, /drop trigger if exists assign_next_care_team_member_trigger/);
+  assert.match(migration, /set role = 'member'/);
+  assert.match(migration, /set assigned_to = null/);
+  assert.match(cron, /retired: true/);
+  assert.doesNotMatch(deactivateRoute, /assigned_to|reassign_prayer_request|responsibilit/i);
 
-  for (const status of [
-    "Submitted", "Reviewed", "Assigned", "Active Care", "Follow-Up",
-    "Resolved", "Closed", "Needs Reassignment", "Escalated",
-    "Unable to Contact", "Withdrawn",
-  ]) {
+  for (const status of ["Submitted", "Reviewed", "Resolved", "Closed", "Escalated", "Withdrawn"]) {
     assert.match(statuses, new RegExp(`"${status}"`));
   }
+  assert.doesNotMatch(statuses, /Assigned|Needs Reassignment|careTeam|assigned_to/);
 });

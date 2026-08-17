@@ -5,8 +5,6 @@ import { checkRateLimit } from "@/lib/security/rateLimit";
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const CONTACT_METHODS = new Set(["Email", "Phone Call", "Text Message"]);
-const CARE_GENDERS = new Set(["male", "female"]);
 
 type SubmissionBody = {
   name?: unknown;
@@ -16,9 +14,6 @@ type SubmissionBody = {
   requestText?: unknown;
   isPublic?: unknown;
   isAnonymous?: unknown;
-  contactRequested?: unknown;
-  preferredContact?: unknown;
-  preferredCareGender?: unknown;
 };
 
 function cleanString(value: unknown, maxLength: number) {
@@ -75,21 +70,12 @@ export async function POST(request: Request) {
     : null;
   const isPublic = body.isPublic === true;
   const isAnonymous = body.isAnonymous === true;
-  const contactRequested = body.contactRequested === true;
-  const preferredContact = contactRequested
-    ? cleanString(body.preferredContact, 30)
-    : "";
-  const preferredCareGender = contactRequested
-    ? cleanString(body.preferredCareGender, 10)
-    : "";
 
   if (
     name.length < 2 ||
     !EMAIL_PATTERN.test(email) ||
     requestText.length < 10 ||
-    !categoryId ||
-    (contactRequested && !CONTACT_METHODS.has(preferredContact)) ||
-    (preferredCareGender && !CARE_GENDERS.has(preferredCareGender))
+    !categoryId
   ) {
     return NextResponse.json({ error: "Please review the required information and try again." }, { status: 400 });
   }
@@ -101,14 +87,14 @@ export async function POST(request: Request) {
     name,
     email,
     phone: phone || null,
-    preferred_contact: contactRequested ? preferredContact : null,
-    preferred_care_gender: contactRequested && preferredCareGender ? preferredCareGender : null,
+    preferred_contact: null,
+    preferred_care_gender: null,
     category_id: categoryId,
     request_text: requestText,
     status: "Submitted",
     is_public: isPublic,
     is_anonymous: isAnonymous,
-    contact_requested: contactRequested,
+    contact_requested: false,
   });
 
   if (insertError) {

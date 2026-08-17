@@ -7,12 +7,10 @@ type PrayerRequestRow = {
   created_at: string;
   category_id: string | null;
   status: string;
-  assigned_to: string | null;
   answered: boolean;
   prayer_count: number;
   flagged: boolean;
   moderation_status: string;
-  follow_up_needed: boolean;
   archived: boolean;
 };
 
@@ -66,9 +64,9 @@ const RANGE_SUBTITLES: Record<RangeKey, string> = {
 // on file, with a one-week floor so it never renders a single, empty bucket.
 function getRangeStart(
   range: RangeKey,
-  earliest: number
+  earliest: number,
+  now: number
 ): { start: number; granularity: Granularity } {
-  const now = Date.now();
   switch (range) {
     case "1wk":
       return { start: now - 7 * MS_PER_DAY, granularity: "day" };
@@ -195,17 +193,14 @@ export default function AdminAnalyticsClient({
   praiseReports,
   reactions,
 }: Props) {
+  const [mountedAt] = useState(() => Date.now());
   const categoryMap: Record<string, string> = {};
   categories.forEach((c) => {
     categoryMap[c.id] = c.name;
   });
 
-  const activeRequests = requests.filter((r) => !r.archived);
   const totalRequests = requests.length;
   const answeredCount = requests.filter((r) => r.answered).length;
-  const assignedCount = activeRequests.filter((r) => r.assigned_to).length;
-  const unassignedCount = activeRequests.filter((r) => !r.assigned_to).length;
-  const followUpCount = activeRequests.filter((r) => r.follow_up_needed).length;
   const pendingModerationCount =
     requests.filter((r) => r.moderation_status === "pending").length +
     testimonies.filter((t) => t.moderation_status === "pending").length +
@@ -213,15 +208,8 @@ export default function AdminAnalyticsClient({
 
   const answeredRate =
     totalRequests > 0 ? Math.round((answeredCount / totalRequests) * 100) : 0;
-  const assignedRate =
-    activeRequests.length > 0
-      ? Math.round((assignedCount / activeRequests.length) * 100)
-      : 0;
-
   const totalPrayersOffered = reactions.length;
-  const careTeamMembers = profiles.filter((p) =>
-    ["admin", "prayer_team", "pastor"].includes(p.role)
-  ).length;
+  const adminCount = profiles.filter((profile) => profile.role === "admin").length;
   const totalMembers = profiles.length;
   const activeMembers = profiles.filter((p) => p.is_active !== false).length;
 
@@ -231,10 +219,10 @@ export default function AdminAnalyticsClient({
     () =>
       bucketTimestamps(
         requests.map((r) => r.created_at),
-        Date.now() - 2 * MS_PER_WEEK,
+        mountedAt - 2 * MS_PER_WEEK,
         "week"
       ),
-    [requests]
+    [requests, mountedAt]
   );
   const thisWeek = statsWeekly[statsWeekly.length - 1]?.count ?? 0;
   const lastWeek = statsWeekly[statsWeekly.length - 2]?.count ?? 0;
@@ -247,13 +235,13 @@ export default function AdminAnalyticsClient({
       ...requests.map((r) => r.created_at),
       ...profiles.map((p) => p.created_at),
     ];
-    if (timestamps.length === 0) return Date.now();
+    if (timestamps.length === 0) return mountedAt;
     return Math.min(...timestamps.map((t) => new Date(t).getTime()));
-  }, [requests, profiles]);
+  }, [requests, profiles, mountedAt]);
 
   const { start: rangeStart, granularity } = useMemo(
-    () => getRangeStart(range, earliestTimestamp),
-    [range, earliestTimestamp]
+    () => getRangeStart(range, earliestTimestamp, mountedAt),
+    [range, earliestTimestamp, mountedAt]
   );
 
   const requestsSeries = useMemo(
@@ -283,7 +271,7 @@ export default function AdminAnalyticsClient({
             Growth &amp; Effectiveness
           </h1>
           <p className="mt-2 text-gray-600">
-            How the prayer care ministry is growing and performing over time.
+            How the Community App is growing and serving people over time.
           </p>
         </div>
         <a
@@ -325,17 +313,11 @@ export default function AdminAnalyticsClient({
           value={`${answeredRate}%`}
           sub={`${answeredCount} of ${totalRequests} requests`}
         />
-        <StatCard
-          label="Assigned"
-          value={`${assignedRate}%`}
-          sub={`${unassignedCount} unassigned`}
-        />
-        <StatCard label="Follow-ups Due" value={followUpCount} />
         <StatCard label="Pending Review" value={pendingModerationCount} />
         <StatCard
           label="Member Breakdown"
           value={totalMembers}
-          sub={`${activeMembers} active · ${careTeamMembers} care team`}
+          sub={`${activeMembers} active · ${adminCount} admins`}
         />
       </div>
 

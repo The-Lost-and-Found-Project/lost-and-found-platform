@@ -1,6 +1,6 @@
-export type Role = "member" | "prayer_team" | "pastor" | "admin";
+export type Role = "member" | "admin";
 
-const VALID_ROLES: Role[] = ["member", "prayer_team", "pastor", "admin"];
+const VALID_ROLES: Role[] = ["member", "admin"];
 
 // Real admins can set a preview_role on their own profile to see the app as
 // a different role would (for training / QA). It's only ever honored when

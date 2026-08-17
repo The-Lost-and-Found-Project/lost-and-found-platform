@@ -37,7 +37,6 @@ test("non-admin page requests leave the admin navigation area", async () => {
   const adminPages = [
     "page.tsx",
     "analytics/page.tsx",
-    "applications/page.tsx",
     "content/page.tsx",
     "devotions/page.tsx",
     "feedback/page.tsx",
@@ -56,11 +55,11 @@ test("non-admin page requests leave the admin navigation area", async () => {
   }
 });
 
-test("every cron route verifies the Vercel cron bearer secret", async () => {
-  const files = await routeFiles(path.join(root, "app", "api", "cron"));
-  assert.ok(files.length > 0, "expected cron routes");
-
-  for (const file of files) {
+test("every scheduled cron route verifies the Vercel cron bearer secret", async () => {
+  const config = JSON.parse(await readFile(path.join(root, "vercel.json"), "utf8"));
+  assert.ok(config.crons.length > 0, "expected a scheduled cron route");
+  for (const cron of config.crons) {
+    const file = path.join(root, "app", ...cron.path.split("/").filter(Boolean), "route.ts");
     const source = await readFile(file, "utf8");
     assert.match(source, /authorization/, `${file} must read authorization`);
     assert.match(source, /CRON_SECRET/, `${file} must require CRON_SECRET`);
@@ -105,31 +104,21 @@ test("new-member operational notifications are admin-only", async () => {
   assert.doesNotMatch(buildInfoSource, /callerProfile/);
 });
 
-test("care-team notifications use the assignments-only destination", async () => {
+test("legacy assignment notification links are migrated to Community Prayer", async () => {
   const migrationSource = await readFile(
     path.join(
       root,
       "supabase",
       "migrations",
-      "20260730163629_role_appropriate_notification_links.sql"
+      "20260817005006_retire_prayer_care_architecture.sql"
     ),
     "utf8"
   );
 
-  assert.match(migrationSource, /public\.notify_auto_assigned_care_team_member/);
-  assert.match(migrationSource, /public\.notify_prayer_request_assigned/);
-  assert.match(migrationSource, /public\.notify_prayer_care_application_decision/);
-  assert.match(migrationSource, /'\/prayer-assignments'/);
-  assert.match(
-    migrationSource,
-    /n\.type in \('assigned', 'prayer_care_application_approved'\)/
-  );
-  assert.match(migrationSource, /n\.title = 'New prayer request submitted'/);
-  assert.match(
-    migrationSource,
-    /to_regclass\('public\.notifications'\) is not null/
-  );
-  assert.match(migrationSource, /to_regclass\('public\.profiles'\) is not null/);
+  assert.match(migrationSource, /when type in \('prayed_for', 'status_change', 'check_in_needed'\)/);
+  assert.match(migrationSource, /then '\/prayer\/my-requests'/);
+  assert.match(migrationSource, /else '\/prayer'/);
+  assert.match(migrationSource, /legacy Prayer Care notification is retained for your history/);
 });
 
 test("Coming Soon programs remain intentionally inactive", async () => {
@@ -141,17 +130,14 @@ test("Coming Soon programs remain intentionally inactive", async () => {
   assert.match(source, /const comingSoon =/);
 });
 
-test("prayer submission sends the request ID to the assignment notifier", async () => {
+test("prayer submission does not invoke the retired assignment notifier", async () => {
   const source = await readFile(
     path.join(root, "app", "prayer", "submit", "page.tsx"),
     "utf8"
   );
 
-  assert.match(
-    source,
-    /fetch\("\/api\/notify-assignment"[\s\S]*JSON\.stringify\(\{\s*requestId:\s*newRequestId\s*\}\)/,
-    "assignment notification must identify the saved prayer request"
-  );
+  assert.doesNotMatch(source, /notify-assignment|assigneeId|get_prayer_request_assignment/);
+  assert.match(source, /href="\/prayer\/my-requests"/);
   assert.doesNotMatch(
     source,
     /JSON\.stringify\(\{[\s\S]*assigneeId:/,
@@ -173,32 +159,32 @@ test("signed-in users can reach role-aware help manuals from the account menu", 
 
   assert.match(menuSource, /href:\s*"\/help"/);
   assert.match(menuSource, /label:\s*"Help & User Manuals"/);
-  assert.match(helpSource, /effectiveRole === "prayer_team"/);
-  assert.match(helpSource, /effectiveRole === "pastor"/);
   assert.match(helpSource, /showAdminGuide=\{effectiveRole === "admin"\}/);
+  assert.doesNotMatch(helpSource, /prayer_team|pastor|showPrayerTeamGuide/);
 });
 
-test("requester removal archives through an authenticated server route", async () => {
+test("members update or withdraw only their own prayer requests", async () => {
   const clientSource = await readFile(
-    path.join(root, "components", "MyJourneyClient.tsx"),
+    path.join(root, "components", "MyPrayerRequestsClient.tsx"),
     "utf8"
   );
   const routeSource = await readFile(
-    path.join(root, "app", "api", "notify-request-removed", "route.ts"),
+    path.join(root, "app", "api", "prayer-requests", "mine", "update", "route.ts"),
     "utf8"
   );
 
   assert.match(
     clientSource,
-    /fetch\("\/api\/notify-request-removed"[\s\S]*JSON\.stringify\(\{\s*requestId\s*\}\)/
+    /fetch\("\/api\/prayer-requests\/mine\/update"/
   );
   assert.doesNotMatch(
     clientSource,
-    /\.from\("prayer_requests"\)[\s\S]*\.update\(\{\s*archived:\s*true\s*\}\)/
+    /\.from\("prayer_requests"\)/
   );
   assert.match(routeSource, /auth\.getUser\(\)/);
-  assert.match(routeSource, /prayerRequest\.user_id !== user\.id/);
-  assert.match(routeSource, /\.update\(\{\s*archived:\s*true\s*\}\)/);
+  assert.match(routeSource, /auth\.getUser\(\)/);
+  assert.match(routeSource, /\.eq\("user_id", user\.id\)/);
+  assert.match(routeSource, /status: "Withdrawn", archived: true, is_public: false/);
   assert.match(routeSource, /\.eq\("user_id", user\.id\)/);
 });
 
@@ -222,23 +208,12 @@ test("linked praise reports can only answer the requester's own prayer", async (
   assert.match(routeSource, /\.update\(\{\s*answered:\s*true,\s*status:\s*"Resolved"\s*\}\)/);
 });
 
-test("prayer assignment updates are server-authorized and restricted to the assignee", async () => {
-  const clientSource = await readFile(
-    path.join(root, "components", "MyPrayerAssignmentsClient.tsx"),
-    "utf8"
-  );
+test("prayer assignment updates are permanently retired", async () => {
   const routeSource = await readFile(
     path.join(root, "app", "api", "prayer-assignments", "update", "route.ts"),
     "utf8"
   );
 
-  assert.match(routeSource, /\.eq\("assigned_to", user\.id\)/);
-  assert.match(routeSource, /ALLOWED_FIELDS/);
-  assert.match(routeSource, /\.eq\("archived", false\)/);
-  assert.match(clientSource, /fetch\("\/api\/prayer-assignments\/update"/);
-  assert.doesNotMatch(
-    clientSource,
-    /from\("prayer_requests"\)\.update\(changes\)/
-  );
-  assert.match(clientSource, /setRequests\(\(prev\) =>[\s\S]*previous/);
+  assert.match(routeSource, /retiredPrayerCareResponse/);
+  assert.doesNotMatch(routeSource, /assigned_to|ALLOWED_FIELDS|prayer_requests/);
 });

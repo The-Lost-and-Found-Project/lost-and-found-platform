@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // spam, duplicate, or otherwise-shouldn't-exist submissions. For a request
 // that should stop being active but is otherwise legitimate, prefer
 // archiving/answering it over deleting it, since deletion also removes it
-// from whichever member's My Journey timeline and from care-team history.
+// from the member's My Prayer Requests list and the public wall.
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

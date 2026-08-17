@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // Runs daily via Vercel Cron (see vercel.json). Archives prayer requests that
 // have gone 30+ days without activity (no new prayers, no updated_at
 // changes) — this removes them from the public Prayer Wall and ticker, but
-// they remain visible to the member on their own My Journey page. Protected
+// they remain visible to the member in My Prayer Requests. Protected
 // by CRON_SECRET like the other cron routes.
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");

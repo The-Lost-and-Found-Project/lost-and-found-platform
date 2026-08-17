@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import BottomNav from "@/components/BottomNav";
-import RotationStatusModal from "@/components/RotationStatusModal";
 import UpdateNotifier from "@/components/UpdateNotifier";
 
 export default function AppFrame({
@@ -22,7 +21,6 @@ export default function AppFrame({
         {children}
       </main>
       {!isEmmaus && <BottomNav />}
-      {!isEmmaus && <RotationStatusModal />}
       <UpdateNotifier />
     </>
   );

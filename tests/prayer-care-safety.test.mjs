@@ -5,111 +5,67 @@ import test from "node:test";
 
 const root = process.cwd();
 const source = (...parts) => readFile(path.join(root, ...parts), "utf8");
+const retirementMigration = () => source("supabase", "migrations", "20260817005006_retire_prayer_care_architecture.sql");
 
-test("care lifecycle defaults and constraints use only normalized statuses", async () => {
-  const migration = await source(
-    "supabase",
-    "migrations",
-    "20260810192414_harden_prayer_care_workflow.sql"
-  );
-
-  assert.match(migration, /alter column status set default 'Submitted'/);
-  const normalizedConstraint = migration.match(
-    /add constraint prayer_requests_status_check[\s\S]*?\)\);/
-  )?.[0] ?? "";
-  for (const status of [
-    "Submitted", "Reviewed", "Assigned", "Active Care", "Follow-Up",
-    "Resolved", "Closed", "Needs Reassignment", "Escalated",
-    "Unable to Contact", "Withdrawn",
-  ]) {
-    assert.match(normalizedConstraint, new RegExp(`'${status}'`));
-  }
-  for (const legacyStatus of ["New", "Being Prayed For", "Contacted", "Ongoing", "Answered"]) {
-    assert.doesNotMatch(normalizedConstraint, new RegExp(`'${legacyStatus}'`));
-  }
+test("legacy Prayer Care assignments are archived before live ownership is cleared", async () => {
+  const migration = await retirementMigration();
+  assert.match(migration, /create table if not exists public\.legacy_prayer_care_assignments/);
+  assert.ok(migration.indexOf("insert into public.legacy_prayer_care_assignments") < migration.indexOf("set assigned_to = null"));
+  assert.match(migration, /on conflict \(prayer_request_id\) do nothing/);
+  assert.match(migration, /enable row level security/);
+  assert.match(migration, /revoke all on table public\.legacy_prayer_care_assignments from public, anon, authenticated/);
 });
 
-test("reassignment is server-only, availability-aware, and updates lifecycle atomically", async () => {
-  const migration = await source(
-    "supabase",
-    "migrations",
-    "20260810192414_harden_prayer_care_workflow.sql"
-  );
-
-  assert.match(migration, /is_active is true/);
-  assert.match(migration, /ministry_availability = 'available'/);
-  assert.match(migration, /set assigned_to = null,[\s\S]*status = 'Needs Reassignment'/);
-  assert.match(migration, /set assigned_to = next_id,[\s\S]*status = 'Assigned'/);
-  assert.match(migration, /revoke all on function public\.reassign_prayer_request\(uuid, uuid\) from authenticated/);
-  assert.match(migration, /grant execute on function public\.reassign_prayer_request\(uuid, uuid\) to service_role/);
+test("former Prayer Care roles are archived before becoming Community Members", async () => {
+  const migration = await retirementMigration();
+  assert.match(migration, /create table if not exists public\.legacy_prayer_care_members/);
+  assert.ok(migration.indexOf("insert into public.legacy_prayer_care_members") < migration.indexOf("set role = 'member'"));
+  assert.match(migration, /where role = 'prayer_team'/);
+  assert.match(migration, /preview_role = null/);
 });
 
-test("first missed assignment is self-restorable while repeated misses require review", async () => {
-  const [cron, unpause] = await Promise.all([
-    source("app", "api", "cron", "notify-stale-assignments", "route.ts"),
-    source("app", "api", "rotation", "unpause", "route.ts"),
-  ]);
-
-  assert.match(cron, /nextMissedAssignmentCount >= 2/);
-  assert.match(cron, /availability_review_required: requiresHumanReview/);
-  assert.match(cron, /return yourself to Available from your Profile/);
-  assert.match(unpause, /missed_assignment_count[\s\S]*>= 2/);
-  assert.match(unpause, /care leader must review repeated missed assignments/i);
+test("automatic assignment triggers and service execution are disabled", async () => {
+  const migration = await retirementMigration();
+  for (const trigger of [
+    "assign_next_care_team_member_trigger",
+    "notify_auto_assigned_care_team_member_trigger",
+    "on_prayer_request_assigned_notify",
+  ]) assert.match(migration, new RegExp(`drop trigger if exists ${trigger}`));
+  assert.match(migration, /revoke all on function public\.assign_next_care_team_member\(\) from public, anon, authenticated, service_role/);
+  assert.match(migration, /revoke all on function public\.reassign_prayer_request\(uuid, uuid\) from public, anon, authenticated, service_role/);
 });
 
-test("removing a care role requires reassignment or queue return", async () => {
-  const [route, deactivateRoute, availabilityRoute, client] = await Promise.all([
-    source("app", "api", "admin", "users", "set-role", "route.ts"),
-    source("app", "api", "admin", "users", "set-active", "route.ts"),
-    source("app", "api", "admin", "users", "set-availability", "route.ts"),
+test("legacy assignment, rotation, and application endpoints cannot mutate data", async () => {
+  const routes = [
+    ["app", "api", "prayer-assignments", "update", "route.ts"],
+    ["app", "api", "rotation", "sabbatical", "route.ts"],
+    ["app", "api", "rotation", "unpause", "route.ts"],
+    ["app", "api", "rotation", "request-reinstatement", "route.ts"],
+    ["app", "api", "admin", "applications", "decide", "route.ts"],
+    ["app", "api", "admin", "users", "set-availability", "route.ts"],
+  ];
+  for (const route of routes) assert.match(await source(...route), /retiredPrayerCareResponse/);
+  assert.match(await source("lib", "retired-prayer-care.ts"), /status: 410/);
+});
+
+test("people administration exposes only Community Member and Community Admin roles", async () => {
+  const [client, route, page] = await Promise.all([
     source("components", "AdminUsersClient.tsx"),
-  ]);
-
-  assert.match(route, /removesCareAccess/);
-  assert.match(route, /ACTIVE_RESPONSIBILITIES/);
-  assert.match(route, /bulk_reassign/);
-  assert.match(route, /return_to_queue/);
-  assert.match(route, /ministry_availability: "inactive"/);
-  assert.match(route, /ministry_availability: "limited"[\s\S]*for \(const responsibility/);
-  assert.match(deactivateRoute, /ministry_availability: "limited"[\s\S]*for \(const responsibility/);
-  assert.match(availabilityRoute, /\.update\(changes\)[\s\S]*\.select\("id"\)[\s\S]*reassign_prayer_request/);
-  assert.match(client, /roleChangeReview/);
-  assert.match(client, /CARE_ROLES\.includes\(u\.role \?\? "member"\)/);
-});
-
-test("people directory shows active responsibility counts before risky controls", async () => {
-  const [page, client] = await Promise.all([
+    source("app", "api", "admin", "users", "set-role", "route.ts"),
     source("app", "admin", "users", "page.tsx"),
-    source("components", "AdminUsersClient.tsx"),
   ]);
-
-  assert.match(page, /\.select\("assigned_to"\)/);
-  assert.match(page, /\.eq\("answered", false\)/);
-  assert.match(page, /\.eq\("archived", false\)/);
-  assert.match(page, /active_responsibility_count: responsibilityCounts\.get\(row\.id\) \?\? 0/);
-  assert.match(client, /active_responsibility_count/);
-  assert.match(client, /active care[\s\S]+before role removal or login deactivation/);
-  assert.match(client, /Login active/);
-  assert.match(client, /Deactivate login/);
+  assert.match(client, /Community Member/);
+  assert.match(client, /Community Admin/);
+  assert.doesNotMatch(client, /prayer_team|rotation|assignment|availability/i);
+  assert.match(route, /new Set\(\["member", "admin"\]\)/);
+  assert.doesNotMatch(route, /reassign_prayer_request|assigned_to/);
+  assert.doesNotMatch(page, /assigned_to|ministry_availability/);
 });
 
-test("normal login inactivity is never used as an account-deactivation signal", async () => {
-  const routes = await Promise.all([
-    source("app", "api", "cron", "notify-stale-assignments", "route.ts"),
-    source("app", "api", "admin", "users", "set-active", "route.ts"),
-    source("app", "api", "admin", "users", "set-role", "route.ts"),
-  ]);
-  const combined = routes.join("\n");
-
-  assert.doesNotMatch(combined, /last_sign_in_at|last_login_at|last_login/);
-  assert.doesNotMatch(combined, /movedToInactive|THIRTY_DAYS_MS/);
-  assert.match(combined, /Your login remains active/);
-});
-
-test("submitted requests stay in admin attention until review", async () => {
+test("submitted requests stay in moderation attention until review", async () => {
   const dashboard = await source("components", "AdminPrayerDashboardClient.tsx");
-
-  assert.match(dashboard, /r\.status === "Submitted"/);
-  assert.match(dashboard, /status: request\.assigned_to \? "Assigned" : "Reviewed"/);
-  assert.match(dashboard, /onClick=\{\(\) => approveRequest\(r\)\}/);
+  assert.match(dashboard, /request\.status === "Submitted"/);
+  assert.match(dashboard, /moderation_status: "approved"/);
+  assert.match(dashboard, /status: "Reviewed"/);
+  assert.doesNotMatch(dashboard, /Assigned|Needs Reassignment|assigned_to/);
 });

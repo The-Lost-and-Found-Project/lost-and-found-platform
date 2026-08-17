@@ -18,14 +18,14 @@ test("Share With a Friend sends the dedicated public invitation URL", () => {
   assert.match(backButton, /pathname === "\/share"/);
 });
 
-test("the invitation page clearly distinguishes membership from Prayer Care Team service", () => {
+test("the invitation page presents one unified Community Member identity", () => {
   assert.match(landing, /You don’t have to walk alone/);
   assert.match(landing, /For every member/);
-  assert.match(landing, /Optional service role/);
-  assert.match(landing, /application and human review/);
-  assert.match(landing, /without taking away the regular member experience/);
+  assert.match(landing, /Every member uses the same simple community experience/);
+  assert.match(landing, /Everyone joins as a Community Member/);
+  assert.doesNotMatch(landing, /Prayer Care Team|Optional service role|application and human review/);
   assert.match(landing, /href="\/signup"/);
   assert.match(landing, /href="\/login"/);
-  assert.match(landing, /public Prayer Wall/);
+  assert.match(landing, /Prayer Wall/);
   assert.doesNotMatch(landing, /Emmaus/);
 });

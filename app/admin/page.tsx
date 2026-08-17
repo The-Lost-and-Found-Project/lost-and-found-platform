@@ -10,15 +10,9 @@ const EMMAUS_FOUNDER_USER_ID = process.env.EMMAUS_FOUNDER_USER_ID?.trim();
 
 const adminModules = [
   {
-    href: "/admin/applications",
-    title: "Prayer Care Applications",
-    description: "Review applicants, document decisions, and protect the standards of the care team.",
-    icon: "🤲",
-  },
-  {
     href: "/admin/users",
     title: "People & Roles",
-    description: "Manage member access, ministry roles, rotation status, and account-level permissions.",
+    description: "Manage Community Member access and administrative permissions.",
     icon: "👥",
   },
   {
@@ -52,37 +46,26 @@ export default async function AdminPage() {
 
   const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
 
-  if (effectiveRole === "prayer_team" || effectiveRole === "pastor") {
-    redirect("/prayer-assignments");
-  }
-
   if (effectiveRole !== "admin") {
     redirect("/dashboard");
   }
 
   const deliveryClient = createAdminClient();
-  const [deliveryResult, requestsResult, categoriesResult, careTeamResult] =
+  const [deliveryResult, requestsResult, categoriesResult] =
     await Promise.all([
       deliveryClient.rpc("get_notification_delivery_health"),
       supabase
         .from("prayer_requests")
         .select(
-          "id, user_id, created_at, name, email, phone, preferred_contact, contact_requested, category_id, request_text, is_public, is_anonymous, status, assigned_to, follow_up_needed, follow_up_date, answered, praise_report, prayer_count, flagged, flag_reason, moderation_status, last_action_at"
+          "id, user_id, created_at, name, email, phone, category_id, request_text, is_public, is_anonymous, status, answered, praise_report, prayer_count, flagged, flag_reason, moderation_status"
         )
         .order("created_at", { ascending: false }),
       supabase.from("prayer_categories").select("id, name").order("sort_order"),
-      supabase
-        .from("profiles")
-        .select("id, full_name, email")
-        .in("role", ["admin", "prayer_team", "pastor"])
-        .eq("is_active", true)
-        .eq("ministry_availability", "available"),
     ]);
 
   const deliveryHealth = deliveryResult.data;
   const requests = requestsResult.data;
   const categories = categoriesResult.data;
-  const careTeam = careTeamResult.data;
   const failedPushCount = deliveryHealth?.[0]?.failed_count ?? 0;
   const overduePushCount = deliveryHealth?.[0]?.pending_overdue_count ?? 0;
   const deliveryIssues = failedPushCount + overduePushCount;
@@ -90,7 +73,7 @@ export default async function AdminPage() {
   const requestRows = requests ?? [];
   const openRequests = requestRows.filter((request) => !request.answered && request.status !== "Closed").length;
   const flaggedRequests = requestRows.filter((request) => request.flagged || request.moderation_status === "pending").length;
-  const followUps = requestRows.filter((request) => request.follow_up_needed && !request.answered).length;
+  const answeredRequests = requestRows.filter((request) => request.answered || request.status === "Resolved").length;
   const firstName = profile?.full_name?.trim().split(" ")[0] || "Administrator";
   const isEmmausFounder = Boolean(
     (EMMAUS_FOUNDER_USER_ID && user.id === EMMAUS_FOUNDER_USER_ID) ||
@@ -114,7 +97,7 @@ export default async function AdminPage() {
           <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <AdminStat label="Open prayer requests" value={String(openRequests)} />
             <AdminStat label="Moderation attention" value={String(flaggedRequests)} />
-            <AdminStat label="Follow-ups needed" value={String(followUps)} />
+            <AdminStat label="Answered prayers" value={String(answeredRequests)} />
             <AdminStat label="Notification delivery issues" value={String(deliveryIssues)} />
           </div>
         </div>
@@ -132,18 +115,16 @@ export default async function AdminPage() {
         )}
         <section>
           <div className="mb-5 max-w-3xl">
-            <p className="lfp-eyebrow">Prayer operations</p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Care queue</h2>
-            <p className="mt-3 leading-7 text-slate-600 sm:text-lg">Review, assign, follow up, and close prayer requests from one focused queue.</p>
+            <p className="lfp-eyebrow">Prayer moderation</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Request review</h2>
+            <p className="mt-3 leading-7 text-slate-600 sm:text-lg">Review privacy, safety, public visibility, and answered-prayer updates without assigning requests to individual members.</p>
           </div>
 
           <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/92 shadow-2xl">
             <AdminPrayerDashboardClient
               requests={requestRows}
               categories={categories ?? []}
-              careTeam={careTeam ?? []}
               isAdmin
-              currentUserId={user.id}
             />
           </div>
         </section>
@@ -153,7 +134,7 @@ export default async function AdminPage() {
             <span>
               <span className="block text-xs font-black uppercase tracking-[0.16em] text-indigo-600">Administration</span>
               <span className="mt-1 block text-lg font-black text-slate-950">Other administrative tools</span>
-              <span className="mt-1 block text-sm text-slate-600">Applications, people, content, and analytics</span>
+              <span className="mt-1 block text-sm text-slate-600">People, content, and analytics</span>
             </span>
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-700 transition group-open:rotate-180" aria-hidden="true">⌄</span>
           </summary>

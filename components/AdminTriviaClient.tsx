@@ -323,7 +323,7 @@ export default function AdminTriviaClient({
           href="/admin"
           className="shrink-0 text-sm font-medium text-indigo-600 hover:text-indigo-500"
         >
-          Back to Prayer Care Admin
+          Back to Administration
         </a>
       </div>
 

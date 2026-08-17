@@ -14,12 +14,10 @@ test("prayer administration exposes control names, state, and touch targets", as
   assert.match(prayer, /htmlFor="admin-status-filter"/);
   assert.match(prayer, /id="admin-status-filter"/);
   assert.match(prayer, /aria-pressed=\{attentionOnly\}/);
-  assert.match(prayer, /aria-pressed=\{flaggedOnly\}/);
   assert.match(prayer, /aria-expanded=\{expanded\}/);
-  assert.match(prayer, /aria-controls=\{`prayer-request-\$\{r\.id\}`\}/);
-  assert.match(prayer, /aria-label=\{`Status for \$\{r\.name\}'s prayer request`\}/);
-  assert.match(prayer, /aria-label=\{`Assignee for \$\{r\.name\}'s prayer request`\}/);
-  assert.match(prayer, /htmlFor=\{`praise-report-\$\{r\.id\}`\}/);
+  assert.match(prayer, /aria-controls=\{`prayer-request-\$\{request\.id\}`\}/);
+  assert.match(prayer, /aria-label=\{`Status for \$\{request\.name\}'s prayer request`\}/);
+  assert.doesNotMatch(prayer, /Assignee for|careTeam|assigned_to/);
   assert.match(prayer, /min-h-11/);
 });
 

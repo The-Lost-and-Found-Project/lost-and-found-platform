@@ -69,10 +69,8 @@ const androidIcon = (
 );
 
 export default function HelpClient({
-  showPrayerTeamGuide,
   showAdminGuide,
 }: {
-  showPrayerTeamGuide: boolean;
   showAdminGuide: boolean;
 }) {
   return (
@@ -126,19 +124,11 @@ export default function HelpClient({
           description="Prayer requests, testimonies, praise reports, your profile, and notifications."
           icon={bookIcon}
         />
-        {showPrayerTeamGuide && (
-          <Card
-            href="/help/manual/prayer-team"
-            title="Prayer Team Guide"
-            description="Your assignments, prayer rotation, sabbatical, and reactivation."
-            icon={shieldIcon}
-          />
-        )}
         {showAdminGuide && (
           <Card
             href="/help/manual/admin"
             title="Admin Guide"
-            description="Moderation, users, applications, content, and analytics."
+            description="Moderation, Community Members, content, and analytics."
             icon={shieldIcon}
           />
         )}

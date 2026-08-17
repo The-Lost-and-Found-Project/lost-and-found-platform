@@ -4,16 +4,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit, getClientIp } from "@/lib/security/rateLimit";
 
 const FROM_ADDRESS =
-  "Lost and Found Prayer Care <noreply@lostandfoundproject.org>";
+  "The Lost and Found Project <noreply@lostandfoundproject.org>";
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
   "https://app.lostandfoundproject.org";
 
-// Sent whenever a new praise report is submitted. Unlike the flagged/decision
-// moderation notifications (which only go to whoever needs to act), this goes
-// to the whole care team — admins, prayer team, and pastors — so everyone
-// gets to celebrate the good news and admins know there's something new to
-// review for the public Praise Wall.
+// Sent to administrators whenever a new praise report is submitted so they
+// know there is something new to review for the public Praise Wall.
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
   const { allowed } = checkRateLimit(`notify-new-praise-admin:${ip}`, 10, 10 * 60 * 1000);
@@ -36,33 +33,33 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createAdminClient();
-    const { data: careTeam, error: careTeamError } = await supabase
+    const { data: admins, error: adminLookupError } = await supabase
       .from("profiles")
       .select("id, email")
-      .in("role", ["admin", "prayer_team", "pastor"])
+      .eq("role", "admin")
       .not("email", "is", null);
 
-    if (careTeamError) throw careTeamError;
+    if (adminLookupError) throw adminLookupError;
 
-    const careTeamIds = (careTeam ?? []).map((member) => member.id);
-    const { data: disabledSettings } = careTeamIds.length
+    const adminIds = (admins ?? []).map((member) => member.id);
+    const { data: disabledSettings } = adminIds.length
       ? await supabase
           .from("user_settings")
           .select("user_id")
-          .in("user_id", careTeamIds)
+          .in("user_id", adminIds)
           .eq("email_notifications", false)
       : { data: [] };
     const disabledUserIds = new Set(
       (disabledSettings ?? []).map((setting) => setting.user_id)
     );
 
-    const recipients = (careTeam ?? [])
+    const recipients = (admins ?? [])
       .filter((member) => !disabledUserIds.has(member.id))
       .map((m) => m.email)
       .filter((e): e is string => Boolean(e));
 
     if (recipients.length === 0) {
-      return NextResponse.json({ success: true, skipped: "no care team" });
+      return NextResponse.json({ success: true, skipped: "no administrators" });
     }
 
     const apiKey = process.env.RESEND_API_KEY;

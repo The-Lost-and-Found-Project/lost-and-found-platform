@@ -27,16 +27,16 @@ const TYPE_ICON: Record<string, string> = {
 };
 
 const TYPE_ACTION: Record<string, { label: string; action: string }> = {
-  assigned: { label: "Care assignment", action: "Review assignment" },
-  prayer_reassigned: { label: "Care assignment", action: "Review assignment" },
+  assigned: { label: "Legacy notice", action: "Open Prayer" },
+  prayer_reassigned: { label: "Legacy notice", action: "Open Prayer" },
   prayer_request_updated: { label: "Care update", action: "Review update" },
-  idle_assignment: { label: "Action needed", action: "Review overdue care" },
+  idle_assignment: { label: "Legacy notice", action: "Open Prayer" },
   follow_up_due: { label: "Follow-up due", action: "Complete follow-up" },
   prayer_escalated: { label: "Escalated care", action: "Review escalation" },
   check_in_needed: { label: "Check-in", action: "Respond now" },
-  rotation_paused: { label: "Availability", action: "Review availability" },
+  rotation_paused: { label: "Legacy notice", action: "Open Prayer" },
   prayer_care_application: { label: "Application", action: "Review application" },
-  prayer_care_application_approved: { label: "Application", action: "View assignments" },
+  prayer_care_application_approved: { label: "Legacy notice", action: "Open Prayer" },
   prayer_care_application_denied: { label: "Application", action: "Review decision" },
   prayed_for: { label: "Prayer", action: "View your journey" },
   status_change: { label: "Care update", action: "Review update" },
@@ -197,7 +197,7 @@ export default function NotificationsClient({ initialNotifications }: { initialN
           <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
             <span className="text-4xl" aria-hidden="true">🔔</span>
             <h3 className="mt-4 text-xl font-black text-slate-950">{filter === "attention" ? "No priority actions" : filter === "unread" ? "No unread notifications" : "No notifications yet"}</h3>
-            <p className="mt-2 text-sm text-slate-500">{filter === "attention" ? "Care assignments, escalations, and due follow-ups will appear here." : filter === "unread" ? "Everything has been reviewed." : "Meaningful ministry updates will appear here."}</p>
+            <p className="mt-2 text-sm text-slate-500">{filter === "attention" ? "Important moderation and account updates will appear here." : filter === "unread" ? "Everything has been reviewed." : "Meaningful community updates will appear here."}</p>
           </div>
         )}
 

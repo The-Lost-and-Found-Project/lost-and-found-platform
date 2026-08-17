@@ -132,7 +132,10 @@ export default function PrayerWallPage() {
               <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">Carry one another before God.</h1>
               <p className="mt-5 text-lg leading-8 text-indigo-100/75">Share what is on your heart, pray with the community, and remember that no request has to be carried alone.</p>
             </div>
-            <Link href="/prayer/submit" className="lfp-button bg-amber-300 text-slate-950 shadow-xl hover:bg-amber-200">Submit a Prayer Request</Link>
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <Link href="/prayer/submit" className="lfp-button bg-amber-300 text-slate-950 shadow-xl hover:bg-amber-200">Submit a Prayer Request</Link>
+              <Link href="/prayer/my-requests" className="lfp-button border border-white/20 bg-white/10 text-white">My Prayer Requests</Link>
+            </div>
           </div>
         </div>
       </section>

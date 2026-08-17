@@ -39,7 +39,7 @@ export default async function AdminAnalyticsPage() {
     supabase
       .from("prayer_requests")
       .select(
-        "id, created_at, category_id, status, assigned_to, answered, prayer_count, flagged, moderation_status, follow_up_needed, archived"
+        "id, created_at, category_id, status, answered, prayer_count, flagged, moderation_status, archived"
       ),
     supabase.from("prayer_categories").select("id, name"),
     supabase.from("profiles").select("id, created_at, role, is_active"),

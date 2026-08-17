@@ -6,14 +6,14 @@ const sections: ManualSection[] = [
   {
     title: "Getting Around",
     paragraphs: [
-      "After you sign in, the Home tab is your dashboard — it shows your recent activity and quick links. The bar at the bottom of the screen gets you to Prayer, Testimonies, Praise, and My Journey. Tap your profile picture (top right) for Profile, Settings, Programs, Help, and to sign out.",
+      "After you sign in, the Home tab is your dashboard. The bar at the bottom gets you to Prayer, Praise, Testimonies, and Notifications. Tap your profile picture for Profile, Settings, Help, and sign out.",
     ],
   },
   {
     title: "Submitting a Prayer Request",
     paragraphs: [
-      "From the Prayer tab, tap to submit a new request. You can share as much or as little as you're comfortable with, and choose to submit anonymously. If you'd like, you can request a prayer partner of a specific gender.",
-      "Every request is reviewed before it appears on the public Prayer Wall, and it's automatically assigned to a member of our prayer care team, who will be praying for you personally.",
+      "From the Prayer tab, submit a new request and choose whether it may appear on the Prayer Wall and whether your name is shown.",
+      "Authorized administrators review requests for safety and privacy before public display. Requests are not assigned to individual members.",
     ],
   },
   {
@@ -35,15 +35,15 @@ const sections: ManualSection[] = [
     ],
   },
   {
-    title: "My Journey",
+    title: "My Prayer Requests",
     paragraphs: [
-      "My Journey is your personal timeline — every prayer request, testimony, and milestone you've shared, all in one place. It's a good way to look back and see how far you've come.",
+      "Open My Prayer Requests from the Prayer page to review what you shared, make an update, mark a prayer answered, or remove it from your active list.",
     ],
   },
   {
     title: "Notifications",
     paragraphs: [
-      "The bell icon at the top of the app shows updates — like when someone prays for your request, or when your prayer care partner reaches out. Turn on push notifications in Settings to get alerted even when the app isn't open (see \"Install the App\" on the Help page first, especially on iPhone).",
+      "The Notifications tab shows updates such as when someone prays for your request. Turn on push notifications in Settings to get alerted even when the app isn't open.",
     ],
   },
   {
@@ -55,13 +55,7 @@ const sections: ManualSection[] = [
   {
     title: "Your Account",
     paragraphs: [
-      "The Account page lets you reset your password. If you ever need to, you can also permanently delete your account there — if you have any active prayer requests assigned to a care team member at the time, they'll be handed off to someone else first.",
-    ],
-  },
-  {
-    title: "Joining the Prayer Care Team",
-    paragraphs: [
-      "Feel called to pray for others as part of the care team? You can apply right from the app — look for the application card on your dashboard, or ask us directly using Contact Us.",
+      "The Account page lets you reset your password or permanently delete your account. Prayer requests are community records and are not assigned to another member.",
     ],
   },
   {
