@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { needsPrayerExposure } from "@/lib/prayer-distribution";
 
 const STATUS_OPTIONS = ["Submitted", "Reviewed", "Resolved", "Closed", "Escalated", "Withdrawn"];
 
@@ -26,7 +27,10 @@ type AdminRequest = {
 };
 
 function needsAttention(request: AdminRequest) {
-  return request.moderation_status === "pending" || request.status === "Submitted" || request.status === "Escalated";
+  return request.moderation_status === "pending"
+    || request.status === "Submitted"
+    || request.status === "Escalated"
+    || needsPrayerExposure(request);
 }
 
 export default function AdminPrayerDashboardClient({
@@ -153,8 +157,9 @@ export default function AdminPrayerDashboardClient({
           const editing = editingId === request.id;
           const busy = busyId === request.id;
           const category = request.category_id ? categoryNames.get(request.category_id) : undefined;
+          const underexposed = needsPrayerExposure(request);
           return (
-            <article key={request.id} className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${request.moderation_status === "pending" ? "border-amber-300" : "border-slate-200"}`}>
+            <article key={request.id} className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${request.moderation_status === "pending" || underexposed ? "border-amber-300" : "border-slate-200"}`}>
               <button type="button" onClick={() => toggleExpanded(request.id)} aria-expanded={expanded} aria-controls={`prayer-request-${request.id}`} className="flex min-h-14 w-full items-start gap-3 px-5 py-4 text-left">
                 <span className={`mt-0.5 text-xl font-black text-indigo-600 transition ${expanded ? "rotate-90" : ""}`} aria-hidden="true">›</span>
                 <span className="min-w-0 flex-1">
@@ -162,6 +167,7 @@ export default function AdminPrayerDashboardClient({
                     <span className="font-black text-slate-950">{request.name}</span>
                     <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-700">{request.status}</span>
                     {request.moderation_status === "pending" && <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800">Needs review</span>}
+                    {underexposed && <span className="rounded-full bg-indigo-100 px-2 py-1 text-xs font-bold text-indigo-800">Needs prayer exposure</span>}
                     {request.answered && <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-800">Answered</span>}
                   </span>
                   {!expanded && <span className="mt-2 block truncate text-sm text-slate-500">{request.request_text}</span>}

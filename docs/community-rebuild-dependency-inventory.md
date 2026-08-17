@@ -117,3 +117,21 @@ Phase 3 separation boundary:
 - Local TypeScript, 76 application tests, and focused lint checks pass. A full
   production build reached the external Google Fonts request and stopped only
   because this environment could not reach that host.
+
+## Phase 5 no-prayer-left-behind distribution
+
+- Active public requests are ordered first by the least prayer activity and
+  then oldest first, so an under-supported request moves forward without an
+  assignment queue or scheduled background job.
+- Resolved, closed, and withdrawn requests no longer compete for space in the
+  active Prayer page or Home prayer ticker. They remain preserved in member and
+  administrative history.
+- Public cards use pastoral support language instead of exact prayer totals.
+  Exact counts remain available to the requester and administrators for care
+  oversight and internal analytics.
+- The admin Attention view and summary now identify approved public requests
+  with zero or one prayer action as needing exposure.
+- This phase adds no database table, migration, cron schedule, paid service, or
+  additional page-load query.
+- Local TypeScript, 77 application tests, focused lint, and whitespace checks
+  pass.

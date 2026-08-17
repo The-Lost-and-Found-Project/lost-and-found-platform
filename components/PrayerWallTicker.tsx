@@ -5,11 +5,14 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import TickerScroll from "./TickerScroll";
 import CommunityDetailDialog from "./CommunityDetailDialog";
+import { CLOSED_PRAYER_STATUS_FILTER } from "@/lib/prayer-distribution";
 
 type PrayerRequest = {
   id: string;
   request_text: string;
   created_at: string;
+  prayer_count: number;
+  status: string;
 };
 
 // Poll for newly submitted prayers so the ticker keeps growing over time.
@@ -27,8 +30,10 @@ export default function PrayerWallTicker() {
     async function load() {
       const { data } = await supabase
         .from("prayer_wall_public")
-        .select("id, request_text, created_at")
-        .order("created_at", { ascending: false })
+        .select("id, request_text, created_at, prayer_count, status")
+        .not("status", "in", CLOSED_PRAYER_STATUS_FILTER)
+        .order("prayer_count", { ascending: true })
+        .order("created_at", { ascending: true })
         .limit(12);
 
       if (active) {
@@ -65,7 +70,7 @@ export default function PrayerWallTicker() {
             Open Prayer →
           </Link>
         </div>
-        <p className="mt-2 text-sm text-slate-500">Recent approved prayers move gently below. Open a two-line preview to read it fully.</p>
+        <p className="mt-2 text-sm text-slate-500">Requests needing more community prayer move gently below. Open a two-line preview to read it fully.</p>
         <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70">
           <TickerScroll heightClass="h-64">
           {scrollingRequests.map((request, index) => {
