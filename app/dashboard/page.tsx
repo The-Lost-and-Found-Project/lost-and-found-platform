@@ -1,14 +1,31 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import PrayerWallTicker from "@/components/PrayerWallTicker";
-import PraiseTicker from "@/components/PraiseTicker";
-import TestimonyTicker from "@/components/TestimonyTicker";
 import ShareButton from "@/components/ShareButton";
 import PushPrompt from "@/components/PushPrompt";
 import { LfpSectionHeading } from "@/components/ui/LfpDesignSystem";
 
 const GIVE_URL = "https://www.zeffy.com/en-US/donation-form/donate-to-build-god-centered-marriages";
+const communityPaths = [
+  {
+    href: "/prayer",
+    icon: "🙏",
+    title: "Prayer",
+    description: "Submit a request or pray with someone who needs support.",
+  },
+  {
+    href: "/praise",
+    icon: "🙌",
+    title: "Praise",
+    description: "Celebrate what God is doing and share an expression of Love.",
+  },
+  {
+    href: "/testimonies",
+    icon: "✝️",
+    title: "Testimonies",
+    description: "Read and share stories of grace, restoration, and hope.",
+  },
+];
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -41,11 +58,18 @@ export default async function DashboardPage() {
         <PushPrompt />
 
         <section>
-          <LfpSectionHeading eyebrow="Community" title="Pray. Praise. Testify." description="Scan what the community is carrying and celebrating, then open any two-line preview to read it fully." />
+          <LfpSectionHeading eyebrow="Community" title="Pray. Praise. Testify." description="Choose a community space. Each page now brings its ticker, full stories, and actions together." />
           <div className="mt-7 grid gap-6 md:grid-cols-2 md:items-start xl:grid-cols-3">
-            <PrayerWallTicker />
-            <PraiseTicker />
-            <TestimonyTicker />
+            {communityPaths.map((path) => (
+              <Link key={path.href} href={path.href} className="group lfp-card flex h-full items-start gap-4 p-6 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-2xl ring-1 ring-indigo-100" aria-hidden="true">{path.icon}</span>
+                <span>
+                  <span className="block text-xl font-black text-slate-950">{path.title}</span>
+                  <span className="mt-2 block leading-7 text-slate-600">{path.description}</span>
+                  <span className="mt-4 block font-black text-indigo-700 group-hover:text-indigo-600">Open {path.title} →</span>
+                </span>
+              </Link>
+            ))}
           </div>
         </section>
 

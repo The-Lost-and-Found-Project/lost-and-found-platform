@@ -29,7 +29,7 @@ export default function PrayerWallPage() {
             <p className="mt-3 text-lg leading-8 text-slate-600">Requests with less prayer activity are gently brought forward. Open a two-line preview to read it fully and take a moment to pray.</p>
           </div>
           <div className="mt-7">
-            <PrayerWallTicker showAll emptyMessage="No public prayer requests are waiting right now." />
+            <PrayerWallTicker pageMode emptyMessage="No public prayer requests are waiting right now." />
           </div>
         </section>
       </div>

@@ -11,18 +11,24 @@ test("community Home keeps the three core actions and voluntary giving", async (
     "utf8"
   );
 
+  for (const destination of ["/prayer", "/praise", "/testimonies"]) {
+    assert.match(dashboard, new RegExp(`href: "${destination}"`));
+  }
   for (const ticker of ["PrayerWallTicker", "PraiseTicker", "TestimonyTicker"]) {
-    assert.match(dashboard, new RegExp(`<${ticker} \/>`));
+    assert.doesNotMatch(dashboard, new RegExp(ticker));
   }
   assert.match(dashboard, /Giving is always optional/);
   assert.doesNotMatch(dashboard, /href="\/(emmaus|trivia|devotions|grow|prayer-assignments|prayer-care-application)/);
 });
 
-test("public landing page centers the same three tickers without legacy care-team language", async () => {
+test("public landing page routes visitors to the three respective ticker pages", async () => {
   const landing = await readFile(path.join(root, "app", "page.tsx"), "utf8");
 
+  for (const destination of ["/prayer", "/praise", "/testimonies"]) {
+    assert.match(landing, new RegExp(`href: "${destination}"`));
+  }
   for (const ticker of ["PrayerWallTicker", "PraiseTicker", "TestimonyTicker"]) {
-    assert.match(landing, new RegExp(`<${ticker} \/>`));
+    assert.doesNotMatch(landing, new RegExp(ticker));
   }
   assert.match(landing, /Pray\. Praise\. Testify\./);
   assert.doesNotMatch(landing, /care team|Prayer Care|journey/i);

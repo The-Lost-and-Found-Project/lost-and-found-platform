@@ -1,9 +1,30 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import PrayerWallTicker from "@/components/PrayerWallTicker";
-import PraiseTicker from "@/components/PraiseTicker";
-import TestimonyTicker from "@/components/TestimonyTicker";
 import { createClient } from "@/lib/supabase/server";
+
+const communityPaths = [
+  {
+    href: "/prayer",
+    icon: "🙏",
+    title: "Prayer",
+    description: "Bring a need before God and pray with someone in the community.",
+    action: "Open Prayer",
+  },
+  {
+    href: "/praise",
+    icon: "🙌",
+    title: "Praise",
+    description: "Celebrate answered prayer and the ways God is showing His faithfulness.",
+    action: "Open Praise",
+  },
+  {
+    href: "/testimonies",
+    icon: "✝️",
+    title: "Testimonies",
+    description: "Read stories of grace, restoration, perseverance, and hope.",
+    action: "Read Testimonies",
+  },
+];
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -31,14 +52,19 @@ export default async function HomePage() {
         <section aria-labelledby="three-ways-title">
           <div className="mx-auto max-w-3xl text-center">
             <p className="lfp-eyebrow">Pray. Praise. Testify.</p>
-            <h2 id="three-ways-title" className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">See what the community is carrying and celebrating</h2>
-            <p className="mt-3 text-lg leading-8 text-slate-600">Scan each two-line ticker, open what speaks to you, and join when you are ready to share or respond.</p>
+            <h2 id="three-ways-title" className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Three ways to walk with the community</h2>
+            <p className="mt-3 text-lg leading-8 text-slate-600">Each community page brings its stories, actions, and two-line ticker together in one place.</p>
           </div>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2 md:items-start xl:grid-cols-3">
-            <PrayerWallTicker />
-            <PraiseTicker />
-            <TestimonyTicker />
+            {communityPaths.map((path) => (
+              <Link key={path.href} href={path.href} className="group lfp-card flex h-full flex-col p-6 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-2xl ring-1 ring-indigo-100" aria-hidden="true">{path.icon}</span>
+                <h3 className="mt-5 text-2xl font-black text-slate-950">{path.title}</h3>
+                <p className="mt-2 flex-1 leading-7 text-slate-600">{path.description}</p>
+                <span className="mt-5 font-black text-indigo-700 group-hover:text-indigo-600">{path.action} →</span>
+              </Link>
+            ))}
           </div>
         </section>
 

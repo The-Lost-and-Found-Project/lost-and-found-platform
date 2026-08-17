@@ -44,11 +44,11 @@ test("community previews use a consistent two-line pattern with accessible full 
   assert.match(detail, /overflow-y-auto/);
   assert.match(detail, /event\.key === "Escape"/);
   assert.match(detail, /previouslyFocused\?\.focus\(\)/);
-  assert.match(prayerPage, /<PrayerWallTicker showAll/);
-  assert.match(praisePage, /<PraiseTicker showAll/);
-  assert.match(testimonyPage, /<TestimonyTicker showAll/);
+  assert.match(prayerPage, /<PrayerWallTicker pageMode/);
+  assert.match(praisePage, /<PraiseTicker pageMode/);
+  assert.match(testimonyPage, /<TestimonyTicker pageMode/);
   for (const component of ["PrayerWallTicker", "PraiseTicker", "TestimonyTicker"]) {
-    assert.match(landing, new RegExp(`<${component} \/>`));
+    assert.doesNotMatch(landing, new RegExp(component));
   }
 });
 
@@ -104,7 +104,7 @@ test("Prayer distribution brings under-supported active requests forward without
   assert.match(ticker, /\.order\("prayer_count", \{ ascending: true \}\)/);
   assert.match(ticker, /\.order\("created_at", \{ ascending: true \}\)/);
   assert.match(ticker, /prayerSupportLabel/);
-  assert.match(page, /<PrayerWallTicker showAll/);
+  assert.match(page, /<PrayerWallTicker pageMode/);
   assert.doesNotMatch(ticker, /`\$\{request\.prayer_count\} \$\{request\.prayer_count === 1/);
   assert.match(distribution, /Waiting for prayer/);
   assert.match(distribution, /Someone is carrying this in prayer/);

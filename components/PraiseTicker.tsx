@@ -16,9 +16,11 @@ type PraiseReport = {
 
 export default function PraiseTicker({
   emptyMessage,
+  pageMode = false,
   showAll = false,
 }: {
   emptyMessage?: string;
+  pageMode?: boolean;
   showAll?: boolean;
 }) {
   const supabase = useMemo(() => createClient(), []);
@@ -40,13 +42,13 @@ export default function PraiseTicker({
         .order("created_at", { ascending: false });
       const [{ data }, { data: authData }] = await Promise.all([
         showAll ? query : query.limit(12),
-        showAll ? supabase.auth.getUser() : Promise.resolve({ data: { user: null } }),
+        showAll || pageMode ? supabase.auth.getUser() : Promise.resolve({ data: { user: null } }),
       ]);
       const nextReports = (data as PraiseReport[]) ?? [];
       if (!active) return;
       setReports(nextReports);
 
-      if (showAll && authData.user && nextReports.length > 0) {
+      if ((showAll || pageMode) && authData.user && nextReports.length > 0) {
         const { data: loves } = await supabase
           .from("praise_loves")
           .select("praise_report_id")
@@ -61,7 +63,7 @@ export default function PraiseTicker({
     return () => {
       active = false;
     };
-  }, [showAll, supabase]);
+  }, [pageMode, showAll, supabase]);
 
   async function toggleLove(reportId: string) {
     if (inFlightIds.current.has(reportId)) return;
@@ -134,7 +136,7 @@ export default function PraiseTicker({
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="community-praise-title">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 id="community-praise-title" className="text-xl font-black text-slate-950">Praise from our community</h2>
-            <Link href="/praise" className="inline-flex min-h-11 items-center text-sm font-bold text-indigo-700 hover:text-indigo-600">Open Praise →</Link>
+            {!pageMode ? <Link href="/praise" className="inline-flex min-h-11 items-center text-sm font-bold text-indigo-700 hover:text-indigo-600">Open Praise →</Link> : null}
           </div>
           <p className="mt-2 text-sm text-slate-500">Celebrate what God is doing. Open a two-line preview to read the full praise.</p>
           <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70">
@@ -150,7 +152,7 @@ export default function PraiseTicker({
           content={selectedReport.content_text}
           onClose={() => setSelectedId(null)}
           meta={<>Shared anonymously · {new Date(selectedReport.created_at).toLocaleDateString()}</>}
-          actions={showAll ? (
+          actions={showAll || pageMode ? (
             <div>
               <button
                 type="button"
