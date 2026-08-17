@@ -105,6 +105,9 @@ test("Prayer distribution shows newest active requests first without public vani
   assert.match(ticker, /\.order\("created_at", \{ ascending: false \}\)/);
   assert.match(page, /The newest requests appear first/);
   assert.match(ticker, /prayerSupportLabel/);
+  assert.doesNotMatch(ticker, /request\.display_name \?\? "Anonymous"\} · \{prayerSupportLabel/);
+  assert.doesNotMatch(ticker, /toLocaleDateString\(\)\} · \{selectedPrayerLabel\}/);
+  assert.doesNotMatch(ticker, /You can pray again whenever you return/);
   assert.match(page, /<PrayerWallTicker pageMode/);
   assert.doesNotMatch(ticker, /`\$\{request\.prayer_count\} \$\{request\.prayer_count === 1/);
   assert.match(distribution, /Waiting for prayer/);
