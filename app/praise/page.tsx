@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import CommunityDetailDialog from "@/components/CommunityDetailDialog";
+import CommunityTickerCard from "@/components/CommunityTickerCard";
 
 type PraiseReport = {
   id: string;
@@ -15,20 +17,11 @@ export default function PraiseWallPage() {
   const supabase = useMemo(() => createClient(), []);
   const [reports, setReports] = useState<PraiseReport[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lovedIds, setLovedIds] = useState<Set<string>>(new Set());
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const [loveErrors, setLoveErrors] = useState<Record<string, string>>({});
   const inFlightIds = useRef<Set<string>>(new Set());
-
-  function toggleExpanded(id: string) {
-    setExpandedIds((previous) => {
-      const next = new Set(previous);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
 
   useEffect(() => {
     async function load() {
@@ -104,6 +97,8 @@ export default function PraiseWallPage() {
     }
   }
 
+  const selectedReport = reports.find((report) => report.id === selectedId) ?? null;
+
   return (
     <main className="lfp-page pb-20">
       <section className="relative overflow-hidden bg-slate-950 text-white">
@@ -125,7 +120,7 @@ export default function PraiseWallPage() {
           <div className="max-w-3xl">
             <p className="lfp-eyebrow">Community praise</p>
             <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Recent reminders of God&apos;s faithfulness</h2>
-            <p className="mt-3 text-lg leading-8 text-slate-600">Open a praise to read the complete story. Love is one acknowledgement per Community Member and can be removed.</p>
+            <p className="mt-3 text-lg leading-8 text-slate-600">Scan the two-line previews, then open a praise to read the complete story. Love is one acknowledgement per Community Member and can be removed.</p>
           </div>
 
           <div className="mt-7 space-y-4">
@@ -140,49 +135,47 @@ export default function PraiseWallPage() {
             )}
 
             {reports.map((report) => {
-              const expanded = expandedIds.has(report.id);
-              const loved = lovedIds.has(report.id);
-              const pending = pendingIds.has(report.id);
-              const snippet = report.content_text.length > 150 ? `${report.content_text.slice(0, 150)}...` : report.content_text;
-
               return (
-                <article key={report.id} className="lfp-card p-6 sm:p-7">
-                  <button type="button" onClick={() => toggleExpanded(report.id)} aria-expanded={expanded} className="group block w-full text-left">
-                    <div className="flex items-start gap-4">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-xl ring-1 ring-amber-100" aria-hidden="true">✦</span>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-4">
-                          <p className="whitespace-pre-wrap text-lg leading-8 text-slate-800">{expanded ? report.content_text : snippet}</p>
-                          <span className={`mt-1 shrink-0 text-xl font-black text-indigo-600 transition ${expanded ? "rotate-90" : "group-hover:translate-x-1"}`} aria-hidden="true">›</span>
-                        </div>
-                        <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-4">
-                          <p className="text-xs font-black uppercase tracking-[0.15em] text-slate-400">Shared anonymously</p>
-                          <p className="text-xs font-semibold text-slate-400">{new Date(report.created_at).toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-
-                  <div className="mt-4 border-t border-slate-100 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => toggleLove(report.id)}
-                      disabled={pending}
-                      aria-pressed={loved}
-                      className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2 text-sm font-black transition disabled:opacity-60 ${loved ? "bg-rose-100 text-rose-800" : "bg-slate-100 text-slate-700 hover:bg-rose-50 hover:text-rose-700"}`}
-                    >
-                      <span aria-hidden="true">{loved ? "♥" : "♡"}</span>
-                      {pending ? "Updating..." : loved ? "Loved" : "Love"}
-                      <span className="font-semibold">{report.love_count}</span>
-                    </button>
-                    {loveErrors[report.id] && <p role="alert" aria-live="polite" className="mt-2 text-sm text-rose-700">{loveErrors[report.id]}</p>}
-                  </div>
-                </article>
+                <CommunityTickerCard
+                  key={report.id}
+                  label="praise"
+                  content={report.content_text}
+                  icon="🙌"
+                  onOpen={() => setSelectedId(report.id)}
+                  meta={<>Shared anonymously · {report.love_count} {report.love_count === 1 ? "Love" : "Loves"}</>}
+                />
               );
             })}
           </div>
         </section>
       </div>
+
+      {selectedReport ? (
+        <CommunityDetailDialog
+          eyebrow="Praise report"
+          title="A reminder of God’s faithfulness"
+          content={selectedReport.content_text}
+          onClose={() => setSelectedId(null)}
+          meta={<>Shared anonymously · {new Date(selectedReport.created_at).toLocaleDateString()}</>}
+          actions={(
+            <div>
+              <button
+                type="button"
+                onClick={() => toggleLove(selectedReport.id)}
+                disabled={pendingIds.has(selectedReport.id)}
+                aria-pressed={lovedIds.has(selectedReport.id)}
+                className={`inline-flex min-h-11 items-center gap-2 rounded-full px-5 py-2 text-sm font-black transition disabled:opacity-60 ${lovedIds.has(selectedReport.id) ? "bg-rose-100 text-rose-800" : "bg-slate-100 text-slate-700 hover:bg-rose-50 hover:text-rose-700"}`}
+              >
+                <span aria-hidden="true">{lovedIds.has(selectedReport.id) ? "♥" : "♡"}</span>
+                {pendingIds.has(selectedReport.id) ? "Updating..." : lovedIds.has(selectedReport.id) ? "Loved" : "Love"}
+                <span className="font-semibold">{selectedReport.love_count}</span>
+              </button>
+              <p className="mt-2 text-xs font-bold text-slate-500">One Love per Community Member. Tap again to remove yours.</p>
+              {loveErrors[selectedReport.id] ? <p role="alert" aria-live="polite" className="mt-2 text-sm text-rose-700">{loveErrors[selectedReport.id]}</p> : null}
+            </div>
+          )}
+        />
+      ) : null}
     </main>
   );
 }

@@ -13,7 +13,7 @@ test("the Prayer Wall supports repeatable, idempotent prayer activity", async ()
   assert.match(source, /retryKeys\.current\.set\(requestId, clientRequestId\)/);
   assert.match(source, /retryKeys\.current\.delete\(requestId\)/);
   assert.match(source, /inFlightIds\.current\.has\(requestId\)/);
-  assert.match(source, /disabled=\{pending\}/);
+  assert.match(source, /disabled=\{pendingIds\.has\(selectedRequest\.id\)\}/);
   assert.match(source, /Prayer recorded/);
   assert.match(source, /aria-live="polite"/);
   assert.doesNotMatch(source, /prayedIds/);

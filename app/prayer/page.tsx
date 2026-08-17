@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import CommunityDetailDialog from "@/components/CommunityDetailDialog";
+import CommunityTickerCard from "@/components/CommunityTickerCard";
 
 type PrayerRequest = {
   id: string;
@@ -23,19 +25,10 @@ export default function PrayerWallPage() {
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const [confirmedIds, setConfirmedIds] = useState<Set<string>>(new Set());
   const [prayerErrors, setPrayerErrors] = useState<Record<string, string>>({});
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const inFlightIds = useRef<Set<string>>(new Set());
   const retryKeys = useRef<Map<string, string>>(new Map());
   const confirmationTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
-
-  function toggleExpanded(id: string) {
-    setExpandedIds((previous) => {
-      const next = new Set(previous);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
 
   useEffect(() => {
     async function load() {
@@ -121,6 +114,11 @@ export default function PrayerWallPage() {
     }
   }
 
+  const selectedRequest = requests.find((request) => request.id === selectedId) ?? null;
+  const selectedPrayerLabel = selectedRequest
+    ? `${selectedRequest.prayer_count} ${selectedRequest.prayer_count === 1 ? "prayer" : "prayers"}`
+    : "";
+
   return (
     <main className="lfp-page pb-20">
       <section className="relative overflow-hidden bg-slate-950 text-white">
@@ -145,7 +143,7 @@ export default function PrayerWallPage() {
           <div className="max-w-3xl">
             <p className="lfp-eyebrow">Prayer wall</p>
             <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Pray with what is happening now</h2>
-            <p className="mt-3 text-lg leading-8 text-slate-600">Open a request, read it carefully, and take a moment to pray before pressing the button.</p>
+            <p className="mt-3 text-lg leading-8 text-slate-600">Scan the two-line previews, then open a request to read it fully and take a moment to pray.</p>
           </div>
 
           <div className="mt-7 space-y-4">
@@ -161,53 +159,49 @@ export default function PrayerWallPage() {
             )}
 
             {requests.map((request) => {
-              const expanded = expandedIds.has(request.id);
-              const pending = pendingIds.has(request.id);
-              const confirmed = confirmedIds.has(request.id);
               const prayerLabel = `${request.prayer_count} ${request.prayer_count === 1 ? "prayer" : "prayers"}`;
-              const snippet = request.request_text.length > 160 ? `${request.request_text.slice(0, 160)}...` : request.request_text;
 
               return (
-                <article key={request.id} className="lfp-card p-6 sm:p-7">
-                  <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-start">
-                    <button type="button" onClick={() => toggleExpanded(request.id)} aria-expanded={expanded} className="group min-w-0 text-left">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-black text-slate-950">{request.display_name ?? "Anonymous"}</span>
-                        {request.category_id && categories[request.category_id] && (
-                          <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">{categories[request.category_id]}</span>
-                        )}
-                        {request.status === "Resolved" && (
-                          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">Answered</span>
-                        )}
-                      </div>
-                      <div className="mt-4 flex items-start gap-3">
-                        <span className={`mt-1 text-xl font-black text-indigo-600 transition ${expanded ? "rotate-90" : "group-hover:translate-x-1"}`} aria-hidden="true">›</span>
-                        <p className="whitespace-pre-wrap text-lg leading-8 text-slate-800">{expanded ? request.request_text : snippet}</p>
-                      </div>
-                      <p className="mt-4 text-xs font-semibold text-slate-400">Shared {new Date(request.created_at).toLocaleDateString()}</p>
-                    </button>
-
-                    <div className="sm:min-w-44 sm:text-right">
-                      <button
-                        onClick={() => handlePray(request.id)}
-                        disabled={pending}
-                        aria-label={`${confirmed ? "Prayer recorded for" : "Pray for"} ${request.display_name ?? "this request"}. ${prayerLabel}`}
-                        className={`lfp-button w-full sm:w-auto ${confirmed ? "bg-emerald-100 text-emerald-800" : "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg"}`}
-                      >
-                        {pending ? "Recording..." : confirmed ? "Prayer recorded" : "I Prayed"}
-                      </button>
-                      <p className="mt-2 text-xs font-bold text-slate-500">{prayerLabel}</p>
-                      {prayerErrors[request.id] && <p role="alert" aria-live="polite" className="mt-2 max-w-48 text-sm text-rose-700">{prayerErrors[request.id]}</p>}
-                      <span className="sr-only" role="status" aria-live="polite">{confirmed ? `Prayer recorded. ${prayerLabel}.` : ""}</span>
-                    </div>
-                  </div>
-                </article>
+                <CommunityTickerCard
+                  key={request.id}
+                  label="prayer request"
+                  content={request.request_text}
+                  icon="🙏"
+                  onOpen={() => setSelectedId(request.id)}
+                  meta={<>{request.display_name ?? "Anonymous"} · {prayerLabel}{request.status === "Resolved" ? " · Answered" : ""}</>}
+                />
               );
             })}
           </div>
         </section>
 
       </div>
+
+      {selectedRequest ? (
+        <CommunityDetailDialog
+          eyebrow="Prayer request"
+          title={selectedRequest.display_name ?? "Anonymous request"}
+          content={selectedRequest.request_text}
+          onClose={() => setSelectedId(null)}
+          meta={<>{selectedRequest.category_id && categories[selectedRequest.category_id] ? `${categories[selectedRequest.category_id]} · ` : ""}Shared {new Date(selectedRequest.created_at).toLocaleDateString()} · {selectedPrayerLabel}</>}
+          actions={(
+            <div>
+              <button
+                type="button"
+                onClick={() => handlePray(selectedRequest.id)}
+                disabled={pendingIds.has(selectedRequest.id)}
+                aria-label={`${confirmedIds.has(selectedRequest.id) ? "Prayer recorded for" : "Pray for"} ${selectedRequest.display_name ?? "this request"}. ${selectedPrayerLabel}`}
+                className={`lfp-button w-full sm:w-auto ${confirmedIds.has(selectedRequest.id) ? "bg-emerald-100 text-emerald-800" : "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg"}`}
+              >
+                {pendingIds.has(selectedRequest.id) ? "Recording..." : confirmedIds.has(selectedRequest.id) ? "Prayer recorded 🙏" : "I Prayed"}
+              </button>
+              <p className="mt-2 text-xs font-bold text-slate-500">{selectedPrayerLabel}. You can pray again whenever you return.</p>
+              {prayerErrors[selectedRequest.id] ? <p role="alert" aria-live="polite" className="mt-2 text-sm text-rose-700">{prayerErrors[selectedRequest.id]}</p> : null}
+              <span className="sr-only" role="status" aria-live="polite">{confirmedIds.has(selectedRequest.id) ? `Prayer recorded. ${selectedPrayerLabel}.` : ""}</span>
+            </div>
+          )}
+        />
+      ) : null}
     </main>
   );
 }

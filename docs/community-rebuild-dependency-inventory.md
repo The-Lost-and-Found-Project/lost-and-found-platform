@@ -86,3 +86,34 @@ Phase 3 separation boundary:
 - preserve every database row, policy, function, view, and Storage object for extraction
 - preserve EMAS functions while revoking anonymous and Community Member RPC execution; retain trusted `service_role` execution for extraction and future server use
 - migrate only historical notification destinations; do not delete notification history
+
+## Phase 4 production security and local shared ticker
+
+- The three public feeds previously ran as privileged views because the base
+  tables correctly deny anonymous reads. A blind `security_invoker = true`
+  change would have emptied the public feeds.
+- Production now keeps the approved-field projections in the unexposed
+  `community_feed_private` schema and exposes only security-invoker wrappers.
+- Anonymous and authenticated verification both return the unchanged live
+  counts: 9 prayers, 3 praises, and 1 testimony.
+- Anonymous users still have no base-table SELECT privilege on prayer requests,
+  praise reports, testimonies, or profiles, and anonymous author-name leak
+  checks return zero.
+- All three high-severity security-definer-view advisor findings are cleared.
+- The missed legacy `attach_john_1_semantics(text)` Emmaus writer is preserved
+  for `service_role` extraction and no longer executable by anonymous or signed-
+  in Community Members.
+- A production verification caught six RLS policies that still invoked the
+  revoked `is_care_team()` helper. No profile data was missing, but those stale
+  dependencies returned 403 responses for signed-in profile and prayer reads.
+  They now use a Community Admin-only helper; members can read their own rows,
+  admins retain moderation access, and former Prayer Care roles gain no access.
+- Locally, Prayer, Praise, and Testimonies now share compact two-line preview
+  cards and a scrollable mobile-sheet/desktop-dialog full view.
+- Prayer activity remains repeatable and Praise Love remains unique and
+  removable inside the full view.
+- The full Testimonies page loads once instead of polling. Lightweight Home
+  previews poll at most once per minute to reduce database requests.
+- Local TypeScript, 76 application tests, and focused lint checks pass. A full
+  production build reached the external Google Fonts request and stopped only
+  because this environment could not reach that host.
