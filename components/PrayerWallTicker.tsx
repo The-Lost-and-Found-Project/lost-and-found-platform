@@ -157,7 +157,7 @@ export default function PrayerWallTicker({
         label="prayer request"
         content={request.request_text}
         icon="🙏"
-        meta={<>{request.display_name ?? "Anonymous"} · {prayerSupportLabel(request.prayer_count)}</>}
+        meta={request.display_name ?? "Anonymous"}
         onOpen={() => setSelectedId(request.id)}
         isDuplicate={duplicate}
       />
@@ -192,7 +192,7 @@ export default function PrayerWallTicker({
           eyebrow="Prayer request"
           title={selectedRequest.display_name ?? "Anonymous request"}
           content={selectedRequest.request_text}
-          meta={<>{selectedRequest.category_id && categories[selectedRequest.category_id] ? `${categories[selectedRequest.category_id]} · ` : ""}Shared {new Date(selectedRequest.created_at).toLocaleDateString()} · {selectedPrayerLabel}</>}
+          meta={<>{selectedRequest.category_id && categories[selectedRequest.category_id] ? `${categories[selectedRequest.category_id]} · ` : ""}Shared {new Date(selectedRequest.created_at).toLocaleDateString()}</>}
           onClose={() => setSelectedId(null)}
           actions={(showAll || pageMode) && selectedRequest.is_own ? (
             <p className="text-sm font-bold text-slate-500">This is your prayer request. Community reactions are for supporting other members.</p>
@@ -207,7 +207,6 @@ export default function PrayerWallTicker({
               >
                 {pendingIds.has(selectedRequest.id) ? "Recording..." : confirmedIds.has(selectedRequest.id) ? "Prayer recorded 🙏" : "I Prayed"}
               </button>
-              <p className="mt-2 text-xs font-bold text-slate-500">{selectedPrayerLabel}. You can pray again whenever you return.</p>
               {prayerErrors[selectedRequest.id] ? <p role="alert" aria-live="polite" className="mt-2 text-sm text-rose-700">{prayerErrors[selectedRequest.id]}</p> : null}
               <span className="sr-only" role="status" aria-live="polite">{confirmedIds.has(selectedRequest.id) ? `Prayer recorded. ${selectedPrayerLabel}.` : ""}</span>
             </div>
