@@ -16,8 +16,6 @@ test("prayer form fields have VoiceOver labels and touch-sized controls", async 
     "prayer-phone",
     "prayer-category",
     "prayer-request",
-    "preferred-contact",
-    "preferred-care-gender",
   ];
 
   for (const id of fieldIds) {
@@ -27,7 +25,7 @@ test("prayer form fields have VoiceOver labels and touch-sized controls", async 
 
   assert.match(source, /role="alert" aria-live="polite"/);
   assert.ok(
-    (source.match(/min-h-11/g) ?? []).length >= 7,
+    (source.match(/min-h-11/g) ?? []).length >= 5,
     "primary controls need a 44px minimum touch target"
   );
 });

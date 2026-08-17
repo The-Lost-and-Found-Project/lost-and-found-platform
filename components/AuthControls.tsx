@@ -119,13 +119,8 @@ export default function AuthControls() {
   const isPreviewing = profile?.role === "admin" && !!profile?.preview_role && profile.preview_role !== "admin";
 
   const roleItems = effectiveRole === "admin"
-    ? [
-        { href: "/admin", label: "Administration Center", icon: "🛡" },
-        { href: "/prayer-assignments", label: "My Prayer Assignments", icon: "🙏" },
-      ]
-    : effectiveRole === "prayer_team" || effectiveRole === "pastor"
-      ? [{ href: "/prayer-assignments", label: "My Prayer Assignments", icon: "🙏" }]
-      : [];
+    ? [{ href: "/admin", label: "Administration Center", icon: "🛡" }]
+    : [];
 
   return (
     <div className="relative" ref={containerRef}>
