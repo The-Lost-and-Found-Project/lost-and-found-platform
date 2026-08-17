@@ -9,7 +9,7 @@ async function source(path) {
 }
 
 test("public devotions attach only ready audio for the exact content version", async () => {
-  const page = await source("app/devotions/page.tsx");
+  const page = await source("standalone-products/source/app/devotions/page.tsx");
 
   assert.match(page, /\.from\("devotion_audio"\)/);
   assert.match(page, /\.eq\("generation_status", "ready"\)/);
@@ -36,7 +36,7 @@ test("the Listen player preserves reading access and playback position", async (
 });
 
 test("admin audio writes are authorized, validated, and server-side", async () => {
-  const route = await source("app/api/admin/devotions/audio/route.ts");
+  const route = await source("standalone-products/source/app/api/admin/devotions/audio/route.ts");
 
   assert.match(route, /callerProfile\?\.role !== "admin"/);
   assert.match(route, /MAX_AUDIO_BYTES = 50 \* 1024 \* 1024/);
@@ -50,7 +50,7 @@ test("admin audio writes are authorized, validated, and server-side", async () =
 
 test("AI narration is generated server-side and saved as versioned audio", async () => {
   const route = await source(
-    "app/api/admin/devotions/audio/generate/route.ts"
+    "standalone-products/source/app/api/admin/devotions/audio/generate/route.ts"
   );
   const manager = await source("components/DevotionAudioManager.tsx");
   const player = await source("components/DevotionAudioPlayer.tsx");

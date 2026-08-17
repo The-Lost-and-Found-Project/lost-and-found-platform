@@ -1,124 +1,59 @@
 import Link from "next/link";
 
-const programs = [
-  {
-    href: "/dashboard",
-    title: "Dashboard",
-    description: "Your home base for account activity and updates.",
-  },
-  {
-    href: "/prayer",
-    title: "Prayer Wall",
-    description: "See prayer requests from the community and pray for others.",
-  },
-  {
-    href: "/prayer/submit",
-    title: "Submit a Prayer",
-    description: "Share a prayer request with the care team and community.",
-  },
-  {
-    href: "/testimonies",
-    title: "Testimony Board",
-    description: "Read and share stories of how God is working in our community.",
-  },
-  {
-    href: "/praise",
-    title: "Praise Wall",
-    description: "Celebrate how God has answered prayer for people in our community.",
-  },
-  {
-    href: "/prayer/my-requests",
-    title: "My Prayer Requests",
-    description: "Review, update, or mark answered the prayers you've submitted.",
-  },
+const communityPrograms = [
+  { href: "/prayer", title: "Prayer", description: "Share a request and pray with the community." },
+  { href: "/praise", title: "Praise", description: "Celebrate answered prayer and what God is doing." },
+  { href: "/testimonies", title: "Testimonies", description: "Read and share stories of God at work." },
+  { href: "/prayer/my-requests", title: "My Prayer Requests", description: "Review, update, or resolve requests you shared." },
 ];
 
-// These aren't built yet — shown as an honest "coming soon" instead of live
-// links so they don't look like working features that happen to be broken.
-const comingSoon = [
-  {
-    title: "Studies",
-    description: "Group Bible studies and discipleship resources.",
-  },
-  {
-    title: "Mentoring",
-    description: "Connect mentors and mentees for ongoing growth.",
-  },
-  {
-    title: "Events",
-    description: "Stay up to date on upcoming ministry events.",
-  },
+const separateProducts = [
+  { title: "EMAS / Emmaus", description: "Scripture discovery and guided discipleship are moving to a dedicated app." },
+  { title: "Bible Trivia", description: "Questions, categories, and score history are preserved for a dedicated app." },
+  { title: "Devotions", description: "Devotional weeks and audio are preserved for a dedicated app." },
 ];
 
 export default function ProgramsPage() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-          Programs
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Everything The Lost and Found Project offers, all in one place.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {programs.map((program) => (
-          <Link
-            key={program.href}
-            href={program.href}
-            className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
-          >
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-500 to-violet-500 opacity-0 transition group-hover:opacity-100" />
-            <h2 className="text-lg font-semibold text-gray-900">
-              {program.title}
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">{program.description}</p>
-            <span className="mt-4 inline-flex items-center text-sm font-medium text-indigo-600">
-              Open
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="ml-1 h-4 w-4 transition group-hover:translate-x-0.5"
-              >
-                <path
-                  d="M5 12h14M13 6l6 6-6 6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-          </Link>
-        ))}
-      </div>
-
-      <div className="mt-12">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-400">
-          Coming soon
-        </h2>
-        <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {comingSoon.map((program) => (
-            <div
-              key={program.title}
-              className="rounded-2xl border border-dashed border-gray-200 bg-gray-50/60 p-6"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="text-lg font-semibold text-gray-500">
-                  {program.title}
-                </h3>
-                <span className="shrink-0 rounded-full bg-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600">
-                  Coming soon
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-gray-500">
-                {program.description}
-              </p>
-            </div>
-          ))}
+    <main className="lfp-page pb-24">
+      <section className="bg-slate-950 text-white">
+        <div className="lfp-shell py-12 sm:py-16">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Programs</p>
+          <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">One focused Community App.</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">Prayer, praise, testimonies, notifications, and member connection remain here. Our learning products are being prepared as separate experiences.</p>
         </div>
+      </section>
+
+      <div className="lfp-shell py-10 sm:py-14">
+        <section>
+          <p className="lfp-eyebrow">Available here</p>
+          <h2 className="mt-2 text-3xl font-black text-slate-950">Community ministries</h2>
+          <div className="mt-7 grid gap-5 sm:grid-cols-2">
+            {communityPrograms.map((program) => (
+              <Link key={program.href} href={program.href} className="lfp-card group p-6 transition hover:border-indigo-200 hover:shadow-xl">
+                <h3 className="text-xl font-black text-slate-950">{program.title}</h3>
+                <p className="mt-2 leading-7 text-slate-600">{program.description}</p>
+                <span className="mt-4 inline-flex font-black text-indigo-700">Open <span className="ml-1 transition group-hover:translate-x-1" aria-hidden="true">→</span></span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section id="separate-products" className="mt-14 scroll-mt-24 rounded-[2rem] border border-amber-200 bg-amber-50 p-6 sm:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-800">Moving, not discontinued</p>
+          <h2 className="mt-3 text-3xl font-black text-slate-950">Products becoming separate apps</h2>
+          <p className="mt-3 max-w-3xl leading-7 text-slate-700">Their content and member progress are safely preserved. Links will be added when each dedicated app is ready.</p>
+          <div className="mt-7 grid gap-4 md:grid-cols-3">
+            {separateProducts.map((product) => (
+              <article key={product.title} className="rounded-2xl border border-amber-200 bg-white p-5">
+                <span className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-black uppercase tracking-wide text-amber-900">Separate app</span>
+                <h3 className="mt-4 text-xl font-black text-slate-950">{product.title}</h3>
+                <p className="mt-2 leading-7 text-slate-600">{product.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

@@ -6,21 +6,20 @@ import test from "node:test";
 const root = process.cwd();
 const source = (...parts) => readFile(path.join(root, ...parts), "utf8");
 
-test("Emmaus data and protected routes remain intact but are absent from Community Home", async () => {
-  const [nav, frame, emmausLayout, adminLayout, dashboard, me] = await Promise.all([
+test("Emmaus source and data contracts remain intact behind the standalone-product boundary", async () => {
+  const [nav, emmausLayout, adminLayout, dashboard, separation, middleware] = await Promise.all([
     source("components", "emmaus", "EmmausBottomNav.tsx"),
-    source("components", "AppFrame.tsx"),
-    source("app", "emmaus", "layout.tsx"),
-    source("app", "emmaus", "admin", "layout.tsx"),
+    source("standalone-products", "source", "app", "emmaus", "layout.tsx"),
+    source("standalone-products", "source", "app", "emmaus", "admin", "layout.tsx"),
     source("app", "dashboard", "page.tsx"),
-    source("app", "emmaus", "me", "page.tsx"),
+    source("lib", "standalone-products.ts"),
+    source("lib", "supabase", "middleware.ts"),
   ]);
 
   for (const destination of ["/emmaus/walk", "/emmaus/bible", "/emmaus/discover", "/emmaus/me"]) {
     assert.match(nav, new RegExp(destination.replaceAll("/", "\\/")));
   }
   assert.doesNotMatch(nav, /\/emmaus\/admin/);
-  assert.match(frame, /pathname\.startsWith\("\/emmaus"\)/);
   assert.match(emmausLayout, /EMMAUS_FOUNDER_EMAIL/);
   assert.match(emmausLayout, /if \(!isEmmausFounder\)/);
   assert.match(emmausLayout, /redirect\("\/dashboard"\)/);
@@ -28,7 +27,9 @@ test("Emmaus data and protected routes remain intact but are absent from Communi
   assert.doesNotMatch(dashboard, /if \(isEmmausFounder\) redirect\("\/emmaus\/walk"\)/);
   assert.doesNotMatch(dashboard, /href="\/emmaus/);
   assert.doesNotMatch(dashboard, /Private Founder Lab/);
-  assert.match(me, /Open Lost & Found Platform/);
+  assert.match(separation, /"\/emmaus"/);
+  assert.match(middleware, /isStandaloneProductPage\(pathname\)/);
+  assert.match(middleware, /url\.pathname = "\/programs"/);
 });
 
 test("Emmaus progress has authenticated table privileges in addition to RLS", async () => {

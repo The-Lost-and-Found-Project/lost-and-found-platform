@@ -99,7 +99,7 @@ test("admin center puts prayer moderation before collapsed secondary tools", asy
   assert.match(admin, /<details className="lfp-card group mt-8/);
   assert.match(admin, /People, content, and analytics/);
   assert.doesNotMatch(admin, /Prayer Care Applications|Care queue/);
-  assert.match(admin, /<details[\s\S]+Private Founder Lab/);
+  assert.doesNotMatch(admin, /Private Founder Lab|\/emmaus/);
 });
 
 test("prayer administration exposes explicit attention and all-request views", async () => {

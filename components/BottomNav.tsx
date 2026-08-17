@@ -27,8 +27,7 @@ export default function BottomNav() {
     pathname === "/" ||
     pathname === "/share" ||
     pathname === "/login" ||
-    pathname === "/signup" ||
-    pathname.startsWith("/emmaus")
+    pathname === "/signup"
   ) {
     return null;
   }

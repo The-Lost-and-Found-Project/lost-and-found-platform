@@ -1,5 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  isStandaloneProductApi,
+  isStandaloneProductPage,
+} from "@/lib/standalone-products";
 
 // Only these areas of the site require a signed-in user. Everything else
 // (the public landing page, the public Prayer Wall, events, programs, etc.)
@@ -20,6 +24,29 @@ const PROTECTED_PREFIXES = [
 ];
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  if (isStandaloneProductApi(pathname)) {
+    return NextResponse.json(
+      {
+        error: "This product has moved out of the Community App.",
+        retired: true,
+      },
+      {
+        status: 410,
+        headers: { "Cache-Control": "no-store" },
+      }
+    );
+  }
+
+  if (isStandaloneProductPage(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/programs";
+    url.search = "";
+    url.hash = "separate-products";
+    return NextResponse.redirect(url);
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -52,7 +79,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) =>
-    request.nextUrl.pathname.startsWith(prefix)
+    pathname.startsWith(prefix)
   );
 
   if (!user && isProtectedRoute) {
