@@ -72,3 +72,15 @@ test("separation messaging is explicit and product data remains represented", as
   assert.match(staging, /preserves the route and API source/);
   assert.match(staging, /Do not delete this staging source or its Supabase data/);
 });
+
+test("legacy John 1 graph writer is reserved for trusted standalone-product extraction", async () => {
+  const migration = await source(
+    "supabase",
+    "migrations",
+    "20260817163404_isolate_attach_john_1_semantics.sql",
+  );
+
+  assert.match(migration, /revoke all on function public\.attach_john_1_semantics\(text\)/);
+  assert.match(migration, /from public, anon, authenticated/);
+  assert.match(migration, /grant execute on function public\.attach_john_1_semantics\(text\)\s+to service_role/);
+});

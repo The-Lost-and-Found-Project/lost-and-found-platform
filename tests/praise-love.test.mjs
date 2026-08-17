@@ -20,6 +20,6 @@ test("Praise Love is unique per Community Member and removable", async () => {
   assert.match(route, /auth\.getUser\(\)/);
   assert.match(route, /\.from\("praise_loves"\)[\s\S]*\.delete\(\)/);
   assert.match(route, /error\.code !== "23505"/);
-  assert.match(page, /aria-pressed=\{loved\}/);
-  assert.match(page, /disabled=\{pending\}/);
+  assert.match(page, /aria-pressed=\{lovedIds\.has\(selectedReport\.id\)\}/);
+  assert.match(page, /disabled=\{pendingIds\.has\(selectedReport\.id\)\}/);
 });

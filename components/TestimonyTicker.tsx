@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import CommunityDetailDialog from "./CommunityDetailDialog";
+import CommunityTickerCard from "./CommunityTickerCard";
 
 type Testimony = {
   id: string;
@@ -13,29 +15,32 @@ type Testimony = {
 };
 
 // Poll for newly saved testimonies so the ticker keeps growing over time.
-const REFRESH_INTERVAL_MS = 30000;
+const REFRESH_INTERVAL_MS = 60000;
 
 export default function TestimonyTicker({
   emptyMessage,
+  showAll = false,
 }: {
   // When provided, an empty testimony list renders this message instead of
   // nothing. Leave unset for places (like the landing page) where the
   // ticker should just quietly disappear if there's nothing to show yet.
   emptyMessage?: string;
+  showAll?: boolean;
 }) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [testimonies, setTestimonies] = useState<Testimony[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
 
     async function load() {
-      const { data } = await supabase
+      const baseQuery = supabase
         .from("testimonies_public")
         .select("id, faith_story, updated_at, user_id, display_name")
-        .order("updated_at", { ascending: false })
-        .limit(3);
+        .order("updated_at", { ascending: false });
+      const { data } = showAll ? await baseQuery : await baseQuery.limit(3);
 
       if (active) {
         setTestimonies((data as Testimony[]) ?? []);
@@ -44,14 +49,13 @@ export default function TestimonyTicker({
     }
 
     load();
-    const interval = setInterval(load, REFRESH_INTERVAL_MS);
+    const interval = showAll ? null : setInterval(load, REFRESH_INTERVAL_MS);
 
     return () => {
       active = false;
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [showAll, supabase]);
 
   if (loading) {
     return null;
@@ -66,33 +70,43 @@ export default function TestimonyTicker({
     );
   }
 
+  const selectedTestimony = testimonies.find((testimony) => testimony.id === selectedId) ?? null;
+
   return (
-    <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="community-testimonies-title">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="community-testimonies-title" className="text-xl font-black text-slate-950">
-          Testimonies from our community
-        </h2>
-        <Link href="/testimonies" className="text-sm font-bold text-indigo-700 hover:text-indigo-600">
-          Read testimonies →
-        </Link>
-      </div>
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
-        {testimonies.map((testimony) => {
-          const excerpt = testimony.faith_story.length > 180
-            ? `${testimony.faith_story.slice(0, 180).trim()}…`
-            : testimony.faith_story;
-          return (
-            <article key={testimony.id} className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                {testimony.display_name ?? "Anonymous"}
-              </p>
-              <p className="mt-2 line-clamp-5 leading-6 text-slate-700">
-                &ldquo;{excerpt}&rdquo;
-              </p>
-            </article>
-          );
-        })}
-      </div>
-    </section>
+    <>
+      <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="community-testimonies-title">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="community-testimonies-title" className="text-xl font-black text-slate-950">
+            Testimonies from our community
+          </h2>
+          <Link href="/testimonies" className="inline-flex min-h-11 items-center text-sm font-bold text-indigo-700 hover:text-indigo-600">
+            Read testimonies →
+          </Link>
+        </div>
+        <p className="mt-2 text-sm text-slate-500">Scan the two-line previews, then open a story to read it in full.</p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {testimonies.map((testimony) => (
+            <CommunityTickerCard
+              key={testimony.id}
+              label="testimony"
+              content={testimony.faith_story}
+              icon="✝️"
+              onOpen={() => setSelectedId(testimony.id)}
+              meta={testimony.display_name ?? "Anonymous"}
+            />
+          ))}
+        </div>
+      </section>
+
+      {selectedTestimony ? (
+        <CommunityDetailDialog
+          eyebrow="Testimony"
+          title={selectedTestimony.display_name ?? "Anonymous testimony"}
+          content={selectedTestimony.faith_story}
+          meta={<>Updated {new Date(selectedTestimony.updated_at).toLocaleDateString()}</>}
+          onClose={() => setSelectedId(null)}
+        />
+      ) : null}
+    </>
   );
 }
