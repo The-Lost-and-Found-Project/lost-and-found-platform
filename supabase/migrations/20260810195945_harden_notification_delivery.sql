@@ -1,6 +1,14 @@
 -- Track push delivery without exposing subscription details to clients.
 -- Existing notification history predates delivery tracking, so it is marked
 -- not_applicable instead of appearing as overdue.
+do $migration$
+begin
+  if to_regclass('public.notifications') is null
+     or to_regclass('public.profiles') is null then
+    raise notice 'Skipping notification delivery hardening: legacy notification tables are not present.';
+    return;
+  end if;
+
 alter table public.notifications
   add column if not exists push_status text,
   add column if not exists push_attempted_at timestamptz,
@@ -24,12 +32,13 @@ create index if not exists notifications_push_attention_idx
   on public.notifications (push_status, created_at desc)
   where push_status in ('pending', 'failed');
 
+execute $function$
 create or replace function public.get_notification_delivery_health()
 returns table (failed_count bigint, pending_overdue_count bigint)
 language plpgsql
 security definer
 set search_path = ''
-as $$
+as $body$
 begin
   if not exists (
     select 1 from public.profiles
@@ -50,7 +59,8 @@ begin
     )
   from public.notifications n;
 end;
-$$;
+$body$;
+$function$;
 
 revoke all on function public.get_notification_delivery_health() from public;
 revoke all on function public.get_notification_delivery_health() from anon;
@@ -76,12 +86,13 @@ where type in (
 
 -- Prayer details belong behind authenticated screens, not in lock-screen
 -- previews. These functions retain the same recipients and destinations.
+execute $function$
 create or replace function public.notify_auto_assigned_care_team_member()
 returns trigger
 language plpgsql
 security definer
 set search_path = ''
-as $$
+as $body$
 begin
   if new.assigned_to is not null then
     insert into public.notifications (
@@ -97,14 +108,16 @@ begin
   end if;
   return new;
 end;
-$$;
+$body$;
+$function$;
 
+execute $function$
 create or replace function public.notify_prayer_request_assigned()
 returns trigger
 language plpgsql
 security definer
 set search_path = ''
-as $$
+as $body$
 begin
   if new.assigned_to is not null
      and new.assigned_to is distinct from old.assigned_to then
@@ -121,14 +134,16 @@ begin
   end if;
   return new;
 end;
-$$;
+$body$;
+$function$;
 
+execute $function$
 create or replace function public.notify_prayer_reaction()
 returns trigger
 language plpgsql
 security definer
 set search_path = 'public'
-as $$
+as $body$
 declare
   requester_id uuid;
   notify_enabled boolean;
@@ -157,14 +172,16 @@ begin
   end if;
   return new;
 end;
-$$;
+$body$;
+$function$;
 
+execute $function$
 create or replace function public.notify_prayer_request_updates()
 returns trigger
 language plpgsql
 security definer
 set search_path = 'public'
-as $$
+as $body$
 begin
   if new.user_id is not null and old.status is distinct from new.status then
     insert into public.notifications (
@@ -183,14 +200,16 @@ begin
   end if;
   return new;
 end;
-$$;
+$body$;
+$function$;
 
+execute $function$
 create or replace function public.notify_new_member()
 returns trigger
 language plpgsql
 security definer
 set search_path = ''
-as $$
+as $body$
 begin
   insert into public.notifications (user_id, type, title, body, link)
   select
@@ -204,4 +223,7 @@ begin
     and prof.id is distinct from new.id;
   return new;
 end;
-$$;
+$body$;
+$function$;
+end;
+$migration$;
