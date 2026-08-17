@@ -45,10 +45,11 @@ test("Community App centrally retires standalone product pages and APIs", async 
 });
 
 test("separation messaging is explicit and product data remains represented", async () => {
-  const [programs, inventory, migration, config, staging] = await Promise.all([
+  const [programs, inventory, migration, isolation, config, staging] = await Promise.all([
     source("app", "programs", "page.tsx"),
     source("docs", "community-rebuild-dependency-inventory.md"),
     source("supabase", "migrations", "20260817020000_separate_standalone_products.sql"),
+    source("supabase", "migrations", "20260817021000_isolate_standalone_product_functions.sql"),
     source("vercel.json"),
     source("standalone-products", "README.md"),
   ]);
@@ -63,6 +64,10 @@ test("separation messaging is explicit and product data remains represented", as
   assert.match(inventory, /21 audio objects/);
   assert.match(migration, /update public\.notifications/);
   assert.doesNotMatch(migration, /delete from|drop table|drop function|storage\.objects/i);
+  assert.match(isolation, /p\.proname like '%emmaus%'/);
+  assert.match(isolation, /revoke all on function %s from public, anon, authenticated/);
+  assert.match(isolation, /grant execute on function %s to service_role/);
+  assert.doesNotMatch(isolation, /drop function|delete from|truncate/i);
   assert.doesNotMatch(config, /publish-devotion-week/);
   assert.match(staging, /preserves the route and API source/);
   assert.match(staging, /Do not delete this staging source or its Supabase data/);
