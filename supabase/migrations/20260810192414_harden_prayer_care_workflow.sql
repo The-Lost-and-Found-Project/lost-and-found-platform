@@ -34,14 +34,13 @@ begin
       'Submitted', 'Reviewed', 'Assigned', 'Active Care', 'Follow-Up',
       'Resolved', 'Closed', 'Needs Reassignment', 'Escalated',
       'Unable to Contact', 'Withdrawn'
-    ));
-end;
-$migration$;
+  ));
 
 -- Reassignment is a single database operation: select only an account that
 -- is both active and available, update the owner, and advance the request to
 -- the matching lifecycle state. This prevents a request from retaining an
 -- old owner's Active Care state after it has been handed off.
+execute $function$
 create or replace function public.reassign_prayer_request(
   request_id uuid,
   exclude_user_id uuid
@@ -50,7 +49,7 @@ returns uuid
 language plpgsql
 security definer
 set search_path = ''
-as $$
+as $body$
 declare
   pool uuid[];
   last_id uuid;
@@ -135,10 +134,13 @@ begin
 
   return next_id;
 end;
-$$;
+$body$;
+$function$;
 
 -- This privileged function is server-only. Do not expose it to browser roles.
 revoke all on function public.reassign_prayer_request(uuid, uuid) from public;
 revoke all on function public.reassign_prayer_request(uuid, uuid) from anon;
 revoke all on function public.reassign_prayer_request(uuid, uuid) from authenticated;
 grant execute on function public.reassign_prayer_request(uuid, uuid) to service_role;
+end;
+$migration$;
