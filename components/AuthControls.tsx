@@ -20,7 +20,6 @@ const ROLE_LABELS: Record<string, string> = {
 
 const accountItems = [
   { href: "/profile", label: "Profile", icon: "👤" },
-  { href: "/notifications", label: "Notifications", icon: "🔔" },
   { href: "/settings", label: "Settings", icon: "⚙" },
   { href: "/feedback", label: "Feedback", icon: "💬" },
   { href: "/help", label: "Help & User Manuals", icon: "?" },

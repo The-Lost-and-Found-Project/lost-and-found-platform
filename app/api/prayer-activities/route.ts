@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
   const { data: prayerRequest, error: requestError } = await supabase
     .from("prayer_wall_public")
-    .select("id")
+    .select("id, is_own")
     .eq("id", requestId)
     .maybeSingle();
 
@@ -74,6 +74,13 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "This prayer request is no longer available." },
       { status: 404 }
+    );
+  }
+
+  if (user && prayerRequest.is_own) {
+    return NextResponse.json(
+      { error: "You cannot react to your own prayer request." },
+      { status: 403 }
     );
   }
 

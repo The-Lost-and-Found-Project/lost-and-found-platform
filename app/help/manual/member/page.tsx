@@ -19,19 +19,22 @@ const sections: ManualSection[] = [
   {
     title: "Praying for Others",
     paragraphs: [
-      "The Prayer Wall shows requests from the community. Tap \"Pray\" whenever you intentionally pray for a request. Each prayer is recorded, and the button remains available if you pray for that request again later.",
+      "The Prayer Wall shows requests from the community. Tap \"I Prayed\" whenever you intentionally pray for another member's request. Each prayer is recorded, and the button remains available if you pray for that request again later.",
+      "You cannot react to your own prayer request. Your own request is clearly identified when you open it, and the reaction button is not shown.",
     ],
   },
   {
     title: "Sharing a Testimony",
     paragraphs: [
       "The Testimonies tab is where you can share your story of faith. You can post it under your name or anonymously, and you can come back and edit it any time. Each member can have one testimony on the board at a time.",
+      "You may tap \"This encouraged me\" once on another member's testimony and tap again to remove it. You cannot encourage your own testimony.",
     ],
   },
   {
     title: "Sharing a Praise Report",
     paragraphs: [
       "When a prayer is answered, share the good news on the Praise tab. It's a great way to encourage the rest of the community and celebrate what God is doing.",
+      "You may give one Love to another member's praise report and tap again to remove it. You cannot Love your own praise report.",
     ],
   },
   {
@@ -43,7 +46,8 @@ const sections: ManualSection[] = [
   {
     title: "Notifications",
     paragraphs: [
-      "The Notifications tab shows updates such as when someone prays for your request. Turn on push notifications in Settings to get alerted even when the app isn't open.",
+      "The Notifications tab shows updates when someone prays for your request, Loves your praise report, or is encouraged by your testimony. Reaction notifications never identify the member who reacted.",
+      "Use Settings to choose which reaction notifications you receive. Turn on push notifications there if you also want alerts when the app is not open.",
     ],
   },
   {

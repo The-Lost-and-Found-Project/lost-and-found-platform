@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import CommunityDetailDialog from "./CommunityDetailDialog";
@@ -13,6 +13,8 @@ type Testimony = {
   updated_at: string;
   user_id: string;
   display_name: string | null;
+  encouragement_count: number;
+  is_own: boolean;
 };
 
 export default function TestimonyTicker({
@@ -31,6 +33,10 @@ export default function TestimonyTicker({
   const [testimonies, setTestimonies] = useState<Testimony[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [encouragedIds, setEncouragedIds] = useState<Set<string>>(new Set());
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const [encouragementErrors, setEncouragementErrors] = useState<Record<string, string>>({});
+  const inFlightIds = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let active = true;
@@ -38,21 +44,89 @@ export default function TestimonyTicker({
     async function load() {
       const baseQuery = supabase
         .from("testimonies_public")
-        .select("id, faith_story, updated_at, user_id, display_name")
+        .select("id, faith_story, updated_at, user_id, display_name, encouragement_count, is_own")
         .order("updated_at", { ascending: false });
-      const { data } = showAll ? await baseQuery : await baseQuery.limit(3);
+      const [{ data }, { data: authData }] = await Promise.all([
+        showAll ? baseQuery : baseQuery.limit(3),
+        showAll || pageMode ? supabase.auth.getUser() : Promise.resolve({ data: { user: null } }),
+      ]);
 
-      if (active) {
-        setTestimonies((data as Testimony[]) ?? []);
-        setLoading(false);
+      const nextTestimonies = (data as Testimony[]) ?? [];
+      if (!active) return;
+      setTestimonies(nextTestimonies);
+
+      if ((showAll || pageMode) && authData.user && nextTestimonies.length > 0) {
+        const { data: encouragements } = await supabase
+          .from("testimony_encouragements")
+          .select("testimony_id")
+          .eq("user_id", authData.user.id)
+          .in("testimony_id", nextTestimonies.map((testimony) => testimony.id));
+        if (active) {
+          setEncouragedIds(new Set((encouragements ?? []).map((reaction) => reaction.testimony_id)));
+        }
       }
+      if (active) setLoading(false);
     }
 
     load();
     return () => {
       active = false;
     };
-  }, [showAll, supabase]);
+  }, [pageMode, showAll, supabase]);
+
+  async function toggleEncouragement(testimonyId: string) {
+    if (inFlightIds.current.has(testimonyId)) return;
+    inFlightIds.current.add(testimonyId);
+    setPendingIds((previous) => new Set(previous).add(testimonyId));
+    setEncouragementErrors((previous) => {
+      const next = { ...previous };
+      delete next[testimonyId];
+      return next;
+    });
+
+    try {
+      const response = await fetch("/api/testimony-encouragements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ testimonyId }),
+      });
+      const result = (await response.json().catch(() => ({}))) as {
+        encouraged?: boolean;
+        encouragementCount?: number | null;
+        error?: string;
+      };
+      if (!response.ok || typeof result.encouraged !== "boolean") {
+        throw new Error(result.error ?? "We could not update your encouragement.");
+      }
+
+      setEncouragedIds((previous) => {
+        const next = new Set(previous);
+        if (result.encouraged) next.add(testimonyId);
+        else next.delete(testimonyId);
+        return next;
+      });
+      setTestimonies((previous) => previous.map((testimony) => testimony.id === testimonyId
+        ? {
+            ...testimony,
+            encouragement_count: typeof result.encouragementCount === "number"
+              ? result.encouragementCount
+              : testimony.encouragement_count,
+          }
+        : testimony));
+    } catch (error) {
+      setEncouragementErrors((previous) => ({
+        ...previous,
+        [testimonyId]: error instanceof Error ? error.message : "We could not update your encouragement.",
+      }));
+    } finally {
+      inFlightIds.current.delete(testimonyId);
+      setPendingIds((previous) => {
+        const next = new Set(previous);
+        next.delete(testimonyId);
+        return next;
+      });
+    }
+  }
 
   if (loading) {
     return null;
@@ -76,7 +150,7 @@ export default function TestimonyTicker({
       content={testimony.faith_story}
       icon="✝️"
       onOpen={() => setSelectedId(testimony.id)}
-      meta={testimony.display_name ?? "Anonymous"}
+      meta={<>{testimony.display_name ?? "Anonymous"} · {testimony.encouragement_count} {testimony.encouragement_count === 1 ? "Encouragement" : "Encouragements"}</>}
       isDuplicate={!showAll && index >= testimonies.length}
     />
   ));
@@ -111,6 +185,25 @@ export default function TestimonyTicker({
           content={selectedTestimony.faith_story}
           meta={<>Updated {new Date(selectedTestimony.updated_at).toLocaleDateString()}</>}
           onClose={() => setSelectedId(null)}
+          actions={(showAll || pageMode) && selectedTestimony.is_own ? (
+            <p className="text-sm font-bold text-slate-500">This is your testimony. Community reactions are for encouraging other members.</p>
+          ) : showAll || pageMode ? (
+            <div>
+              <button
+                type="button"
+                onClick={() => toggleEncouragement(selectedTestimony.id)}
+                disabled={pendingIds.has(selectedTestimony.id)}
+                aria-pressed={encouragedIds.has(selectedTestimony.id)}
+                className={`inline-flex min-h-11 items-center gap-2 rounded-full px-5 py-2 text-sm font-black transition disabled:opacity-60 ${encouragedIds.has(selectedTestimony.id) ? "bg-amber-100 text-amber-900" : "bg-slate-100 text-slate-700 hover:bg-amber-50 hover:text-amber-800"}`}
+              >
+                <span aria-hidden="true">{encouragedIds.has(selectedTestimony.id) ? "♥" : "♡"}</span>
+                {pendingIds.has(selectedTestimony.id) ? "Updating..." : encouragedIds.has(selectedTestimony.id) ? "Encouraged" : "This encouraged me"}
+                <span className="font-semibold">{selectedTestimony.encouragement_count}</span>
+              </button>
+              <p className="mt-2 text-xs font-bold text-slate-500">One encouragement per Community Member. Tap again to remove yours.</p>
+              {encouragementErrors[selectedTestimony.id] ? <p role="alert" aria-live="polite" className="mt-2 text-sm text-rose-700">{encouragementErrors[selectedTestimony.id]}</p> : null}
+            </div>
+          ) : <Link href="/testimonies" className="lfp-button lfp-button-primary w-full sm:w-auto">Open Testimonies to respond</Link>}
         />
       ) : null}
     </>
