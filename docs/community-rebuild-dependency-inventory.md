@@ -84,4 +84,5 @@ Phase 3 separation boundary:
 - remove Grow and founder/admin entry points from the Community App
 - preserve product source modules in place until destination repositories are approved
 - preserve every database row, policy, function, view, and Storage object for extraction
+- preserve EMAS functions while revoking anonymous and Community Member RPC execution; retain trusted `service_role` execution for extraction and future server use
 - migrate only historical notification destinations; do not delete notification history
