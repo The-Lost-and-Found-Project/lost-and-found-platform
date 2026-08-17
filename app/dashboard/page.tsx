@@ -42,7 +42,7 @@ export default async function DashboardPage() {
 
         <section>
           <LfpSectionHeading eyebrow="Community" title="Pray. Praise. Testify." description="Scan what the community is carrying and celebrating, then open any two-line preview to read it fully." />
-          <div className="mt-7 grid gap-6 lg:grid-cols-3 lg:items-start">
+          <div className="mt-7 grid gap-6 md:grid-cols-2 md:items-start xl:grid-cols-3">
             <PrayerWallTicker />
             <PraiseTicker />
             <TestimonyTicker />

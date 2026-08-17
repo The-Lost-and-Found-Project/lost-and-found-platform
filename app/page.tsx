@@ -35,7 +35,7 @@ export default async function HomePage() {
             <p className="mt-3 text-lg leading-8 text-slate-600">Scan each two-line ticker, open what speaks to you, and join when you are ready to share or respond.</p>
           </div>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-3 lg:items-start">
+          <div className="mt-10 grid gap-6 md:grid-cols-2 md:items-start xl:grid-cols-3">
             <PrayerWallTicker />
             <PraiseTicker />
             <TestimonyTicker />
