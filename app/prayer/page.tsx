@@ -25,8 +25,8 @@ export default function PrayerWallPage() {
         <section>
           <div className="max-w-3xl">
             <p className="lfp-eyebrow">Prayer ticker</p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Pray where support is needed</h2>
-            <p className="mt-3 text-lg leading-8 text-slate-600">Requests with less prayer activity are gently brought forward. Open a two-line preview to read it fully and take a moment to pray.</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Newest prayer requests</h2>
+            <p className="mt-3 text-lg leading-8 text-slate-600">The newest requests appear first. Open a two-line preview to read it fully and take a moment to pray.</p>
           </div>
           <div className="mt-7">
             <PrayerWallTicker pageMode emptyMessage="No public prayer requests are waiting right now." />
