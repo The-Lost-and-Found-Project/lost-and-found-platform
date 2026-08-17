@@ -28,7 +28,7 @@ export default function TestimonyBoardPage() {
             <p className="mt-3 text-lg leading-8 text-slate-600">Take your time. These are not status updates; they are records of God's faithfulness in real lives.</p>
           </div>
           <div className="mt-7">
-            <TestimonyTicker showAll emptyMessage="No testimonies have been published yet. Your story could be the first." />
+            <TestimonyTicker pageMode emptyMessage="No testimonies have been published yet. Your story could be the first." />
           </div>
         </section>
       </div>

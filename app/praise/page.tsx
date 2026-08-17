@@ -26,7 +26,7 @@ export default function PraiseWallPage() {
             <p className="mt-3 text-lg leading-8 text-slate-600">Scan the two-line previews, then open a praise to read the complete story. Love is one acknowledgement per Community Member and can be removed.</p>
           </div>
           <div className="mt-7">
-            <PraiseTicker showAll emptyMessage="No praise reports have been published yet. Your praise could be the first." />
+            <PraiseTicker pageMode emptyMessage="No praise reports have been published yet. Your praise could be the first." />
           </div>
         </section>
       </div>

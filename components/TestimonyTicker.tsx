@@ -17,12 +17,14 @@ type Testimony = {
 
 export default function TestimonyTicker({
   emptyMessage,
+  pageMode = false,
   showAll = false,
 }: {
   // When provided, an empty testimony list renders this message instead of
   // nothing. Leave unset for places (like the landing page) where the
   // ticker should just quietly disappear if there's nothing to show yet.
   emptyMessage?: string;
+  pageMode?: boolean;
   showAll?: boolean;
 }) {
   const supabase = useMemo(() => createClient(), []);
@@ -89,9 +91,11 @@ export default function TestimonyTicker({
           <h2 id="community-testimonies-title" className="text-xl font-black text-slate-950">
             Testimonies from our community
           </h2>
-          <Link href="/testimonies" className="inline-flex min-h-11 items-center text-sm font-bold text-indigo-700 hover:text-indigo-600">
-            Read testimonies →
-          </Link>
+          {!pageMode ? (
+            <Link href="/testimonies" className="inline-flex min-h-11 items-center text-sm font-bold text-indigo-700 hover:text-indigo-600">
+              Read testimonies →
+            </Link>
+          ) : null}
         </div>
         <p className="mt-2 text-sm text-slate-500">Scan the two-line previews, then open a story to read it in full.</p>
         <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70">

@@ -23,5 +23,5 @@ test("Praise Love is unique per Community Member and removable", async () => {
   assert.match(route, /error\.code !== "23505"/);
   assert.match(ticker, /aria-pressed=\{lovedIds\.has\(selectedReport\.id\)\}/);
   assert.match(ticker, /disabled=\{pendingIds\.has\(selectedReport\.id\)\}/);
-  assert.match(page, /<PraiseTicker showAll/);
+  assert.match(page, /<PraiseTicker pageMode/);
 });

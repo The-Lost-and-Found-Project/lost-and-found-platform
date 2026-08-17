@@ -22,9 +22,11 @@ type Category = { id: string; name: string };
 
 export default function PrayerWallTicker({
   emptyMessage,
+  pageMode = false,
   showAll = false,
 }: {
   emptyMessage?: string;
+  pageMode?: boolean;
   showAll?: boolean;
 }) {
   const supabase = useMemo(() => createClient(), []);
@@ -51,7 +53,7 @@ export default function PrayerWallTicker({
         .order("created_at", { ascending: true });
       const [{ data }, categoryResult] = await Promise.all([
         showAll ? requestQuery : requestQuery.limit(12),
-        showAll ? supabase.from("prayer_categories").select("id, name") : Promise.resolve({ data: [] }),
+        showAll || pageMode ? supabase.from("prayer_categories").select("id, name") : Promise.resolve({ data: [] }),
       ]);
 
       if (active) {
@@ -69,7 +71,7 @@ export default function PrayerWallTicker({
     return () => {
       active = false;
     };
-  }, [showAll, supabase]);
+  }, [pageMode, showAll, supabase]);
 
   useEffect(() => {
     const timers = confirmationTimers.current;
@@ -172,9 +174,11 @@ export default function PrayerWallTicker({
           <h2 id="community-prayers-title" className="text-xl font-black text-slate-950">
             Prayers from our community
           </h2>
-          <Link href="/prayer" className="inline-flex min-h-11 items-center text-sm font-bold text-indigo-700 hover:text-indigo-600">
-            Open Prayer →
-          </Link>
+          {!pageMode ? (
+            <Link href="/prayer" className="inline-flex min-h-11 items-center text-sm font-bold text-indigo-700 hover:text-indigo-600">
+              Open Prayer →
+            </Link>
+          ) : null}
         </div>
         <p className="mt-2 text-sm text-slate-500">Requests needing more community prayer move gently below. Open a two-line preview to read it fully.</p>
         <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70">
@@ -190,7 +194,7 @@ export default function PrayerWallTicker({
           content={selectedRequest.request_text}
           meta={<>{selectedRequest.category_id && categories[selectedRequest.category_id] ? `${categories[selectedRequest.category_id]} · ` : ""}Shared {new Date(selectedRequest.created_at).toLocaleDateString()} · {selectedPrayerLabel}</>}
           onClose={() => setSelectedId(null)}
-          actions={showAll ? (
+          actions={showAll || pageMode ? (
             <div>
               <button
                 type="button"
