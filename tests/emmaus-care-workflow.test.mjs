@@ -6,7 +6,7 @@ import test from "node:test";
 const root = process.cwd();
 const source = (...parts) => readFile(path.join(root, ...parts), "utf8");
 
-test("Emmaus stays private to the founder without replacing the full platform", async () => {
+test("Emmaus data and protected routes remain intact but are absent from Community Home", async () => {
   const [nav, frame, emmausLayout, adminLayout, dashboard, me] = await Promise.all([
     source("components", "emmaus", "EmmausBottomNav.tsx"),
     source("components", "AppFrame.tsx"),
@@ -26,7 +26,8 @@ test("Emmaus stays private to the founder without replacing the full platform", 
   assert.match(emmausLayout, /redirect\("\/dashboard"\)/);
   assert.match(adminLayout, /profile\?\.role !== "admin"/);
   assert.doesNotMatch(dashboard, /if \(isEmmausFounder\) redirect\("\/emmaus\/walk"\)/);
-  assert.match(dashboard, /Private Founder Lab/);
+  assert.doesNotMatch(dashboard, /href="\/emmaus/);
+  assert.doesNotMatch(dashboard, /Private Founder Lab/);
   assert.match(me, /Open Lost & Found Platform/);
 });
 

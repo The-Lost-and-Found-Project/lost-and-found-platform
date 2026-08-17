@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import TurnstileWidget from "@/components/TurnstileWidget";
 
 type Category = {
   id: string;
@@ -24,13 +23,9 @@ export default function SubmitPrayerRequestPage() {
   const [requestText, setRequestText] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [contactRequested, setContactRequested] = useState(false);
-  const [preferredContact, setPreferredContact] = useState("");
-  const [preferredCareGender, setPreferredCareGender] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState("");
   const [prefilledFromProfile, setPrefilledFromProfile] = useState(false);
 
   useEffect(() => {
@@ -69,60 +64,39 @@ export default function SubmitPrayerRequestPage() {
     event.preventDefault();
     setError("");
 
-    if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !captchaToken) {
-      setError("Please complete the security check before sharing your request.");
-      return;
-    }
-
     setSubmitting(true);
-
-    const captchaCheck = await fetch("/api/verify-turnstile", {
+    const response = await fetch("/api/prayer-requests/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: captchaToken }),
-    }).then((response) => response.json());
-
-    if (!captchaCheck.success) {
-      setError(captchaCheck.error ?? "We could not verify the security check. Please try again.");
-      setSubmitting(false);
-      return;
-    }
-
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
-    const newRequestId = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : undefined;
-
-    const { error: insertError } = await supabase.from("prayer_requests").insert({
-      ...(newRequestId ? { id: newRequestId } : {}),
-      user_id: user ? user.id : null,
-      name,
-      email,
-      phone: phone || null,
-      preferred_contact: contactRequested ? preferredContact || null : null,
-      preferred_care_gender: contactRequested ? preferredCareGender || null : null,
-      category_id: categoryId || null,
-      request_text: requestText,
-      status: "Submitted",
-      is_public: isPublic,
-      is_anonymous: isAnonymous,
-      contact_requested: contactRequested,
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        categoryId,
+        requestText,
+        isPublic,
+        isAnonymous,
+      }),
     });
+    const result = (await response.json().catch(() => ({}))) as {
+      requestId?: string;
+      error?: string;
+    };
 
-    if (insertError) {
-      setError("We could not share your prayer request. Please review your information and try again.");
+    if (!response.ok || !result.requestId) {
+      setError(result.error ?? "We could not share your prayer request. Please review your information and try again.");
       setSubmitting(false);
       return;
     }
 
-    if (newRequestId) {
-      fetch("/api/notify-assignment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requestId: newRequestId }),
-      }).catch((notificationError) => {
-        console.error("Failed to send assignment notification:", notificationError);
-      });
-    }
+    const newRequestId = result.requestId;
+    fetch("/api/notify-assignment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestId: newRequestId }),
+    }).catch((notificationError) => {
+      console.error("Failed to send assignment notification:", notificationError);
+    });
 
     setSubmitted(true);
     setSubmitting(false);
@@ -138,10 +112,9 @@ export default function SubmitPrayerRequestPage() {
               <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-400/15 text-4xl ring-1 ring-emerald-300/30" aria-hidden="true">🙏</span>
               <p className="mt-6 text-xs font-black uppercase tracking-[0.2em] text-amber-300">Request Shared</p>
               <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">You do not have to carry this alone.</h1>
-              <p className="mt-5 text-lg leading-8 text-indigo-100/75">Your prayer request has been received and shared according to the privacy choices you selected. Our prayer team would be honored to pray with you.</p>
+              <p className="mt-5 text-lg leading-8 text-indigo-100/75">Your prayer request has been received and shared according to the privacy choices you selected. Our community would be honored to pray with you.</p>
               <div className="mt-9 flex flex-wrap justify-center gap-3">
                 <Link href="/prayer" className="lfp-button bg-white text-indigo-800 shadow-xl">Return to Prayer</Link>
-                <Link href="/my-journey" className="lfp-button border border-white/25 bg-white/10 text-white">Open My Journey</Link>
               </div>
             </div>
           </div>
@@ -157,7 +130,7 @@ export default function SubmitPrayerRequestPage() {
         <div className="lfp-shell relative py-14 sm:py-20">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Prayer Request</p>
           <h1 className="mt-4 max-w-4xl text-4xl font-black tracking-tight sm:text-6xl">Share what is on your heart.</h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">Choose how your request is shared, whether you want personal follow-up, and how much identifying information is visible.</p>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">Choose whether your request is shared with the community and whether your name is shown.</p>
         </div>
       </section>
 
@@ -197,37 +170,14 @@ export default function SubmitPrayerRequestPage() {
             <div className="mt-5 space-y-3">
               <Choice checked={isPublic} onChange={setIsPublic} title="Allow this request on the public Prayer Wall" description="Approved requests may be viewed and prayed for by signed-in community members." />
               <Choice checked={isAnonymous} onChange={setIsAnonymous} title="Share this request anonymously" description="Your personal information will not appear with the request on the public wall." />
-              <Choice checked={contactRequested} onChange={setContactRequested} title="I would like personal follow-up" description="An authorized care-team member may contact you using your selected method." />
             </div>
           </section>
 
-          {contactRequested && (
-            <section className="grid gap-5 rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5 sm:grid-cols-2">
-              <Field label="Preferred contact method" htmlFor="preferred-contact">
-                <select id="preferred-contact" required value={preferredContact} onChange={(event) => setPreferredContact(event.target.value)} className={`${inputClass} min-h-11`}>
-                  <option value="">Select an option</option>
-                  <option value="Email">Email</option>
-                  <option value="Phone Call">Phone call</option>
-                  <option value="Text Message">Text message</option>
-                </select>
-              </Field>
-              <Field label="Preferred care-team gender (optional)" htmlFor="preferred-care-gender">
-                <select id="preferred-care-gender" value={preferredCareGender} onChange={(event) => setPreferredCareGender(event.target.value)} className={`${inputClass} min-h-11`}>
-                  <option value="">No preference</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                </select>
-              </Field>
-            </section>
-          )}
-
           <section className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
             <h2 className="font-black text-slate-950">Before you share</h2>
-            <p className="mt-2">Your request may be shared with authorized prayer and care-team members for prayer, moderation, assignment, and requested follow-up. It will never be sold or used outside the ministry of The Lost and Found Project.</p>
+            <p className="mt-2">Your request may be reviewed by authorized moderators for safety and privacy. It will never be sold or used outside the ministry of The Lost and Found Project.</p>
             <p className="mt-3">This form is not monitored for emergencies and is not a substitute for professional medical, legal, or mental-health care. If someone is in immediate danger, contact local emergency services.</p>
           </section>
-
-          <TurnstileWidget onVerify={setCaptchaToken} onExpire={() => setCaptchaToken("")} />
 
           {error && <div role="alert" aria-live="polite" className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 font-semibold text-rose-800">{error}</div>}
 

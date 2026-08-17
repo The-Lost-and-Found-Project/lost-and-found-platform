@@ -13,6 +13,7 @@ const PROTECTED_PREFIXES = [
   "/admin",
   "/prayer-assignments",
   "/notifications",
+  "/prayer/submit",
   "/testimonies/submit",
   "/praise/submit",
   "/feedback",

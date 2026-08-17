@@ -6,9 +6,9 @@ import { usePathname } from "next/navigation";
 const memberItems = [
   { href: "/dashboard", label: "Home", shortLabel: "Home", icon: "⌂" },
   { href: "/prayer", label: "Prayer", shortLabel: "Prayer", icon: "♡" },
-  { href: "/grow", label: "Grow", shortLabel: "Grow", icon: "✦" },
-  { href: "/community", label: "Community", shortLabel: "Community", icon: "◎" },
-  { href: "/more", label: "More", shortLabel: "More", icon: "•••" },
+  { href: "/praise", label: "Praise", shortLabel: "Praise", icon: "✦" },
+  { href: "/testimonies", label: "Testimonies", shortLabel: "Stories", icon: "◎" },
+  { href: "/notifications", label: "Notifications", shortLabel: "Alerts", icon: "♢" },
 ];
 
 const adminItems = [
