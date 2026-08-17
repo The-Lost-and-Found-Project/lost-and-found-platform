@@ -148,3 +148,12 @@ Phase 3 separation boundary:
 - Each ticker loads once per page visit. No polling, cron job, new table,
   migration, or paid service was added, avoiding recurring database reads as
   community traffic grows.
+- The discoverable `/apps` page offers Emmaus, Bible Trivia, and Devotions as
+  future standalone products without restoring their retired Community App
+  routes or adding unfinished launch links.
+- The active welcome email now reflects Prayer, Praise, Testimonies, and Future
+  Apps. Three unreferenced direct-email endpoints return `410 Gone`, preventing
+  accidental or abusive Resend usage while in-app and push delivery remain.
+- Consistent confirmation and password-reset templates are versioned under
+  `supabase/templates/`. Supabase-hosted copies remain an external dashboard
+  dependency and require a separate live-template update and verification.

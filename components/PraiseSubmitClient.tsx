@@ -32,13 +32,9 @@ export default function PraiseSubmitClient({
       return;
     }
 
-    // Care team + admins now find out about this automatically — the
-    // notify_new_praise_report_trigger DB trigger creates in-app
-    // notifications for them (and, via the notification-created webhook,
-    // a push notification too) the moment this row is inserted / approved.
-    // The old instant admin email for this was retired in favor of the
-    // weekly digest (see app/api/cron/weekly-digest/route.ts), which now
-    // includes a "New Praise Reports" section.
+    // Administrators receive the existing in-app notification, with push
+    // delivery handled by the notification webhook when enabled. A separate
+    // direct email is intentionally not sent for every submission.
 
     setSubmitted(true);
     setSubmitting(false);

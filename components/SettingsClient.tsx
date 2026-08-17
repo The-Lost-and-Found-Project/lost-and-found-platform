@@ -55,7 +55,7 @@ export default function SettingsClient({
         />
         <ToggleRow
           title="Email notifications"
-          description="Receive care updates and role-related ministry summaries by email. Required account and security messages are unaffected."
+          description="Receive selected community and moderation updates by email. Required account and security messages are unaffected."
           checked={settings.email_notifications}
           onChange={(v) => updateSetting("email_notifications", v)}
           busy={saving === "email_notifications"}

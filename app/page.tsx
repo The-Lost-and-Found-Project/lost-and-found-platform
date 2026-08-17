@@ -48,6 +48,7 @@ export default async function HomePage() {
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link href="/signup" className="lfp-button lfp-button-primary">Create Account</Link>
             <Link href="/login" className="lfp-button border border-slate-200 bg-white text-slate-800">Sign In</Link>
+            <Link href="/apps" className="lfp-button border border-indigo-200 bg-white text-indigo-800">Explore Future Apps</Link>
           </div>
         </section>
       </div>
