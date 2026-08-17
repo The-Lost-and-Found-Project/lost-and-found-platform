@@ -8,6 +8,12 @@ create schema if not exists community_feed_private;
 revoke all on schema community_feed_private from public;
 grant usage on schema community_feed_private to anon, authenticated, service_role;
 
+-- Older production environments already have this lifecycle flag, while a
+-- database rebuilt solely from tracked migrations may not. Add it only when
+-- missing so the secured public projection behaves consistently everywhere.
+alter table public.prayer_requests
+  add column if not exists archived boolean not null default false;
+
 create or replace view community_feed_private.prayer_wall_data
 with (security_barrier = true)
 as
