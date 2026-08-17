@@ -48,6 +48,7 @@ test("Testimony encouragement is unique, removable, and represented in the ticke
   ]);
 
   assert.match(migration, /unique \(testimony_id, user_id\)/);
+  assert.match(migration, /testimony_encouragements_user_id_idx/);
   assert.match(route, /\.from\("testimony_encouragements"\)[\s\S]*\.delete\(\)/);
   assert.match(route, /error\.code !== "23505"/);
   assert.match(ticker, /aria-pressed=\{encouragedIds\.has\(selectedTestimony\.id\)\}/);

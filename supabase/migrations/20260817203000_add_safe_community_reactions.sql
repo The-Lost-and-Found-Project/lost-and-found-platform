@@ -37,6 +37,9 @@ begin
     constraint testimony_encouragements_one_per_member unique (testimony_id, user_id)
   );
 
+  create index if not exists testimony_encouragements_user_id_idx
+    on public.testimony_encouragements (user_id);
+
   alter table public.testimony_encouragements enable row level security;
 
   drop policy if exists testimony_encouragements_select_own on public.testimony_encouragements;
