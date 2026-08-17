@@ -93,7 +93,7 @@ test("admin attention view includes submitted and escalated requests", async () 
   assert.doesNotMatch(requests, /Needs Reassignment/);
 });
 
-test("Prayer distribution brings under-supported active requests forward without public vanity counts", async () => {
+test("Prayer distribution shows newest active requests first without public vanity counts", async () => {
   const [page, ticker, distribution] = await Promise.all([
     source("app", "prayer", "page.tsx"),
     source("components", "PrayerWallTicker.tsx"),
@@ -101,8 +101,9 @@ test("Prayer distribution brings under-supported active requests forward without
   ]);
 
   assert.match(ticker, /\.not\("status", "in", CLOSED_PRAYER_STATUS_FILTER\)/);
-  assert.match(ticker, /\.order\("prayer_count", \{ ascending: true \}\)/);
-  assert.match(ticker, /\.order\("created_at", \{ ascending: true \}\)/);
+  assert.doesNotMatch(ticker, /\.order\("prayer_count"/);
+  assert.match(ticker, /\.order\("created_at", \{ ascending: false \}\)/);
+  assert.match(page, /The newest requests appear first/);
   assert.match(ticker, /prayerSupportLabel/);
   assert.match(page, /<PrayerWallTicker pageMode/);
   assert.doesNotMatch(ticker, /`\$\{request\.prayer_count\} \$\{request\.prayer_count === 1/);

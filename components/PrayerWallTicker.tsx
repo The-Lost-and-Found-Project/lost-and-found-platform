@@ -50,8 +50,7 @@ export default function PrayerWallTicker({
         .from("prayer_wall_public")
         .select("id, request_text, created_at, display_name, category_id, prayer_count, status, is_own")
         .not("status", "in", CLOSED_PRAYER_STATUS_FILTER)
-        .order("prayer_count", { ascending: true })
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false });
       const [{ data }, categoryResult] = await Promise.all([
         showAll ? requestQuery : requestQuery.limit(12),
         showAll || pageMode ? supabase.from("prayer_categories").select("id, name") : Promise.resolve({ data: [] }),
@@ -181,7 +180,7 @@ export default function PrayerWallTicker({
             </Link>
           ) : null}
         </div>
-        <p className="mt-2 text-sm text-slate-500">Requests needing more community prayer move gently below. Open a two-line preview to read it fully.</p>
+        <p className="mt-2 text-sm text-slate-500">Newest requests appear first. Open a two-line preview to read it fully.</p>
         <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70">
           <TickerScroll heightClass="h-64">{cards}</TickerScroll>
         </div>
