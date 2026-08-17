@@ -7,28 +7,35 @@ const root = process.cwd();
 const source = (...parts) => readFile(path.join(root, ...parts), "utf8");
 
 test("community previews use a consistent two-line pattern with accessible full views", async () => {
-  const [prayers, ticker, testimonies, card, detail, prayerPage, praisePage] = await Promise.all([
+  const [prayers, praise, ticker, testimonies, card, detail, prayerPage, praisePage, testimonyPage, landing] = await Promise.all([
     source("components", "PrayerWallTicker.tsx"),
+    source("components", "PraiseTicker.tsx"),
     source("components", "TickerScroll.tsx"),
     source("components", "TestimonyTicker.tsx"),
     source("components", "CommunityTickerCard.tsx"),
     source("components", "CommunityDetailDialog.tsx"),
     source("app", "prayer", "page.tsx"),
     source("app", "praise", "page.tsx"),
+    source("app", "testimonies", "page.tsx"),
+    source("app", "page.tsx"),
   ]);
 
   assert.match(prayers, /\.limit\(12\)/);
   assert.match(prayers, /<TickerScroll heightClass="h-64">/);
   assert.match(prayers, /Open Prayer/);
-  assert.match(prayers, /aria-hidden=\{duplicate/);
-  assert.match(prayers, /line-clamp-2/);
-  assert.match(prayers, /tabIndex=\{duplicate \? -1 : 0\}/);
+  assert.match(card, /aria-hidden=\{isDuplicate/);
+  assert.match(card, /tabIndex=\{isDuplicate \? -1 : 0\}/);
   assert.match(ticker, /prefers-reduced-motion: reduce/);
   assert.match(ticker, /pointerenter/);
   assert.match(ticker, /pointerleave/);
   assert.match(testimonies, /\.limit\(3\)/);
   assert.match(testimonies, /showAll/);
-  assert.doesNotMatch(testimonies, /\.\.\.testimonies, \.\.\.testimonies/);
+  assert.match(testimonies, /<TickerScroll heightClass="h-64">/);
+  assert.match(praise, /<TickerScroll heightClass="h-64">/);
+  assert.match(praise, /showAll/);
+  for (const sourceText of [prayers, praise, testimonies]) {
+    assert.doesNotMatch(sourceText, /setInterval\(/);
+  }
   assert.match(card, /line-clamp-2/);
   assert.match(card, /Open full \$\{label\}/);
   assert.match(detail, /aria-modal="true"/);
@@ -37,10 +44,12 @@ test("community previews use a consistent two-line pattern with accessible full 
   assert.match(detail, /overflow-y-auto/);
   assert.match(detail, /event\.key === "Escape"/);
   assert.match(detail, /previouslyFocused\?\.focus\(\)/);
-  assert.match(prayerPage, /CommunityTickerCard/);
-  assert.match(prayerPage, /CommunityDetailDialog/);
-  assert.match(praisePage, /CommunityTickerCard/);
-  assert.match(praisePage, /CommunityDetailDialog/);
+  assert.match(prayerPage, /<PrayerWallTicker showAll/);
+  assert.match(praisePage, /<PraiseTicker showAll/);
+  assert.match(testimonyPage, /<TestimonyTicker showAll/);
+  for (const component of ["PrayerWallTicker", "PraiseTicker", "TestimonyTicker"]) {
+    assert.match(landing, new RegExp(`<${component} \/>`));
+  }
 });
 
 test("members manage their own prayer requests without an assignment workflow", async () => {
@@ -91,13 +100,12 @@ test("Prayer distribution brings under-supported active requests forward without
     source("lib", "prayer-distribution.ts"),
   ]);
 
-  for (const sourceText of [page, ticker]) {
-    assert.match(sourceText, /\.not\("status", "in", CLOSED_PRAYER_STATUS_FILTER\)/);
-    assert.match(sourceText, /\.order\("prayer_count", \{ ascending: true \}\)/);
-    assert.match(sourceText, /\.order\("created_at", \{ ascending: true \}\)/);
-  }
-  assert.match(page, /prayerSupportLabel/);
-  assert.doesNotMatch(page, /`\$\{request\.prayer_count\} \$\{request\.prayer_count === 1/);
+  assert.match(ticker, /\.not\("status", "in", CLOSED_PRAYER_STATUS_FILTER\)/);
+  assert.match(ticker, /\.order\("prayer_count", \{ ascending: true \}\)/);
+  assert.match(ticker, /\.order\("created_at", \{ ascending: true \}\)/);
+  assert.match(ticker, /prayerSupportLabel/);
+  assert.match(page, /<PrayerWallTicker showAll/);
+  assert.doesNotMatch(ticker, /`\$\{request\.prayer_count\} \$\{request\.prayer_count === 1/);
   assert.match(distribution, /Waiting for prayer/);
   assert.match(distribution, /Someone is carrying this in prayer/);
   assert.match(distribution, /People are carrying this in prayer/);

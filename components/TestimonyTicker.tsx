@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import CommunityDetailDialog from "./CommunityDetailDialog";
 import CommunityTickerCard from "./CommunityTickerCard";
+import TickerScroll from "./TickerScroll";
 
 type Testimony = {
   id: string;
@@ -13,9 +14,6 @@ type Testimony = {
   user_id: string;
   display_name: string | null;
 };
-
-// Poll for newly saved testimonies so the ticker keeps growing over time.
-const REFRESH_INTERVAL_MS = 60000;
 
 export default function TestimonyTicker({
   emptyMessage,
@@ -49,11 +47,8 @@ export default function TestimonyTicker({
     }
 
     load();
-    const interval = showAll ? null : setInterval(load, REFRESH_INTERVAL_MS);
-
     return () => {
       active = false;
-      if (interval) clearInterval(interval);
     };
   }, [showAll, supabase]);
 
@@ -71,10 +66,25 @@ export default function TestimonyTicker({
   }
 
   const selectedTestimony = testimonies.find((testimony) => testimony.id === selectedId) ?? null;
+  const visibleTestimonies = showAll ? testimonies : [...testimonies, ...testimonies];
+  const cards = visibleTestimonies.map((testimony, index) => (
+    <CommunityTickerCard
+      key={`${testimony.id}-${index}`}
+      label="testimony"
+      content={testimony.faith_story}
+      icon="✝️"
+      onOpen={() => setSelectedId(testimony.id)}
+      meta={testimony.display_name ?? "Anonymous"}
+      isDuplicate={!showAll && index >= testimonies.length}
+    />
+  ));
 
   return (
     <>
-      <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="community-testimonies-title">
+      {showAll ? (
+        <div className="space-y-4">{cards}</div>
+      ) : (
+      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="community-testimonies-title">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="community-testimonies-title" className="text-xl font-black text-slate-950">
             Testimonies from our community
@@ -84,19 +94,11 @@ export default function TestimonyTicker({
           </Link>
         </div>
         <p className="mt-2 text-sm text-slate-500">Scan the two-line previews, then open a story to read it in full.</p>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {testimonies.map((testimony) => (
-            <CommunityTickerCard
-              key={testimony.id}
-              label="testimony"
-              content={testimony.faith_story}
-              icon="✝️"
-              onOpen={() => setSelectedId(testimony.id)}
-              meta={testimony.display_name ?? "Anonymous"}
-            />
-          ))}
+        <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/70">
+          <TickerScroll heightClass="h-64">{cards}</TickerScroll>
         </div>
       </section>
+      )}
 
       {selectedTestimony ? (
         <CommunityDetailDialog

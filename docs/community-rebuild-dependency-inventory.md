@@ -135,3 +135,16 @@ Phase 3 separation boundary:
   additional page-load query.
 - Local TypeScript, 77 application tests, focused lint, and whitespace checks
   pass.
+
+## Phase 6 unified community tickers
+
+- Prayer, Praise, and Testimonies use the same two-line preview, vertical ticker,
+  and expanded-detail pattern.
+- The full Prayer, Praise, and Testimonies pages reuse their ticker components
+  in `showAll` mode instead of maintaining duplicate feed implementations.
+- Prayer remains repeatable, while Praise Love remains unique and removable.
+- The public welcome page and signed-in Home page now center the three live
+  community experiences and no longer promote the retired Prayer Care team.
+- Each ticker loads once per page visit. No polling, cron job, new table,
+  migration, or paid service was added, avoiding recurring database reads as
+  community traffic grows.

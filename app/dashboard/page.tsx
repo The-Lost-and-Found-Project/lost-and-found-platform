@@ -2,9 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import PrayerWallTicker from "@/components/PrayerWallTicker";
+import PraiseTicker from "@/components/PraiseTicker";
+import TestimonyTicker from "@/components/TestimonyTicker";
 import ShareButton from "@/components/ShareButton";
 import PushPrompt from "@/components/PushPrompt";
-import { LfpFeatureCard, LfpSectionHeading } from "@/components/ui/LfpDesignSystem";
+import { LfpSectionHeading } from "@/components/ui/LfpDesignSystem";
 
 const GIVE_URL = "https://www.zeffy.com/en-US/donation-form/donate-to-build-god-centered-marriages";
 
@@ -39,17 +41,12 @@ export default async function DashboardPage() {
         <PushPrompt />
 
         <section>
-          <LfpSectionHeading eyebrow="Community" title="Pray. Praise. Testify." description="Three simple ways to bring needs before God, celebrate what He is doing, and encourage others through your story." />
-          <div className="mt-7 grid gap-5 md:grid-cols-3">
-            <LfpFeatureCard eyebrow="Bring your needs" title="Prayer" description="Request prayer or pause to pray for someone in the community." href="/prayer" action="Open Prayer" icon="🙏" />
-            <LfpFeatureCard eyebrow="Celebrate God" title="Praise" description="Share and read reminders of answered prayer and God's faithfulness." href="/praise" action="Open Praise" icon="🙌" />
-            <LfpFeatureCard eyebrow="Share hope" title="Testimonies" description="Read and share stories of redemption, healing, perseverance, and grace." href="/testimonies" action="Read Testimonies" icon="💬" />
+          <LfpSectionHeading eyebrow="Community" title="Pray. Praise. Testify." description="Scan what the community is carrying and celebrating, then open any two-line preview to read it fully." />
+          <div className="mt-7 grid gap-6 lg:grid-cols-3 lg:items-start">
+            <PrayerWallTicker />
+            <PraiseTicker />
+            <TestimonyTicker />
           </div>
-        </section>
-
-        <section className="mt-14">
-          <LfpSectionHeading eyebrow="Community prayer" title="Pray with what is happening now" description="Scan current needs, open a request, and take a moment to pray." />
-          <div className="mt-7"><PrayerWallTicker /></div>
         </section>
 
         <section className="mt-14 rounded-[2rem] border border-amber-200 bg-amber-50/70 p-6 shadow-sm sm:p-8">
