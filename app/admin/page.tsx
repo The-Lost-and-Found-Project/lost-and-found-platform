@@ -5,9 +5,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import AdminPrayerDashboardClient from "@/components/AdminPrayerDashboardClient";
 import { getEffectiveRole } from "@/lib/effective-role";
 
-const EMMAUS_FOUNDER_EMAIL = "chad@lostandfoundproject.org";
-const EMMAUS_FOUNDER_USER_ID = process.env.EMMAUS_FOUNDER_USER_ID?.trim();
-
 const adminModules = [
   {
     href: "/admin/users",
@@ -18,7 +15,7 @@ const adminModules = [
   {
     href: "/admin/content",
     title: "Content Publishing",
-    description: "Manage devotionals, testimonies, trivia, and other published ministry content.",
+    description: "Moderate Community praise reports and testimonies.",
     icon: "📚",
   },
   {
@@ -75,11 +72,6 @@ export default async function AdminPage() {
   const flaggedRequests = requestRows.filter((request) => request.flagged || request.moderation_status === "pending").length;
   const answeredRequests = requestRows.filter((request) => request.answered || request.status === "Resolved").length;
   const firstName = profile?.full_name?.trim().split(" ")[0] || "Administrator";
-  const isEmmausFounder = Boolean(
-    (EMMAUS_FOUNDER_USER_ID && user.id === EMMAUS_FOUNDER_USER_ID) ||
-      (!EMMAUS_FOUNDER_USER_ID && user.email?.toLowerCase() === EMMAUS_FOUNDER_EMAIL)
-  );
-
   return (
     <main className="lfp-page pb-24">
       <section className="relative overflow-hidden bg-slate-950 text-white">
@@ -152,24 +144,6 @@ export default async function AdminPage() {
           </div>
         </details>
 
-        {isEmmausFounder && (
-          <details className="group mt-4 overflow-hidden rounded-[2rem] border border-amber-300/30 bg-slate-950 text-white shadow-xl">
-            <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 marker:content-none sm:px-6 [&::-webkit-details-marker]:hidden">
-              <span>
-                <span className="block text-xs font-black uppercase tracking-[0.16em] text-amber-300">Private Founder Lab</span>
-                <span className="mt-1 block text-lg font-black">Emmaus Founder Studio</span>
-              </span>
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-amber-300 transition group-open:rotate-180" aria-hidden="true">⌄</span>
-            </summary>
-            <div className="border-t border-white/10 px-5 py-5 sm:px-6">
-              <p className="max-w-2xl leading-7 text-indigo-100/70">Visible only to your founder account while Emmaus is privately developed and reviewed.</p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Link href="/emmaus/admin/dashboard" className="lfp-button bg-amber-300 text-slate-950">Open Founder Studio</Link>
-                <Link href="/emmaus/discovery/demo" className="lfp-button border border-white/20 bg-white/10 text-white">Preview Experience</Link>
-              </div>
-            </div>
-          </details>
-        )}
       </div>
     </main>
   );

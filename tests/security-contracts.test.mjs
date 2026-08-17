@@ -38,9 +38,7 @@ test("non-admin page requests leave the admin navigation area", async () => {
     "page.tsx",
     "analytics/page.tsx",
     "content/page.tsx",
-    "devotions/page.tsx",
     "feedback/page.tsx",
-    "trivia/page.tsx",
     "users/page.tsx",
   ];
 
@@ -121,13 +119,14 @@ test("legacy assignment notification links are migrated to Community Prayer", as
   assert.match(migrationSource, /legacy Prayer Care notification is retained for your history/);
 });
 
-test("Coming Soon programs remain intentionally inactive", async () => {
+test("standalone products remain intentionally inactive in the Community App", async () => {
   const source = await readFile(path.join(root, "app", "programs", "page.tsx"), "utf8");
 
-  for (const program of ["Studies", "Mentoring", "Events"]) {
+  for (const program of ["EMAS / Emmaus", "Bible Trivia", "Devotions"]) {
     assert.match(source, new RegExp(`title: "${program}"`));
   }
-  assert.match(source, /const comingSoon =/);
+  assert.match(source, /const separateProducts =/);
+  assert.doesNotMatch(source, /href: "\/(emmaus|trivia|devotions)/);
 });
 
 test("prayer submission does not invoke the retired assignment notifier", async () => {

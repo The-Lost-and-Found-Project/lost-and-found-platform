@@ -67,3 +67,21 @@ Phase 2 protection plan:
 - Post-rollback verification confirmed production remained unchanged: 9 live legacy assignments, 6 legacy Prayer Care profiles, assignment trigger present, and no archive tables created
 - TypeScript, 71 application tests, ESLint with no errors, and the full Next.js production build pass
 - No paid Supabase branch was created; the real-schema rollback test was used to conserve donated funds
+
+## Phase 3 production inventory
+
+The standalone products remain in the same Supabase project until their destination apps are provisioned. Phase 3 retires Community App routes and APIs without dropping tables, revoking future-app data access, deleting Storage objects, or copying data into paid infrastructure.
+
+- Emmaus: 34 product-named tables, 2 views, 38 product-named functions, 31,102 Scripture nodes, 32,486 graph nodes, 64,354 graph edges, and 2 discovery progress records
+- Bible Trivia: 11 categories, 550 questions, and 14 quiz attempts
+- Devotions: 11 devotional weeks, 21 audio records, and 21 audio objects in the `devotion-audio` bucket
+- Notifications: 2 historical `devotion_week_review` notices linked to `/admin/devotions`
+
+Phase 3 separation boundary:
+
+- redirect former product pages to `/programs#separate-products`
+- return HTTP 410 from former product APIs before authentication or database work
+- remove Grow and founder/admin entry points from the Community App
+- preserve product source modules in place until destination repositories are approved
+- preserve every database row, policy, function, view, and Storage object for extraction
+- migrate only historical notification destinations; do not delete notification history
