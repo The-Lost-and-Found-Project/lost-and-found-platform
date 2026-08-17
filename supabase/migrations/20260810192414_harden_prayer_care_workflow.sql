@@ -1,31 +1,42 @@
 -- Finish the care-workflow rollout after the application has stopped writing
 -- legacy request statuses. Existing requests are preserved and normalized.
-update public.prayer_requests
-set status = case status
-  when 'New' then 'Submitted'
-  when 'Being Prayed For' then 'Active Care'
-  when 'Contacted' then 'Follow-Up'
-  when 'Ongoing' then 'Active Care'
-  when 'Follow-Up Needed' then 'Follow-Up'
-  when 'Answered' then 'Resolved'
-  else status
-end
-where status in (
-  'New', 'Being Prayed For', 'Contacted', 'Ongoing',
-  'Follow-Up Needed', 'Answered'
-);
+do $migration$
+begin
+  -- Production has this legacy table, while an isolated repository database
+  -- does not. Match the guard used by the preceding normalization migration.
+  if to_regclass('public.prayer_requests') is null then
+    raise notice 'Skipping prayer-care hardening: legacy prayer tables are not present.';
+    return;
+  end if;
 
-alter table public.prayer_requests
-  alter column status set default 'Submitted',
-  drop constraint if exists prayer_requests_status_check;
+  update public.prayer_requests
+  set status = case status
+    when 'New' then 'Submitted'
+    when 'Being Prayed For' then 'Active Care'
+    when 'Contacted' then 'Follow-Up'
+    when 'Ongoing' then 'Active Care'
+    when 'Follow-Up Needed' then 'Follow-Up'
+    when 'Answered' then 'Resolved'
+    else status
+  end
+  where status in (
+    'New', 'Being Prayed For', 'Contacted', 'Ongoing',
+    'Follow-Up Needed', 'Answered'
+  );
 
-alter table public.prayer_requests
-  add constraint prayer_requests_status_check
-  check (status in (
-    'Submitted', 'Reviewed', 'Assigned', 'Active Care', 'Follow-Up',
-    'Resolved', 'Closed', 'Needs Reassignment', 'Escalated',
-    'Unable to Contact', 'Withdrawn'
-  ));
+  alter table public.prayer_requests
+    alter column status set default 'Submitted',
+    drop constraint if exists prayer_requests_status_check;
+
+  alter table public.prayer_requests
+    add constraint prayer_requests_status_check
+    check (status in (
+      'Submitted', 'Reviewed', 'Assigned', 'Active Care', 'Follow-Up',
+      'Resolved', 'Closed', 'Needs Reassignment', 'Escalated',
+      'Unable to Contact', 'Withdrawn'
+    ));
+end;
+$migration$;
 
 -- Reassignment is a single database operation: select only an account that
 -- is both active and available, update the owner, and advance the request to

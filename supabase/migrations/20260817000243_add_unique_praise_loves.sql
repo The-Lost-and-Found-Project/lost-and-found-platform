@@ -1,5 +1,13 @@
 -- Praise Love is an acknowledgement, not a repeatable activity. Preserve the
 -- existing praise data and enforce one Love per Community Member per report.
+do $migration$
+begin
+  if to_regclass('public.praise_reports') is null
+     or to_regclass('public.profiles') is null then
+    raise notice 'Skipping Praise Love migration: legacy praise tables are not present.';
+    return;
+  end if;
+
 alter table public.praise_reports
   add column if not exists love_count integer not null default 0;
 
@@ -56,26 +64,28 @@ revoke all on table public.praise_loves from anon;
 grant select, insert, delete on table public.praise_loves to authenticated;
 grant select, insert, update, delete on table public.praise_loves to service_role;
 
-create or replace function public.update_praise_love_count()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  if tg_op = 'INSERT' then
-    update public.praise_reports
-    set love_count = love_count + 1
-    where id = new.praise_report_id;
-    return new;
-  end if;
+execute $function$
+  create or replace function public.update_praise_love_count()
+  returns trigger
+  language plpgsql
+  security definer
+  set search_path = ''
+  as $body$
+  begin
+    if tg_op = 'INSERT' then
+      update public.praise_reports
+      set love_count = love_count + 1
+      where id = new.praise_report_id;
+      return new;
+    end if;
 
-  update public.praise_reports
-  set love_count = greatest(love_count - 1, 0)
-  where id = old.praise_report_id;
-  return old;
-end;
-$$;
+    update public.praise_reports
+    set love_count = greatest(love_count - 1, 0)
+    where id = old.praise_report_id;
+    return old;
+  end;
+  $body$;
+$function$;
 
 revoke all on function public.update_praise_love_count() from public;
 revoke all on function public.update_praise_love_count() from anon;
@@ -117,3 +127,5 @@ from public.praise_reports
 where moderation_status = 'approved';
 
 grant select on table public.praise_wall_public to anon, authenticated;
+end;
+$migration$;
