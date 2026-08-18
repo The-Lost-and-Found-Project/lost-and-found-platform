@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,11 +18,18 @@ export default async function StudyPage() {
         <p className="eyebrow">Emmaus Study</p>
         <h1 id="study-title">Welcome back</h1>
         <p className="lede">
-          Your protected study space is connected to your Emmaus session.
+          Continue with a focused guided discovery. We are migrating one proven study flow at a time.
         </p>
-        <p className="status">
-          Authentication checkpoint only. Bible and discovery features have not been migrated into this route yet.
-        </p>
+        <div className="study-list">
+          <article className="study-card">
+            <p className="eyebrow">John 1:1</p>
+            <h2>The Eternal Word</h2>
+            <p>Read, observe, wonder, connect, apply, and pray through John&apos;s opening claim about Jesus.</p>
+            <Link className="primary-action" href="/study/discover/john-1">
+              Begin discovery
+            </Link>
+          </article>
+        </div>
       </section>
     </main>
   );
