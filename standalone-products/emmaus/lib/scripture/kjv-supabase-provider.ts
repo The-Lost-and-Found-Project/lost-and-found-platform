@@ -47,7 +47,7 @@ export function createKjvSupabaseProvider(supabase: SupabaseClient): ScripturePr
           reference: verse.reference_label,
         })),
         source: "Emmaus verified KJV corpus",
-        attribution: "King James Version · public-domain text in the United States",
+        attribution: "King James Version · existing Emmaus corpus; translation rights must be reviewed for each deployment territory",
       };
 
       return result;
