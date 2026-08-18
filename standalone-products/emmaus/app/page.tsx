@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function HomePage() {
   return (
     <main className="shell">
@@ -7,8 +9,13 @@ export default function HomePage() {
         <p className="lede">
           Scripture reading, guided discovery, and deeper study in one focused place.
         </p>
+        <div className="actions">
+          <Link className="primary-action" href="/login?next=/study">
+            Sign in to Emmaus
+          </Link>
+        </div>
         <p className="status">
-          Standalone migration scaffold — no production services are connected yet.
+          Standalone migration checkpoint. Authentication is isolated; Bible and discovery features are next.
         </p>
       </section>
     </main>
