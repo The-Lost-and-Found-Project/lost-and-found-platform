@@ -60,7 +60,7 @@ export default function CommunityDetailDialog({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-end bg-slate-950/60 backdrop-blur-sm sm:items-center sm:justify-center sm:p-6"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm sm:p-6"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
@@ -71,7 +71,7 @@ export default function CommunityDetailDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="community-detail-title"
-        className="flex max-h-[92dvh] w-full flex-col rounded-t-[2rem] bg-white shadow-2xl sm:max-w-2xl sm:rounded-[2rem]"
+        className="flex h-full w-full flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl"
       >
         <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-7">
           <div className="min-w-0">
