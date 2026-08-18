@@ -49,10 +49,13 @@ h2 { color:#0f172a; line-height:1.25; }
 .prayer-text { color:#64748b; font-style:italic; line-height:1.7; }
 .discovery-actions { display:flex; justify-content:space-between; gap:1rem; }
 .scripture-reader { margin-top:2rem; display:grid; gap:.15rem; }
-.scripture-verse-button { width:100%; border:0; border-radius:1rem; background:transparent; padding:.7rem .8rem; color:#1e293b; font-family:Georgia,"Times New Roman",serif; font-size:1.18rem; line-height:1.9; text-align:left; cursor:pointer; transition:background-color 160ms ease,transform 160ms ease; }
+.scripture-verse-button { position:relative; width:100%; border:0; border-radius:1rem; background:transparent; padding:.7rem 2.3rem .7rem .8rem; color:#1e293b; font-family:Georgia,"Times New Roman",serif; font-size:1.18rem; line-height:1.9; text-align:left; cursor:pointer; transition:background-color 160ms ease,transform 160ms ease; }
 .scripture-verse-button:hover { background:#eef2ff; }
+.scripture-verse-button.highlighted { background:#fef3c7; }
+.scripture-verse-button.highlighted:hover { background:#fde68a; }
 .scripture-verse-button:active { transform:scale(.995); }
 .scripture-verse-button sup { margin-right:.55rem; color:#4f46e5; font-family:Inter,sans-serif; font-size:.7rem; font-weight:800; }
+.verse-bookmark-indicator { position:absolute; top:.65rem; right:.8rem; color:#b45309; font-family:Inter,sans-serif; font-size:.95rem; }
 .scripture-source { margin-top:2.5rem; border-top:1px solid #e2e8f0; padding-top:1rem; color:#64748b; font-size:.82rem; line-height:1.5; }
 .scripture-source p { margin:.25rem 0; }
 .verse-panel-backdrop { position:fixed; inset:0; z-index:50; display:flex; justify-content:flex-end; background:rgba(15,23,42,.42); backdrop-filter:blur(3px); }
@@ -60,6 +63,9 @@ h2 { color:#0f172a; line-height:1.25; }
 .verse-panel-head { position:sticky; top:0; z-index:2; display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; border-bottom:1px solid #e2e8f0; background:rgba(255,255,255,.96); padding:1.25rem 1.25rem 1rem; backdrop-filter:blur(12px); }
 .verse-panel-head h2 { margin:.35rem 0 0; }
 .panel-close { display:inline-flex; align-items:center; justify-content:center; width:2.5rem; height:2.5rem; border:1px solid #cbd5e1; border-radius:999px; background:#fff; color:#334155; font-size:1.5rem; cursor:pointer; }
+.verse-quick-actions { display:flex; gap:.6rem; flex-wrap:wrap; border-bottom:1px solid #e2e8f0; padding:.8rem 1.25rem 0; }
+.quick-action { border:1px solid #cbd5e1; border-radius:999px; background:#fff; color:#475569; padding:.55rem .8rem; font:inherit; font-size:.82rem; font-weight:800; cursor:pointer; }
+.quick-action.active { border-color:#d97706; background:#fffbeb; color:#92400e; }
 .verse-tabs { position:sticky; top:5.6rem; z-index:1; display:flex; gap:.5rem; overflow-x:auto; border-bottom:1px solid #e2e8f0; background:#fff; padding:.8rem 1.25rem; }
 .verse-tab { flex:0 0 auto; border:1px solid #cbd5e1; border-radius:999px; background:#fff; color:#475569; padding:.55rem .8rem; font:inherit; font-size:.82rem; font-weight:800; cursor:pointer; }
 .verse-tab.active { border-color:#4f46e5; background:#4f46e5; color:#fff; }
