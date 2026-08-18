@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import BibleReader from "@/components/BibleReader";
 import { createClient } from "@/lib/supabase/server";
 import { createKjvSupabaseProvider } from "@/lib/scripture/kjv-supabase-provider";
 
@@ -26,7 +27,7 @@ export default async function BiblePage() {
           <div>
             <p className="eyebrow">Emmaus Bible</p>
             <h1>{chapter.book} {chapter.chapter}</h1>
-            <p className="lede">Read first. Study deeper when you are ready.</p>
+            <p className="lede">Read first. Tap any verse when you want to dig deeper.</p>
           </div>
           <div className="translation-badge">
             <strong>{chapter.translation}</strong>
@@ -34,14 +35,7 @@ export default async function BiblePage() {
           </div>
         </header>
 
-        <section className="scripture-reader" aria-label={`${chapter.book} ${chapter.chapter}`}>
-          {chapter.verses.map((verse) => (
-            <p key={verse.canonicalKey} id={verse.canonicalKey} className="scripture-verse">
-              <sup>{verse.number}</sup>
-              <span>{verse.text}</span>
-            </p>
-          ))}
-        </section>
+        <BibleReader chapter={chapter} />
 
         <footer className="scripture-source">
           <p>{chapter.source}</p>
