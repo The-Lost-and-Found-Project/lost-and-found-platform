@@ -83,6 +83,16 @@ h2 { color:#0f172a; line-height:1.25; }
 .notes-head h3 { margin:.4rem 0 0; font-size:1.35rem; }
 .verse-notes textarea { width:100%; min-height:15rem; border:1px solid #cbd5e1; border-radius:1rem; background:#fff; color:#0f172a; padding:1rem; font:inherit; line-height:1.65; resize:vertical; }
 .notes-help { margin:0; color:#64748b; font-size:.88rem; line-height:1.55; }
+.saved-material { width:min(100%,72rem); }
+.saved-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin-top:2rem; }
+.saved-section { border:1px solid #e2e8f0; border-radius:1.4rem; background:#f8fafc; padding:1.1rem; }
+.saved-section h2 { margin:.1rem 0 1rem; }
+.saved-item { border:1px solid #e2e8f0; border-radius:1rem; background:#fff; padding:1rem; }
+.saved-item + .saved-item { margin-top:.75rem; }
+.saved-item p { margin:0; color:#475569; line-height:1.55; }
+.saved-reference { color:#312e81 !important; font-weight:800; }
+.saved-empty { color:#64748b; }
+@media (max-width:800px) { .saved-grid { grid-template-columns:1fr; } }
 @media (max-width:640px) {
   .discovery-head,.bible-header { display:block; }
   .save-badge,.translation-badge { display:inline-grid; margin-top:1rem; }
