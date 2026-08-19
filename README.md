@@ -48,4 +48,4 @@ See `.env.example` for the full list. In short:
 - Prayer request moderation actions (approve/deny/flag/edit/assign/mark-answered) are routed through `app/api/admin/prayer-requests/update/route.ts`, which allowlists which columns can be changed.
 - RLS policies enforce access at the database level; see the `supabase/` folder for the current tracked copy.
 
-<!-- vercel-production-refresh: 2026-08-19 -->
+<!-- vercel-production-refresh: 2026-08-19T15:15 -->
