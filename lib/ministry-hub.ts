@@ -1,51 +1,52 @@
+export type MinistryAction = { label: string; description: string; href: string; icon: string };
 export type MinistryPortal = {
-  slug: string;
-  title: string;
-  eyebrow: string;
-  description: string;
-  purpose: string;
-  scripture: string;
-  icon: string;
-  status: "active" | "building";
-  modules: string[];
+  slug: string; title: string; eyebrow: string; description: string; purpose: string; scripture: string; icon: string;
+  status: "active" | "building"; welcome: string; actions: MinistryAction[]; rhythms: string[]; resourceTopics: string[];
 };
 
 export const ministryPortals: MinistryPortal[] = [
   {
-    slug: "hearth",
-    title: "The Hearth",
-    eyebrow: "Gather & Belong",
+    slug: "hearth", title: "The Hearth", eyebrow: "Gather & Belong", icon: "🔥", status: "active",
     description: "A place for connection, encouragement, hospitality, and life together in Christ.",
-    purpose: "Helping people move from isolation toward genuine Christian community, shared life, and practical care.",
-    scripture: "Romans 12:10–13",
-    icon: "🔥",
-    status: "building",
-    modules: ["Overview", "Gatherings", "Resources", "Announcements", "Community"],
+    purpose: "Helping people move from isolation toward genuine Christian community, shared life, and practical care.", scripture: "Romans 12:10–13",
+    welcome: "The Hearth is the relational front porch of L&F: a place to be known, encourage others, show hospitality, and build the kind of community that continues between scheduled gatherings.",
+    actions: [
+      { label: "Find a Gathering", description: "See gatherings and shared events across L&F.", href: "/events", icon: "◫" },
+      { label: "Community", description: "Connect through the existing L&F community space.", href: "/community", icon: "◇" },
+      { label: "Share a Praise", description: "Celebrate what God is doing in everyday life.", href: "/praise", icon: "✦" },
+      { label: "Ask for Prayer", description: "Let the community help carry a real need.", href: "/prayer/new", icon: "♡" },
+    ],
+    rhythms: ["Gather regularly", "Practice hospitality", "Notice who may be isolated", "Encourage one another", "Carry needs in prayer"],
+    resourceTopics: ["Biblical community", "Hospitality", "Encouragement", "Healthy relationships", "Caring for one another"],
   },
   {
-    slug: "foundry",
-    title: "The Foundry",
-    eyebrow: "Form & Serve",
+    slug: "foundry", title: "The Foundry", eyebrow: "Form & Serve", icon: "⚒", status: "active",
     description: "A place for spiritual formation, equipping, service, and becoming useful in the work God has prepared.",
-    purpose: "Helping people develop durable faith through discipleship, practice, service, and purposeful growth.",
-    scripture: "Ephesians 2:10",
-    icon: "⚒",
-    status: "building",
-    modules: ["Overview", "Pathways", "Resources", "Serve", "Announcements"],
+    purpose: "Helping people develop durable faith through discipleship, practice, service, and purposeful growth.", scripture: "Ephesians 2:10",
+    welcome: "The Foundry is about formation with purpose. We do not grow merely to know more; we grow so Christ increasingly shapes how we live, work, serve, lead, and respond to people.",
+    actions: [
+      { label: "Take a Next Step", description: "Use the discipleship pathway to identify an area for growth.", href: "/pathway", icon: "→" },
+      { label: "Find Resources", description: "Explore practical resources already available in L&F.", href: "/resources", icon: "▦" },
+      { label: "Serve", description: "Explore ways to put faith into practice through service.", href: "/volunteer", icon: "✦" },
+      { label: "Pray Before You Go", description: "Keep service rooted in dependence on God.", href: "/prayer", icon: "♡" },
+    ],
+    rhythms: ["Learn truth", "Practice what you learn", "Invite accountability", "Serve someone", "Reflect and refine"],
+    resourceTopics: ["Spiritual disciplines", "Calling and purpose", "Serving well", "Leadership", "Faith at work and home"],
   },
   {
-    slug: "mens-study",
-    title: "Men's Study",
-    eyebrow: "Study & Walk",
+    slug: "mens-study", title: "Men's Study", eyebrow: "Study & Walk", icon: "▰", status: "active",
     description: "Scripture-centered study where men can learn, discuss, apply, and walk out God's Word together.",
-    purpose: "Creating a clear path from reading Scripture to understanding it, discussing it honestly, and living it faithfully.",
-    scripture: "Proverbs 27:17",
-    icon: "▰",
-    status: "building",
-    modules: ["Overview", "Current Study", "Schedule", "Resources", "Discussion"],
+    purpose: "Creating a clear path from reading Scripture to understanding it, discussing it honestly, and living it faithfully.", scripture: "Proverbs 27:17",
+    welcome: "Men's Study is designed around Scripture, honest conversation, and application. The goal is not to collect answers but to become men who understand God's Word and increasingly live what it says.",
+    actions: [
+      { label: "Study Scripture", description: "Open the L&F Bible study experience and dig deeper into the Word.", href: "/emmaus", icon: "▤" },
+      { label: "Study Resources", description: "Use available teaching and discipleship resources.", href: "/resources", icon: "▦" },
+      { label: "Gatherings", description: "See the shared schedule for upcoming study gatherings.", href: "/events", icon: "◫" },
+      { label: "Prayer", description: "Carry one another beyond the study table.", href: "/prayer", icon: "♡" },
+    ],
+    rhythms: ["Read the text", "Observe before assuming", "Ask the right questions", "Discuss honestly", "Apply specifically", "Follow up with one another"],
+    resourceTopics: ["Bible study", "Biblical manhood", "Marriage and family", "Integrity", "Work and purpose", "Brotherhood"],
   },
 ];
 
-export function getMinistryPortal(slug: string) {
-  return ministryPortals.find((ministry) => ministry.slug === slug);
-}
+export function getMinistryPortal(slug: string) { return ministryPortals.find((ministry) => ministry.slug === slug); }
