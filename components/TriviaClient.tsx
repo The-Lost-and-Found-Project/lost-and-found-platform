@@ -1,353 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-type Category = {
-  id: string;
-  name: string;
-  description: string;
-  approvedCount: number;
-};
-
-type Question = {
-  id: string;
-  question: string;
-  choices: string[];
-  correct: string;
-  ref: string;
-  note: string;
-};
-
-type BestScore = { score: number; totalQuestions: number };
-
-type Props = {
-  userId: string;
-  categories: Category[];
-  bestScores: Record<string, BestScore>;
-};
-
+type Difficulty = "beginner" | "intermediate" | "advanced";
+type Category = { id:string; name:string; description:string; approvedCount:number };
+type Question = { id:string; question:string; choices:string[]; correct:string; ref:string; note:string; difficulty?:Difficulty };
+type BestScore = { score:number; totalQuestions:number };
+type Props = { userId:string; categories:Category[]; bestScores:Record<string,BestScore> };
 type Screen = "categories" | "loading" | "quiz" | "results";
 
-// A rotating accent palette so each category card/quiz header reads
-// distinctly at a glance instead of every category looking identical.
-const ACCENTS = [
-  { text: "text-indigo-700", bar: "bg-indigo-600", border: "hover:border-indigo-200" },
-  { text: "text-emerald-700", bar: "bg-emerald-600", border: "hover:border-emerald-200" },
-  { text: "text-amber-700", bar: "bg-amber-600", border: "hover:border-amber-200" },
-  { text: "text-rose-700", bar: "bg-rose-600", border: "hover:border-rose-200" },
-  { text: "text-sky-700", bar: "bg-sky-600", border: "hover:border-sky-200" },
-  { text: "text-violet-700", bar: "bg-violet-600", border: "hover:border-violet-200" },
-];
+const ACCENTS=["bg-blue-600","bg-emerald-600","bg-violet-600","bg-amber-600","bg-rose-600","bg-cyan-600"];
+const DIFFICULTIES:Difficulty[]=["beginner","intermediate","advanced"];
 
-function shuffle<T>(arr: T[]): T[] {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
+function shuffle<T>(items:T[]){const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function dailyIndex(length:number){const day=new Date().toISOString().slice(0,10);let hash=0;for(const c of day)hash=(hash*31+c.charCodeAt(0))>>>0;return length?hash%length:0}
 
-// Renders the Bible Trivia Challenge. Questions are now pulled live from
-// Supabase (only admin-approved ones) via the get_quiz_questions() function,
-// which does the random sampling server-side -- a fresh, randomly ordered
-// set of questions (with shuffled answer choices) every time a member plays
-// a category, instead of the same fixed 10 questions in the same order.
-export default function TriviaClient({ userId, categories, bestScores: initialBestScores }: Props) {
-  const [screen, setScreen] = useState<Screen>("categories");
-  const [categoryId, setCategoryId] = useState<string | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [score, setScore] = useState(0);
-  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [bestScores, setBestScores] = useState(initialBestScores);
-  const [loadError, setLoadError] = useState("");
+export default function TriviaClient({userId,categories,bestScores:initialBestScores}:Props){
+ const [screen,setScreen]=useState<Screen>("categories");
+ const [categoryId,setCategoryId]=useState<string|null>(null);
+ const [questions,setQuestions]=useState<Question[]>([]);
+ const [questionIndex,setQuestionIndex]=useState(0);
+ const [score,setScore]=useState(0);
+ const [selectedChoice,setSelectedChoice]=useState<string|null>(null);
+ const [difficulty,setDifficulty]=useState<Difficulty|"mixed">("mixed");
+ const [daily,setDaily]=useState(false);
+ const [saving,setSaving]=useState(false);
+ const [loadError,setLoadError]=useState("");
+ const [bestScores,setBestScores]=useState(initialBestScores);
+ const playable=useMemo(()=>categories.filter(c=>c.approvedCount>0),[categories]);
+ const category=categories.find(c=>c.id===categoryId)||null;
+ const question=questions[questionIndex]||null;
+ const accent=ACCENTS[Math.max(0,categories.findIndex(c=>c.id===categoryId))%ACCENTS.length];
 
-  const categoryIndex = categories.findIndex((c) => c.id === categoryId);
-  const category = categoryIndex >= 0 ? categories[categoryIndex] : null;
-  const accent = ACCENTS[Math.max(categoryIndex, 0) % ACCENTS.length];
-  const question: Question | null = questions[questionIndex] ?? null;
+ async function loadCategory(id:string,opts?:{daily?:boolean;difficulty?:Difficulty|"mixed"}){
+  const modeDifficulty=opts?.difficulty??difficulty; setCategoryId(id); setDaily(Boolean(opts?.daily)); setLoadError(""); setScreen("loading");
+  try{
+   const supabase=createClient();
+   let {data,error}=await supabase.rpc("get_quiz_questions_v2",{p_category_id:id,p_limit:opts?.daily?7:10,p_difficulty:modeDifficulty==="mixed"?null:modeDifficulty});
+   if(error){const fallback=await supabase.rpc("get_quiz_questions",{p_category_id:id,p_limit:opts?.daily?7:10});data=fallback.data;error=fallback.error}
+   if(error)throw error;
+   const fetched:Question[]=(data??[]).map((row:any)=>({...row,choices:shuffle(row.choices as string[])}));
+   if(!fetched.length){setLoadError("No approved questions match that challenge yet. Try Mixed difficulty.");setScreen("categories");return}
+   setQuestions(fetched);setQuestionIndex(0);setScore(0);setSelectedChoice(null);setScreen("quiz");
+  }catch{setLoadError("Couldn't load questions right now. Please try again.");setScreen("categories")}
+ }
+ function startDaily(){if(!playable.length)return;const preferred=playable.filter(c=>c.id!=="language-insights");const pool=preferred.length?preferred:playable;loadCategory(pool[dailyIndex(pool.length)].id,{daily:true,difficulty:"mixed"})}
+ function selectChoice(choice:string){if(selectedChoice)return;setSelectedChoice(choice);if(question&&choice===question.correct)setScore(s=>s+1)}
+ async function saveAttempt(){if(!category)return;setSaving(true);try{const supabase=createClient();await supabase.from("quiz_attempts").insert({user_id:userId,category:daily?`daily:${category.id}`:category.id,score,total_questions:questions.length});setBestScores(prev=>{const key=category.id;const existing=prev[key];if(existing&&existing.score>=score)return prev;return{...prev,[key]:{score,totalQuestions:questions.length}}})}finally{setSaving(false)}}
+ async function nextQuestion(){if(questionIndex===questions.length-1){await saveAttempt();setScreen("results")}else{setQuestionIndex(i=>i+1);setSelectedChoice(null)}}
+ function reset(){setScreen("categories");setCategoryId(null);setQuestions([]);setQuestionIndex(0);setSelectedChoice(null);setDaily(false)}
 
-  async function startCategory(id: string) {
-    setCategoryId(id);
-    setLoadError("");
-    setScreen("loading");
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase.rpc("get_quiz_questions", {
-        p_category_id: id,
-        p_limit: 10,
-      });
+ if(screen==="categories"||!category)return <div className="mt-6">
+  {loadError&&<p className="mb-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">{loadError}</p>}
+  <div className="grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
+   <button onClick={startDaily} className="rounded-[1.8rem] bg-slate-950 p-6 text-left text-white shadow-xl transition hover:-translate-y-1"><p className="text-[11px] font-black uppercase tracking-[.18em] text-sky-300">Daily Challenge</p><h3 className="mt-2 text-3xl font-black">Seven questions. One fresh mix.</h3><p className="mt-3 leading-7 text-slate-300">A rotating challenge drawn from the approved L&F question bank. Come back tomorrow for a different category.</p><span className="mt-5 inline-flex rounded-full bg-white px-4 py-2 text-sm font-black text-slate-950">Play today's challenge →</span></button>
+   <div className="lfp-card p-6"><p className="lfp-eyebrow">Difficulty</p><h3 className="mt-2 text-2xl font-black text-slate-950">Choose your depth.</h3><div className="mt-4 grid grid-cols-2 gap-2">{(["mixed",...DIFFICULTIES] as const).map(level=><button key={level} onClick={()=>setDifficulty(level)} className={`rounded-xl px-3 py-3 text-sm font-black capitalize ${difficulty===level?"bg-blue-700 text-white":"bg-slate-100 text-slate-700"}`}>{level}</button>)}</div><p className="mt-4 text-sm leading-6 text-slate-500">Mixed is best for normal play. Difficulty filters are useful when you want a focused challenge.</p></div>
+  </div>
+  <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{categories.map((c,i)=>{const best=bestScores[c.id];return <button key={c.id} disabled={!c.approvedCount} onClick={()=>loadCategory(c.id)} className="lfp-card p-5 text-left disabled:opacity-50"><div className={`h-1.5 w-12 rounded-full ${ACCENTS[i%ACCENTS.length]}`}/><h3 className="mt-4 text-xl font-black text-slate-950">{c.name}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{c.description}</p><div className="mt-4 flex items-center justify-between text-xs font-bold text-slate-500"><span>{c.approvedCount} questions</span>{best&&<span>Best {best.score}/{best.totalQuestions}</span>}</div></button>})}</div>
+ </div>;
 
-      if (error) throw error;
+ if(screen==="loading")return <div className="mt-6 lfp-card p-10 text-center"><p className="font-black text-slate-800">Building your challenge…</p><p className="mt-2 text-sm text-slate-500">Shuffling approved questions and answer choices.</p></div>;
 
-      const fetched: Question[] = (data ?? []).map((row: any) => ({
-        id: row.id,
-        question: row.question,
-        // Shuffle each question's answer order so the correct choice isn't
-        // always sitting in the same position across attempts.
-        choices: shuffle(row.choices as string[]),
-        correct: row.correct,
-        ref: row.ref,
-        note: row.note,
-      }));
+ if(screen==="quiz"&&question){const answered=selectedChoice!==null;const isLast=questionIndex===questions.length-1;return <div className="mt-6">
+  <div className="flex flex-wrap items-center justify-between gap-3"><button onClick={reset} className="font-black text-slate-500">← Challenges</button><div className="flex items-center gap-2 text-sm font-black text-slate-500"><span>{daily?"Daily Challenge":category.name}</span><span>•</span><span>{questionIndex+1}/{questions.length}</span><span>•</span><span>{score} correct</span></div></div>
+  <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100"><div className={`h-full ${accent} transition-all`} style={{width:`${((questionIndex+(answered?1:0))/questions.length)*100}%`}}/></div>
+  <section className="lfp-card mt-5 p-6 sm:p-8"><div className="flex flex-wrap items-center justify-between gap-3"><p className="text-[11px] font-black uppercase tracking-[.16em] text-blue-700">{category.name}</p>{question.difficulty&&<span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black capitalize text-slate-600">{question.difficulty}</span>}</div><h3 className="mt-3 text-2xl font-black leading-tight text-slate-950 sm:text-3xl">{question.question}</h3><div className="mt-6 grid gap-3">{question.choices.map(choice=>{const correct=choice===question.correct;const selected=choice===selectedChoice;let cls="border-slate-200 bg-white";if(answered&&correct)cls="border-emerald-300 bg-emerald-50";else if(answered&&selected&&!correct)cls="border-rose-300 bg-rose-50";return <button key={choice} disabled={answered} onClick={()=>selectChoice(choice)} className={`rounded-2xl border px-4 py-4 text-left font-bold text-slate-800 transition ${cls}`}>{choice}</button>})}</div>
+   {answered&&<div className="mt-6 rounded-[1.4rem] bg-blue-50 p-5"><p className="text-[11px] font-black uppercase tracking-[.16em] text-blue-700">After the Answer · {question.ref}</p><p className="mt-2 leading-7 text-slate-700">{question.note}</p><a href={`/auth/emmaus?next=${encodeURIComponent("/study/bible")}`} className="mt-4 inline-flex font-black text-blue-700">Dig deeper in Emmaus →</a></div>}
+   {answered&&<button onClick={nextQuestion} disabled={saving} className={`mt-5 w-full rounded-2xl px-5 py-3 font-black text-white ${accent}`}>{isLast?(saving?"Saving…":"See Results"):"Next Question →"}</button>}
+  </section>
+ </div>}
 
-      if (fetched.length === 0) {
-        setLoadError(
-          "No approved questions are available in this category yet. Check back soon!"
-        );
-        setScreen("categories");
-        return;
-      }
-
-      setQuestions(fetched);
-      setQuestionIndex(0);
-      setScore(0);
-      setSelectedChoice(null);
-      setScreen("quiz");
-    } catch {
-      setLoadError("Couldn't load questions right now. Please try again.");
-      setScreen("categories");
-    }
-  }
-
-  function selectChoice(choice: string) {
-    if (selectedChoice) return; // already answered this question
-    setSelectedChoice(choice);
-    if (question && choice === question.correct) {
-      setScore((s) => s + 1);
-    }
-  }
-
-  async function nextQuestion() {
-    const isLast = questionIndex === questions.length - 1;
-    if (isLast) {
-      await saveAttempt();
-      setScreen("results");
-    } else {
-      setQuestionIndex((i) => i + 1);
-      setSelectedChoice(null);
-    }
-  }
-
-  async function saveAttempt() {
-    if (!category) return;
-    setSaving(true);
-    try {
-      const supabase = createClient();
-      await supabase.from("quiz_attempts").insert({
-        user_id: userId,
-        category: category.id,
-        score,
-        total_questions: questions.length,
-      });
-
-      setBestScores((prev) => {
-        const existing = prev[category.id];
-        if (existing && existing.score >= score) return prev;
-        return {
-          ...prev,
-          [category.id]: { score, totalQuestions: questions.length },
-        };
-      });
-    } catch {
-      // If the save fails, the member still sees their result on screen;
-      // it just won't be reflected in their saved best score.
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  function backToCategories() {
-    setScreen("categories");
-    setCategoryId(null);
-    setQuestions([]);
-    setSelectedChoice(null);
-  }
-
-  if (screen === "categories" || !category) {
-    return (
-      <div className="mt-6">
-        {loadError && (
-          <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700">
-            {loadError}
-          </p>
-        )}
-        <div className="grid gap-4 sm:grid-cols-2">
-          {categories.map((c, i) => {
-            const best = bestScores[c.id];
-            const cAccent = ACCENTS[i % ACCENTS.length];
-            const playable = c.approvedCount > 0;
-            return (
-              <button
-                key={c.id}
-                type="button"
-                disabled={!playable}
-                onClick={() => startCategory(c.id)}
-                className={`rounded-lg border border-gray-200 bg-white p-5 text-left shadow-sm transition ${
-                  playable
-                    ? `${cAccent.border} hover:shadow-md`
-                    : "cursor-not-allowed opacity-60"
-                }`}
-              >
-                <h3 className="text-base font-semibold text-gray-900">{c.name}</h3>
-                <p className="mt-1 text-sm text-gray-500">{c.description}</p>
-                <div className="mt-3 flex items-center justify-between">
-                  {playable ? (
-                    <span className="text-xs text-gray-400">
-                      {c.approvedCount} question{c.approvedCount === 1 ? "" : "s"} available
-                    </span>
-                  ) : (
-                    <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-500">
-                      Awaiting approval
-                    </span>
-                  )}
-                  {best && (
-                    <span className={`inline-flex items-center rounded-full bg-gray-50 px-2.5 py-0.5 text-xs font-semibold ${cAccent.text}`}>
-                      Best: {best.score}/{best.totalQuestions}
-                    </span>
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  if (screen === "loading") {
-    return (
-      <div className="mt-6 rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
-        <p className="text-sm text-gray-500">Shuffling questions...</p>
-      </div>
-    );
-  }
-
-  if (screen === "quiz" && question) {
-    const hasAnswered = selectedChoice !== null;
-    const isLast = questionIndex === questions.length - 1;
-    const progressPct = Math.round(((questionIndex + (hasAnswered ? 1 : 0)) / questions.length) * 100);
-
-    return (
-      <div className="mt-6">
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={backToCategories}
-            className="text-sm font-medium text-gray-500 hover:text-gray-700"
-          >
-            &larr; Categories
-          </button>
-          <span className="text-sm font-medium text-gray-500">
-            Question {questionIndex + 1} of {questions.length} &middot; Score: {score}
-          </span>
-        </div>
-
-        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-          <div
-            className={`h-full rounded-full transition-all duration-300 ${accent.bar}`}
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
-
-        <div className="mt-4 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <p className={`text-xs font-semibold uppercase tracking-wide ${accent.text}`}>
-            {category.name}
-          </p>
-          <h3 className="mt-2 text-lg font-semibold text-gray-900">
-            {question.question}
-          </h3>
-
-          <div className="mt-4 space-y-2">
-            {question.choices.map((choice) => {
-              const isCorrect = choice === question.correct;
-              const isSelected = choice === selectedChoice;
-
-              let stateClasses = "border-gray-200 bg-white hover:border-indigo-200";
-              if (hasAnswered && isCorrect) {
-                stateClasses = "border-green-300 bg-green-50";
-              } else if (hasAnswered && isSelected && !isCorrect) {
-                stateClasses = "border-red-300 bg-red-50";
-              }
-
-              return (
-                <button
-                  key={choice}
-                  type="button"
-                  onClick={() => selectChoice(choice)}
-                  disabled={hasAnswered}
-                  className={`w-full rounded-md border px-4 py-3 text-left text-sm font-medium text-gray-800 transition ${stateClasses}`}
-                >
-                  {choice}
-                </button>
-              );
-            })}
-          </div>
-
-          {hasAnswered && (
-            <div className="mt-4 rounded-md border-l-4 border-indigo-300 bg-indigo-50/60 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
-                {question.ref}
-              </p>
-              <p className="mt-1 text-sm text-gray-600">{question.note}</p>
-            </div>
-          )}
-
-          {hasAnswered && (
-            <button
-              type="button"
-              onClick={nextQuestion}
-              disabled={saving}
-              className={`mt-4 w-full rounded-md px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60 ${accent.bar} hover:opacity-90`}
-            >
-              {isLast ? (saving ? "Saving..." : "See Results") : "Next Question"}
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Results screen
-  const pct = questions.length > 0 ? score / questions.length : 0;
-  const resultEmoji = pct === 1 ? "\u{1F3C6}" : pct >= 0.7 ? "\u{1F64C}" : "\u{1F4D6}";
-  const resultMessage =
-    pct === 1
-      ? "Perfect score! Well done."
-      : pct >= 0.7
-      ? "Great job knowing God's Word."
-      : "Keep studying and try again anytime.";
-
-  return (
-    <div className="mt-6 rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
-      <p className={`text-xs font-semibold uppercase tracking-wide ${accent.text}`}>
-        {category.name}
-      </p>
-      <p className="mt-2 text-4xl">{resultEmoji}</p>
-      <h3 className="mt-2 text-2xl font-bold text-gray-900">
-        {score} / {questions.length}
-      </h3>
-      <p className="mt-1 text-sm text-gray-500">{resultMessage}</p>
-
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
-        <button
-          type="button"
-          onClick={() => startCategory(category.id)}
-          className={`rounded-md px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 ${accent.bar}`}
-        >
-          Play Again
-        </button>
-        <button
-          type="button"
-          onClick={backToCategories}
-          className="rounded-md border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-gray-300"
-        >
-          Back to Categories
-        </button>
-      </div>
-    </div>
-  );
+ const pct=questions.length?score/questions.length:0;return <div className="mt-6 lfp-card p-8 text-center"><p className="lfp-eyebrow">{daily?"Daily Challenge complete":category.name}</p><div className="mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-full bg-blue-50 text-3xl font-black text-blue-700">{score}/{questions.length}</div><h3 className="mt-5 text-3xl font-black text-slate-950">{pct===1?"Perfect round.":pct>=.7?"Strong work.":"Keep building."}</h3><p className="mx-auto mt-3 max-w-xl leading-7 text-slate-600">The point is not just the score. Every question should move you toward better observation, context, memory, and understanding.</p><div className="mt-6 flex flex-wrap justify-center gap-3"><button onClick={()=>loadCategory(category.id,{daily,difficulty})} className="lfp-button lfp-button-primary">Play again</button><button onClick={reset} className="lfp-button lfp-button-secondary">Choose another challenge</button><a href="/memory" className="lfp-button lfp-button-secondary">Review Memory Verses</a></div></div>
 }
