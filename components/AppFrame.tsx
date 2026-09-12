@@ -1,6 +1,7 @@
 "use client";
 
 import BottomNav from "@/components/BottomNav";
+import UniversalAction from "@/components/UniversalAction";
 import UpdateNotifier from "@/components/UpdateNotifier";
 
 export default function AppFrame({
@@ -16,6 +17,7 @@ export default function AppFrame({
       <main id="main-content" className="pb-24" tabIndex={-1}>
         {children}
       </main>
+      <UniversalAction />
       <BottomNav />
       <UpdateNotifier />
     </>
