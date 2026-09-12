@@ -12,14 +12,16 @@ export async function createCatalogItem(formData:FormData){
  const {data:profile}=await supabase.from("profiles").select("role").eq("id",user.id).single(); if(profile?.role!=="admin")redirect("/dashboard");
  const title=String(formData.get("title")??"").trim(); if(!title)throw new Error("Title is required");
  const content_type=String(formData.get("content_type")??"study"); const provenance=String(formData.get("provenance")??"lfp_original");
- const durationRaw=String(formData.get("duration_minutes")??"").trim();
+ const durationRaw=String(formData.get("duration_minutes")??"").trim(); const structuredRaw=String(formData.get("content_data")??"").trim();
+ let content_data:any={}; if(structuredRaw){try{content_data=JSON.parse(structuredRaw)}catch{throw new Error("Structured content must be valid JSON")}}
  const payload={
   slug:slugify(String(formData.get("slug")||title)), title, summary:String(formData.get("summary")??"").trim()||null,
   content_type, provenance, author_name:String(formData.get("author_name")??"").trim()||null, source_name:String(formData.get("source_name")??"").trim()||null,
   scripture_refs:splitCsv(formData.get("scripture_refs")), topics:splitCsv(formData.get("topics")), audience:splitCsv(formData.get("audience")),
   duration_minutes:durationRaw?Number(durationRaw):null, difficulty:String(formData.get("difficulty")??"")||null,
   external_url:String(formData.get("external_url")??"").trim()||null, artwork_url:String(formData.get("artwork_url")??"").trim()||null,
-  body:String(formData.get("body")??"").trim()||null, is_featured:formData.get("is_featured")==="on", is_published:formData.get("is_published")==="on",
+  body:String(formData.get("body")??"").trim()||null, content_data,
+  is_featured:formData.get("is_featured")==="on", is_published:formData.get("is_published")==="on",
   published_at:formData.get("is_published")==="on"?new Date().toISOString():null, created_by:user.id
  };
  const {error}=await supabase.from("content_catalog").insert(payload); if(error)throw new Error(error.message);
