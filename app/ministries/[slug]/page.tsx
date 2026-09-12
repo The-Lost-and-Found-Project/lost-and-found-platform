@@ -33,7 +33,11 @@ export default async function MinistryPortalPage({params}:{params:Promise<{slug:
 }
 
 function Focus({slug,gatherings,studies,serve}:{slug:string;gatherings:number;studies:number;serve:number}){
- const config=slug==="hearth"?{eyebrow:"Around the Hearth",title:"Belonging is practiced.",copy:"Prioritize people and presence. Show up, notice who needs encouragement, celebrate what God is doing, and carry needs together.",stats:[`${gatherings} gatherings","Hospitality","Encouragement","Prayer"]}:slug==="foundry"?{eyebrow:"Formation in motion",title:"Growth should become faithful action.",copy:"Move through a simple rhythm of truth, practice, service, and reflection rather than collecting information without application.",stats:[`${serve} service opportunities","Learn","Practice","Serve"]}:{eyebrow:"The study table",title:"Read carefully. Speak honestly. Walk it out.",copy:"Use Emmaus for deep Scripture work, then bring your observations into honest conversation, prayer, accountability, and application.",stats:[`${studies} study items","Observe","Discuss","Apply"]};
+ const config=slug==="hearth"
+  ?{eyebrow:"Around the Hearth",title:"Belonging is practiced.",copy:"Prioritize people and presence. Show up, notice who needs encouragement, celebrate what God is doing, and carry needs together.",stats:[`${gatherings} gatherings`,"Hospitality","Encouragement","Prayer"]}
+  :slug==="foundry"
+   ?{eyebrow:"Formation in motion",title:"Growth should become faithful action.",copy:"Move through a simple rhythm of truth, practice, service, and reflection rather than collecting information without application.",stats:[`${serve} service opportunities`,"Learn","Practice","Serve"]}
+   :{eyebrow:"The study table",title:"Read carefully. Speak honestly. Walk it out.",copy:"Use Emmaus for deep Scripture work, then bring your observations into honest conversation, prayer, accountability, and application.",stats:[`${studies} study items`,"Observe","Discuss","Apply"]};
  return <section className="mt-12 rounded-[2rem] bg-[rgb(var(--lfp-ink))] p-7 text-white sm:p-9"><p className="text-[11px] font-black uppercase tracking-[.17em] text-sky-300">{config.eyebrow}</p><h2 className="mt-2 text-3xl font-black">{config.title}</h2><p className="mt-3 max-w-3xl leading-7 text-slate-300">{config.copy}</p><div className="mt-6 flex flex-wrap gap-2">{config.stats.map(s=><span key={s} className="rounded-full bg-white/10 px-4 py-2 text-sm font-bold">{s}</span>)}</div></section>
 }
 
