@@ -1,35 +1,7 @@
 import Link from "next/link";
 import PraiseTicker from "@/components/PraiseTicker";
 
-export default function PraiseWallPage() {
-  return (
-    <main className="lfp-page pb-20">
-      <section className="relative overflow-hidden bg-slate-950 text-white">
-        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(245,190,67,0.22),transparent_30rem),radial-gradient(circle_at_10%_100%,rgba(124,58,237,0.28),transparent_28rem)]" />
-        <div className="lfp-shell relative py-14 sm:py-20">
-          <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Praise Reports</p>
-              <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">Remember what God has done.</h1>
-              <p className="mt-5 text-lg leading-8 text-indigo-100/75">Celebrate answered prayer, unexpected provision, restored hope, and the quiet ways God has shown His faithfulness.</p>
-            </div>
-            <Link href="/praise/submit" className="lfp-button bg-amber-300 text-slate-950 shadow-xl hover:bg-amber-200">Share a Praise</Link>
-          </div>
-        </div>
-      </section>
-
-      <div className="lfp-shell py-10 sm:py-14">
-        <section>
-          <div className="max-w-3xl">
-            <p className="lfp-eyebrow">Praise ticker</p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Recent reminders of God&apos;s faithfulness</h2>
-            <p className="mt-3 text-lg leading-8 text-slate-600">Scan the two-line previews, then open a praise to read the complete story. Love is one acknowledgement per Community Member and can be removed.</p>
-          </div>
-          <div className="mt-7">
-            <PraiseTicker pageMode emptyMessage="No praise reports have been published yet. Your praise could be the first." />
-          </div>
-        </section>
-      </div>
-    </main>
-  );
-}
+export default function PraiseWallPage(){return <main className="lfp-page pb-24">
+ <section className="relative overflow-hidden"><div aria-hidden className="lfp-grid absolute inset-0"/><div aria-hidden className="lfp-orb -left-20 top-0 h-64 w-64 bg-amber-200/45"/><div className="lfp-shell relative py-12 sm:py-16"><div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end"><div className="max-w-3xl"><p className="lfp-eyebrow">Praise</p><h1 className="mt-3 text-4xl font-black tracking-[-.045em] text-slate-950 sm:text-6xl">Don't rush past what <span className="lfp-gradient-text">God has done.</span></h1><p className="mt-5 text-lg leading-8 text-slate-600">Celebrate answered prayer, quiet provision, restored hope, and the moments worth remembering together.</p></div><Link href="/praise/submit" className="lfp-button lfp-button-primary"><span>＋</span> Share a Praise</Link></div></div></section>
+ <div className="lfp-shell py-8 sm:py-12"><section className="grid gap-5 lg:grid-cols-[.72fr_1.28fr]"><aside className="space-y-4"><div className="lfp-card p-6"><p className="text-[11px] font-black uppercase tracking-[.16em] text-amber-700">Why praise matters</p><h2 className="mt-2 text-2xl font-black text-slate-950">Celebration builds memory.</h2><p className="mt-3 leading-7 text-slate-600">Praise helps the community pause long enough to recognize God's faithfulness instead of moving immediately to the next problem.</p></div><div className="rounded-[1.7rem] bg-[rgb(var(--lfp-ink))] p-6 text-white"><p className="text-[11px] font-black uppercase tracking-[.16em] text-sky-300">From prayer to story</p><p className="mt-2 text-xl font-black">Answered prayer can become testimony.</p><p className="mt-2 text-sm leading-6 text-slate-300">When a prayer changes, L&F should help capture what happened next instead of losing the thread.</p></div></aside><section><p className="lfp-eyebrow">Praise pulse</p><h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Recent reminders of God's faithfulness</h2><p className="mt-3 leading-7 text-slate-600">Open a praise to read the complete story and celebrate with the person who shared it.</p><div className="mt-6"><PraiseTicker pageMode emptyMessage="No praise reports have been published yet. Your praise could be the first."/></div></section></section></div>
+ </main>}
