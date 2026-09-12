@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -30,6 +30,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Emmaus single sign-on is not configured." }, { status: 503 });
   }
 
+  if (!user.email) {
+    return NextResponse.json({ error: "Your L&F account needs a verified email before opening Emmaus." }, { status: 400 });
+  }
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("full_name")
@@ -41,7 +45,7 @@ export async function GET(request: NextRequest) {
     iss: "lost-and-found-project",
     aud: "emmaus",
     sub: user.id,
-    email: user.email ?? "",
+    email: user.email,
     name: profile?.full_name ?? user.user_metadata?.full_name ?? "",
     iat: now,
     exp: now + 120,
@@ -49,10 +53,6 @@ export async function GET(request: NextRequest) {
   };
   const payload = base64url(JSON.stringify(payloadObject));
   const signature = sign(payload, secret);
-
-  // Keep a fixed-size comparison helper next to signing logic so future verification
-  // code cannot accidentally regress to an ordinary string equality check.
-  timingSafeEqual(Buffer.from(signature), Buffer.from(signature));
 
   const emmausOrigin = process.env.EMMAUS_SITE_URL ?? "https://emmaus.lostandfoundproject.org";
   const destination = new URL("/auth/lfp", emmausOrigin);
