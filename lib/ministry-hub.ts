@@ -43,7 +43,7 @@ export const ministryPortals: MinistryPortal[] = [
     welcome: "Men's Study is designed around Scripture, honest conversation, and application. The goal is not to collect answers but to become men who understand God's Word and increasingly live what it says.",
     experienceTitle: "Read carefully. Speak honestly. Walk it out.", experienceDescription: "Men's Study is intentionally study-first. Emmaus provides the deeper Scripture tools; this portal supplies the group context, gatherings, resources, prayer, and accountability around that study.",
     actions: [
-      { label: "Open Emmaus", description: "Launch the dedicated L&F Bible study platform and dig deeper into Scripture.", href: "https://emmaus.lostandfoundproject.org", icon: "▤", external: true },
+      { label: "Open Emmaus", description: "Launch Emmaus using your L&F account and dig deeper into Scripture.", href: "/auth/emmaus?next=/study", icon: "▤" },
       { label: "Study Resources", description: "Use available teaching and discipleship resources.", href: "/resources", icon: "▦" },
       { label: "Gatherings", description: "See the shared schedule for upcoming study gatherings.", href: "/events", icon: "◫" },
       { label: "Prayer", description: "Carry one another beyond the study table.", href: "/prayer", icon: "♡" },
