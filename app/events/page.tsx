@@ -3,29 +3,16 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ministryPortals } from "@/lib/ministry-hub";
 
-export default async function EventsPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const { data: gatherings } = await supabase.from("ministry_content")
-    .select("id,ministry_slug,title,summary,link_url,starts_at,ends_at,location")
-    .eq("content_type", "gathering").eq("is_published", true)
-    .gte("starts_at", new Date().toISOString()).order("starts_at", { ascending: true }).limit(30);
-
-  return <main className="lfp-page pb-24">
-    <section className="relative overflow-hidden bg-slate-950 text-white"><div className="lfp-shell relative py-12 sm:py-16">
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-300">Gather Together</p><h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">Events & Gatherings</h1>
-      <p className="mt-5 max-w-3xl text-lg leading-8 text-indigo-100/75">One calendar for gatherings across The Lost and Found Project.</p>
-    </div></section>
-    <div className="lfp-shell py-10 sm:py-14">
-      <section><p className="lfp-eyebrow">Coming Up</p><h2 className="mt-2 text-3xl font-black text-slate-950">Gather with your L&F community.</h2>
-        <div className="mt-6 grid gap-4 md:grid-cols-2">{gatherings?.length ? gatherings.map((event:any) => {
-          const ministry = ministryPortals.find((item) => item.slug === event.ministry_slug);
-          return <article key={event.id} className="lfp-card p-6"><div className="flex items-center justify-between gap-3"><span className="text-xs font-black uppercase tracking-[0.14em] text-indigo-700">{ministry?.title || "L&F"}</span><span className="text-sm font-bold text-slate-500">{event.starts_at ? new Date(event.starts_at).toLocaleString() : "Date coming soon"}</span></div><h3 className="mt-3 text-xl font-black text-slate-950">{event.title}</h3>{event.summary && <p className="mt-2 leading-7 text-slate-600">{event.summary}</p>}{event.location && <p className="mt-3 text-sm font-bold text-slate-700">📍 {event.location}</p>}{event.link_url && <a href={event.link_url} className="mt-4 inline-flex font-black text-indigo-700">Event details →</a>}</article>;
-        }) : <div className="rounded-[2rem] border border-indigo-200 bg-indigo-50/70 p-6 md:col-span-2"><h3 className="text-xl font-black text-slate-950">No upcoming gatherings are published yet.</h3><p className="mt-2 text-slate-600">Approved ministry gatherings will appear here automatically when they are published.</p></div>}</div>
-      </section>
-      <section className="mt-12"><p className="lfp-eyebrow">Browse by Ministry</p><div className="mt-6 grid gap-4 md:grid-cols-3">{ministryPortals.map((ministry) => <Link key={ministry.slug} href={`/ministries/${ministry.slug}`} className="lfp-card p-6"><span className="text-2xl">{ministry.icon}</span><h3 className="mt-4 text-xl font-black">{ministry.title}</h3><p className="mt-2 text-slate-600">{ministry.description}</p></Link>)}</div></section>
-    </div>
-  </main>;
+export default async function EventsPage(){
+ const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect("/login");
+ const {data:gatherings}=await supabase.from("ministry_content").select("id,ministry_slug,title,summary,link_url,starts_at,ends_at,location").eq("content_type","gathering").eq("is_published",true).gte("starts_at",new Date().toISOString()).order("starts_at",{ascending:true}).limit(30);
+ const next=gatherings?.[0]; const rest=(gatherings??[]).slice(1);
+ return <main className="lfp-page pb-24">
+  <section className="relative overflow-hidden"><div aria-hidden className="lfp-grid absolute inset-0"/><div aria-hidden className="lfp-orb -right-24 top-4 h-72 w-72 bg-sky-200/45"/><div className="lfp-shell relative py-12 sm:py-16"><p className="lfp-eyebrow">Gather</p><h1 className="mt-3 text-4xl font-black tracking-[-.045em] text-slate-950 sm:text-6xl">Faith grows differently when you <span className="lfp-gradient-text">show up together.</span></h1><p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">One simple place for gatherings across the entire Lost & Found ministry family.</p></div></section>
+  <div className="lfp-shell py-8 sm:py-12">
+   {next?<section className="rounded-[2rem] bg-[rgb(var(--lfp-ink))] p-7 text-white shadow-2xl sm:p-9"><div className="grid gap-7 lg:grid-cols-[1fr_auto] lg:items-end"><div><p className="text-[11px] font-black uppercase tracking-[.17em] text-sky-300">Up next</p><p className="mt-3 text-sm font-bold text-slate-400">{ministryPortals.find(m=>m.slug===next.ministry_slug)?.title||"L&F"} · {new Date(next.starts_at).toLocaleString()}</p><h2 className="mt-2 text-3xl font-black sm:text-4xl">{next.title}</h2>{next.summary&&<p className="mt-3 max-w-3xl leading-7 text-slate-300">{next.summary}</p>}{next.location&&<p className="mt-4 font-bold text-slate-200">⌖ {next.location}</p>}</div>{next.link_url&&<a href={next.link_url} className="lfp-button bg-white text-slate-950">Event details →</a>}</div></section>:<section className="lfp-card p-7 sm:p-9"><p className="lfp-eyebrow">Up next</p><h2 className="mt-2 text-3xl font-black text-slate-950">Nothing is published yet.</h2><p className="mt-3 max-w-2xl leading-7 text-slate-600">When a ministry publishes a gathering, the next one will become the focal point here automatically.</p></section>}
+   {rest.length>0&&<section className="mt-12"><p className="lfp-eyebrow">Coming up</p><h2 className="mt-2 text-3xl font-black text-slate-950">More ways to gather</h2><div className="mt-6 grid gap-4 md:grid-cols-2">{rest.map((event:any)=>{const ministry=ministryPortals.find(m=>m.slug===event.ministry_slug);return <article key={event.id} className="lfp-card p-6"><div className="flex items-start justify-between gap-4"><div><p className="text-[11px] font-black uppercase tracking-[.15em] text-blue-700">{ministry?.title||"L&F"}</p><h3 className="mt-2 text-xl font-black text-slate-950">{event.title}</h3></div><span className="rounded-2xl bg-blue-50 px-3 py-2 text-right text-xs font-black text-blue-700">{new Date(event.starts_at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}</span></div>{event.summary&&<p className="mt-3 leading-7 text-slate-600">{event.summary}</p>}{event.location&&<p className="mt-3 text-sm font-bold text-slate-700">⌖ {event.location}</p>}{event.link_url&&<a href={event.link_url} className="mt-4 inline-flex font-black text-blue-700">Details →</a>}</article>})}</div></section>}
+   <section className="mt-12"><p className="lfp-eyebrow">Browse by ministry</p><h2 className="mt-2 text-3xl font-black text-slate-950">Find your space.</h2><div className="mt-6 grid gap-4 md:grid-cols-3">{ministryPortals.map(m=><Link key={m.slug} href={`/ministries/${m.slug}`} className="lfp-card p-6"><span className="text-2xl">{m.icon}</span><p className="mt-4 text-[11px] font-black uppercase tracking-[.16em] text-blue-700">{m.eyebrow}</p><h3 className="mt-1 text-xl font-black text-slate-950">{m.title}</h3><p className="mt-2 leading-7 text-slate-600">{m.description}</p></Link>)}</div></section>
+  </div>
+ </main>;
 }
