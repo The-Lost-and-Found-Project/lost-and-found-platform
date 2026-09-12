@@ -6,7 +6,7 @@ import { ministryPortals } from "@/lib/ministry-hub";
 const lanes = [
   { href: "/library#study", icon: "▤", eyebrow: "Study", title: "Bible Studies", description: "Choose Emmaus or an L&F curated study." },
   { href: "/library#devotional", icon: "☼", eyebrow: "Devotions", title: "Daily formation", description: "Short teaching rhythms with Scripture, reflection, and application." },
-  { href: "/library#trivia", icon: "?", eyebrow: "Trivia", title: "Test what you know", description: "Bible challenges that make learning active and memorable." },
+  { href: "/learn", icon: "?", eyebrow: "Learning Lab", title: "Play. Learn. Remember.", description: "Member-only Bible Trivia, Language Insights, and Memory Verse training." },
   { href: "/library#audio", icon: "◉", eyebrow: "Watch & Listen", title: "Approved Media", description: "Original L&F teaching plus carefully curated podcasts, sermons, videos, and interviews." },
   { href: "/prayer", icon: "♡", eyebrow: "Prayer", title: "Carry a need", description: "Pray with someone, share a request, or return to a need you are carrying." },
   { href: "/community", icon: "◎", eyebrow: "Community", title: "See what God is doing", description: "Move between prayer, praise, testimony, and encouragement in one community." },
@@ -28,7 +28,7 @@ export default async function DiscoverPage() {
     <section className="relative overflow-hidden border-b border-white/60">
       <div aria-hidden className="lfp-grid absolute inset-0" />
       <div className="lfp-shell relative py-12 sm:py-16">
-        <div className="max-w-4xl"><p className="lfp-eyebrow">Discover</p><h1 className="mt-3 text-4xl font-black tracking-[-0.04em] text-slate-950 sm:text-6xl">What do you need <span className="lfp-gradient-text">right now?</span></h1><p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">Study Scripture, build a devotional rhythm, challenge yourself with trivia, listen to trusted teaching, or find the next faithful action.</p></div>
+        <div className="max-w-4xl"><p className="lfp-eyebrow">Discover</p><h1 className="mt-3 text-4xl font-black tracking-[-0.04em] text-slate-950 sm:text-6xl">What do you need <span className="lfp-gradient-text">right now?</span></h1><p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">Study Scripture, build a devotional rhythm, challenge yourself in the member Learning Lab, listen to trusted teaching, or find the next faithful action.</p></div>
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{lanes.map((lane) => <Link key={lane.title} href={lane.href} className="lfp-card p-5"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-xl text-blue-700">{lane.icon}</span><p className="mt-5 text-[11px] font-black uppercase tracking-[.17em] text-blue-700">{lane.eyebrow}</p><h2 className="mt-1 text-xl font-black text-slate-950">{lane.title}</h2><p className="mt-2 text-sm leading-6 text-slate-600">{lane.description}</p><span className="mt-4 inline-flex font-black text-blue-700">Explore →</span></Link>)}</div>
       </div>
     </section>
