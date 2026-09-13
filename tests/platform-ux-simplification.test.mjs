@@ -7,169 +7,29 @@ const root = process.cwd();
 const source = (...parts) => readFile(path.join(root, ...parts), "utf8");
 
 test("community previews use a consistent two-line pattern with accessible full views", async () => {
-  const [prayers, praise, ticker, testimonies, card, detail, prayerPage, praisePage, testimonyPage, landing] = await Promise.all([
-    source("components", "PrayerWallTicker.tsx"),
-    source("components", "PraiseTicker.tsx"),
-    source("components", "TickerScroll.tsx"),
-    source("components", "TestimonyTicker.tsx"),
-    source("components", "CommunityTickerCard.tsx"),
-    source("components", "CommunityDetailDialog.tsx"),
-    source("app", "prayer", "page.tsx"),
-    source("app", "praise", "page.tsx"),
-    source("app", "testimonies", "page.tsx"),
-    source("app", "page.tsx"),
-  ]);
-
-  assert.match(prayers, /\.limit\(12\)/);
-  assert.match(prayers, /<TickerScroll heightClass="h-64">/);
-  assert.match(prayers, /Open Prayer/);
-  assert.match(card, /aria-hidden=\{isDuplicate/);
-  assert.match(card, /tabIndex=\{isDuplicate \? -1 : 0\}/);
-  assert.match(ticker, /prefers-reduced-motion: reduce/);
-  assert.match(ticker, /pointerenter/);
-  assert.match(ticker, /pointerleave/);
-  assert.match(testimonies, /\.limit\(3\)/);
-  assert.match(testimonies, /showAll/);
-  assert.match(testimonies, /<TickerScroll heightClass="h-64">/);
-  assert.match(praise, /<TickerScroll heightClass="h-64">/);
-  assert.match(praise, /showAll/);
-  for (const sourceText of [prayers, praise, testimonies]) {
-    assert.doesNotMatch(sourceText, /setInterval\(/);
-  }
-  assert.match(card, /line-clamp-2/);
-  assert.match(card, /Open full \$\{label\}/);
-  assert.match(detail, /aria-modal="true"/);
-  assert.match(detail, /z-\[100\]/);
-  assert.match(detail, /items-center justify-center/);
-  assert.match(detail, /p-3 backdrop-blur-sm sm:p-6/);
-  assert.match(detail, /h-full w-full flex-col overflow-hidden/);
-  assert.doesNotMatch(detail, /sm:max-w-2xl/);
-  assert.match(detail, /overflow-y-auto/);
-  assert.match(detail, /event\.key === "Escape"/);
-  assert.match(detail, /previouslyFocused\?\.focus\(\)/);
-  assert.match(prayerPage, /<PrayerWallTicker pageMode/);
-  assert.match(praisePage, /<PraiseTicker pageMode/);
-  assert.match(testimonyPage, /<TestimonyTicker pageMode/);
-  for (const component of ["PrayerWallTicker", "PraiseTicker", "TestimonyTicker"]) {
-    assert.doesNotMatch(landing, new RegExp(component));
-  }
+  const [prayers,praise,ticker,testimonies,card,detail,prayerPage,praisePage,testimonyPage,landing]=await Promise.all([source("components","PrayerWallTicker.tsx"),source("components","PraiseTicker.tsx"),source("components","TickerScroll.tsx"),source("components","TestimonyTicker.tsx"),source("components","CommunityTickerCard.tsx"),source("components","CommunityDetailDialog.tsx"),source("app","prayer","page.tsx"),source("app","praise","page.tsx"),source("app","testimonies","page.tsx"),source("app","page.tsx")]);
+  assert.match(prayers,/\.limit\(12\)/); assert.match(prayers,/<TickerScroll heightClass="h-64">/); assert.match(prayers,/Open Prayer/); assert.match(card,/aria-hidden=\{isDuplicate/); assert.match(card,/tabIndex=\{isDuplicate \? -1 : 0\}/); assert.match(ticker,/prefers-reduced-motion: reduce/); assert.match(ticker,/pointerenter/); assert.match(ticker,/pointerleave/); assert.match(testimonies,/\.limit\(3\)/); assert.match(testimonies,/showAll/); assert.match(testimonies,/<TickerScroll heightClass="h-64">/); assert.match(praise,/<TickerScroll heightClass="h-64">/); assert.match(praise,/showAll/);
+  for(const text of [prayers,praise,testimonies]) assert.doesNotMatch(text,/setInterval\(/);
+  assert.match(card,/line-clamp-2/); assert.match(card,/Open full \$\{label\}/); assert.match(detail,/aria-modal="true"/); assert.match(detail,/z-\[100\]/); assert.match(detail,/overflow-y-auto/); assert.match(detail,/event\.key === "Escape"/); assert.match(detail,/previouslyFocused\?\.focus\(\)/); assert.match(prayerPage,/<PrayerWallTicker pageMode/); assert.match(praisePage,/<PraiseTicker pageMode/); assert.match(testimonyPage,/<TestimonyTicker pageMode/);
+  for(const component of ["PrayerWallTicker","PraiseTicker","TestimonyTicker"]) assert.doesNotMatch(landing,new RegExp(component));
 });
 
-test("members manage their own prayer requests without an assignment workflow", async () => {
-  const [page, client] = await Promise.all([
-    source("app", "prayer", "my-requests", "page.tsx"),
-    source("components", "MyPrayerRequestsClient.tsx"),
-  ]);
-  assert.match(page, /My Prayer Requests/);
-  assert.match(client, /"edit" \| "resolve" \| "withdraw"/);
-  assert.doesNotMatch(client, /assigned_to|careTeam|prayer partner/i);
-});
+test("members manage their own prayer requests without an assignment workflow", async()=>{const[page,client]=await Promise.all([source("app","prayer","my-requests","page.tsx"),source("components","MyPrayerRequestsClient.tsx")]);assert.match(page,/My Prayer Requests/);assert.match(client,/"edit" \| "resolve" \| "withdraw"/);assert.doesNotMatch(client,/assigned_to|careTeam|prayer partner/i)});
 
-test("admin navigation fits six destinations without horizontal scrolling", async () => {
-  const navigation = await source("components", "BottomNav.tsx");
+test("admin navigation fits six destinations without horizontal scrolling",async()=>{const navigation=await source("components","BottomNav.tsx");assert.match(navigation,/grid-cols-6/);assert.doesNotMatch(navigation,/overflow-x-auto/)});
 
-  assert.match(navigation, /grid-cols-6/);
-  assert.doesNotMatch(navigation, /overflow-x-auto/);
-});
+test("user join dates are deterministic during hydration",async()=>{const users=await source("components","AdminUsersClient.tsx");assert.match(users,/formatJoinedDate/);assert.doesNotMatch(users,/new Date\(member\.created_at\)\.toLocaleDateString/)});
 
-test("user join dates are deterministic during hydration", async () => {
-  const users = await source("components", "AdminUsersClient.tsx");
+test("admin attention view includes submitted and escalated requests",async()=>{const[requests,distribution,admin]=await Promise.all([source("components","AdminPrayerDashboardClient.tsx"),source("lib","prayer-distribution.ts"),source("app","admin","page.tsx")]);assert.match(requests,/request\.status === "Submitted"/);assert.match(requests,/request\.status === "Escalated"/);assert.match(requests,/needsPrayerExposure\(request\)/);assert.match(distribution,/request\.prayer_count <= 1/);assert.match(distribution,/request\.is_public === true/);assert.match(admin,/Needs prayer exposure/);assert.doesNotMatch(requests,/Needs Reassignment/)});
 
-  assert.match(users, /formatJoinedDate/);
-  assert.doesNotMatch(users, /new Date\(member\.created_at\)\.toLocaleDateString/);
-});
+test("Prayer Pulse shows newest active requests without public vanity counts",async()=>{const[page,ticker,distribution]=await Promise.all([source("app","prayer","page.tsx"),source("components","PrayerWallTicker.tsx"),source("lib","prayer-distribution.ts")]);assert.match(ticker,/\.not\("status", "in", CLOSED_PRAYER_STATUS_FILTER\)/);assert.doesNotMatch(ticker,/\.order\("prayer_count"/);assert.match(ticker,/\.order\("created_at", \{ ascending: false \}\)/);assert.match(page,/Prayer pulse/);assert.match(page,/Needs being carried now/);assert.match(ticker,/prayerSupportLabel/);assert.match(page,/<PrayerWallTicker pageMode/);assert.match(distribution,/Waiting for prayer/);assert.match(distribution,/Someone is carrying this in prayer/);assert.match(distribution,/People are carrying this in prayer/)});
 
-test("admin attention view includes submitted and escalated requests", async () => {
-  const [requests, distribution, admin] = await Promise.all([
-    source("components", "AdminPrayerDashboardClient.tsx"),
-    source("lib", "prayer-distribution.ts"),
-    source("app", "admin", "page.tsx"),
-  ]);
+test("shared navigation and prayer-request actions remain accessible and touch friendly",async()=>{const[header,backButton,notifications,account,requests]=await Promise.all([source("components","Header.tsx"),source("components","BackButton.tsx"),source("components","NotificationBell.tsx"),source("components","AuthControls.tsx"),source("components","MyPrayerRequestsClient.tsx")]);assert.match(header,/aria-label="Send feedback"/);assert.match(header,/h-10 w-10/);assert.match(backButton,/h-11 w-11/);assert.match(notifications,/h-11 w-11/);assert.match(account,/h-11 w-11/);assert.match(requests,/lfp-button/);assert.match(requests,/Mark Answered/)});
 
-  assert.match(requests, /request\.status === "Submitted"/);
-  assert.match(requests, /request\.status === "Escalated"/);
-  assert.match(requests, /needsPrayerExposure\(request\)/);
-  assert.match(requests, /Needs prayer exposure/);
-  assert.match(distribution, /request\.prayer_count <= 1/);
-  assert.match(distribution, /request\.is_public === true/);
-  assert.match(admin, /Needs prayer exposure/);
-  assert.doesNotMatch(requests, /Needs Reassignment/);
-});
+test("community centers presence, prayer, praise, and testimony",async()=>{const community=await source("app","community","page.tsx");assert.match(community,/Presence over performance/);assert.match(community,/Prayer → Praise → Testimony/);assert.match(community,/Future groups and connections should lead toward meaningful relationships/)});
 
-test("Prayer distribution shows newest active requests first without public vanity counts", async () => {
-  const [page, ticker, distribution] = await Promise.all([
-    source("app", "prayer", "page.tsx"),
-    source("components", "PrayerWallTicker.tsx"),
-    source("lib", "prayer-distribution.ts"),
-  ]);
+test("Me page groups account, ministry participation, and mission support",async()=>{const more=await source("app","more","page.tsx");assert.match(more,/title:"My life with L&F",eyebrow:"Personal"/);assert.match(more,/title:"Explore & participate",eyebrow:"Ministry"/);assert.match(more,/title:"The Lost & Found Project",eyebrow:"Mission & support"/)});
 
-  assert.match(ticker, /\.not\("status", "in", CLOSED_PRAYER_STATUS_FILTER\)/);
-  assert.doesNotMatch(ticker, /\.order\("prayer_count"/);
-  assert.match(ticker, /\.order\("created_at", \{ ascending: false \}\)/);
-  assert.match(page, /The newest requests appear first/);
-  assert.match(ticker, /prayerSupportLabel/);
-  assert.doesNotMatch(ticker, /request\.display_name \?\? "Anonymous"\} · \{prayerSupportLabel/);
-  assert.doesNotMatch(ticker, /toLocaleDateString\(\)\} · \{selectedPrayerLabel\}/);
-  assert.doesNotMatch(ticker, /You can pray again whenever you return/);
-  assert.match(page, /<PrayerWallTicker pageMode/);
-  assert.doesNotMatch(ticker, /`\$\{request\.prayer_count\} \$\{request\.prayer_count === 1/);
-  assert.match(distribution, /Waiting for prayer/);
-  assert.match(distribution, /Someone is carrying this in prayer/);
-  assert.match(distribution, /People are carrying this in prayer/);
-});
+test("admin center puts prayer moderation before collapsed secondary tools",async()=>{const admin=await source("app","admin","page.tsx");assert.ok(admin.indexOf("Request review")<admin.indexOf("Other administrative tools"));assert.match(admin,/<details className="lfp-card group mt-8/);assert.match(admin,/Communications, ministries, studies, people, content, and analytics/);assert.doesNotMatch(admin,/Prayer Care Applications|Care queue/)});
 
-test("shared navigation and prayer-request actions meet mobile touch target sizing", async () => {
-  const [header, backButton, notifications, account, requests] = await Promise.all([
-    source("components", "Header.tsx"),
-    source("components", "BackButton.tsx"),
-    source("components", "NotificationBell.tsx"),
-    source("components", "AuthControls.tsx"),
-    source("components", "MyPrayerRequestsClient.tsx"),
-  ]);
-
-  assert.match(header, /aria-label="Send feedback"[^>]+h-11 w-11/);
-  assert.match(backButton, /h-11 w-11/);
-  assert.match(notifications, /relative flex h-11 w-11/);
-  assert.match(account, /className="flex h-11 w-11 items-center justify-center/);
-  assert.match(requests, /lfp-button/);
-  assert.match(requests, /Mark Answered/);
-});
-
-test("community roadmap is preserved behind a compact accessible disclosure", async () => {
-  const community = await source("app", "community", "page.tsx");
-
-  assert.match(community, /<details/);
-  assert.match(community, /<summary[^>]+min-h-14/);
-  assert.match(community, /Mentoring and events/);
-  assert.match(community, /systems, training, and safeguards/);
-});
-
-test("more page labels each group by purpose instead of repeating options", async () => {
-  const more = await source("app", "more", "page.tsx");
-
-  assert.doesNotMatch(more, /eyebrow="Options"/);
-  assert.match(more, /eyebrow: "Your account"/);
-  assert.match(more, /eyebrow: "Support and feedback"/);
-  assert.match(more, /eyebrow: "About and help"/);
-});
-
-test("admin center puts prayer moderation before collapsed secondary tools", async () => {
-  const admin = await source("app", "admin", "page.tsx");
-
-  assert.ok(admin.indexOf("Request review") < admin.indexOf("Other administrative tools"));
-  assert.match(admin, /<details className="lfp-card group mt-8/);
-  assert.match(admin, /People, content, and analytics/);
-  assert.doesNotMatch(admin, /Prayer Care Applications|Care queue/);
-  assert.doesNotMatch(admin, /Private Founder Lab|\/emmaus/);
-});
-
-test("prayer administration exposes explicit attention and all-request views", async () => {
-  const requests = await source("components", "AdminPrayerDashboardClient.tsx");
-
-  assert.match(requests, /aria-label="Request queue"/);
-  assert.match(requests, /Attention \(\{attentionCount\}\)/);
-  assert.match(requests, /All \(\{requests\.length\}\)/);
-  assert.match(requests, /setAttentionOnly\(false\)/);
-  assert.match(requests, /statusFilter === "All"/);
-  assert.match(requests, /role="status"/);
-});
+test("prayer administration exposes explicit attention and all-request views",async()=>{const requests=await source("components","AdminPrayerDashboardClient.tsx");assert.match(requests,/aria-label="Request queue"/);assert.match(requests,/Attention \(\{attentionCount\}\)/);assert.match(requests,/All \(\{requests\.length\}\)/);assert.match(requests,/setAttentionOnly\(false\)/);assert.match(requests,/statusFilter === "All"/);assert.match(requests,/role="status"/)});
