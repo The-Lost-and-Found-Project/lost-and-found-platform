@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const memberItems = [
   { href: "/dashboard", label: "Home", icon: "⌂" },
-  { href: "/ministries", label: "Discover", icon: "◇" },
+  { href: "/discover", label: "Discover", icon: "◇" },
   { href: "/prayer", label: "Prayer", icon: "♡", featured: true },
   { href: "/community", label: "Community", icon: "◎" },
   { href: "/more", label: "Me", icon: "◉" },
