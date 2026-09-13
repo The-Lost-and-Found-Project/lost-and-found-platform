@@ -13,7 +13,6 @@ test("authors cannot react to their own Community submissions", async () => {
     source("app", "api", "praise-loves", "route.ts"),
     source("app", "api", "testimony-encouragements", "route.ts"),
   ]);
-
   assert.match(migration, /prayer_requests\.user_id = \(select auth\.uid\(\)\)/);
   assert.match(migration, /praise_reports\.user_id is distinct from \(select auth\.uid\(\)\)/);
   assert.match(migration, /testimonies\.user_id is distinct from \(select auth\.uid\(\)\)/);
@@ -25,12 +24,7 @@ test("authors cannot react to their own Community submissions", async () => {
 });
 
 test("Praise and Testimony reactions notify authors once without naming reactors", async () => {
-  const migration = await source(
-    "supabase",
-    "migrations",
-    "20260817203000_add_safe_community_reactions.sql"
-  );
-
+  const migration = await source("supabase", "migrations", "20260817203000_add_safe_community_reactions.sql");
   assert.match(migration, /create unique index if not exists notifications_unique_community_reaction/);
   assert.match(migration, /create or replace function public\.notify_praise_love\(\)/);
   assert.match(migration, /create or replace function public\.notify_testimony_encouragement\(\)/);
@@ -46,7 +40,6 @@ test("Testimony encouragement is unique, removable, and represented in the ticke
     source("app", "api", "testimony-encouragements", "route.ts"),
     source("components", "TestimonyTicker.tsx"),
   ]);
-
   assert.match(migration, /unique \(testimony_id, user_id\)/);
   assert.match(migration, /testimony_encouragements_user_id_idx/);
   assert.match(route, /\.from\("testimony_encouragements"\)[\s\S]*\.delete\(\)/);
@@ -55,16 +48,17 @@ test("Testimony encouragement is unique, removable, and represented in the ticke
   assert.match(ticker, /This encouraged me/);
 });
 
-test("Notifications remain in primary navigation but not the account dropdown", async () => {
-  const [accountMenu, bottomNav, memberGuide, notificationList] = await Promise.all([
+test("Notifications remain reachable in Platform 2.0 without consuming a primary navigation slot", async () => {
+  const [accountMenu, bottomNav, morePage, memberGuide, notificationList] = await Promise.all([
     source("components", "AuthControls.tsx"),
     source("components", "BottomNav.tsx"),
+    source("app", "more", "page.tsx"),
     source("app", "help", "manual", "member", "page.tsx"),
     source("components", "NotificationsClient.tsx"),
   ]);
-
   assert.doesNotMatch(accountMenu, /href:\s*"\/notifications"/);
-  assert.match(bottomNav, /href:\s*"\/notifications"/);
+  assert.doesNotMatch(bottomNav, /href:\s*"\/notifications"/);
+  assert.match(morePage, /href:"\/notifications"/);
   assert.match(memberGuide, /You cannot react to your own prayer request/);
   assert.match(memberGuide, /You cannot Love your own praise report/);
   assert.match(memberGuide, /You cannot encourage your own testimony/);

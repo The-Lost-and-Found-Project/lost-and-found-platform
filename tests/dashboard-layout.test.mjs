@@ -5,56 +5,35 @@ import test from "node:test";
 
 const root = process.cwd();
 
-test("community Home is dedicated to Project, app, and funding information", async () => {
-  const dashboard = await readFile(
-    path.join(root, "app", "dashboard", "page.tsx"),
-    "utf8"
-  );
-
-  for (const ticker of ["PrayerWallTicker", "PraiseTicker", "TestimonyTicker"]) {
-    assert.doesNotMatch(dashboard, new RegExp(ticker));
-  }
-  assert.match(dashboard, /About the Project/);
-  assert.match(dashboard, /About the App/);
-  assert.match(dashboard, /Funding the mission/);
-  assert.match(dashboard, /Community participation remains free/);
-  assert.doesNotMatch(dashboard, /href="\/(prayer|praise|testimonies)/);
-  assert.doesNotMatch(dashboard, /href="\/(emmaus|trivia|devotions|grow|prayer-assignments|prayer-care-application)/);
+test("My Path dashboard is the signed-in ministry and learning home", async () => {
+  const dashboard = await readFile(path.join(root, "app", "dashboard", "page.tsx"), "utf8");
+  assert.match(dashboard, /My Path/);
+  assert.match(dashboard, /Continue Emmaus/);
+  assert.match(dashboard, /Review verses/);
+  assert.match(dashboard, /Daily challenge/);
+  assert.match(dashboard, /Fresh from L&F/);
+  assert.match(dashboard, /My spaces/);
+  assert.match(dashboard, /Community rhythm/);
+  assert.match(dashboard, /content_progress/);
+  assert.match(dashboard, /memory_verse_progress/);
+  assert.match(dashboard, /quiz_attempts/);
+  assert.match(dashboard, /content_catalog/);
 });
 
-test("public landing page explains the Project, app, and funding without community navigation", async () => {
+test("public landing page is the Platform 2.0 front door", async () => {
   const landing = await readFile(path.join(root, "app", "page.tsx"), "utf8");
-
-  for (const ticker of ["PrayerWallTicker", "PraiseTicker", "TestimonyTicker"]) {
-    assert.doesNotMatch(landing, new RegExp(ticker));
-  }
-  assert.match(landing, /About the Project/);
-  assert.match(landing, /About the Community App/);
-  assert.match(landing, /Funding the mission/);
-  assert.doesNotMatch(landing, /href: "\/(prayer|praise|testimonies)"/);
-  assert.doesNotMatch(landing, /care team|Prayer Care|journey/i);
+  for (const ticker of ["PrayerWallTicker", "PraiseTicker", "TestimonyTicker"]) assert.doesNotMatch(landing, new RegExp(ticker));
+  assert.match(landing, /The Lost and Found Project/);
+  assert.match(landing, /Ministry Compass/);
+  assert.match(landing, /Faith was never meant to be/);
+  assert.match(landing, /Prayer can become praise/);
+  assert.match(landing, /Help make it possible/);
+  assert.match(landing, /if \(user\) redirect\("\/dashboard"\)/);
 });
 
-test("Future Apps page offers preserved products without dead in-app links", async () => {
-  const [apps, more] = await Promise.all([
-    readFile(path.join(root, "app", "apps", "page.tsx"), "utf8"),
-    readFile(path.join(root, "app", "more", "page.tsx"), "utf8"),
-  ]);
-
-  for (const product of ["Emmaus", "Bible Trivia", "Devotions"]) {
-    assert.match(apps, new RegExp(`name: "${product}"`));
-  }
-  assert.match(apps, /moving, not being discontinued/i);
-  assert.match(apps, /Separate app · Coming later/);
-  assert.doesNotMatch(apps, /href="\/(emmaus|trivia|devotions)/);
-  assert.match(more, /href: "\/apps"/);
-});
-
-test("member navigation contains only the approved five primary destinations", async () => {
+test("member navigation matches the Platform 2.0 five-destination shell", async () => {
   const source = await readFile(path.join(root, "components", "BottomNav.tsx"), "utf8");
-
-  for (const destination of ["/dashboard", "/prayer", "/praise", "/testimonies", "/notifications"]) {
-    assert.match(source, new RegExp(`href: "${destination}"`));
-  }
-  assert.doesNotMatch(source, /href: "\/(grow|community|more)"/);
+  for (const destination of ["/dashboard", "/ministries", "/prayer", "/community", "/more"]) assert.match(source, new RegExp(`href: "${destination}"`));
+  for (const label of ["Home", "Discover", "Prayer", "Community", "Me"]) assert.match(source, new RegExp(`label: "${label}"`));
+  assert.match(source, /grid-cols-5/);
 });
