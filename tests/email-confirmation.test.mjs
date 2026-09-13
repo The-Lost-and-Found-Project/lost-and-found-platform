@@ -5,14 +5,16 @@ import test from "node:test";
 
 const root = process.cwd();
 
-test("signup and resend use the canonical confirmation redirect", async () => {
+test("signup and resend use canonical destination-aware confirmation redirects", async () => {
   const [signup, resend, helper] = await Promise.all([
     readFile(path.join(root, "app", "signup", "page.tsx"), "utf8"),
     readFile(path.join(root, "components", "ResendConfirmationForm.tsx"), "utf8"),
     readFile(path.join(root, "lib", "auth", "confirmation.ts"), "utf8"),
   ]);
 
-  assert.match(signup, /emailRedirectTo: getConfirmationRedirectUrl/);
+  assert.match(signup, /getSiteUrl/);
+  assert.match(signup, /\/auth\/callback\?next=/);
+  assert.match(signup, /emailRedirectTo:redirectUrl/);
   assert.match(resend, /type: "signup"/);
   assert.match(resend, /emailRedirectTo: getConfirmationRedirectUrl/);
   assert.match(helper, /NEXT_PUBLIC_SITE_URL/);
