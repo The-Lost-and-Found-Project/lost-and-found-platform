@@ -21,8 +21,7 @@ export async function GET(request: NextRequest) {
 
   const requestedPath = safeEmmausPath(request.nextUrl.searchParams.get("next"));
   if (!user) {
-    const next = `/auth/emmaus?next=${encodeURIComponent(requestedPath)}`;
-    return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(next)}`, request.url));
+    return NextResponse.redirect(new URL(`/emmaus/login?next=${encodeURIComponent(requestedPath)}`, request.url));
   }
 
   const secret = process.env.EMMAUS_SSO_SECRET;
