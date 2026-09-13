@@ -21,7 +21,7 @@ test("new-member operational notifications are admin-only",async()=>{const migra
 
 test("legacy assignment notification links are migrated to Community Prayer",async()=>{const s=await readFile(path.join(root,"supabase","migrations","20260817005006_retire_prayer_care_architecture.sql"),"utf8");assert.match(s,/when type in \('prayed_for', 'status_change', 'check_in_needed'\)/);assert.match(s,/then '\/prayer\/my-requests'/);assert.match(s,/else '\/prayer'/);assert.match(s,/legacy Prayer Care notification is retained for your history/)});
 
-test("legacy standalone product boundary remains represented for migration safety",async()=>{const s=await readFile(path.join(root,"app","programs","page.tsx"),"utf8");for(const program of ["EMAS / Emmaus","Bible Trivia","Devotions"])assert.match(s,new RegExp(`title: "${program}"`));assert.match(s,/const separateProducts =/)});
+test("legacy transition routes enter the unified Discover workflow",async()=>{for(const relativePath of ["app/programs/page.tsx","app/apps/page.tsx"]){const s=await readFile(path.join(root,relativePath),"utf8");assert.match(s,/redirect\("\/discover"\)/);assert.doesNotMatch(s,/Products becoming separate apps|Separate app · Coming later|being prepared as separate experiences/i)}});
 
 test("prayer submission does not invoke the retired assignment notifier",async()=>{const s=await readFile(path.join(root,"app","prayer","submit","page.tsx"),"utf8");assert.doesNotMatch(s,/notify-assignment|assigneeId|get_prayer_request_assignment/);assert.match(s,/href="\/prayer\/my-requests"/);assert.doesNotMatch(s,/JSON\.stringify\(\{[\s\S]*assigneeId:/);assert.doesNotMatch(s,/\.rpc\(\s*"get_prayer_request_assignment"/)});
 
