@@ -28,7 +28,7 @@ create index ministry_role_assignments_user_idx on public.ministry_role_assignme
 create function public.has_platform_role(p_roles text[])
 returns boolean language sql stable security definer set search_path='' as $$
   select exists(select 1 from public.platform_role_assignments r where r.user_id=auth.uid() and r.revoked_at is null and r.role_key=any(p_roles))
-    or exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin' and ('admin'=any(p_roles) or 'owner'=any(p_roles)));
+    or exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin' and 'admin'=any(p_roles));
 $$;
 
 create function public.has_ministry_role(p_ministry_key text,p_roles text[])
@@ -43,35 +43,79 @@ returns boolean language sql stable security definer set search_path='' as $$
  select exists(select 1 from public.bible_study_sessions s where s.id=p_session_id and (s.facilitator_id=auth.uid() or public.has_ministry_role(s.ministry_key,array['facilitator','leader'])));
 $$;
 
+create function public.grant_platform_role(p_user_id uuid,p_role_key text)
+returns void language plpgsql security definer set search_path='' as $$
+begin
+  if p_role_key='owner' then raise exception 'Owner role must be provisioned out-of-band'; end if;
+  if public.has_platform_role(array['owner']) then
+    if p_role_key not in ('admin','content_editor') then raise exception 'Unsupported platform role'; end if;
+  elsif public.has_platform_role(array['admin']) then
+    if p_role_key<>'content_editor' then raise exception 'Admins may only grant content editor'; end if;
+  else raise exception 'Not authorized'; end if;
+  insert into public.platform_role_assignments(user_id,role_key,granted_by,granted_at,revoked_at)
+  values(p_user_id,p_role_key,auth.uid(),now(),null)
+  on conflict(user_id,role_key) do update set granted_by=excluded.granted_by,granted_at=now(),revoked_at=null;
+end;$$;
+
+create function public.revoke_platform_role(p_user_id uuid,p_role_key text)
+returns void language plpgsql security definer set search_path='' as $$
+begin
+  if p_user_id=auth.uid() then raise exception 'Self-revocation is not allowed here'; end if;
+  if p_role_key='owner' then raise exception 'Owner role must be managed out-of-band'; end if;
+  if public.has_platform_role(array['owner']) then
+    if p_role_key not in ('admin','content_editor') then raise exception 'Unsupported platform role'; end if;
+  elsif public.has_platform_role(array['admin']) then
+    if p_role_key<>'content_editor' then raise exception 'Admins may only revoke content editor'; end if;
+  else raise exception 'Not authorized'; end if;
+  update public.platform_role_assignments set revoked_at=now() where user_id=p_user_id and role_key=p_role_key and revoked_at is null;
+end;$$;
+
+create function public.grant_ministry_role(p_user_id uuid,p_ministry_key text,p_role_key text)
+returns void language plpgsql security definer set search_path='' as $$
+begin
+  if p_role_key not in ('participant','facilitator','leader') then raise exception 'Unsupported ministry role'; end if;
+  if public.has_platform_role(array['owner','admin']) then null;
+  elsif public.has_ministry_role(p_ministry_key,array['leader']) then
+    if p_role_key='leader' then raise exception 'Ministry leaders cannot grant leader'; end if;
+  else raise exception 'Not authorized'; end if;
+  insert into public.ministry_role_assignments(user_id,ministry_key,role_key,granted_by,granted_at,revoked_at)
+  values(p_user_id,p_ministry_key,p_role_key,auth.uid(),now(),null)
+  on conflict(user_id,ministry_key,role_key) do update set granted_by=excluded.granted_by,granted_at=now(),revoked_at=null;
+end;$$;
+
+create function public.revoke_ministry_role(p_user_id uuid,p_ministry_key text,p_role_key text)
+returns void language plpgsql security definer set search_path='' as $$
+begin
+  if p_role_key not in ('participant','facilitator','leader') then raise exception 'Unsupported ministry role'; end if;
+  if public.has_platform_role(array['owner','admin']) then null;
+  elsif public.has_ministry_role(p_ministry_key,array['leader']) then
+    if p_role_key='leader' then raise exception 'Ministry leaders cannot revoke leader'; end if;
+  else raise exception 'Not authorized'; end if;
+  update public.ministry_role_assignments set revoked_at=now() where user_id=p_user_id and ministry_key=p_ministry_key and role_key=p_role_key and revoked_at is null;
+end;$$;
+
 alter table public.platform_role_assignments enable row level security;
 alter table public.ministry_role_assignments enable row level security;
 revoke all on public.platform_role_assignments,public.ministry_role_assignments from public,anon,authenticated;
 grant select on public.platform_role_assignments,public.ministry_role_assignments to authenticated;
 grant all on public.platform_role_assignments,public.ministry_role_assignments to service_role;
-grant execute on function public.has_platform_role(text[]),public.has_ministry_role(text,text[]),public.can_facilitate_study_session(uuid) to authenticated;
+grant execute on function public.has_platform_role(text[]),public.has_ministry_role(text,text[]),public.can_facilitate_study_session(uuid),public.grant_platform_role(uuid,text),public.revoke_platform_role(uuid,text),public.grant_ministry_role(uuid,text,text),public.revoke_ministry_role(uuid,text,text) to authenticated;
 
 create policy "Users read own platform assignments" on public.platform_role_assignments for select to authenticated using(user_id=auth.uid() or public.has_platform_role(array['admin','owner']));
 create policy "Users read relevant ministry assignments" on public.ministry_role_assignments for select to authenticated using(user_id=auth.uid() or public.has_platform_role(array['admin','owner']) or public.has_ministry_role(ministry_key,array['leader']));
 
--- Replace broad session visibility with assignment-aware visibility.
 drop policy if exists "Facilitators and members read sessions" on public.bible_study_sessions;
 create policy "Authorized users read study sessions" on public.bible_study_sessions for select to authenticated using(
-  facilitator_id=auth.uid()
-  or public.has_ministry_role(ministry_key,array['facilitator','leader'])
-  or exists(select 1 from public.bible_study_session_members sm where sm.session_id=id and sm.user_id=auth.uid())
+  facilitator_id=auth.uid() or public.has_ministry_role(ministry_key,array['facilitator','leader']) or exists(select 1 from public.bible_study_session_members sm where sm.session_id=id and sm.user_id=auth.uid())
 );
 
 drop policy if exists "Members read their session membership" on public.bible_study_session_members;
-create policy "Authorized users read session membership" on public.bible_study_session_members for select to authenticated using(
-  user_id=auth.uid() or public.can_facilitate_study_session(session_id)
-);
+create policy "Authorized users read session membership" on public.bible_study_session_members for select to authenticated using(user_id=auth.uid() or public.can_facilitate_study_session(session_id));
 
--- Facilitators may manage membership only for sessions they are authorized to facilitate.
 grant insert,delete on public.bible_study_session_members to authenticated;
 create policy "Facilitators enroll session members" on public.bible_study_session_members for insert to authenticated with check(public.can_facilitate_study_session(session_id));
 create policy "Facilitators remove session members" on public.bible_study_session_members for delete to authenticated using(public.can_facilitate_study_session(session_id));
 
--- Lifecycle RPCs now authorize assigned facilitators/leaders, not only platform admins.
 create or replace function public.start_bible_study_journey(p_session_id uuid) returns public.bible_study_sessions language plpgsql security definer set search_path='' as $$ declare v public.bible_study_sessions; begin
  select * into v from public.bible_study_sessions where id=p_session_id for update; if v.id is null then raise exception 'Session not found'; end if; if not public.can_facilitate_study_session(p_session_id) then raise exception 'Not authorized to facilitate this session'; end if; if v.live_ended_at is null then raise exception 'End the live session before starting follow-up'; end if;
  update public.bible_study_sessions set status='follow_up',journey_started_at=coalesce(journey_started_at,now()),journey_paused_at=null where id=p_session_id returning * into v; return v; end; $$;
