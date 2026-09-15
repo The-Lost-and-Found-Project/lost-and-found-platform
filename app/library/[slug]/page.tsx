@@ -9,7 +9,7 @@ import { MediaPlayButton } from "@/components/MediaPlayer";
 const sourceLabel=(v:string)=>v==="lfp_original"?"L&F Original":v==="lfp_approved"?"L&F Approved":"Emmaus";
 
 export default async function LibraryItemPage({params}:{params:Promise<{slug:string}>}){
- const {slug}=await params; const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect("/login");
+ const {slug}=await params; const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect(`/login?next=${encodeURIComponent(`/library/${slug}`)}`);
  const {data:item}=await supabase.from("content_catalog").select("*").eq("slug",slug).eq("is_published",true).maybeSingle(); if(!item)notFound();
  const {data:progress}=await supabase.from("content_progress").select("status,progress_percent").eq("user_id",user.id).eq("content_id",item.id).maybeSingle();
  const data=(item.content_data??{}) as {questions?:any[];sections?:any[];media_url?:string};
