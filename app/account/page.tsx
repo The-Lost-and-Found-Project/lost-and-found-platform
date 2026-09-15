@@ -10,7 +10,7 @@ export default async function AccountPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=%2Faccount");
   }
 
   return <AccountClient email={user.email ?? ""} createdAt={user.created_at} />;

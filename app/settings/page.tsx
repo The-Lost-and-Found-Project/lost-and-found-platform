@@ -13,7 +13,7 @@ const DEFAULT_SETTINGS = {
 export default async function SettingsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?next=%2Fsettings");
 
   const { data: existing } = await supabase
     .from("user_settings")
