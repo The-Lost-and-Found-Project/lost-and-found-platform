@@ -25,8 +25,9 @@ export default function AccountClient({
 
   async function handleResetPassword() {
     setStatus("sending");
+    const recoveryTarget = "/reset-password?next=%2Faccount";
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
+      redirectTo: `${window.location.origin}/auth/recovery?next=${encodeURIComponent(recoveryTarget)}`,
     });
     setStatus(error ? "error" : "sent");
   }
@@ -79,7 +80,7 @@ export default function AccountClient({
         <div className="border-t border-gray-100 pt-6">
           <p className="text-sm font-medium text-gray-900">Password</p>
           <p className="mt-1 text-sm text-gray-600">
-            Send yourself a secure link to reset your password.
+            Send yourself a secure link to reset the password used for both L&amp;F and Emmaus.
           </p>
           <button
             onClick={handleResetPassword}
