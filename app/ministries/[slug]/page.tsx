@@ -13,7 +13,7 @@ const themes={
 };
 
 export default async function MinistryPortalPage({params}:{params:Promise<{slug:string}>}){
- const {slug}=await params; const ministry=getMinistryPortal(slug); if(!ministry)notFound(); const theme=themes[ministry.accent]; const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect("/login");
+ const {slug}=await params; const ministry=getMinistryPortal(slug); if(!ministry)notFound(); const theme=themes[ministry.accent]; const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect(`/login?next=${encodeURIComponent(`/ministries/${slug}`)}`);
  const [{data:content},{data:membership}]=await Promise.all([
   supabase.from("ministry_content").select("id,content_type,title,summary,body,link_url,starts_at,location,action_label,is_featured").eq("ministry_slug",slug).eq("is_published",true).order("sort_order").order("created_at",{ascending:false}),
   supabase.from("ministry_memberships").select("id,membership_role").eq("ministry_slug",slug).eq("user_id",user.id).maybeSingle()
