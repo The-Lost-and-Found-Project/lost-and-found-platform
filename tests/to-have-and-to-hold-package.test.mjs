@@ -5,7 +5,7 @@ import test from "node:test";
 const root=process.cwd();
 const sql=()=>readFile(path.join(root,"supabase","migrations","20260915010000_seed_to_have_and_to_hold.sql"),"utf8");
 
-test("To Have and To Hold is an approved 60-minute deployable study",async()=>{const s=await sql();for(const text of ["'to-have-and-to-hold'","'To Have and To Hold'","'Maintaining What God Has Given Us'","array['general','hearth','foundry']","'approved'"])assert.ok(s.includes(text),`missing ${text}`);assert.match(s,/foundry'\]::text\[],\s*array\[[^\]]+\]::text\[],\s*array\[[^\]]+\]::text\[],60,/s)});
+test("To Have and To Hold is an approved deployable study",async()=>{const s=await sql();for(const text of ["'to-have-and-to-hold'","'To Have and To Hold'","'Maintaining What God Has Given Us'","array['general','hearth','foundry']","\"live_target_minutes\":60","'approved'"])assert.ok(s.includes(text),`missing ${text}`)});
 
 test("To Have and To Hold contains exactly one Day 1 through Day 14 journey",async()=>{const s=await sql();const days=[...s.matchAll(/^\s*\(v_study_id,(\d+),(\d+),'([^']+)'/gm)];assert.equal(days.length,14);assert.deepEqual(days.map(x=>Number(x[1])),Array.from({length:14},(_,i)=>i+1));assert.deepEqual(days.map(x=>Number(x[2])),Array.from({length:14},(_,i)=>i+1))});
 
