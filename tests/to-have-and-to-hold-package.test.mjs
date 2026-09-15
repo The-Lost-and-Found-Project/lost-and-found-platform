@@ -13,4 +13,4 @@ test("journey follows the approved alternating formation rhythm",async()=>{const
 
 test("study package preserves the source study's core Scripture and metaphors",async()=>{const s=await sql();for(const text of ['1 Thessalonians 5:21','Hebrews 10:23','Mark 10:9','Proverbs 4:23','Galatians 6:9','Matthew 6:24','The Washing Machine','Rehabilitation'])assert.ok(s.includes(text),`missing ${text}`)});
 
-test("study package can be reseeded without deleting member completion history",async()=>{const s=await sql();assert.doesNotMatch(s,/delete from public\.bible_study_journey_days/i);assert.match(s,/on conflict \(study_id,day_number\) do update/i)});
+test("study package can be reseeded without deleting member completion history",async()=>{const s=await sql();assert.ok(!s.toLowerCase().includes('delete from public.bible_study_journey_days'));assert.ok(s.toLowerCase().includes('on conflict (study_id,day_number) do update'))});
