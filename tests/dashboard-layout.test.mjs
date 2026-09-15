@@ -33,7 +33,7 @@ test("public landing page is the Platform 2.0 front door", async () => {
 
 test("member navigation matches the Platform 2.0 five-destination shell", async () => {
   const source = await readFile(path.join(root, "components", "BottomNav.tsx"), "utf8");
-  for (const destination of ["/dashboard", "/ministries", "/prayer", "/community", "/more"]) assert.match(source, new RegExp(`href: "${destination}"`));
+  for (const destination of ["/dashboard", "/discover", "/prayer", "/community", "/more"]) assert.match(source, new RegExp(`href: "${destination}"`));
   for (const label of ["Home", "Discover", "Prayer", "Community", "Me"]) assert.match(source, new RegExp(`label: "${label}"`));
   assert.match(source, /grid-cols-5/);
 });

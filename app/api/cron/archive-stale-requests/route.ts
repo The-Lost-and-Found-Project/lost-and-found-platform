@@ -7,8 +7,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // they remain visible to the member in My Prayer Requests. Protected
 // by CRON_SECRET like the other cron routes.
 export async function GET(request: NextRequest) {
+  const cronSecret = process.env.CRON_SECRET;
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
