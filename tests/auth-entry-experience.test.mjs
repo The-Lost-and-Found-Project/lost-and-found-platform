@@ -16,7 +16,7 @@ test("L&F and Emmaus expose separate sign-in experiences over one Supabase ident
  assert.match(emmaus,/createClient/);
  assert.match(emmaus,/signInWithPassword/);
  assert.match(handoff,/\/emmaus\/login\?next=/);
- assert.doesNotMatch(handoff,/\/login\?next=/);
+ assert.doesNotMatch(handoff,/new URL\(`\/login\?next=/);
 });
 
 test("L&F and Emmaus account creation preserve one account with context-aware return paths",async()=>{
