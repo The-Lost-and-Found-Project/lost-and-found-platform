@@ -1,5 +1,152 @@
-"use server";import {revalidatePath} from "next/cache";import {redirect} from "next/navigation";import {createClient} from "@/lib/supabase/server";
-async function admin(){const s=await createClient();const {data:{user}}=await s.auth.getUser();if(!user)redirect("/login");const {data:p}=await s.from("profiles").select("role").eq("id",user.id).single();if(p?.role!=="admin")redirect("/dashboard");return{s,user}}
-const val=(f:FormData,k:string)=>String(f.get(k)||"").trim()||null;const lines=(v:string|null)=>v?v.split("\n").map(x=>x.trim()).filter(Boolean):[];
-export async function createStudy(f:FormData){const{s,user}=await admin();const title=val(f,"title");if(!title)return;let slides:any[]=[];let devotionals:any[]=[];try{slides=JSON.parse(String(f.get("slides")||"[]"));devotionals=JSON.parse(String(f.get("devotional_cards")||"[]"));}catch{throw new Error("Slides and devotional cards must use valid JSON.")}const{error}=await s.from("bible_studies").insert({title,subtitle:val(f,"subtitle"),description:val(f,"description"),ministry_slug:val(f,"ministry_slug"),scripture_refs:lines(val(f,"scripture_refs")),slides,devotional_cards:devotionals,meeting_url:val(f,"meeting_url"),downloadable_url:val(f,"downloadable_url"),is_published:f.get("is_published")==="on",created_by:user.id});if(error)throw new Error(error.message);revalidatePath("/studies");revalidatePath("/admin/studies")}
-export async function toggleStudy(f:FormData){const{s}=await admin();const id=String(f.get("id"));const published=f.get("published")==="true";const{error}=await s.from("bible_studies").update({is_published:!published,updated_at:new Date().toISOString()}).eq("id",id);if(error)throw new Error(error.message);revalidatePath("/studies");revalidatePath("/admin/studies")}
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { provisionMeetSpace } from "@/lib/google-meet/server";
+
+async function admin() {
+  const s = await createClient();
+  const {
+    data: { user },
+  } = await s.auth.getUser();
+  if (!user) redirect("/login");
+  const { data: p } = await s.from("profiles").select("role").eq("id", user.id).single();
+  if (p?.role !== "admin") redirect("/dashboard");
+  return { s, user };
+}
+
+const val = (f: FormData, k: string) => String(f.get(k) || "").trim() || null;
+const lines = (v: string | null) => (v ? v.split("\n").map((x) => x.trim()).filter(Boolean) : []);
+const ministrySlugs = new Set(["hearth", "foundry", "mens-study"]);
+
+export async function createStudy(f: FormData) {
+  const { s, user } = await admin();
+  const title = val(f, "title");
+  if (!title) return;
+  let slides: any[] = [];
+  let devotionals: any[] = [];
+  try {
+    slides = JSON.parse(String(f.get("slides") || "[]"));
+    devotionals = JSON.parse(String(f.get("devotional_cards") || "[]"));
+  } catch {
+    throw new Error("Slides and devotional cards must use valid JSON.");
+  }
+  const { error } = await s.from("bible_studies").insert({
+    title,
+    subtitle: val(f, "subtitle"),
+    description: val(f, "description"),
+    ministry_slug: val(f, "ministry_slug"),
+    scripture_refs: lines(val(f, "scripture_refs")),
+    slides,
+    devotional_cards: devotionals,
+    meeting_url: val(f, "meeting_url"),
+    downloadable_url: val(f, "downloadable_url"),
+    is_published: f.get("is_published") === "on",
+    created_by: user.id,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/studies");
+  revalidatePath("/admin/studies");
+}
+
+export async function toggleStudy(f: FormData) {
+  const { s } = await admin();
+  const id = String(f.get("id"));
+  const published = f.get("published") === "true";
+  const { error } = await s
+    .from("bible_studies")
+    .update({ is_published: !published, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/studies");
+  revalidatePath("/admin/studies");
+}
+
+export async function createLiveSession(f: FormData) {
+  const { user } = await admin();
+  const db = createAdminClient();
+  const bibleStudyId = val(f, "bible_study_id");
+  const ministrySlug = val(f, "ministry_slug");
+  const facilitatorUserId = val(f, "facilitator_user_id");
+  const scheduledStart = val(f, "scheduled_start");
+  const scheduledEnd = val(f, "scheduled_end");
+
+  if (!bibleStudyId) throw new Error("Choose a Bible study.");
+  if (!ministrySlug || !ministrySlugs.has(ministrySlug)) throw new Error("Choose a ministry for the live study.");
+  if (!scheduledStart || Number.isNaN(Date.parse(scheduledStart))) throw new Error("Choose a valid start date and time.");
+  if (scheduledEnd && Number.isNaN(Date.parse(scheduledEnd))) throw new Error("Choose a valid end date and time.");
+  if (scheduledEnd && new Date(scheduledEnd) <= new Date(scheduledStart)) {
+    throw new Error("The end time must be after the start time.");
+  }
+
+  const { data: study } = await db.from("bible_studies").select("id").eq("id", bibleStudyId).maybeSingle();
+  if (!study) throw new Error("Bible study not found.");
+
+  if (facilitatorUserId) {
+    const { data: facilitator } = await db
+      .from("profiles")
+      .select("id,is_active")
+      .eq("id", facilitatorUserId)
+      .maybeSingle();
+    if (!facilitator || facilitator.is_active === false) throw new Error("Choose an active facilitator.");
+  }
+
+  const { error } = await db.from("study_sessions").insert({
+    bible_study_id: bibleStudyId,
+    ministry_slug: ministrySlug,
+    facilitator_user_id: facilitatorUserId,
+    scheduled_start: scheduledStart,
+    scheduled_end: scheduledEnd,
+    status: "scheduled",
+    created_by: user.id,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/studies");
+  revalidatePath(`/studies/${bibleStudyId}`);
+}
+
+export async function provisionLiveSession(f: FormData) {
+  await admin();
+  const db = createAdminClient();
+  const sessionId = val(f, "session_id");
+  if (!sessionId) throw new Error("Missing live study session.");
+
+  const { data: session, error: sessionError } = await db
+    .from("study_sessions")
+    .select("id,bible_study_id,facilitator_user_id,google_space_name,google_meeting_uri")
+    .eq("id", sessionId)
+    .maybeSingle();
+  if (sessionError) throw new Error(sessionError.message);
+  if (!session) throw new Error("Live study session not found.");
+  if (session.google_space_name && session.google_meeting_uri) return;
+
+  let facilitatorEmail: string | null = null;
+  if (session.facilitator_user_id) {
+    const { data: facilitator } = await db
+      .from("profiles")
+      .select("email")
+      .eq("id", session.facilitator_user_id)
+      .maybeSingle();
+    facilitatorEmail = facilitator?.email || null;
+  }
+
+  const meeting = await provisionMeetSpace(facilitatorEmail);
+  const { error: updateError } = await db
+    .from("study_sessions")
+    .update({
+      google_space_name: meeting.spaceName,
+      google_meeting_code: meeting.meetingCode,
+      google_meeting_uri: meeting.meetingUri,
+      google_organizer_email: meeting.organizerEmail,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", sessionId)
+    .is("google_space_name", null);
+  if (updateError) throw new Error(updateError.message);
+
+  revalidatePath("/admin/studies");
+  revalidatePath(`/studies/${session.bible_study_id}`);
+}
