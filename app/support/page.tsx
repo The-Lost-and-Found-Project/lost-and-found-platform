@@ -13,6 +13,16 @@ const helpGroups = [
     ],
   },
   {
+    title: "Bible Learning",
+    icon: "📖",
+    items: [
+      { label: "Open Discover", href: "/discover" },
+      { label: "Open Learning Lab", href: "/learn" },
+      { label: "Read devotions", href: "/devotions" },
+      { label: "Go deeper with Emmaus", href: "/auth/emmaus?next=%2Fstudy" },
+    ],
+  },
+  {
     title: "Community",
     icon: "♡",
     items: [
@@ -48,8 +58,12 @@ const faqs = [
     answer: "Open My Prayer Requests from the Prayer page to review your request, make an update, or mark it answered.",
   },
   {
-    question: "Why can’t I open Mentoring, Events, or the Study Library yet?",
-    answer: "Those experiences are intentionally marked Coming Soon. They remain unavailable until the workflows, training, privacy safeguards, and content are ready.",
+    question: "Where did Bible Trivia, Devotions, and Bible Study go?",
+    answer: "They are part of the signed-in L&F experience. Open Discover for Study, Devotions, Trivia, Watch & Listen, and personalized content. Learning Lab contains Bible Trivia, Language Insights, Memory Verses, and L&F Studies. Emmaus remains the deeper Bible-study experience and opens through the shared L&F account.",
+  },
+  {
+    question: "Do I need a separate Emmaus account?",
+    answer: "No. Your Lost & Found account is the identity used for Emmaus. Enter through Emmaus and the platform will preserve where you were headed while completing the shared sign-in handoff.",
   },
   {
     question: "How do I report a bug or suggest a feature?",

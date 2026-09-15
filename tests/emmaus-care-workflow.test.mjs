@@ -6,7 +6,7 @@ import test from "node:test";
 const root = process.cwd();
 const source = (...parts) => readFile(path.join(root, ...parts), "utf8");
 
-test("Emmaus source and data contracts remain intact behind the standalone-product boundary", async () => {
+test("legacy standalone boundaries do not intercept active Platform 2 learning or Emmaus entry routes", async () => {
   const [nav, emmausLayout, adminLayout, dashboard, separation, middleware] = await Promise.all([
     source("components", "emmaus", "EmmausBottomNav.tsx"),
     source("standalone-products", "source", "app", "emmaus", "layout.tsx"),
@@ -25,11 +25,15 @@ test("Emmaus source and data contracts remain intact behind the standalone-produ
   assert.match(emmausLayout, /redirect\("\/dashboard"\)/);
   assert.match(adminLayout, /profile\?\.role !== "admin"/);
   assert.doesNotMatch(dashboard, /if \(isEmmausFounder\) redirect\("\/emmaus\/walk"\)/);
-  assert.doesNotMatch(dashboard, /href="\/emmaus/);
   assert.doesNotMatch(dashboard, /Private Founder Lab/);
-  assert.match(separation, /"\/emmaus"/);
+
+  for (const activeRoute of ["/emmaus", "/trivia", "/devotions"]) {
+    assert.doesNotMatch(separation, new RegExp(`"${activeRoute.replaceAll("/", "\\/")}"`));
+  }
+  assert.match(separation, /"\/admin\/trivia"/);
+  assert.match(separation, /"\/admin\/devotions"/);
+  assert.match(separation, /"\/grow"/);
   assert.match(middleware, /isStandaloneProductPage\(pathname\)/);
-  assert.match(middleware, /url\.pathname = "\/programs"/);
 });
 
 test("Emmaus progress has authenticated table privileges in addition to RLS", async () => {
