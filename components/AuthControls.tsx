@@ -21,6 +21,7 @@ const ROLE_LABELS: Record<string, string> = {
 const accountItems = [
   { href: "/profile", label: "Profile", icon: "👤" },
   { href: "/settings", label: "Settings", icon: "⚙" },
+  { href: "/account", label: "Account & Security", icon: "▣" },
   { href: "/feedback", label: "Feedback", icon: "💬" },
   { href: "/help", label: "Help & User Manuals", icon: "?" },
 ];
@@ -103,7 +104,7 @@ export default function AuthControls() {
     await supabase.auth.signOut();
     if ("clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
     setOpen(false);
-    router.push("/");
+    router.replace("/login?signedOut=1");
     router.refresh();
   }
 
