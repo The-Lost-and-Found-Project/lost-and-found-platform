@@ -1,7 +1,8 @@
+// These are legacy surfaces that remain intentionally retired inside the L&F
+// application. Active Platform 2.0 member experiences such as /trivia and
+// /devotions, plus the L&F-owned /emmaus/login and /emmaus/signup entry doors,
+// must never be caught by this boundary.
 const STANDALONE_PRODUCT_PAGE_PREFIXES = [
-  "/emmaus",
-  "/trivia",
-  "/devotions",
   "/admin/trivia",
   "/admin/devotions",
   "/grow",
