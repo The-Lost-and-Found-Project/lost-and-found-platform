@@ -9,7 +9,6 @@ Use Google Meet as the video layer for L&F live studies while keeping The Lost a
 - Google Workspace for Nonprofits supports up to 150 Google Meet participants.
 - Workspace for Nonprofits is expected to support meetings up to 24 hours; run one 75-90 minute production-account smoke test before retiring Zoom.
 - Google Meet REST API can create meeting spaces and manage meeting-space members, including COHOST roles.
-- Meet REST API requires user authentication. Domain-wide delegation may be used so an L&F service account can impersonate an authorized Workspace user without requiring each facilitator to complete an OAuth consent flow.
 - Google Meet cannot be embedded as a complete production meeting UI inside an arbitrary L&F iframe.
 - Google Meet Add-ons SDK supports the inverse model: L&F can run inside Meet as a side panel and/or main-stage collaborative experience.
 - Google Meet Media API is Developer Preview and should not be a production dependency for the first release.
@@ -49,24 +48,46 @@ Build a Google Meet add-on that loads an L&F companion in Meet's side panel and 
 
 This keeps Google responsible for audio/video while L&F owns the ministry experience.
 
-## Authentication model
+## Production authentication model
 
-Preferred production model:
+Production uses **keyless authentication**. No Google service-account private key is created or stored in Vercel.
 
-- Google Cloud project owned by The Lost and Found Project
-- Google Meet REST API enabled
-- service account configured for domain-wide delegation
-- Workspace Admin authorizes the narrow Meet scopes required by L&F
-- server-side code impersonates a dedicated Workspace organizer account such as meetings@lostandfoundproject.org
-- facilitator accounts may be added as COHOST members when the meeting is provisioned
+Configured infrastructure:
 
-Do not expose Google service-account credentials or delegated tokens to the browser.
+- Google Cloud project: `the-lost-and-found-project`
+- Google Cloud project number: `66404996772`
+- Google Meet REST API: enabled
+- IAM Service Account Credentials API: enabled
+- service account: `lf-meet-provisioner@the-lost-and-found-project.iam.gserviceaccount.com`
+- delegated Workspace organizer: `meetings@lostandfoundproject.org`
+- Workspace domain-wide delegation OAuth client ID: `102799411913493904211`
+- authorized Workspace scope: `https://www.googleapis.com/auth/meetings.space.created`
+- Workload Identity Pool: `vercel`
+- Workload Identity Provider: `vercel`
+- Vercel team OIDC issuer: `https://oidc.vercel.com/lostandfoundteam`
+- Vercel OIDC audience: `https://vercel.com/lostandfoundteam`
+- authorized Vercel subject: `owner:lostandfoundteam:project:lost-and-found-platform:environment:production`
 
-Initial scope:
+Authentication flow:
 
-`https://www.googleapis.com/auth/meetings.space.created`
+1. Vercel injects a short-lived `VERCEL_OIDC_TOKEN` into the production function runtime.
+2. L&F exchanges that token with Google Security Token Service for a short-lived federated Google access token.
+3. The federated principal is permitted to call `iam.serviceAccounts.signJwt` on the Meet provisioner service account.
+4. L&F asks Google IAM Credentials to sign a domain-wide-delegation JWT for `meetings@lostandfoundproject.org`.
+5. L&F exchanges the signed JWT for a short-lived Google OAuth access token scoped only to `meetings.space.created`.
+6. L&F calls the Google Meet REST API to create the meeting and, when applicable, assign the facilitator as a co-host.
 
-Add broader scopes only when a feature truly requires them.
+The organization policy that blocks service-account key creation should remain enabled.
+
+## Configuration
+
+The production values are pinned as safe, non-secret defaults in `lib/google-meet/server.ts`. They may be overridden for another deployment with:
+
+- `GOOGLE_MEET_SERVICE_ACCOUNT_EMAIL`
+- `GOOGLE_MEET_DELEGATED_ORGANIZER`
+- `GOOGLE_MEET_WORKLOAD_IDENTITY_PROVIDER`
+
+`VERCEL_OIDC_TOKEN` is supplied automatically by Vercel when OIDC Federation is active. Never create or add `GOOGLE_MEET_SERVICE_ACCOUNT_PRIVATE_KEY`.
 
 ## Data model
 
@@ -96,33 +117,26 @@ Recommended fields:
 - Members may read a session only when they are authorized to access its ministry/study.
 - Facilitators may read sessions assigned to them.
 - Meeting creation, co-host assignment, moderation updates, and ending a meeting are server-only operations.
-- Never place delegated Google credentials in `NEXT_PUBLIC_*` variables.
+- The Google WIF IAM binding is restricted to the Vercel production subject for `lost-and-found-platform`.
+- No long-lived Google credential is stored in Vercel or GitHub.
 - Avoid automatic recording of ordinary pastoral/small-group meetings unless L&F later establishes a clear consent and retention policy.
-
-## Environment variables
-
-Server-only variables expected for the production integration:
-
-- `GOOGLE_MEET_SERVICE_ACCOUNT_EMAIL`
-- `GOOGLE_MEET_SERVICE_ACCOUNT_PRIVATE_KEY`
-- `GOOGLE_MEET_DELEGATED_ORGANIZER`
-
-The delegated organizer should be an L&F Google Workspace identity, not a personal Gmail account.
 
 ## Launch checklist
 
-1. Confirm L&F Google Workspace is activated as Workspace for Nonprofits, not merely Google for Nonprofits eligibility.
-2. Run a 75-90 minute, 3+ participant Meet using the actual L&F organizer identity; verify no 60-minute cutoff warning.
-3. Create/choose the Google Cloud project owned by L&F.
-4. Enable Google Meet REST API.
-5. Create service account and enable domain-wide delegation.
-6. Authorize the narrow Meet scope in Workspace Admin.
-7. Configure Vercel server-side environment variables.
-8. Implement server-only Meet client and meeting provisioning action.
-9. Attach generated Meet session to `study_sessions`.
-10. Test admin -> facilitator -> participant flow on desktop and mobile.
-11. Keep Zoom available during pilot; retire routine Zoom use only after the smoke test and pilot succeed.
+1. Google Workspace for Nonprofits active. **Complete**
+2. Google Cloud project owned by `lostandfoundproject.org`. **Complete**
+3. Google Meet REST API enabled. **Complete**
+4. Dedicated service account created. **Complete**
+5. Dedicated organizer `meetings@lostandfoundproject.org` created. **Complete**
+6. Domain-wide delegation authorized for only `meetings.space.created`. **Complete**
+7. Vercel Team OIDC verified. **Complete**
+8. Google Workload Identity Federation configured and restricted to L&F production. **Complete**
+9. Keyless server-side Meet client implemented. **Complete in PR**
+10. Apply `study_sessions` migration and deploy the application changes.
+11. Provision a real meeting through L&F and test admin -> facilitator -> participant flow on desktop and mobile.
+12. Run a 75-90 minute, 3+ participant Meet using the actual L&F organizer identity; verify no 60-minute cutoff warning.
+13. Keep Zoom available during the pilot; retire routine Zoom use only after the smoke test and pilot succeed.
 
 ## Cost posture
 
-Phase 1 should not require a per-facilitator Zoom-style paid seat if the facilitators are using the L&F Workspace/Meet model. Google Cloud API calls for this integration are not intended to replace the video service; Meet remains the conferencing layer and L&F uses the API for provisioning and workflow orchestration.
+Phase 1 should not require a per-facilitator Zoom-style paid seat if facilitators use the L&F Workspace/Meet model. Google remains the conferencing layer while L&F uses the APIs only for provisioning and workflow orchestration.
