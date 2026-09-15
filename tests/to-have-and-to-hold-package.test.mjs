@@ -9,6 +9,6 @@ test("To Have and To Hold is an approved 60-minute deployable study",async()=>{c
 
 test("To Have and To Hold contains exactly one Day 1 through Day 14 journey",async()=>{const s=await sql();const days=[...s.matchAll(/\(v_study_id,(\d+),(\d+),'([^']+)'/g)];assert.equal(days.length,14);assert.deepEqual(days.map(x=>Number(x[1])),Array.from({length:14},(_,i)=>i+1));assert.deepEqual(days.map(x=>Number(x[2])),Array.from({length:14},(_,i)=>i+1))});
 
-test("journey follows the approved alternating formation rhythm",async()=>{const s=await sql();for(const kind of ['dig_deeper','live_it','scripture_focus','reflect','real_life','prayer','sabbath_reset','go_deeper','prepare','bridge'])assert.match(s,new RegExp(`'${kind}'`));assert.match(s,/No streaks|catch-up/i)});
+test("journey follows the approved alternating formation rhythm",async()=>{const s=await sql();for(const kind of ['dig_deeper','live_it','scripture_focus','reflect','real_life','prayer','sabbath_reset','go_deeper','prepare','bridge'])assert.match(s,new RegExp(`'${kind}'`));assert.match(s,/Rest from catch-up/i)});
 
-test("study package preserves the source study's core Scripture and metaphors",async()=>{const s=await sql();for(const text of ['1 Thessalonians 5:21','Hebrews 10:23','Mark 10:9','Proverbs 4:23','Galatians 6:9','Matthew 6:24','The Washing Machine','Rehabilitation'])assert.match(s,new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')))});
+test("study package preserves the source study's core Scripture and metaphors",async()=>{const s=await sql();for(const text of ['1 Thessalonians 5:21','Hebrews 10:23','Mark 10:9','Proverbs 4:23','Galatians 6:9','Matthew 6:24','The Washing Machine','Rehabilitation'])assert.ok(s.includes(text),`missing ${text}`)});
