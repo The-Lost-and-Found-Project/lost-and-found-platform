@@ -16,6 +16,10 @@ create table if not exists public.ministry_content (
 );
 create index if not exists ministry_content_portal_idx on public.ministry_content(ministry_slug, is_published, content_type, sort_order, created_at desc);
 alter table public.ministry_content enable row level security;
+drop policy if exists "members read published ministry content" on public.ministry_content;
+drop policy if exists "admins insert ministry content" on public.ministry_content;
+drop policy if exists "admins update ministry content" on public.ministry_content;
+drop policy if exists "admins delete ministry content" on public.ministry_content;
 create policy "members read published ministry content" on public.ministry_content for select to authenticated using (is_published = true or exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
 create policy "admins insert ministry content" on public.ministry_content for insert to authenticated with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
 create policy "admins update ministry content" on public.ministry_content for update to authenticated using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin')) with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
