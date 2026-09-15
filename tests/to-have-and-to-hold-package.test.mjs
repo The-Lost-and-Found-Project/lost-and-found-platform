@@ -12,3 +12,5 @@ test("To Have and To Hold contains exactly one Day 1 through Day 14 journey",asy
 test("journey follows the approved alternating formation rhythm",async()=>{const s=await sql();for(const kind of ['dig_deeper','live_it','scripture_focus','reflect','real_life','prayer','sabbath_reset','go_deeper','prepare','bridge'])assert.ok(s.includes(`'${kind}'`),`missing ${kind}`);assert.match(s,/Rest from catch-up/i)});
 
 test("study package preserves the source study's core Scripture and metaphors",async()=>{const s=await sql();for(const text of ['1 Thessalonians 5:21','Hebrews 10:23','Mark 10:9','Proverbs 4:23','Galatians 6:9','Matthew 6:24','The Washing Machine','Rehabilitation'])assert.ok(s.includes(text),`missing ${text}`)});
+
+test("study package can be reseeded without deleting member completion history",async()=>{const s=await sql();assert.doesNotMatch(s,/delete from public\.bible_study_journey_days/i);assert.match(s,/on conflict \(study_id,day_number\) do update/i)});
