@@ -67,7 +67,9 @@ export async function createLiveSession(f:FormData){
 
 async function assertSessionManager(sessionId:string){
  const ctx=await currentUser();const db=createAdminClient();const{data:session}=await db.from("study_sessions").select("id,bible_study_id,group_id,facilitator_user_id,google_space_name,google_meeting_uri,daily_path_released_at").eq("id",sessionId).maybeSingle();if(!session)throw new Error("Live study session not found.");
- if(!session.group_id||!await canManageGroup(ctx.user.id,ctx.role,session.group_id))throw new Error("You do not manage this session.");return{ctx,db,session};
+ // Administrators manage the complete study-session catalog, including legacy/test sessions
+ // that may predate study groups. Supervisors and facilitators remain group-scoped.
+ if(!ctx.isAdmin&&(!session.group_id||!await canManageGroup(ctx.user.id,ctx.role,session.group_id)))throw new Error("You do not manage this session.");return{ctx,db,session};
 }
 
 export async function provisionLiveSession(f:FormData){const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing live study session.");const{db,session}=await assertSessionManager(sessionId);if(session.google_space_name&&session.google_meeting_uri)return;let facilitatorEmail:string|null=null;if(session.facilitator_user_id){const{data:facilitator}=await db.from("profiles").select("email").eq("id",session.facilitator_user_id).maybeSingle();facilitatorEmail=facilitator?.email||null;}const meeting=await provisionMeetSpace(facilitatorEmail);const{error:updateError}=await db.from("study_sessions").update({google_space_name:meeting.spaceName,google_meeting_code:meeting.meetingCode,google_meeting_uri:meeting.meetingUri,google_organizer_email:meeting.organizerEmail,updated_at:new Date().toISOString()}).eq("id",sessionId).is("google_space_name",null);if(updateError)throw new Error(updateError.message);revalidatePath("/admin/studies");revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);}
