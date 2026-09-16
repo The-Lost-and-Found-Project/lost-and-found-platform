@@ -33,10 +33,10 @@ async function canManageGroup(userId:string,role:string,groupId:string){
 async function requireScheduler(groupId?:string|null){const ctx=await currentUser();if(!groupId||!await canManageGroup(ctx.user.id,ctx.role,groupId))redirect("/dashboard");return ctx;}
 
 export async function createStudy(f:FormData){
- const{s,user}=await requireAdmin();const title=val(f,"title");if(!title)return;let slides:any[]=[];let devotionals:any[]=[];
- try{slides=JSON.parse(String(f.get("slides")||"[]"));devotionals=JSON.parse(String(f.get("devotional_cards")||"[]"));}catch{throw new Error("Study sections could not be saved.");}
- const{error}=await s.from("bible_studies").insert({title,subtitle:val(f,"subtitle"),description:val(f,"description"),ministry_slug:val(f,"ministry_slug"),scripture_refs:lines(val(f,"scripture_refs")),slides,devotional_cards:devotionals,meeting_url:val(f,"meeting_url"),downloadable_url:val(f,"downloadable_url"),is_published:f.get("is_published")==="on",created_by:user.id});
- if(error)throw new Error(error.message);revalidatePath("/studies");revalidatePath("/admin/studies");
+ const{s,user}=await requireAdmin();const title=val(f,"title");if(!title)return{ok:false,message:"Add a study title before saving."};let slides:any[]=[];let devotionals:any[]=[];
+ try{slides=JSON.parse(String(f.get("slides")||"[]"));devotionals=JSON.parse(String(f.get("devotional_cards")||"[]"));}catch{return{ok:false,message:"Study sections could not be saved. Please try again."};}
+ const{data,error}=await s.from("bible_studies").insert({title,subtitle:val(f,"subtitle"),description:val(f,"description"),ministry_slug:val(f,"ministry_slug"),scripture_refs:lines(val(f,"scripture_refs")),slides,devotional_cards:devotionals,meeting_url:val(f,"meeting_url"),downloadable_url:val(f,"downloadable_url"),is_published:f.get("is_published")==="on",created_by:user.id}).select("id,title").single();
+ if(error||!data)return{ok:false,message:error?.message||"The study could not be saved."};revalidatePath("/studies");revalidatePath("/admin/studies");return{ok:true,id:data.id,title:data.title};
 }
 export async function toggleStudy(f:FormData){const{s}=await requireAdmin();const id=String(f.get("id"));const published=f.get("published")==="true";const{error}=await s.from("bible_studies").update({is_published:!published,updated_at:new Date().toISOString()}).eq("id",id);if(error)throw new Error(error.message);revalidatePath("/studies");revalidatePath("/admin/studies");}
 
