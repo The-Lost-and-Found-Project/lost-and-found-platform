@@ -1,14 +1,12 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ministryPortals } from "@/lib/ministry-hub";
+import { requireAppCapability } from "@/lib/role-access";
 import { archiveStudyGroup, createStudyGroup, saveGroupMembers } from "./actions";
 
 type Props={searchParams?:Promise<{saved?:string;count?:string}>};
 export default async function StudyGroupsPage({searchParams}:Props){
- const params=await searchParams;const savedGroup=params?.saved||"";const savedCount=Number(params?.count||0);
- const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/login");const{data:p}=await s.from("profiles").select("role").eq("id",user.id).single();if(p?.role!=="admin")redirect("/dashboard");
+ const params=await searchParams;const savedGroup=params?.saved||"";const savedCount=Number(params?.count||0);await requireAppCapability("study_groups");
  const db=createAdminClient();const[{data:groups},{data:people},{data:members}]=await Promise.all([
   db.from("study_groups").select("*").eq("status","active").order("name"),
   db.from("profiles").select("id,full_name,email,is_active").eq("is_active",true).order("full_name"),
