@@ -17,6 +17,8 @@ create table if not exists public.study_group_members (
   primary key (group_id,user_id)
 );
 alter table public.study_sessions add column if not exists group_id uuid references public.study_groups(id) on delete set null;
+alter table public.study_sessions add column if not exists ended_at timestamptz;
+alter table public.study_sessions add column if not exists daily_path_released_at timestamptz;
 create index if not exists study_sessions_group_idx on public.study_sessions(group_id,scheduled_start desc);
 
 create table if not exists public.study_daily_progress (
@@ -54,6 +56,16 @@ $$;
 drop trigger if exists trg_prevent_locked_group_response_change on public.study_daily_responses;
 create trigger trg_prevent_locked_group_response_change before update on public.study_daily_responses for each row execute function public.prevent_locked_group_response_change();
 
+create or replace function public.is_lfp_admin(uid uuid) returns boolean language sql stable security definer set search_path=public as $$
+  select exists(select 1 from public.profiles p where p.id=uid and p.role='admin');
+$$;
+create or replace function public.is_study_group_facilitator(uid uuid,gid uuid) returns boolean language sql stable security definer set search_path=public as $$
+  select exists(select 1 from public.study_group_members gm where gm.group_id=gid and gm.user_id=uid and gm.group_role='facilitator' and gm.membership_status='active');
+$$;
+create or replace function public.has_locked_group_response(uid uuid,sid uuid,dnum integer) returns boolean language sql stable security definer set search_path=public as $$
+  select exists(select 1 from public.study_daily_responses r where r.study_session_id=sid and r.user_id=uid and r.day_number=dnum and r.response_type='group_response' and r.locked_at is not null);
+$$;
+
 alter table public.study_groups enable row level security;
 alter table public.study_group_members enable row level security;
 alter table public.study_daily_progress enable row level security;
@@ -61,11 +73,13 @@ alter table public.study_daily_responses enable row level security;
 
 create policy "study group members can view their groups" on public.study_groups for select to authenticated using (
   exists(select 1 from public.study_group_members gm where gm.group_id=id and gm.user_id=auth.uid() and gm.membership_status='active')
-  or exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin')
+  or public.is_lfp_admin(auth.uid())
 );
-create policy "admins manage study groups" on public.study_groups for all to authenticated using (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin')) with check (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
-create policy "members see their group membership" on public.study_group_members for select to authenticated using (user_id=auth.uid() or exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
-create policy "admins manage group membership" on public.study_group_members for all to authenticated using (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin')) with check (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
+create policy "admins manage study groups" on public.study_groups for all to authenticated using (public.is_lfp_admin(auth.uid())) with check (public.is_lfp_admin(auth.uid()));
+create policy "members and facilitators see group membership" on public.study_group_members for select to authenticated using (
+  user_id=auth.uid() or public.is_study_group_facilitator(auth.uid(),group_id) or public.is_lfp_admin(auth.uid())
+);
+create policy "admins manage group membership" on public.study_group_members for all to authenticated using (public.is_lfp_admin(auth.uid())) with check (public.is_lfp_admin(auth.uid()));
 
 create policy "participants manage own daily progress" on public.study_daily_progress for all to authenticated using (
  user_id=auth.uid() and exists(select 1 from public.study_session_participants sp where sp.study_session_id=study_daily_progress.study_session_id and sp.user_id=auth.uid())
@@ -82,8 +96,8 @@ create policy "participants read own or revealed group responses" on public.stud
  or (
    response_type='group_response'
    and exists(select 1 from public.study_session_participants me where me.study_session_id=study_daily_responses.study_session_id and me.user_id=auth.uid())
-   and exists(select 1 from public.study_daily_responses mine where mine.study_session_id=study_daily_responses.study_session_id and mine.user_id=auth.uid() and mine.day_number=study_daily_responses.day_number and mine.response_type='group_response' and mine.locked_at is not null)
+   and public.has_locked_group_response(auth.uid(),study_session_id,day_number)
  )
  or exists(select 1 from public.study_sessions ss where ss.id=study_daily_responses.study_session_id and ss.facilitator_user_id=auth.uid())
- or exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin')
+ or public.is_lfp_admin(auth.uid())
 );
