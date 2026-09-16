@@ -2,21 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ensureCurrentPushSubscription } from "@/lib/push/client";
 
-// Push notifications were previously only discoverable by a member digging
-// into Settings on their own. This is a one-time, dismissible nudge shown on
-// the Dashboard (the default landing page after sign-in) inviting them to
-// turn push on right away instead. Once enabled or dismissed, it stays
-// hidden — this should never nag.
 const DISMISSED_KEY = "lf-push-prompt-dismissed";
-
-// iOS only exposes the Push API to a site once it's been added to the Home
-// Screen (running in standalone/PWA mode) — in a normal Safari tab,
-// `"PushManager" in window` is simply false. Without this check the whole
-// component silently renders nothing for the many members on iPhone who
-// haven't installed the app yet, so they never even learn push notifications
-// are an option. This is a separate, milder nudge pointing them to Settings
-// (where the actual "Add to Home Screen" steps live) instead.
 const IOS_INSTALL_DISMISSED_KEY = "lf-push-prompt-ios-install-dismissed";
 
 function isIosDevice() {
@@ -30,20 +18,9 @@ function isIosDevice() {
 function isStandaloneDisplay() {
   if (typeof window === "undefined") return false;
   return (
-    (window.navigator as unknown as { standalone?: boolean }).standalone ===
-      true || window.matchMedia?.("(display-mode: standalone)").matches
+    (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
+    window.matchMedia?.("(display-mode: standalone)").matches
   );
-}
-
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; i++) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
 }
 
 export default function PushPrompt() {
@@ -59,9 +36,6 @@ export default function PushPrompt() {
       const isIOS = isIosDevice();
       const isStandalone = isStandaloneDisplay();
 
-      // iPhone/iPad, not yet added to the Home Screen: the Push API isn't
-      // available at all here, so don't even attempt the feature-detection
-      // below — just offer the lighter "install first" nudge instead.
       if (isIOS && !isStandalone) {
         if (localStorage.getItem(IOS_INSTALL_DISMISSED_KEY)) return;
         if (active) {
@@ -79,18 +53,15 @@ export default function PushPrompt() {
         "PushManager" in window &&
         "Notification" in window;
 
-      if (!isSupported) return;
-
-      // Already decided one way or another (granted+subscribed, or
-      // explicitly denied) — nothing useful to prompt for.
-      if (Notification.permission === "denied") return;
+      if (!isSupported || Notification.permission === "denied") return;
 
       try {
-        const registration = await navigator.serviceWorker.getRegistration();
-        const existing = await registration?.pushManager.getSubscription();
-        if (existing && Notification.permission === "granted") return;
+        if (Notification.permission === "granted") {
+          const result = await ensureCurrentPushSubscription();
+          if (result.enabled) return;
+        }
       } catch {
-        // Fall through and still offer the prompt.
+        // If silent sync fails, leave the prompt available so the member can retry.
       }
 
       if (active) setVisible(true);
@@ -114,34 +85,11 @@ export default function PushPrompt() {
     setError("");
     setBusy(true);
     try {
-      const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!publicKey) {
-        throw new Error("Push notifications aren't configured yet.");
-      }
-
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
+      const result = await ensureCurrentPushSubscription({ requestPermission: true });
+      if (!result.enabled) {
         dismiss();
         return;
       }
-
-      const registration = await navigator.serviceWorker.register("/sw.js");
-      await navigator.serviceWorker.ready;
-
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey),
-      });
-
-      const json = subscription.toJSON();
-      const res = await fetch("/api/push/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys }),
-      });
-
-      if (!res.ok) throw new Error("Failed to save subscription");
-
       dismiss();
     } catch (err) {
       setError(
@@ -194,8 +142,7 @@ export default function PushPrompt() {
           Get notified the moment someone prays for you
         </p>
         <p className="mt-1 text-sm text-gray-600">
-          Turn on push notifications for this device. You can change this
-          anytime in Settings.
+          Turn on push notifications for this device. You can change this anytime in Settings.
         </p>
         {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
       </div>
