@@ -36,7 +36,7 @@ export async function upsertVerifiedZeffyPayment(payment:AnyRecord){
  const receiptUrl=String(first(payment,"tax_receipt_url","receipt_url","receipt.url","taxReceipt.url")??"").trim()||null;
  const transactionType=String(first(payment,"subscription_id","recurring","frequency")?"recurring":"one_time");
  let userId:null|string=null;
- if(email){const{data:profile}=await supabase.from("profiles").select("id").ilike("email",email).limit(1).maybeSingle();userId=profile?.id??null}
+ if(email){const{data:userPage}=await supabase.auth.admin.listUsers({page:1,perPage:1000});const matched=userPage?.users?.find((u:any)=>u.email?.toLowerCase()===email);userId=matched?.id??null}
  let localCampaignId:null|string=null;
  if(campaignId){const{data:campaign}=await supabase.from("giving_campaigns").select("id,slug").eq("zeffy_campaign_id",campaignId).maybeSingle();localCampaignId=campaign?.id??null}
  const row={user_id:userId,provider:"zeffy",provider_transaction_id:id,campaign_id:localCampaignId,source:localCampaignId?"campaign":"general_mission",amount,currency,transaction_type:transactionType,status:status==="succeeded"?"completed":status,donated_at:donatedAt,receipt_url:receiptUrl,contact_email:email,contact_name:name,zeffy_campaign_id:campaignId,raw_metadata:{zeffy_type:first(payment,"type"),line_items:first(payment,"line_items"),refund:first(payment,"refund")}};
