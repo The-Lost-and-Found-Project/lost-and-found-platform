@@ -1,1 +1,29 @@
-import Link from"next/link";import{redirect}from"next/navigation";import{createClient}from"@/lib/supabase/server";export default async function Page(){const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/login");const{data:p}=await s.from("profiles").select("role").eq("id",user.id).maybeSingle();if(p?.role!=="admin")redirect("/dashboard");return <main className="lfp-page"><div className="lfp-shell py-10"><Link href="/studio/giving">← Giving & Stewardship</Link><h1 className="mt-6 text-4xl font-black">Email &amp; Communications</h1><p className="mt-3 max-w-3xl text-slate-600">This is the communications control point for thank-you messages, impact updates, campaigns, and annual-report notices. Transaction receipts remain Zeffy's responsibility. Optional ministry email will respect member preferences.</p><div className="mt-8 lfp-card p-6"><h2 className="text-xl font-black">Delivery connection not guessed</h2><p className="mt-2 text-slate-600">The content architecture is ready. No email provider or Zeffy synchronization endpoint has been invented; those connections will use L&amp;F's actual configured services.</p></div></div></main>
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function CommunicationsPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.role !== "admin") redirect("/dashboard");
+
+  return (
+    <main className="lfp-page">
+      <div className="lfp-shell py-10">
+        <Link href="/studio/giving">← Giving &amp; Stewardship</Link>
+        <h1 className="mt-6 text-4xl font-black">Email &amp; Communications</h1>
+        <p className="mt-3 max-w-3xl text-slate-600">
+          Manage stewardship communications while keeping transaction receipts with Zeffy.
+        </p>
+      </div>
+    </main>
+  );
+}
