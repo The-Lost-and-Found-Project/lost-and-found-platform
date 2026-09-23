@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 const TYPES=[
@@ -14,12 +13,12 @@ const TYPES=[
 const provenanceLabel=(value:string)=>value==="lfp_original"?"L&F Original":value==="lfp_approved"?"L&F Approved":"Emmaus";
 
 export default async function LibraryPage(){
- const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect("/login");
+ const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser();
  const {data:items}=await supabase.from("content_catalog").select("id,slug,title,summary,content_type,provenance,author_name,source_name,scripture_refs,topics,duration_minutes,difficulty,external_url,is_featured,published_at").eq("is_published",true).order("is_featured",{ascending:false}).order("published_at",{ascending:false}).limit(60);
  const featured=(items??[]).filter((x:any)=>x.is_featured).slice(0,3); const rest=(items??[]).filter((x:any)=>!x.is_featured);
  return <main className="lfp-page pb-24">
-  <section className="relative overflow-hidden"><div aria-hidden className="lfp-grid absolute inset-0"/><div className="lfp-shell relative py-12 sm:py-16"><p className="lfp-eyebrow">L&F Library</p><h1 className="mt-3 max-w-5xl text-4xl font-black tracking-[-.045em] text-slate-950 sm:text-6xl">Study. Listen. Watch. Practice. <span className="lfp-gradient-text">Keep growing.</span></h1><p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">One trusted place for Emmaus, L&F studies, devotions, trivia, original teaching, and carefully approved outside content.</p><div className="mt-7 flex flex-wrap gap-3"><Link href="/auth/emmaus?next=/study" className="lfp-button lfp-button-primary">Open Emmaus →</Link><Link href="/discover" className="lfp-button lfp-button-secondary">Back to Discover</Link></div></div></section>
-  <div className="lfp-shell py-8 sm:py-12">
+  <section className="relative overflow-hidden"><div aria-hidden className="lfp-grid absolute inset-0"/><div className="lfp-shell relative py-12 sm:py-16"><p className="lfp-eyebrow">L&F Library</p><h1 className="mt-3 max-w-5xl text-4xl font-black tracking-[-.045em] text-slate-950 sm:text-6xl">Study. Listen. Watch. Practice. <span className="lfp-gradient-text">Keep growing.</span></h1><p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">One trusted place for Emmaus, L&F studies, devotions, trivia, original teaching, and carefully approved outside content.</p><div className="mt-7 flex flex-wrap gap-3"><Link href="/auth/emmaus?next=/study" className="lfp-button lfp-button-primary">Open Emmaus →</Link><Link href="/resources" className="lfp-button lfp-button-secondary">Resources Hub</Link></div></div></section>
+  <div className="lfp-shell py-8 sm:py-12">{!user&&<div className="mb-8 rounded-[1.5rem] border border-sky-100 bg-sky-50 p-5 text-sm leading-6 text-slate-700"><strong>Browse freely.</strong> Sign in only when you want to save a resource or track progress.</div>}
    <section className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">{TYPES.map(t=><a key={t.key} href={`#${t.key}`} className="lfp-card p-4"><span className="text-xl text-blue-700">{t.icon}</span><h2 className="mt-3 font-black text-slate-950">{t.label}</h2><p className="mt-1 text-xs leading-5 text-slate-500">{t.copy}</p></a>)}</section>
    {featured.length>0&&<section className="mt-12"><p className="lfp-eyebrow">Featured</p><h2 className="mt-2 text-3xl font-black text-slate-950">Start here</h2><div className="mt-6 grid gap-4 lg:grid-cols-3">{featured.map((item:any)=><CatalogCard key={item.id} item={item}/>)}</div></section>}
    {TYPES.map(type=>{const group=rest.filter((x:any)=>x.content_type===type.key); if(!group.length)return null; return <section key={type.key} id={type.key} className="mt-12 scroll-mt-24"><div className="flex items-end justify-between gap-4"><div><p className="lfp-eyebrow">{type.label}</p><h2 className="mt-2 text-3xl font-black text-slate-950">{type.copy}</h2></div><span className="text-sm font-bold text-slate-400">{group.length} available</span></div><div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{group.map((item:any)=><CatalogCard key={item.id} item={item}/>)}</div></section>})}
