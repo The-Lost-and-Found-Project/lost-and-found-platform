@@ -9,7 +9,7 @@ function first<T=any>(obj:AnyRecord,...keys:string[]):T|undefined{
  for(const key of keys){const value=key.split(".").reduce<any>((acc,k)=>acc?.[k],obj);if(value!==undefined&&value!==null&&value!=="")return value as T}
 }
 function toIso(value:any){if(!value)return new Date().toISOString();if(typeof value==="number")return new Date(value<1e12?value*1000:value).toISOString();const d=new Date(value);return Number.isNaN(d.getTime())?new Date().toISOString():d.toISOString()}
-function amountNumber(value:any){const n=Number(value??0);if(!Number.isFinite(n))return 0;return n>100000? n/100 : n}
+function amountNumber(value:any){const n=Number(value??0);if(!Number.isFinite(n))return 0;return n/100}
 export async function fetchZeffyPayment(id:string){
  const key=process.env.ZEFFY_API_KEY;if(!key)throw new Error("ZEFFY_API_KEY is not configured");
  const res=await fetch(`${ZEFFY_API_BASE}/payments/${encodeURIComponent(id)}`,{headers:{Authorization:`Bearer ${key}`,Accept:"application/json"},cache:"no-store"});
