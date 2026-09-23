@@ -10,6 +10,9 @@ type Settings = {
   praise_reaction_notifications: boolean;
   testimony_reaction_notifications: boolean;
   default_anonymous: boolean;
+  giving_impact_emails: boolean;
+  campaign_emails: boolean;
+  annual_giving_report_email: boolean;
 };
 
 export default function SettingsClient({
@@ -75,6 +78,27 @@ export default function SettingsClient({
           checked={settings.email_notifications}
           onChange={(v) => updateSetting("email_notifications", v)}
           busy={saving === "email_notifications"}
+        />
+        <ToggleRow
+          title="Giving impact emails"
+          description="Receive occasional ministry impact updates connected to L&F stewardship. No fundraising drip campaigns."
+          checked={settings.giving_impact_emails}
+          onChange={(v) => updateSetting("giving_impact_emails", v)}
+          busy={saving === "giving_impact_emails"}
+        />
+        <ToggleRow
+          title="Campaign emails"
+          description="Receive selected campaign invitations and updates from L&F."
+          checked={settings.campaign_emails}
+          onChange={(v) => updateSetting("campaign_emails", v)}
+          busy={saving === "campaign_emails"}
+        />
+        <ToggleRow
+          title="Annual giving report email"
+          description="Let us email you when your annual L&F giving report is ready. Official payment receipts remain with Zeffy."
+          checked={settings.annual_giving_report_email}
+          onChange={(v) => updateSetting("annual_giving_report_email", v)}
+          busy={saving === "annual_giving_report_email"}
         />
         <PushNotificationToggle />
         <ToggleRow
