@@ -16,6 +16,7 @@ const quickNeeds = [
   { href: "/learn", label: "I want to learn", copy: "Start with Bible Trivia, Memory Verses, or Language Insights." },
   { href: "/library#devotional", label: "I need a reset", copy: "Open a short devotional rhythm for today." },
   { href: "/community", label: "I need community", copy: "See prayer, praise, testimony, and encouragement in one place." },
+  { href: "/directory", label: "I need a resource", copy: "Find ministries, churches, nonprofits, and practical help." },
 ];
 
 const provenanceLabel = (value: string) => value === "lfp_original" ? "L&F Original" : value === "lfp_approved" ? "L&F Approved" : "Emmaus";
@@ -70,6 +71,8 @@ export default async function DiscoverPage() {
       {featured.length > 0 && <section className="mt-14"><p className="lfp-eyebrow">Featured for you</p><h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Strong places to start.</h2><div className="mt-6 grid gap-4 lg:grid-cols-3">{featured.map((item: any) => <ResourceCard key={item.id} item={item} featured />)}</div></section>}
 
       {recent.length > 0 && <section className="mt-14"><div className="flex items-end justify-between gap-4"><div><p className="lfp-eyebrow">Fresh in Discover</p><h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Study, watch, listen, practice.</h2></div><Link href="/library" className="hidden font-black text-blue-700 sm:inline-flex">View everything →</Link></div><div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{recent.map((item: any) => <ResourceCard key={item.id} item={item} />)}</div></section>}
+
+      <section className="mt-14 rounded-[2rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-7 sm:p-9"><div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center"><div><p className="lfp-eyebrow">Ministry & Resource Directory</p><h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Find help beyond L&F without losing context.</h2><p className="mt-3 max-w-3xl leading-7 text-slate-600">Search curated ministries, churches, nonprofits, online resources, and practical support. Save useful listings to your account and return to them later.</p></div><div className="flex flex-wrap gap-3"><Link href="/directory" className="lfp-button lfp-button-primary">Open Directory</Link><Link href="/directory/saved" className="lfp-button lfp-button-secondary">Saved Resources</Link></div></div></section>
 
       <section className="mt-14 grid gap-4 lg:grid-cols-2">
         <div className="lfp-card p-7 sm:p-8"><p className="lfp-eyebrow">My Path</p><h2 className="mt-2 text-3xl font-black text-slate-950">You should not have to wonder what comes next.</h2><p className="mt-3 leading-7 text-slate-600">My Path is becoming the place where your studies, saved resources, Emmaus progress, devotions, Learning Lab practice, media, and ministry involvement come together into relevant next steps.</p><Link href="/dashboard" className="mt-5 inline-flex font-black text-blue-700">See your path →</Link></div>
