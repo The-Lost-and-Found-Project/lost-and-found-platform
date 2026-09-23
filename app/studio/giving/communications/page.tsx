@@ -1,29 +1,9 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-
-export default async function CommunicationsPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (profile?.role !== "admin") redirect("/dashboard");
-
-  return (
-    <main className="lfp-page">
-      <div className="lfp-shell py-10">
-        <Link href="/studio/giving">← Giving &amp; Stewardship</Link>
-        <h1 className="mt-6 text-4xl font-black">Email &amp; Communications</h1>
-        <p className="mt-3 max-w-3xl text-slate-600">
-          Manage stewardship communications while keeping transaction receipts with Zeffy.
-        </p>
-      </div>
-    </main>
-  );
+import {redirect} from "next/navigation";
+import {createClient} from "@/lib/supabase/server";
+export default async function CommunicationsPage(){
+ const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/login");const{data:p}=await s.from("profiles").select("role").eq("id",user.id).maybeSingle();if(p?.role!=="admin")redirect("/dashboard");
+ const{data:logs,error}=await s.from("giving_communications").select("id,recipient_email,communication_type,subject,status,created_at,sent_at,error_message").order("created_at",{ascending:false}).limit(100);
+ return <main className="lfp-page pb-24"><div className="lfp-shell py-10"><Link href="/studio/giving" className="text-sm font-black text-blue-700">← Giving &amp; Stewardship</Link><p className="lfp-eyebrow mt-8">Email &amp; Communications</p><h1 className="mt-3 text-4xl font-black">Ministry relationship after the transaction.</h1><p className="mt-3 max-w-3xl leading-7 text-slate-600">Zeffy remains authoritative for payment receipts. L&amp;F handles ministry thank-yous and opted-in stewardship communications through the existing Resend connection.</p><section className="mt-8 grid gap-4 md:grid-cols-3"><Card title="Thank-you" text="Sent once after a completed Zeffy payment is verified. No second giving ask."/><Card title="Preference-aware" text="Impact, campaign, and annual-report email types honor the member settings already in L&F."/><Card title="Auditable" text="Every attempted giving communication is recorded as pending, sent, failed, or skipped where applicable."/></section><section className="mt-10"><h2 className="text-2xl font-black">Communication log</h2><div className="mt-4 grid gap-3">{error?<div className="lfp-card p-6 text-red-700">{error.message}</div>:logs?.length?logs.map((a:any)=><article key={a.id} className="lfp-card p-5"><div className="flex flex-wrap justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-widest text-blue-700">{a.communication_type} · {a.status}</p><h3 className="mt-1 font-black">{a.subject}</h3><p className="mt-1 text-sm text-slate-500">{a.recipient_email}</p></div><p className="text-sm font-bold text-slate-500">{new Date(a.sent_at||a.created_at).toLocaleString()}</p></div>{a.error_message&&<p className="mt-3 text-sm text-red-700">{a.error_message}</p>}</article>):<div className="lfp-card p-6">No giving communications have been recorded yet.</div>}</div></section></div></main>
 }
+function Card({title,text}:{title:string;text:string}){return <article className="lfp-card p-6"><h2 className="text-xl font-black">{title}</h2><p className="mt-2 text-sm leading-6 text-slate-600">{text}</p></article>}
