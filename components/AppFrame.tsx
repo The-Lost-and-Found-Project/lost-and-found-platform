@@ -1,15 +1,3 @@
-"use client";
-
-import { usePathname } from "next/navigation";
-import BottomNav from "@/components/BottomNav";
-import UniversalAction from "@/components/UniversalAction";
-import UpdateNotifier from "@/components/UpdateNotifier";
-import MediaPlayer from "@/components/MediaPlayer";
-import PushSubscriptionSync from "@/components/PushSubscriptionSync";
-
-export default function AppFrame({header,children}:{header:React.ReactNode;children:React.ReactNode}){
- const pathname=usePathname();
- const focused=pathname.startsWith("/live/")||(pathname.startsWith("/studies/")&&pathname.endsWith("/present"));
- if(focused)return <><PushSubscriptionSync/><main id="main-content" className="min-h-screen" tabIndex={-1}>{children}</main></>;
- return <><PushSubscriptionSync/>{header}<main id="main-content" className="pb-24" tabIndex={-1}>{children}</main><MediaPlayer/><UniversalAction/><BottomNav/><UpdateNotifier/></>;
-}
+"use client";import{usePathname}from"next/navigation";import BottomNav from"@/components/BottomNav";import UniversalAction from"@/components/UniversalAction";import UpdateNotifier from"@/components/UpdateNotifier";import MediaPlayer from"@/components/MediaPlayer";import PushSubscriptionSync from"@/components/PushSubscriptionSync";import PublicFooter from"@/components/PublicFooter";
+const publicRoots=["/","/start","/ministries","/directory","/resources","/about","/give","/stories","/share-your-story"];
+export default function AppFrame({header,children}:{header:React.ReactNode;children:React.ReactNode}){const p=usePathname();const focused=p.startsWith("/live/")||(p.startsWith("/studies/")&&p.endsWith("/present"));if(focused)return <><PushSubscriptionSync/><main id="main-content" className="min-h-screen" tabIndex={-1}>{children}</main></>;const pub=publicRoots.some(r=>r==="/"?p==="/":p===r||p.startsWith(r+"/"));return <><PushSubscriptionSync/>{header}<main id="main-content" className={pub?"min-h-screen":"pb-24"} tabIndex={-1}>{children}</main>{pub?<PublicFooter/>:<><MediaPlayer/><UniversalAction/><BottomNav/><UpdateNotifier/></>}</>}
