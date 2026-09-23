@@ -22,6 +22,21 @@ export const ministryPortals: MinistryPortal[] = [
     resourceTopics: ["Biblical community", "Hospitality", "Encouragement", "Healthy relationships", "Caring for one another"],
   },
   {
+    slug: "cooking-with-christ", title: "Cooking with Christ", eyebrow: "Serve & Gather", icon: "♨", status: "active", accent: "warm", primaryLabel: "Pull up a chair",
+    description: "Food, fellowship, practical service, and intentional opportunities to share the love and hope of Christ around the table.",
+    purpose: "Using the simple act of preparing and sharing food to serve people well, build genuine relationships, create Christian community, and make room for conversations about Jesus.", scripture: "1 Peter 4:9–10",
+    welcome: "Cooking with Christ begins with something ordinary: a meal. Preparing food together creates room to serve, talk, laugh, listen, welcome people, and demonstrate the kind of hospitality Scripture calls believers to practice.",
+    experienceTitle: "More than a meal. A table with purpose.", experienceDescription: "The food matters because people matter. Cooking with Christ brings practical service and Christian hospitality together so a shared table can become a place of belonging, encouragement, prayer, and Gospel-centered relationship.",
+    actions: [
+      { label: "Serve With Us", description: "Explore ways to help prepare, serve, welcome, clean up, or support a gathering.", href: "/volunteer", icon: "✦" },
+      { label: "Find a Gathering", description: "See L&F gatherings and opportunities to come to the table.", href: "/events", icon: "◫" },
+      { label: "Ask for Prayer", description: "Let L&F help carry what is happening beyond the table.", href: "/prayer", icon: "♡" },
+      { label: "Support the Work", description: "Help L&F provide meals, ingredients, supplies, and opportunities to serve more people.", href: "/give", icon: "◇" },
+    ],
+    rhythms: ["Prepare with care", "Welcome without pretense", "Share the table", "Listen before speaking", "Serve practical needs", "Make room for Christ-centered conversation"],
+    resourceTopics: ["Biblical hospitality", "Serving others", "Food and fellowship", "Christian community", "Evangelism through relationship"],
+  },
+  {
     slug: "foundry", title: "The Foundry", eyebrow: "Form & Serve", icon: "⚒", status: "active", accent: "steel", primaryLabel: "Enter the work",
     description: "A place for spiritual formation, equipping, service, and becoming useful in the work God has prepared.",
     purpose: "Helping people develop durable faith through discipleship, practice, service, and purposeful growth.", scripture: "Ephesians 2:10",
