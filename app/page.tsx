@@ -3,8 +3,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ministryPortals } from "@/lib/ministry-hub";
 
-const GIVE_URL = "https://www.zeffy.com/en-US/donation-form/donate-to-build-god-centered-marriages";
-
 const compass = [
   { title: "I need prayer", detail: "Share what you are carrying or pray with someone else.", href: "/prayer", icon: "♡", tint: "from-rose-50 to-orange-50" },
   { title: "I want to grow", detail: "Open Scripture, build a rhythm, and take a practical next step.", href: "https://emmaus.lostandfoundproject.org", icon: "↗", tint: "from-blue-50 to-indigo-50", external: true },
@@ -105,7 +103,7 @@ export default async function HomePage() {
       <section className="lfp-shell pb-24 pt-8">
         <div className="flex flex-col gap-6 rounded-[2rem] border border-slate-200 bg-white/80 p-7 shadow-sm backdrop-blur-xl sm:p-9 lg:flex-row lg:items-center lg:justify-between">
           <div><p className="lfp-eyebrow">Help make it possible</p><h2 className="mt-2 text-2xl font-black text-slate-950">Keep ministry accessible without putting participation behind a paywall.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Giving helps support responsible technology, ministry resources, and the work of The Lost and Found Project.</p></div>
-          <div className="flex shrink-0 flex-wrap gap-3"><a href={GIVE_URL} target="_blank" rel="noopener noreferrer" className="lfp-button lfp-button-primary">Give securely</a><Link href="/about" className="lfp-button lfp-button-secondary">Our mission</Link></div>
+          <div className="flex shrink-0 flex-wrap gap-3"><Link href="/give" className="lfp-button lfp-button-primary">Giving Center</Link><Link href="/about" className="lfp-button lfp-button-secondary">Our mission</Link></div>
         </div>
       </section>
     </main>
