@@ -1,0 +1,3 @@
+"use server";
+import{revalidatePath}from"next/cache";import{redirect}from"next/navigation";import{createClient}from"@/lib/supabase/server";
+export async function toggleSavedDirectoryEntry(f:FormData){const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/login?next=/directory");const id=String(f.get("entry_id")||"");if(!id)return;const{data:existing}=await s.from("directory_saved_entries").select("entry_id").eq("user_id",user.id).eq("entry_id",id).maybeSingle();if(existing)await s.from("directory_saved_entries").delete().eq("user_id",user.id).eq("entry_id",id);else await s.from("directory_saved_entries").insert({user_id:user.id,entry_id:id});revalidatePath("/directory");revalidatePath("/directory/saved");}
