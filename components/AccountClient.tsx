@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import SignOutButton from "@/components/SignOutButton";
+import Link from "next/link";
 
 export default function AccountClient({
   email,
@@ -104,6 +105,8 @@ export default function AccountClient({
           <SignOutButton />
         </div>
       </div>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-2"><Link href="/account/giving" className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"><p className="text-sm font-semibold text-gray-900">My Giving</p><p className="mt-1 text-sm text-gray-600">View your L&F giving history, receipts, and annual giving record.</p></Link><Link href="/share-your-story" className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"><p className="text-sm font-semibold text-gray-900">Share Your Story</p><p className="mt-1 text-sm text-gray-600">Tell us how God has used L&F in your journey, with privacy choices you control.</p></Link></div>
 
       <div className="mt-8 rounded-2xl border border-red-100 bg-red-50/50 p-6 shadow-sm">
         <p className="text-sm font-semibold text-red-800">Danger Zone</p>
