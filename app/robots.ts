@@ -1,0 +1,2 @@
+import type{MetadataRoute}from"next";
+export default function robots():MetadataRoute.Robots{return{rules:[{userAgent:"*",allow:["/","/start","/ministries","/emmaus","/directory","/resources","/library","/about","/give","/stories","/prayer"],disallow:["/account/","/dashboard","/studio/","/admin/","/api/","/settings","/notifications","/groups/","/journal/"]}],sitemap:"https://lostandfoundproject.org/sitemap.xml",host:"https://lostandfoundproject.org"}}
