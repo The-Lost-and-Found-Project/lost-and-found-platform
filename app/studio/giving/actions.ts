@@ -1,0 +1,13 @@
+"use server";
+import {revalidatePath} from "next/cache";
+import {redirect} from "next/navigation";
+import {createClient} from "@/lib/supabase/server";
+
+async function requireAdmin(){const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/login");const{data:p}=await s.from("profiles").select("role").eq("id",user.id).maybeSingle();if(p?.role!=="admin")redirect("/dashboard");return{s,user};}
+const val=(f:FormData,k:string)=>String(f.get(k)||"").trim()||null;
+
+export async function createGivingCampaign(formData:FormData){const{s,user}=await requireAdmin();const title=val(formData,"title"),slug=val(formData,"slug"),summary=val(formData,"summary");if(!title||!slug||!summary)return;const{error}=await s.from("giving_campaigns").insert({title,slug,summary,campaign_type:String(formData.get("campaign_type")||"general_mission"),designation_notice:val(formData,"designation_notice"),zeffy_url:val(formData,"zeffy_url"),status:String(formData.get("status")||"draft"),show_on_website:formData.get("show_on_website")==="on",show_in_app:formData.get("show_in_app")==="on",created_by:user.id});if(error)throw new Error(error.message);revalidatePath("/studio/giving");revalidatePath("/studio/giving/campaigns");revalidatePath("/give");}
+
+export async function createBudgetAllocation(formData:FormData){const{s,user}=await requireAdmin();const label=val(formData,"label");if(!label)return;const pct=val(formData,"allocation_percent");const target=val(formData,"target_amount");const{error}=await s.from("giving_budget_allocations").insert({label,ministry_slug:val(formData,"ministry_slug"),allocation_percent:pct?Number(pct):null,target_amount:target?Number(target):null,notes:val(formData,"notes"),created_by:user.id});if(error)throw new Error(error.message);revalidatePath("/studio/giving");revalidatePath("/studio/giving/budget");}
+
+export async function submitMinistryStory(formData:FormData){const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/login?next=/share-your-story");const body=val(formData,"body");if(!body)return;const{error}=await s.from("ministry_stories").insert({user_id:user.id,story_type:String(formData.get("story_type")||"testimony"),ministry_slug:val(formData,"ministry_slug"),title:val(formData,"title"),body,display_name:val(formData,"display_name"),consent:String(formData.get("consent")||"private")});if(error)throw new Error(error.message);revalidatePath("/studio/giving/stories");redirect("/share-your-story?submitted=1");}
