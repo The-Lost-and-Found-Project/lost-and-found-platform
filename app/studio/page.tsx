@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 const sections=[
+ {href:"/studio/impact",eyebrow:"Impact & Support",title:"Ministry Impact",copy:"Manage what support enables, keep operational needs private, and choose where contextual invitations appear."},
  {href:"/admin",eyebrow:"People & Care",title:"Administration",copy:"Existing member, prayer, moderation, and ministry administration."},
  {href:"/studies",eyebrow:"Scripture",title:"Studies",copy:"Bible studies and discipleship remain the first content priority."},
  {href:"/ministries",eyebrow:"Ministry",title:"Ministries",copy:"Manage the ministry experiences people discover and join."},
