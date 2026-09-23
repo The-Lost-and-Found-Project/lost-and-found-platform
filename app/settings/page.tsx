@@ -8,6 +8,9 @@ const DEFAULT_SETTINGS = {
   praise_reaction_notifications: true,
   testimony_reaction_notifications: true,
   default_anonymous: false,
+  giving_impact_emails: true,
+  campaign_emails: true,
+  annual_giving_report_email: true,
 };
 
 export default async function SettingsPage() {
@@ -17,7 +20,7 @@ export default async function SettingsPage() {
 
   const { data: existing } = await supabase
     .from("user_settings")
-    .select("email_notifications, prayer_reaction_notifications, praise_reaction_notifications, testimony_reaction_notifications, default_anonymous")
+    .select("email_notifications, prayer_reaction_notifications, praise_reaction_notifications, testimony_reaction_notifications, default_anonymous, giving_impact_emails, campaign_emails, annual_giving_report_email")
     .eq("user_id", user.id)
     .single();
 
@@ -26,7 +29,7 @@ export default async function SettingsPage() {
     const { data: created } = await supabase
       .from("user_settings")
       .insert({ user_id: user.id })
-      .select("email_notifications, prayer_reaction_notifications, praise_reaction_notifications, testimony_reaction_notifications, default_anonymous")
+      .select("email_notifications, prayer_reaction_notifications, praise_reaction_notifications, testimony_reaction_notifications, default_anonymous, giving_impact_emails, campaign_emails, annual_giving_report_email")
       .single();
     settings = created;
   }
