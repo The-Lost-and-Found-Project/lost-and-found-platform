@@ -1,5 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {sendGivingEmail,givingLinks} from "@/lib/giving-email";
 
 const ZEFFY_API_BASE="https://api.zeffy.com/api/v1";
 
@@ -40,6 +41,7 @@ export async function upsertVerifiedZeffyPayment(payment:AnyRecord){
  let localCampaignId:null|string=null;
  if(campaignId){const{data:campaign}=await supabase.from("giving_campaigns").select("id,slug").eq("zeffy_campaign_id",campaignId).maybeSingle();localCampaignId=campaign?.id??null}
  const row={user_id:userId,provider:"zeffy",provider_transaction_id:id,campaign_id:localCampaignId,source:localCampaignId?"campaign":"general_mission",amount,currency,transaction_type:transactionType,status:status==="succeeded"?"completed":status,donated_at:donatedAt,receipt_url:receiptUrl,contact_email:email,contact_name:name,zeffy_campaign_id:campaignId,raw_metadata:{zeffy_type:first(payment,"type"),line_items:first(payment,"line_items"),refund:first(payment,"refund")}};
- const{error}=await supabase.from("giving_transactions").upsert(row,{onConflict:"provider_transaction_id"});if(error)throw new Error(error.message);
+ const{data:saved,error}=await supabase.from("giving_transactions").upsert(row,{onConflict:"provider_transaction_id"}).select("id").single();if(error)throw new Error(error.message);
+ if(email&&status==="succeeded"){try{await sendGivingEmail({to:email,userId:userId,kind:"thank_you",subject:"Thank you for supporting The Lost & Found Project",heading:"Thank you for helping carry the mission forward.",body:"Your gift was received through Zeffy. We are grateful for your generosity and for every way you participate in the mission. Zeffy remains the official source for your transaction receipt.",ctaLabel:"View My Giving",ctaUrl:givingLinks.myGiving,transactionId:saved.id});}catch(e){console.error("Giving thank-you email failed",e)}}
  return row;
 }
