@@ -21,7 +21,7 @@ export default async function GivePage(){
     <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">The Lost &amp; Found Project exists to point people to Christ, help people grow in God&apos;s Word, and put faith into action. Financial support helps make the practical ministry behind that mission possible.</p>
     <p className="mt-5 max-w-3xl text-sm leading-7 text-slate-400">“Let each man give according as he has determined in his heart, not grudgingly or under compulsion, for God loves a cheerful giver.” — 2 Corinthians 9:7, WEB</p>
     <div className="mt-8 flex flex-wrap gap-3"><a href={GENERAL_GIVE_URL} target="_blank" rel="noopener noreferrer" className="lfp-button lfp-button-primary">Give securely with Zeffy →</a>{user&&<Link href="/account/giving" className="lfp-button lfp-button-secondary">My Giving</Link>}</div>
-    <p className="mt-4 text-xs font-bold text-slate-400">Zeffy securely processes the transaction. L&amp;F does not store your payment-card information.</p>
+    <p className="mt-4 text-xs font-bold text-slate-400">Zeffy securely processes the transaction. L&amp;F does not store your payment-card information. After giving, you can return to our thank-you page for your L&amp;F next steps.</p>
    </div>
   </section>
 
