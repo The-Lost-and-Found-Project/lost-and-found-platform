@@ -66,7 +66,7 @@ export async function createLiveSession(f:FormData){
 }
 
 async function assertSessionManager(sessionId:string){
- const ctx=await currentUser();const db=createAdminClient();const{data:session}=await db.from("study_sessions").select("id,bible_study_id,group_id,facilitator_user_id,google_space_name,google_meeting_uri,daily_path_released_at").eq("id",sessionId).maybeSingle();if(!session)throw new Error("Live study session not found.");
+ const ctx=await currentUser();const db=createAdminClient();const{data:session}=await db.from("study_sessions").select("id,bible_study_id,group_id,facilitator_user_id,google_space_name,google_meeting_uri,daily_path_released_at,status,ended_at").eq("id",sessionId).maybeSingle();if(!session)throw new Error("Live study session not found.");
  // Administrators manage the complete study-session catalog, including legacy/test sessions
  // that may predate study groups. Supervisors and facilitators remain group-scoped.
  if(!ctx.isAdmin&&(!session.group_id||!await canManageGroup(ctx.user.id,ctx.role,session.group_id)))throw new Error("You do not manage this session.");return{ctx,db,session};
@@ -74,4 +74,50 @@ async function assertSessionManager(sessionId:string){
 
 export async function provisionLiveSession(f:FormData){const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing live study session.");const{db,session}=await assertSessionManager(sessionId);if(session.google_space_name&&session.google_meeting_uri)return;let facilitatorEmail:string|null=null;if(session.facilitator_user_id){const{data:facilitator}=await db.from("profiles").select("email").eq("id",session.facilitator_user_id).maybeSingle();facilitatorEmail=facilitator?.email||null;}const meeting=await provisionMeetSpace(facilitatorEmail);const{error:updateError}=await db.from("study_sessions").update({google_space_name:meeting.spaceName,google_meeting_code:meeting.meetingCode,google_meeting_uri:meeting.meetingUri,google_organizer_email:meeting.organizerEmail,updated_at:new Date().toISOString()}).eq("id",sessionId).is("google_space_name",null);if(updateError)throw new Error(updateError.message);revalidatePath("/admin/studies");revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);}
 
-export async function endAndReleaseDailyPath(f:FormData){const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing study session.");const{db,session}=await assertSessionManager(sessionId);if(session.daily_path_released_at)return;const now=new Date().toISOString();const{error}=await db.from("study_sessions").update({status:"completed",ended_at:now,daily_path_released_at:now,updated_at:now}).eq("id",sessionId);if(error)throw new Error(error.message);const[{data:participants},{data:study}]=await Promise.all([db.from("study_session_participants").select("user_id").eq("study_session_id",sessionId),db.from("bible_studies").select("title,devotional_cards").eq("id",session.bible_study_id).maybeSingle()]);const ids=(participants||[]).map(p=>p.user_id);if(ids.length&&Array.isArray(study?.devotional_cards)&&study.devotional_cards.length){await db.from("notifications").insert(ids.map(user_id=>({user_id,type:"daily_study",title:"Day 1 is ready",body:`Continue ${study?.title||"your Bible study"} in Daily Path.`,link:`/study-path/${sessionId}/1`,push_status:"pending"})));await sendPushToUsers(ids,{title:"Day 1 is ready",body:`Continue ${study?.title||"your Bible study"} in Daily Path.`,url:`/study-path/${sessionId}/1`});}revalidatePath("/admin/studies");revalidatePath("/dashboard");}
+export async function endStudySession(f:FormData){
+ const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing study session.");
+ const{db,session}=await assertSessionManager(sessionId);
+ if(session.status==="completed"||session.ended_at)return{ok:true,alreadyEnded:true};
+ const now=new Date().toISOString();
+ const{error}=await db.from("study_sessions").update({status:"completed",ended_at:now,live_ended_at:now,updated_at:now}).eq("id",sessionId);
+ if(error)throw new Error(error.message);
+ revalidatePath("/admin/studies");revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);
+ return{ok:true};
+}
+
+export async function releaseDailyPath(f:FormData){
+ const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing study session.");
+ const{db,session}=await assertSessionManager(sessionId);
+ if(session.daily_path_released_at)return{ok:true,alreadyReleased:true};
+ const{data:study,error:studyError}=await db.from("bible_studies").select("title,devotional_cards").eq("id",session.bible_study_id).maybeSingle();
+ if(studyError||!study)throw new Error("Bible study not found.");
+ const cards=Array.isArray(study.devotional_cards)?study.devotional_cards:[];
+ if(!cards.length)return{ok:false,message:"Add at least one Daily Path devotional before releasing it."};
+ const{data:participants,error:participantError}=await db.from("study_session_participants").select("user_id").eq("study_session_id",sessionId);
+ if(participantError)throw new Error(participantError.message);
+ const ids=Array.from(new Set((participants||[]).map(p=>p.user_id)));
+ if(!ids.length)return{ok:false,message:"This session has no assigned participants."};
+ const now=new Date().toISOString();
+ const update:Record<string,string>={daily_path_released_at:now,updated_at:now};
+ if(session.status!=="completed"){update.status="completed";update.ended_at=now;}
+ const{error}=await db.from("study_sessions").update(update).eq("id",sessionId);
+ if(error)throw new Error(error.message);
+ const{error:notificationError}=await db.from("notifications").insert(ids.map(user_id=>({user_id,type:"daily_study",title:"Day 1 is ready",body:`Continue ${study.title||"your Bible study"} in Daily Path.`,link:`/study-path/${sessionId}/1`,push_status:"pending"})));
+ if(notificationError)console.error("Daily Path notification save failed",{sessionId,message:notificationError.message});
+ try{await sendPushToUsers(ids,{title:"Day 1 is ready",body:`Continue ${study.title||"your Bible study"} in Daily Path.`,url:`/study-path/${sessionId}/1`});}catch(pushError){console.error("Daily Path push send failed",{sessionId,error:pushError instanceof Error?pushError.message:String(pushError)});}
+ revalidatePath("/admin/studies");revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);
+ return{ok:true,participantCount:ids.length,dayCount:cards.length};
+}
+
+export async function deleteStudy(f:FormData){
+ const{user}=await requireAdmin();const db=createAdminClient();const id=val(f,"id");if(!id)return{ok:false,message:"Missing Bible study."};
+ const[{count:sessions},{count:progress}]=await Promise.all([
+  db.from("study_sessions").select("id",{count:"exact",head:true}).eq("bible_study_id",id),
+  db.from("study_session_participants").select("study_session_id",{count:"exact",head:true}).in("study_session_id",(await db.from("study_sessions").select("id").eq("bible_study_id",id)).data?.map(x=>x.id)||["00000000-0000-0000-0000-000000000000"])
+ ]);
+ if((sessions||0)>0||(progress||0)>0)return{ok:false,message:"This study has session history. Unpublish it instead so participant history is preserved."};
+ const{error}=await db.from("bible_studies").delete().eq("id",id);
+ if(error){console.error("Bible study delete failed",{id,userId:user.id,message:error.message});return{ok:false,message:error.message};}
+ revalidatePath("/studies");revalidatePath("/admin/studies");
+ return{ok:true};
+}
