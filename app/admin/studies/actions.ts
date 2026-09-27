@@ -111,11 +111,9 @@ export async function releaseDailyPath(f:FormData){
 
 export async function deleteStudy(f:FormData){
  const{user}=await requireAdmin();const db=createAdminClient();const id=val(f,"id");if(!id)return{ok:false,message:"Missing Bible study."};
- const[{count:sessions},{count:progress}]=await Promise.all([
-  db.from("study_sessions").select("id",{count:"exact",head:true}).eq("bible_study_id",id),
-  db.from("study_session_participants").select("study_session_id",{count:"exact",head:true}).in("study_session_id",(await db.from("study_sessions").select("id").eq("bible_study_id",id)).data?.map(x=>x.id)||["00000000-0000-0000-0000-000000000000"])
- ]);
- if((sessions||0)>0||(progress||0)>0)return{ok:false,message:"This study has session history. Unpublish it instead so participant history is preserved."};
+ const{count:sessions,error:sessionCountError}=await db.from("study_sessions").select("id",{count:"exact",head:true}).eq("bible_study_id",id);
+ if(sessionCountError)throw new Error(sessionCountError.message);
+ if((sessions||0)>0)return{ok:false,message:"This study has session history. Unpublish it instead so participant history is preserved."};
  const{error}=await db.from("bible_studies").delete().eq("id",id);
  if(error){console.error("Bible study delete failed",{id,userId:user.id,message:error.message});return{ok:false,message:error.message};}
  revalidatePath("/studies");revalidatePath("/admin/studies");
