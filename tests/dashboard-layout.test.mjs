@@ -23,17 +23,17 @@ test("My Path dashboard is the signed-in ministry and learning home", async () =
 test("public landing page is the Platform 2.0 front door", async () => {
   const landing = await readFile(path.join(root, "app", "page.tsx"), "utf8");
   for (const ticker of ["PrayerWallTicker", "PraiseTicker", "TestimonyTicker"]) assert.doesNotMatch(landing, new RegExp(ticker));
-  assert.match(landing, /The Lost and Found Project/);
-  assert.match(landing, /Ministry Compass/);
-  assert.match(landing, /Faith was never meant to be/);
-  assert.match(landing, /Prayer can become praise/);
-  assert.match(landing, /Help make it possible/);
+  assert.match(landing, /The Lost &amp; Found Project/);
+  assert.match(landing, /Where are you right now/);
+  assert.match(landing, /Explore Emmaus/);
+  assert.match(landing, /Scripture first\. Salvation first\. People before platforms/);
+  assert.match(landing, /Pray\. Serve\. Share\. Give/);
   assert.match(landing, /if \(user\) redirect\("\/dashboard"\)/);
 });
 
 test("member navigation matches the Platform 2.0 five-destination shell", async () => {
   const source = await readFile(path.join(root, "components", "BottomNav.tsx"), "utf8");
-  for (const destination of ["/dashboard", "/discover", "/prayer", "/community", "/more"]) assert.match(source, new RegExp(`href: "${destination}"`));
-  for (const label of ["Home", "Discover", "Prayer", "Community", "Me"]) assert.match(source, new RegExp(`label: "${label}"`));
+  for (const destination of ["/dashboard", "/discover", "/prayer", "/community", "/more"]) assert.match(source, new RegExp(`href\\s*:\\s*"${destination}"`));
+  for (const label of ["Home", "Discover", "Prayer", "Community", "Me"]) assert.match(source, new RegExp(`label\\s*:\\s*"${label}"`));
   assert.match(source, /grid-cols-5/);
 });
