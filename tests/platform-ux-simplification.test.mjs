@@ -28,7 +28,7 @@ test("shared navigation and prayer-request actions remain accessible and touch f
 
 test("community centers presence, prayer, praise, and testimony",async()=>{const community=await source("app","community","page.tsx");assert.match(community,/Presence over performance/);assert.match(community,/Prayer → Praise → Testimony/);assert.match(community,/Future groups and connections should lead toward meaningful relationships/)});
 
-test("Me page groups account, ministry participation, and mission support",async()=>{const more=await source("app","more","page.tsx");assert.match(more,/title:"My life with L&F",eyebrow:"Personal"/);assert.match(more,/title:"Explore & participate",eyebrow:"Ministry"/);assert.match(more,/title:"The Lost & Found Project",eyebrow:"Mission & support"/)});
+test("Me page groups personal account life and mission support without duplicating primary navigation",async()=>{const more=await source("app","more","page.tsx");assert.match(more,/title:"My life with L&F",eyebrow:"Personal"/);assert.match(more,/title:"The Lost & Found Project",eyebrow:"Mission & support"/);assert.doesNotMatch(more,/title:"Explore & participate",eyebrow:"Ministry"/)});
 
 test("admin center puts prayer moderation before collapsed secondary tools",async()=>{const admin=await source("app","admin","page.tsx");assert.ok(admin.indexOf("Request review")<admin.indexOf("Other administrative tools"));assert.match(admin,/<details className="lfp-card group mt-8/);assert.match(admin,/Communications, Creator Studio, ministries, people, moderation, and analytics/);assert.match(admin,/title:"Creator Studio"/);assert.doesNotMatch(admin,/Prayer Care Applications|Care queue/)});
 
