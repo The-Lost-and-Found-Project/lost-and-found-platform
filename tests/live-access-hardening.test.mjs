@@ -10,7 +10,7 @@ test("L&F Live page enforces assigned access before rendering the room",()=>{
  assert.match(page,/facilitator_supervision/);
  assert.match(page,/!participant&&!facilitator&&!supervisor/);
  assert.match(page,/redirect\("\/events"\)/);
- assert.match(page,/is_active/);
+ assert.match(page,/is_active/);\n assert.match(page,/session\.status==="completed"\|\|session\.status==="cancelled"\|\|session\.live_ended_at/);
 });
 
 test("participant presence cannot start the live session clock",()=>{
