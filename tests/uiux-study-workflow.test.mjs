@@ -38,7 +38,7 @@ test("Home preserves its destination through authentication",()=>{
 
 
 test("ending L&F Live does not release Daily Path", async () => {
-  const liveEnd = await source("app", "api", "live", "session", "[sessionId]", "end", "route.ts");
+  const liveEnd = read("app/api/live/session/[sessionId]/end/route.ts");
   assert.match(liveEnd, /live_ended_at:ended/);
   assert.match(liveEnd, /status:"completed"/);
   assert.doesNotMatch(liveEnd, /daily_path_released_at\s*:/);
