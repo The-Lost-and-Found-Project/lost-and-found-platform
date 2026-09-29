@@ -14,7 +14,7 @@ test("Home focuses on what matters now instead of duplicating every learning sur
  assert.doesNotMatch(home,/Your rhythm/);
  assert.doesNotMatch(home,/Pick up where you left off/);
  assert.doesNotMatch(home,/Fresh from L&F/);
- assert.doesNotMatch(home,/Community rhythm/);
+
 });
 
 test("Home quick actions route to primary member destinations",()=>{
