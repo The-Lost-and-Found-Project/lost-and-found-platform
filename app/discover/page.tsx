@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ministryPortals } from "@/lib/ministry-hub";
 
 const primaryLanes = [
   { href: "/library#study", icon: "▤", eyebrow: "Study", title: "Study Scripture", description: "Choose an L&F study or move deeper into Emmaus." },
@@ -25,10 +24,9 @@ const typeLabel = (value: string) => value === "audio" ? "Listen" : value === "v
 export default async function DiscoverPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?next=%2Fdiscover");
 
-  const [{ data: fresh }, { data: catalog }] = await Promise.all([
-    supabase.from("ministry_content").select("id,ministry_slug,title,summary,content_type,created_at").eq("is_published", true).order("created_at", { ascending: false }).limit(4),
+  const [{ data: catalog }] = await Promise.all([
     supabase.from("content_catalog").select("id,slug,title,summary,content_type,provenance,external_url,published_at,is_featured,duration_minutes,difficulty").eq("is_published", true).order("is_featured", { ascending: false }).order("published_at", { ascending: false }).limit(10),
   ]);
 
@@ -74,14 +72,11 @@ export default async function DiscoverPage() {
 
       <section className="mt-14 rounded-[2rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-7 sm:p-9"><div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center"><div><p className="lfp-eyebrow">Ministry & Resource Directory</p><h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Find help beyond L&F without losing context.</h2><p className="mt-3 max-w-3xl leading-7 text-slate-600">Search curated ministries, churches, nonprofits, online resources, and practical support. Save useful listings to your account and return to them later.</p></div><div className="flex flex-wrap gap-3"><Link href="/directory" className="lfp-button lfp-button-primary">Open Directory</Link><Link href="/directory/saved" className="lfp-button lfp-button-secondary">Saved Resources</Link></div></div></section>
 
-      <section className="mt-14 grid gap-4 lg:grid-cols-2">
-        <div className="lfp-card p-7 sm:p-8"><p className="lfp-eyebrow">My Path</p><h2 className="mt-2 text-3xl font-black text-slate-950">You should not have to wonder what comes next.</h2><p className="mt-3 leading-7 text-slate-600">My Path is becoming the place where your studies, saved resources, Emmaus progress, devotions, Learning Lab practice, media, and ministry involvement come together into relevant next steps.</p><Link href="/dashboard" className="mt-5 inline-flex font-black text-blue-700">See your path →</Link></div>
-        <div className="lfp-card p-7 sm:p-8"><p className="lfp-eyebrow">Emmaus</p><h2 className="mt-2 text-3xl font-black text-slate-950">When you are ready to go deeper.</h2><p className="mt-3 leading-7 text-slate-600">Emmaus is L&F’s deeper Bible-study environment. Use Discover to find what you need, then move naturally into deeper passage study without duplicating the Emmaus experience here.</p><Link href="/auth/emmaus?next=/study" className="mt-5 inline-flex font-black text-blue-700">Go deeper in Emmaus →</Link></div>
+      <section className="mt-14 grid gap-4 lg:grid-cols-3">
+        <Link href="/library" className="lfp-card p-7"><p className="lfp-eyebrow">Library</p><h2 className="mt-2 text-2xl font-black text-slate-950">Browse trusted material.</h2><p className="mt-3 leading-7 text-slate-600">Use the Library when you already know you want a study, devotional, collection, audio, or video resource.</p><span className="mt-5 inline-flex font-black text-blue-700">Open Library →</span></Link>
+        <Link href="/learn" className="lfp-card p-7"><p className="lfp-eyebrow">Learning Lab</p><h2 className="mt-2 text-2xl font-black text-slate-950">Practice what you are learning.</h2><p className="mt-3 leading-7 text-slate-600">Use Learning Lab for Bible Trivia, Language Insights, Memory Verses, and active learning.</p><span className="mt-5 inline-flex font-black text-blue-700">Open Learning Lab →</span></Link>
+        <Link href="/auth/emmaus?next=/study" className="lfp-card p-7"><p className="lfp-eyebrow">Emmaus</p><h2 className="mt-2 text-2xl font-black text-slate-950">Go deeper in Scripture.</h2><p className="mt-3 leading-7 text-slate-600">Use Emmaus when a passage deserves slower, deeper study without duplicating that experience here.</p><span className="mt-5 inline-flex font-black text-blue-700">Go deeper in Emmaus →</span></Link>
       </section>
-
-      <section className="mt-14"><div className="flex items-end justify-between gap-4"><div><p className="lfp-eyebrow">Ministry spaces</p><h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Find your people and your practice.</h2></div><Link href="/ministries" className="hidden font-black text-blue-700 sm:inline-flex">View all →</Link></div><div className="mt-6 grid gap-4 md:grid-cols-3">{ministryPortals.map((m) => <Link key={m.slug} href={`/ministries/${m.slug}`} className="lfp-card p-6"><span className="text-2xl">{m.icon}</span><p className="mt-4 text-[11px] font-black uppercase tracking-[.16em] text-blue-700">{m.eyebrow}</p><h3 className="mt-1 text-2xl font-black text-slate-950">{m.title}</h3><p className="mt-2 leading-7 text-slate-600">{m.description}</p></Link>)}</div></section>
-
-      <section className="mt-14"><p className="lfp-eyebrow">Fresh around L&F</p><h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Ministry updates and gatherings</h2>{fresh?.length ? <div className="mt-6 grid gap-4 md:grid-cols-2">{fresh.map((item) => { const ministry = ministryPortals.find(m => m.slug === item.ministry_slug); return <Link key={item.id} href={`/ministries/${item.ministry_slug}`} className="lfp-card p-6"><div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.14em] text-blue-700"><span>{ministry?.icon}</span><span>{ministry?.title || "L&F"}</span><span className="text-slate-300">•</span><span className="text-slate-500">{item.content_type}</span></div><h3 className="mt-3 text-xl font-black text-slate-950">{item.title}</h3>{item.summary && <p className="mt-2 leading-7 text-slate-600">{item.summary}</p>}</Link> })}</div> : <div className="lfp-card mt-6 p-7"><h3 className="text-xl font-black text-slate-950">Fresh ministry content will appear here.</h3><p className="mt-2 leading-7 text-slate-600">The library remains available even between ministry announcements and gatherings.</p></div>}</section>
     </div>
   </main>;
 }
