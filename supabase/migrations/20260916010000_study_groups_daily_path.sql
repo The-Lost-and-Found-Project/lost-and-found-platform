@@ -44,7 +44,7 @@ create table if not exists public.study_daily_responses (
 );
 create index if not exists study_daily_responses_session_day_idx on public.study_daily_responses(study_session_id,day_number,response_type);
 
-create or replace function public.prevent_locked_group_response_change() returns trigger language plpgsql as $$
+create or replace function public.prevent_locked_group_response_change() returns trigger language plpgsql set search_path=public as $
 begin
   if old.response_type='group_response' and old.locked_at is not null and (new.response_text is distinct from old.response_text or new.locked_at is distinct from old.locked_at) then
     raise exception 'Locked group responses cannot be edited';
