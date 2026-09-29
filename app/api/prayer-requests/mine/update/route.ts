@@ -57,6 +57,7 @@ export async function POST(request: Request) {
       answered: true,
       status: "Resolved",
       answered_update: typeof body.answeredUpdate === "string" ? body.answeredUpdate.trim().slice(0, 2000) || null : null,
+      is_public: false,
     };
   } else {
     changes = { status: "Withdrawn", archived: true, is_public: false };
