@@ -74,7 +74,7 @@ const faqs = [
 export default async function SupportPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?next=%2Fsupport");
 
   return (
     <main className="lfp-page pb-20">
