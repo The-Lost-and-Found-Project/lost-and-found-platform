@@ -9,8 +9,17 @@ create table if not exists public.ministry_memberships (
  created_at timestamptz not null default now(), unique(ministry_slug,user_id)
 );
 alter table public.ministry_memberships enable row level security;
-create policy "members read ministry memberships" on public.ministry_memberships for select to authenticated using (user_id=auth.uid() or exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
 create policy "members join ministries" on public.ministry_memberships for insert to authenticated with check (user_id=auth.uid() and membership_role='member');
-create policy "members leave ministries" on public.ministry_memberships for delete to authenticated using (user_id=auth.uid() or exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
-create policy "admins update ministry memberships" on public.ministry_memberships for update to authenticated using (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin')) with check (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
+do $migration$
+begin
+  if to_regclass('public.profiles') is null then
+    execute 'create policy "members read ministry memberships" on public.ministry_memberships for select to authenticated using (user_id=auth.uid())';
+    execute 'create policy "members leave ministries" on public.ministry_memberships for delete to authenticated using (user_id=auth.uid())';
+    return;
+  end if;
+  execute 'create policy "members read ministry memberships" on public.ministry_memberships for select to authenticated using (user_id=auth.uid() or exists(select 1 from public.profiles p where p.id=auth.uid() and p.role=''admin''))';
+  execute 'create policy "members leave ministries" on public.ministry_memberships for delete to authenticated using (user_id=auth.uid() or exists(select 1 from public.profiles p where p.id=auth.uid() and p.role=''admin''))';
+  execute 'create policy "admins update ministry memberships" on public.ministry_memberships for update to authenticated using (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role=''admin'')) with check (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role=''admin''))';
+end
+$migration$;
 create index if not exists ministry_memberships_user_idx on public.ministry_memberships(user_id,ministry_slug);

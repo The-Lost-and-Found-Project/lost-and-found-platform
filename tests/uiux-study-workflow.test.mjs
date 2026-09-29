@@ -45,3 +45,12 @@ test("ending L&F Live does not release Daily Path", async () => {
   assert.doesNotMatch(liveEnd, /Day 1 is ready/);
   assert.doesNotMatch(liveEnd, /dailyPathReleased:true/);
 });
+
+
+test("facilitators and supervisors can reach their study workspace from Home",()=>{
+ const dashboard=read("app/dashboard/page.tsx");
+ assert.match(dashboard,/canManageStudies/);
+ assert.match(dashboard,/Study Leadership/);
+ assert.match(dashboard,/href="\/admin\/studies"/);
+ assert.match(dashboard,/Open Study Workspace/);
+});

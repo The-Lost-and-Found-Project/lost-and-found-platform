@@ -30,18 +30,17 @@ create index if not exists content_catalog_provenance_idx on public.content_cata
 alter table public.content_catalog enable row level security;
 
 drop policy if exists "Members read published catalog" on public.content_catalog;
-create policy "Members read published catalog" on public.content_catalog
-for select to authenticated using (is_published = true or exists (
-  select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'
-));
-
 drop policy if exists "Admins manage catalog" on public.content_catalog;
-create policy "Admins manage catalog" on public.content_catalog
-for all to authenticated using (exists (
-  select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'
-)) with check (exists (
-  select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'
-));
+do $migration$
+begin
+  if to_regclass('public.profiles') is null then
+    execute 'create policy "Members read published catalog" on public.content_catalog for select to authenticated using (is_published = true)';
+    return;
+  end if;
+  execute 'create policy "Members read published catalog" on public.content_catalog for select to authenticated using (is_published = true or exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = ''admin''))';
+  execute 'create policy "Admins manage catalog" on public.content_catalog for all to authenticated using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = ''admin'')) with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = ''admin''))';
+end
+$migration$;
 
 create table if not exists public.content_progress (
   id uuid primary key default gen_random_uuid(),

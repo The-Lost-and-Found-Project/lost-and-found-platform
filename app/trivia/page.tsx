@@ -9,7 +9,7 @@ export default async function TriviaPage({searchParams}:{searchParams:Promise<Se
  const params=await searchParams;
  const supabase=await createClient();
  const {data:{user}}=await supabase.auth.getUser();
- if(!user)redirect("/login");
+ if(!user)redirect("/login?next=%2Ftrivia");
  const [{data:profile},{data:categoryRows},{data:approvedRows},{data:attempts}]=await Promise.all([
   supabase.from("profiles").select("full_name").eq("id",user.id).single(),
   supabase.from("trivia_categories").select("id,name,description").eq("is_active",true).order("sort_order"),

@@ -8,6 +8,8 @@ create table public.devotion_weeks (id uuid primary key);
 create table public.prayer_categories (id uuid primary key);
 create table public.prayer_requests (id uuid primary key);
 create table public.prayer_reactions (id uuid primary key);
+drop table if exists public.profiles cascade;
+
 create table public.profiles (id uuid primary key, full_name text, role text);
 create table public.notifications (id uuid primary key);
 create table public.weekly_digest_log (

@@ -75,7 +75,7 @@ export default async function MemberManualPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?next=%2Fhelp%2Fmanual%2Fmember");
 
   return (
     <ManualSections

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 export default async function LearnPage(){
  const supabase=await createClient();
  const{data:{user}}=await supabase.auth.getUser();
- if(!user)redirect("/login");
+ if(!user)redirect("/login?next=%2Flearn");
  const [{count:questions},{count:verses},{count:language},{count:studies},{data:attempts}]=await Promise.all([
   supabase.from("trivia_questions").select("id",{count:"exact",head:true}).eq("status","approved"),
   supabase.from("memory_verses").select("id",{count:"exact",head:true}).eq("is_active",true),

@@ -15,10 +15,25 @@ create table if not exists public.devotional_push_deliveries (
   id uuid primary key default gen_random_uuid(),
   reminder_id uuid not null references public.devotional_push_reminders(id) on delete cascade,
   delivery_date date not null,
-  notification_id uuid references public.notifications(id) on delete set null,
+  notification_id uuid,
   created_at timestamptz not null default now(),
   unique(reminder_id, delivery_date)
 );
+
+do $migration$
+begin
+  if to_regclass('public.notifications') is not null
+     and not exists (
+       select 1 from pg_constraint
+       where conname='devotional_push_deliveries_notification_id_fkey'
+         and conrelid='public.devotional_push_deliveries'::regclass
+     ) then
+    alter table public.devotional_push_deliveries
+      add constraint devotional_push_deliveries_notification_id_fkey
+      foreign key (notification_id) references public.notifications(id) on delete set null;
+  end if;
+end
+$migration$;
 
 alter table public.devotional_push_reminders enable row level security;
 alter table public.devotional_push_deliveries enable row level security;

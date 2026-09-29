@@ -11,7 +11,7 @@ export const revalidate=0;
 function fmt(value:string|null){return value?new Intl.DateTimeFormat("en-US",{dateStyle:"medium",timeStyle:"short",timeZone:"America/New_York"}).format(new Date(value)):"—";}
 
 export default async function LiveAdminPage(){
- const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/login");
+ const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/login?next=%2Fadmin%2Flive");
  const{data:p}=await s.from("profiles").select("role,preview_role").eq("id",user.id).single();const role=getEffectiveRole(p?.role,p?.preview_role);if(role!=="admin"&&role!=="supervisor")redirect("/dashboard");
  const db=createAdminClient();
  const[{data:usage},{data:extensions},{data:profiles},{data:sessions},{data:studies},{data:groups}]=await Promise.all([

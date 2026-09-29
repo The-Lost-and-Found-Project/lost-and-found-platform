@@ -28,42 +28,16 @@ create index if not exists study_sessions_facilitator_start_idx
 
 alter table public.study_sessions enable row level security;
 
--- Initial policy intentionally mirrors the current bible_studies access model.
--- Ministry/group membership restrictions can be layered on when group enrollment
--- tables become the canonical source of truth.
-create policy "members read scheduled study sessions"
-  on public.study_sessions
-  for select
-  to authenticated
-  using (
-    exists (
-      select 1
-      from public.bible_studies bs
-      where bs.id = bible_study_id
-        and bs.is_published = true
-    )
-    or exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
-
-create policy "admins manage study sessions"
-  on public.study_sessions
-  for all
-  to authenticated
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  )
-  with check (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+do $migration$
+begin
+  if to_regclass('public.profiles') is null then
+    execute 'create policy "members read scheduled study sessions" on public.study_sessions for select to authenticated using (exists (select 1 from public.bible_studies bs where bs.id = bible_study_id and bs.is_published = true))';
+    return;
+  end if;
+  execute 'create policy "members read scheduled study sessions" on public.study_sessions for select to authenticated using (exists (select 1 from public.bible_studies bs where bs.id = bible_study_id and bs.is_published = true) or exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = ''admin''))';
+  execute 'create policy "admins manage study sessions" on public.study_sessions for all to authenticated using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = ''admin'')) with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = ''admin''))';
+end
+$migration$;
 
 comment on table public.study_sessions is
   'Scheduled/live instances of reusable L&F Bible studies. Google Meet metadata belongs here rather than on bible_studies.';

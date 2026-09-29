@@ -57,10 +57,10 @@ export async function createLiveSession(f:FormData){
  const{data:session,error}=await db.from("study_sessions").insert({bible_study_id:bibleStudyId,ministry_slug:ministrySlug,group_id:groupId,facilitator_user_id:facilitatorUserId,scheduled_start:scheduledStart,scheduled_end:scheduledEnd,status:"scheduled",created_by:ctx.user.id}).select("id").single();if(error||!session){console.error("Live study save failed",{code:error?.code,message:error?.message,details:error?.details,hint:error?.hint});return{ok:false,message:error?.message||"Unable to create session."};}
  const{error:pe}=await db.from("study_session_participants").insert(participantIds.map(user_id=>({study_session_id:session.id,user_id,assigned_by:ctx.user.id})));if(pe){await db.from("study_sessions").delete().eq("id",session.id);console.error("Live study participant save failed",{sessionId:session.id,message:pe.message});return{ok:false,message:"The session could not save its participant roster."};}
  const when=new Intl.DateTimeFormat("en-US",{dateStyle:"medium",timeStyle:"short",timeZone:"America/New_York"}).format(new Date(scheduledStart));
- const{error:notificationError}=await db.from("notifications").insert(participantIds.map(user_id=>({user_id,type:"live_study",title:"Live Study Scheduled",body:`${study.title} · ${when} ET`,link:"/dashboard",push_status:"pending"})));
+ const{error:notificationError}=await db.from("notifications").insert(participantIds.map(user_id=>({user_id,type:"live_study",title:"Live Study Scheduled",body:`${study.title} · ${when} ET`,link:"/events",push_status:"pending"})));
  if(notificationError)console.error("Live study in-app notification save failed",{sessionId:session.id,message:notificationError.message});
- let pushDelivered=true;try{await sendPushToUsers(participantIds,{title:"Live Study Scheduled",body:`${study.title} · ${when} ET`,url:"/dashboard"});}catch(pushError){pushDelivered=false;console.error("Live study push send failed",{sessionId:session.id,error:pushError instanceof Error?pushError.message:String(pushError)});}
- revalidatePath("/admin/studies");revalidatePath("/admin/studies/groups");revalidatePath("/dashboard");revalidatePath(`/studies/${bibleStudyId}`);
+ let pushDelivered=true;try{await sendPushToUsers(participantIds,{title:"Live Study Scheduled",body:`${study.title} · ${when} ET`,url:"/events"});}catch(pushError){pushDelivered=false;console.error("Live study push send failed",{sessionId:session.id,error:pushError instanceof Error?pushError.message:String(pushError)});}
+ revalidatePath("/admin/studies");revalidatePath("/admin/studies/groups");revalidatePath("/dashboard");revalidatePath("/events");revalidatePath(`/studies/${bibleStudyId}`);
  console.info("Live study saved",{sessionId:session.id,participantCount:participantIds.length,pushDelivered});
  return{ok:true,id:session.id,participantCount:participantIds.length,pushDelivered,notificationStored:!notificationError};
 }
@@ -72,7 +72,7 @@ async function assertSessionManager(sessionId:string){
  if(!ctx.isAdmin&&(!session.group_id||!await canManageGroup(ctx.user.id,ctx.role,session.group_id)))throw new Error("You do not manage this session.");return{ctx,db,session};
 }
 
-export async function provisionLiveSession(f:FormData){const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing live study session.");const{db,session}=await assertSessionManager(sessionId);if(session.google_space_name&&session.google_meeting_uri)return;let facilitatorEmail:string|null=null;if(session.facilitator_user_id){const{data:facilitator}=await db.from("profiles").select("email").eq("id",session.facilitator_user_id).maybeSingle();facilitatorEmail=facilitator?.email||null;}const meeting=await provisionMeetSpace(facilitatorEmail);const{error:updateError}=await db.from("study_sessions").update({google_space_name:meeting.spaceName,google_meeting_code:meeting.meetingCode,google_meeting_uri:meeting.meetingUri,google_organizer_email:meeting.organizerEmail,updated_at:new Date().toISOString()}).eq("id",sessionId).is("google_space_name",null);if(updateError)throw new Error(updateError.message);revalidatePath("/admin/studies");revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);}
+export async function provisionLiveSession(f:FormData){const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing live study session.");const{db,session}=await assertSessionManager(sessionId);if(session.google_space_name&&session.google_meeting_uri)return;let facilitatorEmail:string|null=null;if(session.facilitator_user_id){const{data:facilitator}=await db.from("profiles").select("email").eq("id",session.facilitator_user_id).maybeSingle();facilitatorEmail=facilitator?.email||null;}const meeting=await provisionMeetSpace(facilitatorEmail);const{error:updateError}=await db.from("study_sessions").update({google_space_name:meeting.spaceName,google_meeting_code:meeting.meetingCode,google_meeting_uri:meeting.meetingUri,google_organizer_email:meeting.organizerEmail,updated_at:new Date().toISOString()}).eq("id",sessionId).is("google_space_name",null);if(updateError)throw new Error(updateError.message);revalidatePath("/admin/studies");revalidatePath("/dashboard");revalidatePath("/events");revalidatePath(`/studies/${session.bible_study_id}`);}
 
 export async function endStudySession(f:FormData){
  const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing study session.");
@@ -98,9 +98,7 @@ export async function releaseDailyPath(f:FormData){
  const ids=Array.from(new Set((participants||[]).map(p=>p.user_id)));
  if(!ids.length)throw new Error("This session has no assigned participants.");
  const now=new Date().toISOString();
- const update:Record<string,string>={daily_path_released_at:now,updated_at:now};
- if(session.status!=="completed"){update.status="completed";update.ended_at=now;}
- const{error}=await db.from("study_sessions").update(update).eq("id",sessionId);
+ const{error}=await db.from("study_sessions").update({daily_path_released_at:now,updated_at:now}).eq("id",sessionId);
  if(error)throw new Error(error.message);
  const{error:notificationError}=await db.from("notifications").insert(ids.map(user_id=>({user_id,type:"daily_study",title:"Day 1 is ready",body:`Continue ${study.title||"your Bible study"} in Daily Path.`,link:`/study-path/${sessionId}/1`,push_status:"pending"})));
  if(notificationError)console.error("Daily Path notification save failed",{sessionId,message:notificationError.message});

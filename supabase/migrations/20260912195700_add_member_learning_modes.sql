@@ -1,21 +1,30 @@
-insert into public.trivia_categories (id,name,description,sort_order,is_active)
-values ('language-insights','Language Insights','Hebrew and Greek insights that deepen understanding of Scripture.',95,true)
-on conflict (id) do update set name=excluded.name, description=excluded.description, is_active=true;
-
-insert into public.trivia_questions (category_id,question,choices,correct,ref,note,status,source)
-select * from (values
-('language-insights','What does the Greek word agape most often describe in the New Testament?','["Self-giving love","Fear","Knowledge","Tradition"]'::jsonb,'Self-giving love','1 Corinthians 13:4-7','Agape describes self-giving love shaped by God''s character. Context determines nuance, so it should not be reduced to a single dictionary gloss.','approved','manual'),
-('language-insights','What is the basic sense of the Hebrew word shalom?','["Peace and wholeness","Anger","Sacrifice","Judgment"]'::jsonb,'Peace and wholeness','Numbers 6:24-26','Shalom includes peace, well-being, completeness, and restored relationship.','approved','manual'),
-('language-insights','The Greek word metanoia is commonly translated as what?','["Repentance","Worship","Wisdom","Covenant"]'::jsonb,'Repentance','Acts 2:38','Metanoia involves a changed mind and direction, not merely feeling regret.','approved','manual'),
-('language-insights','What does the Hebrew word ruach commonly mean?','["Spirit, wind, or breath","Temple","Promise","King"]'::jsonb,'Spirit, wind, or breath','Genesis 1:2','Ruach can mean spirit, wind, or breath; context shows which sense is intended.','approved','manual'),
-('language-insights','What does logos mean in John 1:1?','["Word","Temple","Law court","Sacrifice"]'::jsonb,'Word','John 1:1','John uses Logos as a title for the eternal Son, connecting revelation, creation, and God''s self-expression.','approved','manual'),
-('language-insights','What does the Hebrew word hesed often communicate?','["Steadfast covenant love","Military strength","Temple tax","Human wisdom"]'::jsonb,'Steadfast covenant love','Psalm 136:1','Hesed often carries the ideas of loyal, steadfast, covenant love and mercy.','approved','manual'),
-('language-insights','Why should a Hebrew or Greek word not always be given one fixed English meaning?','["Context determines meaning","The Bible has no meaning","English is always better","Grammar does not matter"]'::jsonb,'Context determines meaning','Philippians 2:5-8','Words have semantic ranges. The sentence, author, genre, and context determine which sense is active.','approved','manual'),
-('language-insights','The Greek word ekklesia is usually translated as what?','["Church or assembly","Priesthood","Prophecy","Prayer"]'::jsonb,'Church or assembly','Matthew 16:18','Ekklesia refers to an assembly or gathered people; in the New Testament it commonly names the gathered people of God.','approved','manual'),
-('language-insights','What is the basic meaning of the Greek word charis?','["Grace or favor","Wrath","Law","Temple"]'::jsonb,'Grace or favor','Ephesians 2:8','Charis speaks of grace, favor, and gift, especially God''s undeserved favor in salvation.','approved','manual'),
-('language-insights','What does the Hebrew word nephesh often refer to?','["A living person or life","Only an immaterial soul","A priestly garment","A feast day"]'::jsonb,'A living person or life','Genesis 2:7','Nephesh can refer to life, person, self, or living being. It should not automatically be read through later philosophical categories.','approved','manual')
-) as v(category_id,question,choices,correct,ref,note,status,source)
-where not exists (select 1 from public.trivia_questions q where q.category_id=v.category_id and q.question=v.question);
+do $migration$
+begin
+  if to_regclass('public.trivia_categories') is null
+     or to_regclass('public.trivia_questions') is null then
+    raise notice 'Skipping Language Insights trivia seed: legacy trivia tables are not present in the fresh migration baseline.';
+  else
+    insert into public.trivia_categories (id,name,description,sort_order,is_active)
+    values ('language-insights','Language Insights','Hebrew and Greek insights that deepen understanding of Scripture.',95,true)
+    on conflict (id) do update set name=excluded.name, description=excluded.description, is_active=true;
+    
+    insert into public.trivia_questions (category_id,question,choices,correct,ref,note,status,source)
+    select * from (values
+    ('language-insights','What does the Greek word agape most often describe in the New Testament?','["Self-giving love","Fear","Knowledge","Tradition"]'::jsonb,'Self-giving love','1 Corinthians 13:4-7','Agape describes self-giving love shaped by God''s character. Context determines nuance, so it should not be reduced to a single dictionary gloss.','approved','manual'),
+    ('language-insights','What is the basic sense of the Hebrew word shalom?','["Peace and wholeness","Anger","Sacrifice","Judgment"]'::jsonb,'Peace and wholeness','Numbers 6:24-26','Shalom includes peace, well-being, completeness, and restored relationship.','approved','manual'),
+    ('language-insights','The Greek word metanoia is commonly translated as what?','["Repentance","Worship","Wisdom","Covenant"]'::jsonb,'Repentance','Acts 2:38','Metanoia involves a changed mind and direction, not merely feeling regret.','approved','manual'),
+    ('language-insights','What does the Hebrew word ruach commonly mean?','["Spirit, wind, or breath","Temple","Promise","King"]'::jsonb,'Spirit, wind, or breath','Genesis 1:2','Ruach can mean spirit, wind, or breath; context shows which sense is intended.','approved','manual'),
+    ('language-insights','What does logos mean in John 1:1?','["Word","Temple","Law court","Sacrifice"]'::jsonb,'Word','John 1:1','John uses Logos as a title for the eternal Son, connecting revelation, creation, and God''s self-expression.','approved','manual'),
+    ('language-insights','What does the Hebrew word hesed often communicate?','["Steadfast covenant love","Military strength","Temple tax","Human wisdom"]'::jsonb,'Steadfast covenant love','Psalm 136:1','Hesed often carries the ideas of loyal, steadfast, covenant love and mercy.','approved','manual'),
+    ('language-insights','Why should a Hebrew or Greek word not always be given one fixed English meaning?','["Context determines meaning","The Bible has no meaning","English is always better","Grammar does not matter"]'::jsonb,'Context determines meaning','Philippians 2:5-8','Words have semantic ranges. The sentence, author, genre, and context determine which sense is active.','approved','manual'),
+    ('language-insights','The Greek word ekklesia is usually translated as what?','["Church or assembly","Priesthood","Prophecy","Prayer"]'::jsonb,'Church or assembly','Matthew 16:18','Ekklesia refers to an assembly or gathered people; in the New Testament it commonly names the gathered people of God.','approved','manual'),
+    ('language-insights','What is the basic meaning of the Greek word charis?','["Grace or favor","Wrath","Law","Temple"]'::jsonb,'Grace or favor','Ephesians 2:8','Charis speaks of grace, favor, and gift, especially God''s undeserved favor in salvation.','approved','manual'),
+    ('language-insights','What does the Hebrew word nephesh often refer to?','["A living person or life","Only an immaterial soul","A priestly garment","A feast day"]'::jsonb,'A living person or life','Genesis 2:7','Nephesh can refer to life, person, self, or living being. It should not automatically be read through later philosophical categories.','approved','manual')
+    ) as v(category_id,question,choices,correct,ref,note,status,source)
+    where not exists (select 1 from public.trivia_questions q where q.category_id=v.category_id and q.question=v.question);
+  end if;
+end
+$migration$;
 
 create table if not exists public.memory_verses (
  id uuid primary key default gen_random_uuid(), reference text not null unique, verse_text text not null,

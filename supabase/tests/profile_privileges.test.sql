@@ -4,6 +4,8 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(11);
 
+drop table if exists public.profiles cascade;
+
 create table public.profiles (
   id uuid primary key,
   full_name text,
