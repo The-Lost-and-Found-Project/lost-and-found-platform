@@ -5,7 +5,7 @@ import MinistryCompassClient from "@/components/MinistryCompassClient";
 export default async function CompassPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?next=%2Fcompass");
 
   return <main className="lfp-page pb-24">
     <section className="relative overflow-hidden border-b border-white/70">
