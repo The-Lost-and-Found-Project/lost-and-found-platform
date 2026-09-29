@@ -28,7 +28,7 @@ test("public landing page is the Platform 2.0 front door", async () => {
   assert.match(landing, /Explore Emmaus/);
   assert.match(landing, /Scripture first\. Salvation first\. People before platforms/);
   assert.match(landing, /Pray\. Serve\. Share\. Give/);
-  assert.match(landing, /if \(user\) redirect\("\/dashboard"\)/);
+  assert.match(landing, /if\s*\(user\)\s*redirect\("\/dashboard"\)/);
 });
 
 test("member navigation matches the Platform 2.0 five-destination shell", async () => {
