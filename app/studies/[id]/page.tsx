@@ -31,7 +31,15 @@ export default async function StudyPage({ params }: { params: Promise<{ id: stri
   const liveSession = assignedSessions[0] || null;
 
   const ministry = ministryPortals.find((m) => m.slug === study.ministry_slug);
-  const slides = Array.isArray(study.slides) ? study.slides : [];
+  const slides = Array.isArray(study.slides)
+    ? study.slides.map((slide: any) => ({
+        title: slide?.title,
+        body: slide?.body,
+        scripture: slide?.scripture,
+        discussion: slide?.discussion,
+        journal: slide?.journal,
+      }))
+    : [];
   const hasDailyPath = Boolean(liveSession?.daily_path_released_at);
 
   return (
