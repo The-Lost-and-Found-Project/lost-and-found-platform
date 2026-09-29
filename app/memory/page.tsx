@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import MemoryVerseClient from "@/components/MemoryVerseClient";
 
 export default async function MemoryPage(){
- const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect("/login");
+ const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect("/login?next=%2Fmemory");
  const [{data:verses},{data:progress}]=await Promise.all([
   supabase.from("memory_verses").select("id,reference,verse_text,translation,topic,difficulty").eq("is_active",true).order("created_at"),
   supabase.from("memory_verse_progress").select("verse_id,mastery,next_review_at,last_reviewed_at,correct_streak").eq("user_id",user.id)
