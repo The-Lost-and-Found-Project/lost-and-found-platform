@@ -7,11 +7,12 @@ const read=(path)=>fs.readFileSync(path,"utf8");
 test("community preserves destination and exposes a consistent participation layer",()=>{
  const community=read("app/community/page.tsx");
  assert.match(community,/login\?next=%2Fcommunity/);
- assert.match(community,/Act now/);
+ assert.doesNotMatch(community,/Act now/);
  assert.match(community,/Prayer/);
  assert.match(community,/Praise/);
  assert.match(community,/Testimony/);
- assert.match(community,/Gatherings/);
+ assert.match(community,/Prayer Pulse/);
+ assert.match(community,/Find a Gathering/);
 });
 
 test("community operating layer keeps discipleship and privacy guardrails explicit",()=>{
