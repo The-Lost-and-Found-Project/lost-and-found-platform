@@ -43,3 +43,16 @@ test("ending sessions remains separate from Daily Path release",()=>{
  assert.match(actions,/export async function releaseDailyPath/);
  assert.match(actions,/export async function endStudySession/);
 });
+
+
+test("published study pages do not expose unassigned live-session details or unreleased Daily Path cards",()=>{
+ const page=read("app/studies/[id]/page.tsx");
+ const migration=read("supabase/migrations/20260929223000_tighten_study_session_read_access.sql");
+ assert.match(page,/study_session_participants/);
+ assert.match(page,/Live access belongs to your assigned session/);
+ assert.doesNotMatch(page,/google_meeting_uri/);
+ assert.doesNotMatch(page,/7-Day Devotional Cards/);
+ assert.match(page,/facilitator releases Daily Path/);
+ assert.match(migration,/participants read assigned study sessions/);
+ assert.match(migration,/sp\.user_id = auth\.uid\(\)/);
+});
