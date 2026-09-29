@@ -11,7 +11,7 @@ export default async function AdminContentPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=%2Fadmin%2Fcontent");
   }
 
   const { data: profile } = await supabase
