@@ -18,8 +18,8 @@ test("user administration controls have contextual names and touch targets", asy
   assert.match(users, /min-h-11/);
   assert.match(users, /id="user-directory-search"/);
   assert.match(users, /role="status" aria-live="polite"/);
-  assert.match(users, /Everyone uses one Community Member identity/);
-  assert.doesNotMatch(users, /assignment|rotation|reassign/i);
+  assert.match(users, /Member → Facilitator → Supervisor → Administrator/);
+  assert.doesNotMatch(users, /prayer assignment|prayer rotation|reassign prayer/i);
 });
 
 test("legacy Prayer Care applications are no longer actionable", async () => {

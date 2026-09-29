@@ -48,16 +48,15 @@ test("legacy assignment, rotation, and application endpoints cannot mutate data"
   assert.match(await source("lib", "retired-prayer-care.ts"), /status: 410/);
 });
 
-test("people administration exposes only Community Member and Community Admin roles", async () => {
+test("people administration exposes the current ministry role hierarchy without retired Prayer Care roles", async () => {
   const [client, route, page] = await Promise.all([
     source("components", "AdminUsersClient.tsx"),
     source("app", "api", "admin", "users", "set-role", "route.ts"),
     source("app", "admin", "users", "page.tsx"),
   ]);
-  assert.match(client, /Community Member/);
-  assert.match(client, /Community Admin/);
-  assert.doesNotMatch(client, /prayer_team|rotation|assignment|availability/i);
-  assert.match(route, /new Set\(\["member", "admin"\]\)/);
+  for (const role of ["Community Member", "Facilitator", "Supervisor", "Administrator"]) assert.match(client, new RegExp(role));
+  assert.doesNotMatch(client, /prayer_team|rotation|availability/i);
+  assert.match(route, /new Set\(\["member", "facilitator", "supervisor", "admin"\]\)/);
   assert.doesNotMatch(route, /reassign_prayer_request|assigned_to/);
   assert.doesNotMatch(page, /assigned_to|ministry_availability/);
 });

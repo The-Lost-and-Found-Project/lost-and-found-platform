@@ -5,7 +5,7 @@ import {fetchZeffyPayments,upsertVerifiedZeffyPayment} from "@/lib/zeffy";
 
 export async function POST(){
  const supabase=await createClient();const{data:{user}}=await supabase.auth.getUser();if(!user)return NextResponse.json({error:"Unauthorized"},{status:401});
- const{data:profile}=await supabase.from("profiles").select("role").eq("id",user.id).maybeSingle();if(profile?.role!=="admin")return NextResponse.json({error:"Forbidden"},{status:403});
+ const{data:callerProfile}=await supabase.from("profiles").select("role").eq("id",user.id).maybeSingle();if(callerProfile?.role !== "admin")return NextResponse.json({error:"Forbidden"},{status:403});
  const admin=createAdminClient();const{data:run}=await admin.from("giving_sync_runs").insert({provider:"zeffy"}).select("id").single();
  let seen=0,upserted=0,cursor:string|undefined;
  try{
