@@ -16,7 +16,7 @@ test("community previews use a consistent two-line pattern with accessible full 
 
 test("members manage their own prayer requests without an assignment workflow", async()=>{const[page,client]=await Promise.all([source("app","prayer","my-requests","page.tsx"),source("components","MyPrayerRequestsClient.tsx")]);assert.match(page,/My Prayer Requests/);assert.match(client,/"edit" \| "resolve" \| "withdraw"/);assert.doesNotMatch(client,/assigned_to|careTeam|prayer partner/i)});
 
-test("admin navigation fits six destinations without horizontal scrolling",async()=>{const navigation=await source("components","BottomNav.tsx");assert.match(navigation,/grid-cols-6/);assert.doesNotMatch(navigation,/overflow-x-auto/)});
+test("admin navigation keeps only active destinations without horizontal scrolling",async()=>{const navigation=await source("components","BottomNav.tsx");assert.match(navigation,/grid-cols-5/);assert.doesNotMatch(navigation,/\/admin\/applications/);assert.doesNotMatch(navigation,/overflow-x-auto/)});
 
 test("user join dates are deterministic during hydration",async()=>{const users=await source("components","AdminUsersClient.tsx");assert.match(users,/formatJoinedDate/);assert.doesNotMatch(users,/new Date\(member\.created_at\)\.toLocaleDateString/)});
 
