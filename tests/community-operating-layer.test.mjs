@@ -11,7 +11,8 @@ test("community preserves destination and exposes a consistent participation lay
  assert.match(community,/Prayer/);
  assert.match(community,/Praise/);
  assert.match(community,/Testimony/);
- assert.match(community,/Prayer Pulse/);\n assert.match(community,/Find a Gathering/);
+ assert.match(community,/Prayer Pulse/);
+ assert.match(community,/Find a Gathering/);
 });
 
 test("community operating layer keeps discipleship and privacy guardrails explicit",()=>{
