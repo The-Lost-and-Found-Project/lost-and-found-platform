@@ -12,11 +12,11 @@ export default async function LiveRoomPage({params}:{params:Promise<{sessionId:s
  const db=createAdminClient();
  const[{data:profile},{data:session},{data:extensions},{data:participant}]=await Promise.all([
   db.from("profiles").select("role,preview_role,is_active").eq("id",user.id).maybeSingle(),
-  db.from("study_sessions").select("facilitator_user_id,created_by,live_started_at").eq("id",sessionId).maybeSingle(),
+  db.from("study_sessions").select("facilitator_user_id,created_by,status,live_started_at,live_ended_at").eq("id",sessionId).maybeSingle(),
   db.from("study_session_extensions").select("extension_level,status,requested_minutes").eq("session_id",sessionId).eq("status","approved"),
   db.from("study_session_participants").select("study_session_id").eq("study_session_id",sessionId).eq("user_id",user.id).maybeSingle()
  ]);
- if(!profile?.is_active||!session)redirect("/events");
+ if(!profile?.is_active||!session||session.status==="completed"||session.status==="cancelled"||session.live_ended_at)redirect("/events");
  const role=getEffectiveRole(profile?.role,profile?.preview_role);
  let supervisor=false;if(role==="supervisor"&&session.facilitator_user_id){const{data}=await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",user.id).eq("facilitator_user_id",session.facilitator_user_id).maybeSingle();supervisor=Boolean(data);}
  const facilitator=role==="admin"||session?.facilitator_user_id===user.id||(!session?.facilitator_user_id&&session?.created_by===user.id);
