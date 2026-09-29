@@ -30,6 +30,8 @@ test("members can RSVP without receiving broad participant-table update access",
 test("Ministry Spaces expose the approved operating sections and personal gatherings",()=>{
  const page=read("app/ministries/[slug]/page.tsx");
  for(const section of ["Home","Updates","Gatherings","Resources","People"])assert.match(page,new RegExp(`>${section}<`));
+ for(const id of ["home","updates","gatherings","resources","people"])assert.match(page,new RegExp(`id="${id}"`));
+ assert.match(page,/No ministry updates are posted yet/);
  assert.match(page,/study_session_participants/);
  assert.match(page,/Assigned to you/);
  assert.match(page,/RSVP &amp; details/);
