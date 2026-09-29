@@ -8,7 +8,8 @@ begin
       add column if not exists difficulty text not null default 'intermediate'
       check (difficulty in ('beginner','intermediate','advanced'));
 
-    execute 'create or replace function public.get_quiz_questions_v2(p_category_id text, p_limit integer default 10, p_difficulty text default null)
+    execute $sql$
+create or replace function public.get_quiz_questions_v2(p_category_id text, p_limit integer default 10, p_difficulty text default null)
 returns setof public.trivia_questions
 language sql
 stable
@@ -20,7 +21,8 @@ as $function$
     and (p_difficulty is null or difficulty = p_difficulty)
   order by random()
   limit p_limit;
-$function$';
+$function$
+$sql$;
     grant execute on function public.get_quiz_questions_v2(text,integer,text) to authenticated;
 
     insert into public.trivia_categories(id,name,description,sort_order,is_active) values
