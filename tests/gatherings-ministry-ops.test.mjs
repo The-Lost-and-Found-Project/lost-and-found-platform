@@ -42,6 +42,10 @@ test("ending sessions remains separate from Daily Path release",()=>{
  assert.doesNotMatch(liveEnd,/daily_path_released_at\s*:/);
  assert.match(actions,/export async function releaseDailyPath/);
  assert.match(actions,/export async function endStudySession/);
+ const releaseBody=actions.slice(actions.indexOf("export async function releaseDailyPath"),actions.indexOf("export async function deleteStudy"));
+ assert.match(releaseBody,/daily_path_released_at:now/);
+ assert.doesNotMatch(releaseBody,/status:"completed"/);
+ assert.doesNotMatch(releaseBody,/ended_at:now/);
 });
 
 
@@ -63,4 +67,13 @@ test("member study viewer never exposes facilitator presenter notes",()=>{
  assert.doesNotMatch(viewer,/Presenter mode/);
  assert.doesNotMatch(viewer,/Presenter note/);
  assert.doesNotMatch(viewer,/slide\.notes/);
+});
+
+
+test("live study invitations lead members to Gatherings instead of generic Home",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ const createBody=actions.slice(actions.indexOf("export async function createLiveSession"),actions.indexOf("async function assertSessionManager"));
+ assert.match(createBody,/link:"\/events"/);
+ assert.match(createBody,/url:"\/events"/);
+ assert.doesNotMatch(createBody,/link:"\/dashboard"/);
 });
