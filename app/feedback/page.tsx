@@ -5,7 +5,7 @@ import FeedbackClient from "@/components/FeedbackClient";
 export default async function FeedbackPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?next=%2Ffeedback");
 
   const { data: profile } = await supabase
     .from("profiles")

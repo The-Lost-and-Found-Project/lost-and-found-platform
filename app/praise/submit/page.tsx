@@ -7,6 +7,8 @@ export default async function SubmitPraisePage({
 }: {
   searchParams: Promise<{ prayer_request_id?: string }>;
 }) {
+  const { prayer_request_id } = await searchParams;
+  const destination = prayer_request_id ? `/praise/submit?prayer_request_id=${encodeURIComponent(prayer_request_id)}` : "/praise/submit";
   const supabase = await createClient();
 
   const {
@@ -14,10 +16,8 @@ export default async function SubmitPraisePage({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(`/login?next=${encodeURIComponent(destination)}`);
   }
-
-  const { prayer_request_id } = await searchParams;
 
   return (
     <PraiseSubmitClient prayerRequestId={prayer_request_id ?? null} />
