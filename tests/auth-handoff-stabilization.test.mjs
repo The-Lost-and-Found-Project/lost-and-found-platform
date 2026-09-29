@@ -29,3 +29,14 @@ test("shared capability guards can preserve a caller-supplied destination",()=>{
   assert.match(guard,/encodeURIComponent\(nextPath\)/);
   assert.match(groups,/requireAppCapability\("study_groups", "\/admin\/studies\/groups"\)/);
 });
+
+
+test("Studio cards lead to operational management surfaces instead of member-facing browse pages",()=>{
+  const page=read("app/studio/page.tsx");
+  assert.match(page,/href:"\/admin\/studies"[\s\S]*title:"Studies"/);
+  assert.match(page,/href:"\/admin\/ministries"[\s\S]*title:"Ministries"/);
+  assert.match(page,/href:"\/studio\/directory"[\s\S]*title:"Directory"/);
+  assert.doesNotMatch(page,/href:"\/studies"[\s\S]*title:"Studies"/);
+  assert.doesNotMatch(page,/href:"\/ministries"[\s\S]*title:"Ministries"/);
+  assert.doesNotMatch(page,/href:"\/directory"[\s\S]*title:"Directory"/);
+});
