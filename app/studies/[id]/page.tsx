@@ -7,35 +7,32 @@ import { ministryPortals } from "@/lib/ministry-hub";
 export default async function StudyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const s = await createClient();
-  const {
-    data: { user },
-  } = await s.auth.getUser();
+  const { data: { user } } = await s.auth.getUser();
   if (!user) redirect(`/login?next=/studies/${id}`);
 
-  const { data: study } = await s
-    .from("bible_studies")
-    .select("*")
-    .eq("id", id)
-    .eq("is_published", true)
-    .maybeSingle();
+  const [{ data: study }, { data: assignments }] = await Promise.all([
+    s.from("bible_studies").select("*").eq("id", id).eq("is_published", true).maybeSingle(),
+    s.from("study_session_participants")
+      .select("study_session_id,study_sessions(id,bible_study_id,scheduled_start,scheduled_end,status,daily_path_released_at,ministry_slug)")
+      .eq("user_id", user.id),
+  ]);
   if (!study) notFound();
 
-  const graceWindow = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
-  const { data: liveSessions } = await s
-    .from("study_sessions")
-    .select("scheduled_start,scheduled_end,status,google_meeting_uri")
-    .eq("bible_study_id", id)
-    .in("status", ["scheduled", "live"])
-    .not("google_meeting_uri", "is", null)
-    .gte("scheduled_start", graceWindow)
-    .order("scheduled_start", { ascending: true })
-    .limit(5);
+  const graceFloor = Date.now() - 4 * 60 * 60 * 1000;
+  const assignedSessions = (assignments ?? [])
+    .map((row: any) => Array.isArray(row.study_sessions) ? row.study_sessions[0] : row.study_sessions)
+    .filter((session: any) =>
+      session &&
+      session.bible_study_id === id &&
+      ["scheduled", "live"].includes(session.status) &&
+      new Date(session.scheduled_start).getTime() >= graceFloor
+    )
+    .sort((a: any, b: any) => +new Date(a.scheduled_start) - +new Date(b.scheduled_start));
+  const liveSession = assignedSessions[0] || null;
 
-  const liveSession = liveSessions?.[0] || null;
-  const meetingUrl = liveSession?.google_meeting_uri || study.meeting_url;
   const ministry = ministryPortals.find((m) => m.slug === study.ministry_slug);
   const slides = Array.isArray(study.slides) ? study.slides : [];
-  const devotionals = Array.isArray(study.devotional_cards) ? study.devotional_cards : [];
+  const hasDailyPath = Boolean(liveSession?.daily_path_released_at);
 
   return (
     <main className="lfp-page pb-24">
@@ -54,8 +51,8 @@ export default async function StudyPage({ params }: { params: Promise<{ id: stri
             </div>
           )}
           {liveSession && (
-            <div className="mt-6 max-w-3xl rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-              <p className="text-xs font-black uppercase tracking-widest text-indigo-700">Upcoming live study</p>
+            <div className="mt-6 max-w-3xl rounded-2xl border border-indigo-100 bg-indigo-50 p-5">
+              <p className="text-xs font-black uppercase tracking-widest text-indigo-700">{liveSession.status === "live" ? "Live now" : "Your assigned gathering"}</p>
               <p className="mt-1 font-bold text-slate-700">
                 {new Date(liveSession.scheduled_start).toLocaleString("en-US", {
                   dateStyle: "medium",
@@ -63,28 +60,28 @@ export default async function StudyPage({ params }: { params: Promise<{ id: stri
                   timeZone: "America/New_York",
                 })} ET
               </p>
-              <p className="mt-1 text-sm text-slate-600">The Join Live Study button below opens the L&F Google Meet room.</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">Live access belongs to your assigned session, not to the reusable study itself.</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link href={`/live/${liveSession.id}`} className="lfp-button bg-indigo-700 text-white">{liveSession.status === "live" ? "Join L&F Live" : "Open Gathering"}</Link>
+                <Link href="/events" className="lfp-button border bg-white text-slate-950">RSVP & details</Link>
+                {hasDailyPath && <Link href={`/study-path/${liveSession.id}/1`} className="lfp-button border border-violet-200 bg-violet-50 text-violet-800">Open Daily Path</Link>}
+              </div>
             </div>
           )}
         </div>
+
         <div className="mt-8">
-          <StudyViewer slides={slides} meetingUrl={meetingUrl} downloadUrl={study.downloadable_url} />
+          <StudyViewer slides={slides} downloadUrl={study.downloadable_url} />
         </div>
-        {devotionals.length > 0 && (
-          <section className="mt-12">
-            <p className="lfp-eyebrow">Continue Through the Week</p>
-            <h2 className="mt-2 text-3xl font-black">7-Day Devotional Cards</h2>
-            <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {devotionals.map((d: any, i: number) => (
-                <article key={i} className="lfp-card p-6">
-                  <p className="text-xs font-black uppercase tracking-widest text-indigo-700">Day {i + 1}</p>
-                  <h3 className="mt-2 text-xl font-black">{d.title || `Day ${i + 1}`}</h3>
-                  {d.scripture && <p className="mt-2 font-black text-indigo-700">{d.scripture}</p>}
-                  {d.teaching && <p className="mt-3 leading-7 text-slate-600">{d.teaching}</p>}
-                  {d.story && <p className="mt-3 text-sm leading-6 text-slate-500">{d.story}</p>}
-                  {d.prompt && <p className="mt-4 border-t pt-4 font-bold">{d.prompt}</p>}
-                </article>
-              ))}
+
+        {Array.isArray(study.devotional_cards) && study.devotional_cards.length > 0 && (
+          <section className="mt-12 rounded-[1.8rem] border border-violet-100 bg-violet-50/60 p-6 sm:p-8">
+            <p className="lfp-eyebrow">Daily Path</p>
+            <h2 className="mt-2 text-3xl font-black">The follow-up journey is released from your gathering.</h2>
+            <p className="mt-3 max-w-3xl leading-7 text-slate-600">These devotional days stay connected to the live study experience. When your facilitator releases Daily Path, each day unlocks through My Path instead of exposing the entire week at once.</p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              {hasDailyPath ? <Link href={`/study-path/${liveSession.id}/1`} className="lfp-button bg-violet-700 text-white">Open Daily Path</Link> : <Link href="/dashboard" className="lfp-button border bg-white text-slate-950">Return to My Path</Link>}
+              <Link href="/events" className="lfp-button border bg-white text-slate-950">View Gatherings</Link>
             </div>
           </section>
         )}
