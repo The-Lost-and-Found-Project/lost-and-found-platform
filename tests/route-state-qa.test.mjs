@@ -24,6 +24,10 @@ const protectedPages = [
   ["app/help/page.tsx", "/login?next=%2Fhelp"],
   ["app/profile/page.tsx", "/login?next=%2Fprofile"],
   ["app/settings/page.tsx", "/login?next=%2Fsettings"],
+  ["app/learn/page.tsx", "/login?next=%2Flearn"],
+  ["app/trivia/page.tsx", "/login?next=%2Ftrivia"],
+  ["app/support/page.tsx", "/login?next=%2Fsupport"],
+  ["app/help/manual/member/page.tsx", "/login?next=%2Fhelp%2Fmanual%2Fmember"],
 ];
 
 test("core account routes preserve the requested destination through authentication", async () => {
