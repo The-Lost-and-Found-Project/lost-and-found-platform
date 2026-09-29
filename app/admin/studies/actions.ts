@@ -79,7 +79,7 @@ export async function endStudySession(f:FormData){
  const{db,session}=await assertSessionManager(sessionId);
  if(session.status==="completed"||session.ended_at)return;
  const now=new Date().toISOString();
- const{error}=await db.from("study_sessions").update({status:"completed",ended_at:now,live_ended_at:now,updated_at:now}).eq("id",sessionId);
+ const{error}=await db.from("study_sessions").update({status:"completed",ended_at:now,updated_at:now}).eq("id",sessionId);
  if(error)throw new Error(error.message);
  revalidatePath("/admin/studies");revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);
  return;
