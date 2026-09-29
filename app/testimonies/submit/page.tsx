@@ -5,7 +5,7 @@ import TestimonySubmitClient from "@/components/TestimonySubmitClient";
 export default async function SubmitTestimonyPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?next=%2Ftestimonies%2Fsubmit");
 
   return (
     <main className="lfp-page pb-20">
