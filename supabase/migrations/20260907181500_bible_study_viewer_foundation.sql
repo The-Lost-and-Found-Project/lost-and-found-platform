@@ -15,6 +15,14 @@ create table if not exists public.bible_studies (
   updated_at timestamptz not null default now()
 );
 alter table public.bible_studies enable row level security;
-create policy "members read published bible studies" on public.bible_studies for select to authenticated using (is_published = true or exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
-create policy "admins manage bible studies" on public.bible_studies for all to authenticated using (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin')) with check (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
+do $migration$
+begin
+  if to_regclass('public.profiles') is null then
+    execute 'create policy "members read published bible studies" on public.bible_studies for select to authenticated using (is_published = true)';
+    return;
+  end if;
+  execute 'create policy "members read published bible studies" on public.bible_studies for select to authenticated using (is_published = true or exists(select 1 from public.profiles p where p.id=auth.uid() and p.role=''admin''))';
+  execute 'create policy "admins manage bible studies" on public.bible_studies for all to authenticated using (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role=''admin'')) with check (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role=''admin''))';
+end
+$migration$;
 create index if not exists bible_studies_published_idx on public.bible_studies(is_published, created_at desc);
