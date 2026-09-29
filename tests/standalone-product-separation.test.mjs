@@ -16,7 +16,7 @@ test("Platform 2.0 preserves the former standalone product source while integrat
 
   assert.match(boundary, /emmaus|trivia|devotions/i);
   assert.match(dashboard, /Continue Emmaus/);
-  assert.match(dashboard, /Daily Bible challenge/);
+  assert.match(dashboard, /Open Learning Lab/);
   assert.match(dashboard, /Devotional/);
   assert.match(discover, /Study/);
   assert.match(discover, /Devotions/);
