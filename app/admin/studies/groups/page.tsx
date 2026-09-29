@@ -6,7 +6,7 @@ import { archiveStudyGroup, createStudyGroup, saveGroupMembers } from "./actions
 
 type Props={searchParams?:Promise<{saved?:string;count?:string}>};
 export default async function StudyGroupsPage({searchParams}:Props){
- const params=await searchParams;const savedGroup=params?.saved||"";const savedCount=Number(params?.count||0);await requireAppCapability("study_groups");
+ const params=await searchParams;const savedGroup=params?.saved||"";const savedCount=Number(params?.count||0);await requireAppCapability("study_groups", "/admin/studies/groups");
  const db=createAdminClient();const[{data:groups},{data:people},{data:members}]=await Promise.all([
   db.from("study_groups").select("*").eq("status","active").order("name"),
   db.from("profiles").select("id,full_name,email,is_active").eq("is_active",true).order("full_name"),
