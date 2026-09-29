@@ -56,9 +56,14 @@ $$;
 drop trigger if exists trg_prevent_locked_group_response_change on public.study_daily_responses;
 create trigger trg_prevent_locked_group_response_change before update on public.study_daily_responses for each row execute function public.prevent_locked_group_response_change();
 
-create or replace function public.is_lfp_admin(uid uuid) returns boolean language sql stable security definer set search_path=public as $$
-  select exists(select 1 from public.profiles p where p.id=uid and p.role='admin');
-$$;
+create or replace function public.is_lfp_admin(uid uuid) returns boolean language plpgsql stable security definer set search_path=public as $
+declare result boolean := false;
+begin
+  if to_regclass('public.profiles') is null then return false; end if;
+  execute 'select exists(select 1 from public.profiles p where p.id=$1 and p.role=''admin'')' into result using uid;
+  return coalesce(result,false);
+end;
+$;
 create or replace function public.is_study_group_facilitator(uid uuid,gid uuid) returns boolean language sql stable security definer set search_path=public as $$
   select exists(select 1 from public.study_group_members gm where gm.group_id=gid and gm.user_id=uid and gm.group_role='facilitator' and gm.membership_status='active');
 $$;
