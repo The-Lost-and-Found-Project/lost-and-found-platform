@@ -5,9 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 const sections=[
  {href:"/studio/impact",eyebrow:"Impact & Support",title:"Ministry Impact",copy:"Manage what support enables, keep operational needs private, and choose where contextual invitations appear."},
  {href:"/admin",eyebrow:"People & Care",title:"Administration",copy:"Existing member, prayer, moderation, and ministry administration."},
- {href:"/studies",eyebrow:"Scripture",title:"Studies",copy:"Bible studies and discipleship remain the first content priority."},
- {href:"/ministries",eyebrow:"Ministry",title:"Ministries",copy:"Manage the ministry experiences people discover and join."},
- {href:"/directory",eyebrow:"Connections",title:"Directory",copy:"Curate trusted ministries and resources as the directory grows."},
+ {href:"/admin/studies",eyebrow:"Scripture",title:"Studies",copy:"Bible studies and discipleship remain the first content priority."},
+ {href:"/admin/ministries",eyebrow:"Ministry",title:"Ministries",copy:"Manage the ministry experiences people discover and join."},
+ {href:"/studio/directory",eyebrow:"Connections",title:"Directory",copy:"Curate trusted ministries and resources as the directory grows."},
  {href:"/auth/emmaus?next=/study",eyebrow:"Scripture",title:"Emmaus",copy:"Open the deeper Scripture-study experience through the shared account."},
  {href:"/studio/giving",eyebrow:"Stewardship",title:"Giving",copy:"Keep support visible, transparent, and invitational without placing it ahead of Scripture or salvation."},
 ];
