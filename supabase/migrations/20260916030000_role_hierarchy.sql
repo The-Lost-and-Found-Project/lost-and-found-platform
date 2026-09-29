@@ -1,10 +1,12 @@
-do $$
+do $migration$
 declare c record;
 begin
+  if to_regclass('public.profiles') is null then return; end if;
   for c in select conname from pg_constraint where conrelid='public.profiles'::regclass and contype='c' and pg_get_constraintdef(oid) ilike '%role%'
   loop execute format('alter table public.profiles drop constraint if exists %I', c.conname); end loop;
-end $$;
-alter table public.profiles add constraint profiles_role_allowed check (role in ('member','facilitator','supervisor','admin'));
+  alter table public.profiles add constraint profiles_role_allowed check (role in ('member','facilitator','supervisor','admin'));
+end
+$migration$;
 
 create table if not exists public.facilitator_supervision (
   supervisor_user_id uuid not null references auth.users(id) on delete cascade,
