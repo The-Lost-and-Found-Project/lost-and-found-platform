@@ -14,8 +14,8 @@ test("Share With a Friend sends the dedicated public invitation URL", () => {
   assert.match(shareButton, /Invitation link copied!/);
   assert.match(shareButton, /min-h-11/);
   assert.doesNotMatch(middleware, /PROTECTED_PREFIXES[\s\S]*"\/share"/);
-  assert.match(bottomNav, /pathname === "\/share"/);
-  assert.match(backButton, /pathname === "\/share"/);
+  assert.match(bottomNav, /pathname\s*===\s*"\/share"/);
+  assert.match(backButton, /pathname\s*===\s*"\/share"/);
 });
 
 test("the invitation page presents one unified Community Member identity", () => {
