@@ -10,7 +10,15 @@ create table if not exists public.notification_campaigns (
   created_at timestamptz not null default now()
 );
 alter table public.notification_campaigns enable row level security;
-create policy "admins read notification campaigns" on public.notification_campaigns for select to authenticated using (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
-create policy "admins insert notification campaigns" on public.notification_campaigns for insert to authenticated with check (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
-alter table public.notifications add column if not exists campaign_id uuid references public.notification_campaigns(id) on delete set null;
-create index if not exists notifications_campaign_idx on public.notifications(campaign_id, created_at desc);
+do $migration$
+begin
+  if to_regclass('public.profiles') is not null then
+    execute 'create policy "admins read notification campaigns" on public.notification_campaigns for select to authenticated using (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role=''admin''))';
+    execute 'create policy "admins insert notification campaigns" on public.notification_campaigns for insert to authenticated with check (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role=''admin''))';
+  end if;
+  if to_regclass('public.notifications') is not null then
+    alter table public.notifications add column if not exists campaign_id uuid references public.notification_campaigns(id) on delete set null;
+    create index if not exists notifications_campaign_idx on public.notifications(campaign_id, created_at desc);
+  end if;
+end
+$migration$;
