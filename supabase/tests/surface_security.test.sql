@@ -267,6 +267,8 @@ select matches(
   'avatar SELECT access is limited to the caller folder'
 );
 
+drop table if exists public.profiles cascade;
+
 create table public.profiles (
   id uuid primary key,
   role text not null
