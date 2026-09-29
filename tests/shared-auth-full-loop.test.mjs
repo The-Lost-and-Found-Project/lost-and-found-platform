@@ -25,9 +25,10 @@ test("Emmaus-specific sign-in and sign-up preserve the requested destination",()
  const login=read("app/emmaus/login/page.tsx");
  const signup=read("app/emmaus/signup/page.tsx");
  assert.match(login,/\/auth\/emmaus\?next=/);
- assert.match(login,/Same account/);
- assert.match(signup,/auth\/callback\?next=/);
- assert.match(signup,/Create Account & Continue to Emmaus/);
+ assert.match(login,/redirect\(`\/login\?source=emmaus&next=/);
+ assert.match(signup,/redirect\(`\/signup\?source=emmaus&next=/);
+ assert.match(login,/\/auth\/emmaus\?next=/);
+ assert.match(signup,/\/auth\/emmaus\?next=/);
 });
 
 test("L&F owns primary password recovery for the shared identity",()=>{
