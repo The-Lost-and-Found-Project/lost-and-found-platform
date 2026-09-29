@@ -56,3 +56,11 @@ test("published study pages do not expose unassigned live-session details or unr
  assert.match(migration,/participants read assigned study sessions/);
  assert.match(migration,/sp\.user_id = auth\.uid\(\)/);
 });
+
+
+test("member study viewer never exposes facilitator presenter notes",()=>{
+ const viewer=read("components/StudyViewer.tsx");
+ assert.doesNotMatch(viewer,/Presenter mode/);
+ assert.doesNotMatch(viewer,/Presenter note/);
+ assert.doesNotMatch(viewer,/slide\.notes/);
+});
