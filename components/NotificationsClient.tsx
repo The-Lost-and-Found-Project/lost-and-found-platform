@@ -67,6 +67,8 @@ const ATTENTION_TYPES = new Set([
 
 type Filter = "attention" | "unread" | "all";
 
+function safeNotificationDestination(link:string|null){return link?.startsWith("/")&&!link.startsWith("//")&&!link.includes("\\")?link:"/notifications";}
+
 function needsAttention(notification: Notification) {
   return !notification.read_at && ATTENTION_TYPES.has(notification.type);
 }
@@ -147,7 +149,7 @@ export default function NotificationsClient({ initialNotifications }: { initialN
     }
     event.preventDefault();
     await markOneRead(notification);
-    router.push(notification.link ?? "/notifications");
+    router.push(safeNotificationDestination(notification.link));
   }
 
   async function deleteOne(id: string) {
@@ -212,7 +214,7 @@ export default function NotificationsClient({ initialNotifications }: { initialN
           };
           return (
           <article key={notification.id} className={`group flex items-start gap-3 rounded-3xl border p-4 transition sm:p-5 ${notification.read_at ? "border-slate-200 bg-white" : "border-indigo-200 bg-indigo-50/70 shadow-sm"}`}>
-            <Link href={notification.link ?? "/notifications"} onClick={(event) => void openNotification(event, notification)} className="flex min-w-0 flex-1 items-start gap-4 rounded-2xl">
+            <Link href={safeNotificationDestination(notification.link)} onClick={(event) => void openNotification(event, notification)} className="flex min-w-0 flex-1 items-start gap-4 rounded-2xl">
               <span className={`mt-1 h-3 w-3 shrink-0 rounded-full ${notification.read_at ? "bg-slate-200" : TYPE_ICON[notification.type] ?? "bg-indigo-500"}`} aria-hidden="true" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
