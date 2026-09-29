@@ -5,19 +5,20 @@ import test from "node:test";
 
 const root = process.cwd();
 
-test("My Path dashboard is the signed-in ministry and learning home", async () => {
+test("My Path dashboard is the signed-in what-matters-now home", async () => {
   const dashboard = await readFile(path.join(root, "app", "dashboard", "page.tsx"), "utf8");
   assert.match(dashboard, /My Path/);
   assert.match(dashboard, /Continue Emmaus/);
-  assert.match(dashboard, /Review verses/);
-  assert.match(dashboard, /Daily challenge/);
-  assert.match(dashboard, /Fresh from L&F/);
-  assert.match(dashboard, /My spaces/);
-  assert.match(dashboard, /Community rhythm/);
+  assert.match(dashboard, /Daily Path/);
+  assert.match(dashboard, /Upcoming Live Studies/);
+  assert.match(dashboard, /Open Learning Lab/);
+  assert.match(dashboard, /Your ministry spaces|Find your ministry space/);
   assert.match(dashboard, /content_progress/);
   assert.match(dashboard, /memory_verse_progress/);
   assert.match(dashboard, /quiz_attempts/);
   assert.match(dashboard, /content_catalog/);
+  assert.doesNotMatch(dashboard, /Fresh from L&F/);
+  assert.doesNotMatch(dashboard, /Community rhythm/);
 });
 
 test("public landing page is the Platform 2.0 front door", async () => {
