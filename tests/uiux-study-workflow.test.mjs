@@ -35,3 +35,13 @@ test("Home preserves its destination through authentication",()=>{
  const dashboard=read("app/dashboard/page.tsx");
  assert.match(dashboard,/redirect\("\/login\?next=%2Fdashboard"\)/);
 });
+
+
+test("ending L&F Live does not release Daily Path", async () => {
+  const liveEnd = await source("app", "api", "live", "session", "[sessionId]", "end", "route.ts");
+  assert.match(liveEnd, /live_ended_at:ended/);
+  assert.match(liveEnd, /status:"completed"/);
+  assert.doesNotMatch(liveEnd, /daily_path_released_at\s*:/);
+  assert.doesNotMatch(liveEnd, /Day 1 is ready/);
+  assert.doesNotMatch(liveEnd, /dailyPathReleased:true/);
+});
