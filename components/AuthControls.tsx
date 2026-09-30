@@ -141,7 +141,7 @@ export default function AuthControls() {
         <div
           role="menu"
           aria-label="Account options"
-          className="absolute right-0 z-[100] mt-3 w-[min(18rem,calc(100vw-1rem))] overflow-hidden rounded-3xl border border-slate-300 bg-white text-slate-950 shadow-[0_24px_80px_rgba(15,23,42,0.35)] ring-1 ring-black/5"
+          className="absolute right-0 z-[100] mt-3 max-h-[calc(100dvh-5rem)] w-[min(18rem,calc(100vw-1rem))] overflow-y-auto overscroll-contain rounded-3xl border border-slate-300 bg-white text-slate-950 shadow-[0_24px_80px_rgba(15,23,42,0.35)] ring-1 ring-black/5"
         >
           <div className="flex items-center gap-3 border-b border-slate-200 bg-slate-50 px-4 py-4">
             {profile?.avatar_url ? (
