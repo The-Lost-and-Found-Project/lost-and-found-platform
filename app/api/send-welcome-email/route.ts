@@ -80,30 +80,30 @@ export async function POST(request: NextRequest) {
         : "friend";
 
     const html = renderLfpEmail({
-      preheader: "Welcome to a community centered on prayer, praise, and testimony.",
+      preheader: "Welcome to The Lost & Found Project — prayer, Scripture, community, and faithful next steps.",
       eyebrow: "Welcome",
       title: `You belong here, ${firstName}.`,
       siteUrl: SITE_URL,
       reason: "You received this one-time welcome because you confirmed a new Community Member account.",
       bodyHtml: `
-        <p style="margin:0 0 16px;">The Lost and Found Project is a Christian community where people bring needs before God, celebrate His faithfulness, and share stories that help others find hope.</p>
+        <p style="margin:0 0 16px;">The Lost and Found Project is a Christian ministry built to help people encounter Jesus, understand Scripture, find community, pray, and take faithful next steps.</p>
         <p style="margin:0 0 10px;font-weight:800;color:#0f172a;">You can now:</p>
         <ul style="margin:0 0 18px;padding-left:22px;">
           <li style="margin-bottom:8px;"><strong>Request prayer</strong> privately or for the moderated public Prayer ticker.</li>
           <li style="margin-bottom:8px;"><strong>Pray for others</strong> as often as you are led.</li>
           <li style="margin-bottom:8px;"><strong>Share praise and testimony</strong> to encourage the community.</li>
-          <li style="margin-bottom:8px;"><strong>Explore future L&amp;F apps</strong> as dedicated learning experiences become ready.</li>
+          <li style="margin-bottom:8px;"><strong>Discover studies, gatherings, ministries, and trusted resources</strong> in one connected experience.</li>\n          <li style="margin-bottom:8px;"><strong>Go deeper in Emmaus</strong> when you are ready for slower, more focused Scripture study.</li>
         </ul>
-        <p style="margin:0 0 16px;"><strong>Using a phone or iPad?</strong> Add the Community App to your Home Screen from your browser&apos;s Share or Install menu.</p>
+        <p style="margin:0 0 16px;"><strong>Using a phone or iPad?</strong> Add The Lost &amp; Found Project to your Home Screen from your browser&apos;s Share or Install menu.</p>
         <p style="margin:0;">Participation is free. If you choose to give, your optional support helps the ministry serve more people responsibly.</p>
       `,
       actions: [
         { href: `${SITE_URL}/login`, label: "Open Your Account", primary: true },
-        { href: `${SITE_URL}/apps`, label: "See Future Apps" },
+        { href: `${SITE_URL}/discover`, label: "Explore L&F" },
         { href: GIVE_URL, label: "Give Securely" },
       ],
     });
-    const text = `Welcome to The Lost and Found Project, ${firstName}.\n\nYou can request prayer, pray for others as often as you are led, share praise and testimony, and explore future L&F apps.\n\nOpen your account: ${SITE_URL}/login\nFuture apps: ${SITE_URL}/apps\nOptional giving: ${GIVE_URL}\n\nYou received this one-time welcome because you confirmed a new Community Member account.`;
+    const text = `Welcome to The Lost and Found Project, ${firstName}.\n\nYou can request prayer, pray for others, share praise and testimony, discover studies and gatherings, connect with ministry spaces, and go deeper in Emmaus.\n\nOpen your account: ${SITE_URL}/login\nExplore L&F: ${SITE_URL}/discover\nOptional giving: ${GIVE_URL}\n\nYou received this one-time welcome because you confirmed a new Community Member account.`;
 
     const { error } = await resend.emails.send({
       from: FROM_ADDRESS,
