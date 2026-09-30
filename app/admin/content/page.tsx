@@ -30,12 +30,12 @@ export default async function AdminContentPage() {
 
   const { data: testimonies } = await supabase
     .from("testimonies")
-    .select("id, content_text, is_anonymous, user_id, created_at")
+    .select("id, content_text, is_anonymous, user_id, created_at, moderation_status")
     .order("created_at", { ascending: false });
 
   const { data: praiseReports } = await supabase
     .from("praise_reports")
-    .select("id, content_text, user_id, prayer_request_id, created_at")
+    .select("id, content_text, user_id, prayer_request_id, created_at, moderation_status")
     .order("created_at", { ascending: false });
 
   const authorIds = Array.from(
