@@ -89,6 +89,7 @@ export default function ProfileClient({
 
   const [saving, setSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState("");
@@ -103,6 +104,7 @@ export default function ProfileClient({
       dateOfBaptism,
     });
     setJustSaved(false);
+    setSaveError("");
     setIsEditing(true);
   }
 
@@ -120,25 +122,35 @@ export default function ProfileClient({
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    setSaveError("");
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({
-          full_name: fullName,
-          favorite_scripture: favoriteScripture.trim() || null,
-          date_of_salvation: dateOfSalvation || null,
-          date_of_baptism: dateOfBaptism || null,
-        })
-        .eq("id", user.id);
+    if (!user) {
+      setSaving(false);
+      setSaveError("Your session ended before this profile could be saved. Please sign in again.");
+      return;
     }
 
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        full_name: fullName,
+        favorite_scripture: favoriteScripture.trim() || null,
+        date_of_salvation: dateOfSalvation || null,
+        date_of_baptism: dateOfBaptism || null,
+      })
+      .eq("id", user.id);
+
     setSaving(false);
+    if (error) {
+      setSaveError("We could not save your profile changes. Please try again.");
+      return;
+    }
     setIsEditing(false);
+    setSnapshot(null);
     setJustSaved(true);
     setTimeout(() => setJustSaved(false), 3000);
   }
@@ -226,21 +238,32 @@ export default function ProfileClient({
   // risk for non-admins (the server ignores preview_role unless the caller's
   // real role is already admin — see lib/effective-role.ts).
   async function handlePreviewChange(value: string) {
+    const previous=previewRole;
     setPreviewRole(value);
     setSavingPreview(true);
+    setSaveError("");
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({ preview_role: value || null })
-        .eq("id", user.id);
+    if (!user) {
+      setPreviewRole(previous);
+      setSavingPreview(false);
+      setSaveError("Your session ended before preview mode could be changed.");
+      return;
     }
+    const { error } = await supabase
+      .from("profiles")
+      .update({ preview_role: value || null })
+      .eq("id", user.id);
 
     setSavingPreview(false);
+    if (error) {
+      setPreviewRole(previous);
+      setSaveError("We could not change preview mode. Your previous view is still active.");
+      return;
+    }
 
     // AuthControls (the header dropdown) persists across client-side
     // navigations and only refetches the profile on mount or auth-state
@@ -385,6 +408,8 @@ export default function ProfileClient({
             )}
           </div>
         </div>
+
+        {saveError && <p role="alert" className="mt-3 text-sm font-medium text-red-700">{saveError}</p>}
 
         {isRealAdmin && previewRole && (
           <p className="mt-3 text-xs font-medium text-amber-600">

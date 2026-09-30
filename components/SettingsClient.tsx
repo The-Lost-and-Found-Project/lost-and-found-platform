@@ -24,25 +24,34 @@ export default function SettingsClient({
   const [settings, setSettings] = useState<Settings>(initialSettings);
   const [saving, setSaving] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [saveError, setSaveError] = useState("");
 
   async function updateSetting(key: keyof Settings, value: boolean) {
     const next = { ...settings, [key]: value };
     setSettings(next);
     setSaving(key);
+    setSaveError("");
 
     const { data } = await supabase.auth.getUser();
     const user = data?.user;
     if (!user) {
+      setSettings(settings);
       setSaving(null);
+      setSaveError("Your session ended before this preference could be saved. Please sign in again.");
       return;
     }
 
-    await supabase
+    const { error } = await supabase
       .from("user_settings")
       .update({ [key]: value })
       .eq("user_id", user.id);
 
     setSaving(null);
+    if (error) {
+      setSettings(settings);
+      setSaveError("We could not save that preference. Your previous setting is still in effect.");
+      return;
+    }
     setSavedAt(Date.now());
   }
 
@@ -110,6 +119,7 @@ export default function SettingsClient({
         />
       </div>
 
+      {saveError && <p role="alert" className="mt-3 text-sm font-medium text-red-700">{saveError}</p>}
       <p
         className={`mt-3 text-sm text-gray-500 transition ${
           savedAt ? "opacity-100" : "opacity-0"
