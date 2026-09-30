@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type Verse = {
@@ -48,10 +48,32 @@ export default function VerseInsightPanel({
   onClose,
 }: VerseInsightPanelProps) {
   const supabase = useMemo(() => createClient(), []);
+  const panelRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const graphHref = `/emmaus/admin/graph?reference=${encodeURIComponent(verse.reference)}&translation=${translation}`;
+
+  useEffect(() => {
+    const previousOverflow=document.body.style.overflow;
+    const previouslyFocused=document.activeElement instanceof HTMLElement?document.activeElement:null;
+    document.body.style.overflow="hidden";
+    closeButtonRef.current?.focus();
+
+    function handleKeyDown(event:KeyboardEvent){
+      if(event.key==="Escape"){onClose();return;}
+      if(event.key!=="Tab"||!panelRef.current)return;
+      const focusable=Array.from(panelRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'));
+      if(!focusable.length)return;
+      const first=focusable[0],last=focusable[focusable.length-1];
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+    }
+
+    window.addEventListener("keydown",handleKeyDown);
+    return()=>{document.body.style.overflow=previousOverflow;window.removeEventListener("keydown",handleKeyDown);previouslyFocused?.focus();}
+  },[onClose]);
 
   useEffect(() => {
     let cancelled = false;
@@ -133,13 +155,13 @@ export default function VerseInsightPanel({
   return (
     <div className="fixed inset-0 z-[60] flex justify-end bg-gray-950/35" role="dialog" aria-modal="true" aria-label={`${verse.reference} insights`}>
       <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Close verse insights" />
-      <aside className="relative h-full w-full max-w-xl overflow-y-auto bg-white p-6 shadow-2xl sm:p-8">
+      <aside ref={panelRef} className="relative h-full w-full max-w-xl overflow-y-auto bg-white p-6 shadow-2xl sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-indigo-700">Verse Insights</p>
             <h2 className="mt-1 text-3xl font-bold text-gray-950">{verse.reference}</h2>
           </div>
-          <button type="button" onClick={onClose} className="rounded-full border border-gray-300 px-3 py-1.5 text-sm font-semibold text-gray-700">Close</button>
+          <button ref={closeButtonRef} type="button" onClick={onClose} className="min-h-11 rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700">Close</button>
         </div>
 
         <blockquote className="mt-6 rounded-2xl border border-indigo-200 bg-indigo-50 p-5 text-lg leading-8 text-gray-800">
