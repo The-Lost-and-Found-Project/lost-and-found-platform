@@ -10,13 +10,15 @@ export default async function ProfilePage() {
 
   if (!user) redirect("/login?next=%2Fprofile");
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select(
       "full_name, avatar_url, favorite_scripture, date_of_salvation, date_of_baptism, role, preview_role"
     )
     .eq("id", user.id)
     .single();
+
+  if (profileError) throw profileError;
 
   const firstName = profile?.full_name?.trim().split(" ")[0] || "friend";
 

@@ -12,18 +12,21 @@ export default async function NotificationsPage() {
 
   if (!user) redirect("/login?next=%2Fnotifications");
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("full_name")
     .eq("id", user.id)
     .single();
 
-  const { data: notifications } = await supabase
+  const { data: notifications, error: notificationsError } = await supabase
     .from("notifications")
     .select("id, type, title, body, link, read_at, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(100);
+
+  if (profileError) throw profileError;
+  if (notificationsError) throw notificationsError;
 
   const notificationRows = notifications ?? [];
   const firstName = profile?.full_name?.trim().split(" ")[0] || "friend";
