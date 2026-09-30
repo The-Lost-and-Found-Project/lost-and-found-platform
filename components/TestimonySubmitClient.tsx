@@ -64,13 +64,11 @@ export default function TestimonySubmitClient() {
     }
 
     const { error: saveError } = existingId
-      ? await supabase
-          .from("testimonies")
-          .update({
-            content_text: contentText,
-            is_anonymous: isAnonymous,
-          })
-          .eq("id", existingId)
+      ? await supabase.rpc("update_own_testimony", {
+          p_testimony_id: existingId,
+          p_content_text: contentText,
+          p_is_anonymous: isAnonymous,
+        })
       : await supabase.from("testimonies").insert({
           user_id: user.id,
           content_text: contentText,
