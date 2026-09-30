@@ -69,10 +69,9 @@ export default function TestimonySubmitClient() {
           p_content_text: contentText,
           p_is_anonymous: isAnonymous,
         })
-      : await supabase.from("testimonies").insert({
-          user_id: user.id,
-          content_text: contentText,
-          is_anonymous: isAnonymous,
+      : await supabase.rpc("submit_own_testimony", {
+          p_content_text: contentText,
+          p_is_anonymous: isAnonymous,
         });
 
     if (saveError) {
