@@ -28,7 +28,7 @@ test("admin can approve or deny praise and testimony with member notification",(
  const client=read("components/AdminContentClient.tsx");
  const page=read("app/admin/content/page.tsx");
  assert.match(route,/STATUSES=new Set\(\["approved","denied"\]\)/);
- assert.match(route,/profile\?\.role!=="admin"/);
+ assert.match(route,/callerProfile\?\.role\s*!==\s*"admin"/);
  assert.match(route,/content_approved/);
  assert.match(route,/content_denied/);
  assert.match(client,/Approve/);
