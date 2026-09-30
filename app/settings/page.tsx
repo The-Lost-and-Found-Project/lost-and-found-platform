@@ -18,19 +18,22 @@ export default async function SettingsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=%2Fsettings");
 
-  const { data: existing } = await supabase
+  const { data: existing, error: existingError } = await supabase
     .from("user_settings")
     .select("email_notifications, prayer_reaction_notifications, praise_reaction_notifications, testimony_reaction_notifications, default_anonymous, giving_impact_emails, campaign_emails, annual_giving_report_email")
     .eq("user_id", user.id)
     .single();
 
+  if (existingError && existingError.code !== "PGRST116") throw existingError;
+
   let settings = existing;
   if (!settings) {
-    const { data: created } = await supabase
+    const { data: created, error: createError } = await supabase
       .from("user_settings")
       .insert({ user_id: user.id })
       .select("email_notifications, prayer_reaction_notifications, praise_reaction_notifications, testimony_reaction_notifications, default_anonymous, giving_impact_emails, campaign_emails, annual_giving_report_email")
       .single();
+    if (createError) throw createError;
     settings = created;
   }
 
