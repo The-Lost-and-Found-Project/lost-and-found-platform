@@ -67,8 +67,9 @@ test("active repository-controlled emails use current Community language and esc
     source("supabase", "templates", "recovery.html"),
     source("docs", "community-email-standard.md"),
   ]);
-  assert.match(welcome, /Prayer, Praise, Testimonies, and Future Apps|Explore future L&amp;F apps/);
-  assert.match(welcome, /\$\{SITE_URL\}\/apps/);
+  assert.match(welcome, /Discover studies, gatherings, ministries, and trusted resources|Go deeper in Emmaus/);
+  assert.match(welcome, /\$\{SITE_URL\}\/discover/);
+  assert.doesNotMatch(welcome, /\$\{SITE_URL\}\/apps|Future Apps|Explore future L&amp;F apps/);
   assert.doesNotMatch(welcome, /our care team|Track your own journey/);
   assert.match(welcome, /escapeEmailHtml/);
   assert.match(denied, /escapeEmailHtml/);
