@@ -7,7 +7,7 @@ const labs=[
  {href:"/learn/language",icon:"α",title:"Language Insights",learn:"Biblical words",description:"Start in a passage, notice worthwhile Hebrew or Greek words and phrases, then learn what they mean in their sentence and context.",active:true},
  {href:"/learn/context",icon:"◎",title:"Context Lab",learn:"The world behind the text",description:"Learn culture, customs, history, audience, genre, and circumstances that clarify what a passage communicates.",active:false},
  {href:"/learn/geography",icon:"⌖",title:"Bible Geography",learn:"Where Scripture happened",description:"Learn locations, regions, journeys, distances, and why the land can matter to the story.",active:false},
- {href:"/learn/connections",icon:"↔",title:"Connections",learn:"How Scripture connects",description:"Trace quotations, allusions, recurring patterns, and responsible Old and New Testament connections.",active:false},
+ {href:"/learn/connections",icon:"↔",title:"Connections",learn:"How Scripture connects",description:"Trace quotations, allusions, recurring patterns, and responsible Old and New Testament connections.",active:true},
  {href:"/learn/people",icon:"◉",title:"People",learn:"Who's who",description:"Learn identities, relationships, roles, and where people appear across the biblical story.",active:false},
  {href:"/learn/timeline",icon:"⌁",title:"Timeline",learn:"When things happened",description:"Place major people, kingdoms, events, exiles, ministries, and writings in biblical sequence.",active:false},
  {href:"/learn/books",icon:"▥",title:"Bible Books",learn:"The structure of Scripture",description:"Learn each book's identity, place in the canon, genre, audience, major movements, and relationship to the larger story.",active:false},
