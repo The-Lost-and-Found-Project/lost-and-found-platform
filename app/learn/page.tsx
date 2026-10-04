@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 const labs=[
  {href:"/trivia",icon:"?",title:"Bible Trivia",learn:"Biblical facts",description:"Build reliable knowledge of people, events, books, places, sequence, relationships, and what Scripture explicitly records.",active:true},
  {href:"/learn/language",icon:"α",title:"Language Insights",learn:"Biblical words",description:"Start in a passage, notice worthwhile Hebrew or Greek words and phrases, then learn what they mean in their sentence and context.",active:true},
- {href:"/learn/context",icon:"◎",title:"Context Lab",learn:"The world behind the text",description:"Learn culture, customs, history, audience, genre, and circumstances that clarify what a passage communicates.",active:false},
+ {href:"/learn/context",icon:"◎",title:"Context Lab",learn:"The world behind the text",description:"Learn culture, customs, history, audience, genre, and circumstances that clarify what a passage communicates.",active:true},
  {href:"/learn/geography",icon:"⌖",title:"Bible Geography",learn:"Where Scripture happened",description:"Learn locations, regions, journeys, distances, and why the land can matter to the story.",active:false},
  {href:"/learn/connections",icon:"↔",title:"Connections",learn:"How Scripture connects",description:"Trace quotations, allusions, recurring patterns, and responsible Old and New Testament connections.",active:false},
  {href:"/learn/people",icon:"◉",title:"People",learn:"Who's who",description:"Learn identities, relationships, roles, and where people appear across the biblical story.",active:false},
