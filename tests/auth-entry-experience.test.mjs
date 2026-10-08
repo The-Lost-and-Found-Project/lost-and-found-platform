@@ -27,3 +27,15 @@ test("Emmaus signup creates the canonical identity through an Emmaus-first form"
  assert.doesNotMatch(emmaus,/Phone Number/);
  assert.doesNotMatch(emmaus,/community guidelines/);
 });
+
+
+test("Emmaus auth routes remove the surrounding L&F application chrome",async()=>{
+ const [frame,layout]=await Promise.all([
+  source("components","AppFrame.tsx"),
+  source("app","emmaus","layout.tsx")
+ ]);
+ assert.match(frame,/emmausAuth=p==="\/emmaus\/login"\|\|p==="\/emmaus\/signup"/);
+ assert.match(frame,/if\(focused\|\|emmausAuth\)return/);
+ assert.match(layout,/Emmaus — Walking Through Scripture/);
+ assert.match(layout,/applicationName:"Emmaus"/);
+});
