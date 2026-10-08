@@ -11,7 +11,7 @@ test("Emmaus sign-in uses the canonical L&F identity without exposing L&F auth U
  assert.match(emmaus,/Sign in to Emmaus/);
  assert.match(emmaus,/signInWithPassword/);
  assert.match(emmaus,/\/auth\/emmaus\?next=/);
- assert.match(emmaus,/A ministry of The Lost & Found Project/);
+ assert.match(emmaus,/A ministry of The Lost &amp; Found Project/);
  assert.doesNotMatch(emmaus,/source=emmaus/);
  assert.match(handoff,/EMMAUS_SSO_SECRET/);
  assert.match(handoff,/exp: now \+ 120/);
