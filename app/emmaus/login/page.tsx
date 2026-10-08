@@ -2,24 +2,24 @@
 
 import {useEffect,useMemo,useState} from "react";
 import Link from "next/link";
-import {useSearchParams} from "next/navigation";
+import {useRouter,useSearchParams} from "next/navigation";
 import {createClient} from "@/lib/supabase/client";
 import ResendConfirmationForm from "@/components/ResendConfirmationForm";
 
 function safePath(value:string|null){return value?.startsWith("/")&&!value.startsWith("//")&&!value.includes("\\")?value:"/study"}
 
 export default function EmmausLoginPage(){
- const params=useSearchParams(),next=safePath(params.get("next")),handoff=`/auth/emmaus?next=${encodeURIComponent(next)}`;
+ const params=useSearchParams(),router=useRouter(),next=safePath(params.get("next")),handoff=`/auth/emmaus?next=${encodeURIComponent(next)}`;
  const supabase=useMemo(()=>createClient(),[]);
  const[email,setEmail]=useState(""),[password,setPassword]=useState(""),[error,setError]=useState(""),[loading,setLoading]=useState(false),[emailNotConfirmed,setEmailNotConfirmed]=useState(false);
 
- useEffect(()=>{let active=true;supabase.auth.getUser().then(({data})=>{if(active&&data?.user)window.location.replace(handoff)});return()=>{active=false}},[handoff,supabase]);
+ useEffect(()=>{let active=true;supabase.auth.getUser().then(({data})=>{if(active&&data?.user)router.replace(handoff)});return()=>{active=false}},[handoff,router,supabase]);
 
  async function handleSignIn(event:React.FormEvent){
   event.preventDefault();setError("");setEmailNotConfirmed(false);setLoading(true);
   const{error}=await supabase.auth.signInWithPassword({email,password});
   if(error){const unconfirmed=error.code==="email_not_confirmed";setEmailNotConfirmed(unconfirmed);setError(unconfirmed?"Please confirm your email address before signing in.":error.message);setLoading(false);return}
-  window.location.assign(handoff);
+  router.push(handoff);
  }
 
  return <main className="min-h-screen bg-[#090a08] px-4 py-10 text-[#eee7dc]">
