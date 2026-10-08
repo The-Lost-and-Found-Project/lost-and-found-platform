@@ -2,7 +2,7 @@
 
 import {useEffect,useMemo,useState} from "react";
 import Link from "next/link";
-import {useSearchParams} from "next/navigation";
+import {useRouter,useSearchParams} from "next/navigation";
 import {createClient} from "@/lib/supabase/client";
 import {getSiteUrl} from "@/lib/auth/confirmation";
 import TurnstileWidget from "@/components/TurnstileWidget";
@@ -11,11 +11,11 @@ import ResendConfirmationForm from "@/components/ResendConfirmationForm";
 function safePath(value:string|null){return value?.startsWith("/")&&!value.startsWith("//")&&!value.includes("\\")?value:"/welcome"}
 
 export default function EmmausSignupPage(){
- const params=useSearchParams(),next=safePath(params.get("next")),handoff=`/auth/emmaus?next=${encodeURIComponent(next)}`;
+ const params=useSearchParams(),router=useRouter(),next=safePath(params.get("next")),handoff=`/auth/emmaus?next=${encodeURIComponent(next)}`;
  const supabase=useMemo(()=>createClient(),[]);
  const[fullName,setFullName]=useState(""),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[error,setError]=useState(""),[loading,setLoading]=useState(false),[submitted,setSubmitted]=useState(false),[existing,setExisting]=useState(false),[captchaToken,setCaptchaToken]=useState("");
 
- useEffect(()=>{let active=true;supabase.auth.getUser().then(({data})=>{if(active&&data?.user)window.location.replace(handoff)});return()=>{active=false}},[handoff,supabase]);
+ useEffect(()=>{let active=true;supabase.auth.getUser().then(({data})=>{if(active&&data?.user)router.replace(handoff)});return()=>{active=false}},[handoff,router,supabase]);
 
  async function handleSignUp(event:React.FormEvent){
   event.preventDefault();setError("");setExisting(false);
