@@ -15,9 +15,7 @@ export function useLessonProgress(key:string,total:number){
  const hydrated=useRef(false);
  const dirty=useRef(false);
  const current=useRef<Snapshot>(empty);
- const supabaseRef=useRef<ReturnType<typeof createClient>|null>(null);
- if(!supabaseRef.current)supabaseRef.current=createClient();
- const supabase=supabaseRef.current;
+ const [supabase]=useState(()=>createClient());
  useEffect(()=>{let cancelled=false;hydrated.current=false;dirty.current=false;setReady(false);
   const init=async()=>{
    let local=empty;
