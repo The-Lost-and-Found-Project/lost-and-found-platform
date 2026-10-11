@@ -1,0 +1,5 @@
+import Link from "next/link";
+import {redirect} from "next/navigation";
+import {createClient} from "@/lib/supabase/server";
+import ObservationFoundationsClient from "@/components/learning-lab/ObservationFoundationsClient";
+export default async function ObservationLabPage(){const supabase=await createClient();const{data:{user}}=await supabase.auth.getUser();if(!user)redirect("/login?next=%2Flearn%2Fobservation");return <main className="lfp-page pb-24"><section className="lfp-shell py-10 sm:py-14"><p className="lfp-eyebrow">Learning Lab · Observation</p><h1 className="mt-3 text-4xl font-black text-slate-950 sm:text-6xl">Notice what Scripture actually says.</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">Train your eyes to notice repetition, contrast, commands, questions, and connecting words before deciding what a passage means.</p><div className="mt-6 flex gap-3"><Link href="/learn" className="lfp-button lfp-button-secondary">← Learning Lab</Link><Link href="/learn/library" className="lfp-button lfp-button-secondary">Browse Library</Link></div></section><div className="lfp-shell pb-12"><ObservationFoundationsClient/></div></main>}
