@@ -12,7 +12,7 @@ const labs=[
  {href:"/learn/timeline",icon:"⌁",title:"Timeline",learn:"When things happened",description:"Place major people, kingdoms, events, exiles, ministries, and writings in biblical sequence.",active:false},
  {href:"/learn/books",icon:"▥",title:"Bible Books",learn:"The structure of Scripture",description:"Learn each book's identity, place in the canon, genre, audience, major movements, and relationship to the larger story.",active:false},
  {href:"/learn/observation",icon:"◇",title:"Observation",learn:"What to notice",description:"Practice seeing repeated words, contrasts, commands, questions, structure, transitions, and other clues already in the text.",active:true},
- {href:"/learn/study-skills",icon:"→",title:"Study Skills",learn:"How to investigate Scripture",description:"Practice responsible habits that move from observation to context, interpretation, connections, and faithful application.",active:false},
+ {href:"/learn/study-skills",icon:"→",title:"Study Skills",learn:"How to investigate Scripture",description:"Practice responsible habits that move from observation to context, interpretation, connections, and faithful application.",active:true},
 ];
 
 export default async function LearnPage(){
