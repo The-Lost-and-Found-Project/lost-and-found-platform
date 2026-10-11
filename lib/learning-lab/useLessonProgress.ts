@@ -43,7 +43,7 @@ export function useLessonProgress(key:string,total:number){
    }
   };void init();return()=>{cancelled=true};
  },[key,total,supabase,authVersion]);
- useEffect(()=>{if(!ready||!hydrated.current)return;current.current=progress;
+ useEffect(()=>{if(!ready||!hydrated.current)return;
   try{window.localStorage.setItem("lfp-learning-v2:"+(userId.current??"guest")+":"+key,JSON.stringify(progress))}catch{}
   if(!dirty.current||!userId.current)return;
   const id=userId.current;const timeout=setTimeout(async()=>{
