@@ -14,36 +14,37 @@ export function useLessonProgress(key:string,total:number){
  const userId=useRef<string|null>(null);
  const hydrated=useRef(false);
  const dirty=useRef(false);
- const current=useRef<Snapshot>(empty);
  const [supabase]=useState(()=>createClient());
+ const [authVersion,setAuthVersion]=useState(0);
+ useEffect(()=>{const {data:{subscription}}=supabase.auth.onAuthStateChange((event)=>{if(event==="SIGNED_IN"||event==="SIGNED_OUT")setAuthVersion(v=>v+1)});return()=>subscription.unsubscribe()},[supabase]);
  useEffect(()=>{let cancelled=false;hydrated.current=false;dirty.current=false;setReady(false);
   const init=async()=>{
-   let local=empty;
-   try{const raw=window.localStorage.getItem("lfp-learning-v1:"+key);if(raw)local=normalize(JSON.parse(raw),total)}catch{}
    const {data:{user},error:authError}=await supabase.auth.getUser();
    if(cancelled)return;
    userId.current=authError?null:user?.id??null;
+   let local=empty;
+   const storageKey="lfp-learning-v2:"+(userId.current??"guest")+":"+key;
+   try{const raw=window.localStorage.getItem(storageKey);if(raw)local=normalize(JSON.parse(raw),total)}catch{}
    let merged=local;
    if(userId.current){
     const {data,error}=await supabase.from("learning_lab_progress").select("lesson_index,completed,missed,updated_at").eq("user_id",userId.current).eq("collection_key",key).maybeSingle();
     if(cancelled)return;
     if(!error&&data){
      const remote=normalize({index:data.lesson_index,completed:data.completed,missed:data.missed},total);
-     const completed=Array.from(new Set([...local.completed,...remote.completed]));
-     const missed=Array.from(new Set([...local.missed,...remote.missed])).filter(n=>!completed.includes(n)||local.missed.includes(n)&&remote.missed.includes(n));
-     merged={index:remote.index,completed,missed};
+     merged=remote;
     }
     if(error)setSyncStatus("error");else setSyncStatus("saved");
    }else setSyncStatus("local");
-   current.current=merged;setProgress(merged);hydrated.current=true;setReady(true);
+   if(cancelled)return;
+   setProgress(merged);hydrated.current=true;setReady(true);
    if(userId.current&&!cancelled){
     const {error}=await supabase.from("learning_lab_progress").upsert({user_id:userId.current,collection_key:key,lesson_index:merged.index,completed:merged.completed,missed:merged.missed,updated_at:new Date().toISOString()},{onConflict:"user_id,collection_key"});
     if(!cancelled&&error)setSyncStatus("error");
    }
   };void init();return()=>{cancelled=true};
- },[key,total,supabase]);
+ },[key,total,supabase,authVersion]);
  useEffect(()=>{if(!ready||!hydrated.current)return;current.current=progress;
-  try{window.localStorage.setItem("lfp-learning-v1:"+key,JSON.stringify(progress))}catch{}
+  try{window.localStorage.setItem("lfp-learning-v2:"+(userId.current??"guest")+":"+key,JSON.stringify(progress))}catch{}
   if(!dirty.current||!userId.current)return;
   const id=userId.current;const timeout=setTimeout(async()=>{
    const {error}=await supabase.from("learning_lab_progress").upsert({user_id:id,collection_key:key,lesson_index:progress.index,completed:progress.completed,missed:progress.missed,updated_at:new Date().toISOString()},{onConflict:"user_id,collection_key"});
