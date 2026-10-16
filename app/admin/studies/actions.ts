@@ -81,7 +81,7 @@ export async function endStudySession(f:FormData){
  const now=new Date().toISOString();
  const{error}=await db.from("study_sessions").update({status:"completed",ended_at:now,updated_at:now}).eq("id",sessionId);
  if(error)throw new Error(error.message);
- revalidatePath("/admin/studies");revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);
+ revalidatePath("/admin/studies");revalidatePath("/admin/meetings");revalidatePath(`/admin/meetings/${sessionId}`);revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);
  return;
 }
 
