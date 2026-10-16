@@ -16,8 +16,11 @@ export default async function MeetingsWorkspace(){
  const db=createAdminClient();
  const {data:rows}=await db.from("study_sessions").select("id,scheduled_start,status,facilitator_user_id,group_id,bible_study_id").in("status",["scheduled","live","completed"]).order("scheduled_start",{ascending:false}).limit(100);
  const {data:membership}=role==="admin"?{data:[]}:await db.from("study_group_members").select("group_id,group_role").eq("user_id",user.id).eq("membership_status","active");
- const ownGroups=new Set((membership||[]).filter(x=>x.group_role==="facilitator").map(x=>x.group_id));
- const visible=(rows||[]).filter(x=>role==="admin"||x.facilitator_user_id===user.id||(x.group_id&&ownGroups.has(x.group_id)));
+ const {data:supervised}=role==="supervisor"?await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",user.id):{data:[] as {facilitator_user_id:string}[]};
+ const facilitatorIds=new Set([user.id,...(supervised||[]).map(x=>x.facilitator_user_id)]);
+ const {data:supervisedGroups}=role==="supervisor"&&facilitatorIds.size?await db.from("study_group_members").select("group_id,user_id,group_role").in("user_id",[...facilitatorIds]).eq("group_role","facilitator").eq("membership_status","active"):{data:[] as {group_id:string;user_id:string;group_role:string}[]};
+ const ownGroups=new Set([...(membership||[]).filter(x=>x.group_role==="facilitator").map(x=>x.group_id),...(supervisedGroups||[]).map(x=>x.group_id)]);
+ const visible=(rows||[]).filter(x=>role==="admin"||(x.facilitator_user_id&&facilitatorIds.has(x.facilitator_user_id))||(x.group_id&&ownGroups.has(x.group_id)));
  const studyIds=[...new Set(visible.map(x=>x.bible_study_id).filter(Boolean))];
  const groupIds=[...new Set(visible.map(x=>x.group_id).filter(Boolean))];
  const [{data:studyRows},{data:groupRows}]=await Promise.all([studyIds.length?db.from("bible_studies").select("id,title").in("id",studyIds):Promise.resolve({data:[] as {id:string;title:string}[]}),groupIds.length?db.from("study_groups").select("id,name").in("id",groupIds):Promise.resolve({data:[] as {id:string;name:string}[]})]);
