@@ -3,9 +3,10 @@ import {useEffect,useRef,useState} from "react";
 
 export type LiveOverlay={kind:"scripture"|"point"|"question"|"word";title:string;body:string}|null;
 export default function FloatingTeachingOverlay({overlay,facilitator,onChange}:{overlay:LiveOverlay;facilitator:boolean;onChange:(value:LiveOverlay)=>void}){
- const [position,setPosition]=useState({x:16,y:16});
+ const [position,setPosition]=useState({x:16,y:90});
  const [expanded,setExpanded]=useState(true);
  const [queue,setQueue]=useState<NonNullable<LiveOverlay>[]>([]);
+ const [controlsOpen,setControlsOpen]=useState(false);
  const [draft,setDraft]=useState({kind:"scripture" as NonNullable<LiveOverlay>["kind"],title:"",body:""});
  const area=useRef<HTMLDivElement>(null);
  const drag=useRef<{x:number;y:number;left:number;top:number}|null>(null);
@@ -17,7 +18,7 @@ export default function FloatingTeachingOverlay({overlay,facilitator,onChange}:{
   setPosition({x:Math.max(0,Math.min(bounds.width-width,drag.current.left+e.clientX-drag.current.x)),y:Math.max(0,Math.min(bounds.height-75,drag.current.top+e.clientY-drag.current.y))});
  }
  return <section className="absolute inset-0 z-20 pointer-events-none" aria-label="Teaching overlays">
-  {facilitator&&<details className="pointer-events-auto absolute left-2 top-2 z-30 max-w-[min(420px,calc(100%-16px))] rounded-xl border border-white/20 bg-[#101e30]/95 p-3 shadow-xl"><summary className="cursor-pointer text-sm font-semibold">Teaching overlay controls</summary>
+  {facilitator&&<details open={controlsOpen} onToggle={e=>setControlsOpen(e.currentTarget.open)} className="pointer-events-auto absolute right-2 top-2 z-30 max-h-[75%] w-[min(420px,calc(100%-16px))] overflow-y-auto rounded-xl border border-white/20 bg-[#101e30]/95 p-3 shadow-xl"><summary className="cursor-pointer text-sm font-semibold">Teaching overlay controls</summary>
    <div className="mt-3 grid gap-2 sm:grid-cols-2">
     <label className="text-xs">Content type<select className="mt-1 w-full rounded-lg bg-[#25384d] p-2 text-white" value={draft.kind} onChange={e=>setDraft({...draft,kind:e.target.value as NonNullable<LiveOverlay>["kind"]})}><option value="scripture">Scripture</option><option value="point">Teaching point</option><option value="question">Discussion question</option><option value="word">Word insight</option></select></label>
     <label className="text-xs">Title or Scripture reference<input className="mt-1 w-full rounded-lg bg-[#25384d] p-2 text-white" value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})} maxLength={120}/></label>
