@@ -33,7 +33,7 @@ export default async function MeetingDetail({params}:{params:Promise<{id:string}
  db.from("study_session_live_presence").select("user_id,joined_at,last_seen_at,left_at").eq("session_id",id)
  ]);
  const presentIds=new Set((presence||[]).filter(p=>p.joined_at).map(p=>p.user_id));
- const confirmed=(attendees||[]).filter(p=>p.rsvp_status==="accepted").length;
+ const confirmed=(attendees||[]).filter(p=>p.rsvp_status==="going").length;
  const declined=(attendees||[]).filter(p=>p.rsvp_status==="declined").length;
  const attended=(attendees||[]).filter(p=>presentIds.has(p.user_id)).length;
  const fmt=(v:string|null)=>v?new Intl.DateTimeFormat("en-US",{dateStyle:"full",timeStyle:"short",timeZone:"America/New_York"}).format(new Date(v))+" ET":"Not set";
