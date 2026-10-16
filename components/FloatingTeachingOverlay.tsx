@@ -5,6 +5,7 @@ export type LiveOverlay={kind:"scripture"|"point"|"question"|"word";title:string
 export default function FloatingTeachingOverlay({overlay,facilitator,onChange}:{overlay:LiveOverlay;facilitator:boolean;onChange:(value:LiveOverlay)=>void}){
  const [position,setPosition]=useState({x:16,y:16});
  const [expanded,setExpanded]=useState(true);
+ const [queue,setQueue]=useState<NonNullable<LiveOverlay>[]>([]);
  const [draft,setDraft]=useState({kind:"scripture" as NonNullable<LiveOverlay>["kind"],title:"",body:""});
  const area=useRef<HTMLDivElement>(null);
  const drag=useRef<{x:number;y:number;left:number;top:number}|null>(null);
@@ -22,7 +23,8 @@ export default function FloatingTeachingOverlay({overlay,facilitator,onChange}:{
     <label className="text-xs">Title or Scripture reference<input className="mt-1 w-full rounded-lg bg-[#25384d] p-2 text-white" value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})} maxLength={120}/></label>
     <label className="text-xs sm:col-span-2">Content<textarea className="mt-1 w-full rounded-lg bg-[#25384d] p-2 text-white" rows={3} maxLength={1800} value={draft.body} onChange={e=>setDraft({...draft,body:e.target.value})}/></label>
    </div>
-   <div className="mt-3 flex flex-wrap gap-2"><button className="rounded-lg bg-amber-200 px-4 py-2 font-semibold text-slate-950 disabled:opacity-40" disabled={!draft.body.trim()} onClick={()=>onChange({kind:draft.kind,title:draft.title.trim(),body:draft.body.trim()})}>Show to room</button><button className="rounded-lg border border-white/30 px-4 py-2" onClick={()=>onChange(null)}>Clear overlay</button></div>
+   <div className="mt-3 flex flex-wrap gap-2"><button className="rounded-lg bg-amber-200 px-4 py-2 font-semibold text-slate-950 disabled:opacity-40" disabled={!draft.body.trim()} onClick={()=>onChange({kind:draft.kind,title:draft.title.trim(),body:draft.body.trim()})}>Show to room</button><button className="rounded-lg border border-amber-200/50 px-4 py-2 disabled:opacity-40" disabled={!draft.body.trim()} onClick={()=>setQueue(q=>[...q,{kind:draft.kind,title:draft.title.trim(),body:draft.body.trim()}])}>Add to queue</button><button className="rounded-lg border border-white/30 px-4 py-2" onClick={()=>onChange(null)}>Clear overlay</button></div>
+   {queue.length>0&&<div className="mt-3 max-h-36 space-y-1 overflow-auto" aria-label="Teaching queue">{queue.map((item,i)=><div key={i} className="flex items-center gap-2 text-xs"><button className="min-w-0 flex-1 truncate rounded bg-white/10 px-2 py-2 text-left" onClick={()=>onChange(item)}>{i+1}. {item.title||item.kind}</button><button className="rounded border border-white/20 px-2 py-2" aria-label={`Remove queued item ${i+1}`} onClick={()=>setQueue(q=>q.filter((_,j)=>j!==i))}>×</button></div>)}</div>}
   </details>}
   <div ref={area} className="absolute inset-0 overflow-hidden">
    
