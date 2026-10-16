@@ -60,7 +60,7 @@ export async function createLiveSession(f:FormData){
  const{error:notificationError}=await db.from("notifications").insert(participantIds.map(user_id=>({user_id,type:"live_study",title:"Live Study Scheduled",body:`${study.title} · ${when} ET`,link:"/events",push_status:"pending"})));
  if(notificationError)console.error("Live study in-app notification save failed",{sessionId:session.id,message:notificationError.message});
  let pushDelivered=true;try{await sendPushToUsers(participantIds,{title:"Live Study Scheduled",body:`${study.title} · ${when} ET`,url:"/events"});}catch(pushError){pushDelivered=false;console.error("Live study push send failed",{sessionId:session.id,error:pushError instanceof Error?pushError.message:String(pushError)});}
- revalidatePath("/admin/studies");revalidatePath("/admin/studies/groups");revalidatePath("/dashboard");revalidatePath("/events");revalidatePath(`/studies/${bibleStudyId}`);
+ revalidatePath("/admin/studies");revalidatePath("/admin/meetings");revalidatePath("/admin/meetings/new");revalidatePath("/admin/studies/groups");revalidatePath("/dashboard");revalidatePath("/events");revalidatePath(`/studies/${bibleStudyId}`);
  console.info("Live study saved",{sessionId:session.id,participantCount:participantIds.length,pushDelivered});
  return{ok:true,id:session.id,participantCount:participantIds.length,pushDelivered,notificationStored:!notificationError};
 }
