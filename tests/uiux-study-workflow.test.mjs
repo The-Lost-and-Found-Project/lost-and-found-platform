@@ -57,3 +57,21 @@ test("facilitators and supervisors can reach their study workspace from Home",()
  assert.match(dashboard,/href="\/admin\/studies"/);
  assert.match(dashboard,/Open Study Workspace/);
 });
+
+
+test("Meetings navigation remains reachable without covering the end of app pages",()=>{
+ const frame=read("components/AppFrame.tsx");
+ const nav=read("components/BottomNav.tsx");
+ assert.match(frame,/pb-\\[calc\\(8\\.5rem\\+env\\(safe-area-inset-bottom\\)\\)\\]/);
+ assert.match(nav,/label:"Meetings"/);
+ assert.match(nav,/label:"Studies"/);
+ assert.match(nav,/item.href!=="\\/admin"/);
+});
+
+test("legacy studies page delegates meeting management without crowded completed-session controls",()=>{
+ const page=read("app/admin/studies/page.tsx");
+ assert.match(page,/Meeting overview/);
+ assert.match(page,/href="\\/admin\\/meetings"/);
+ assert.doesNotMatch(page,/Create Meet fallback/);
+ assert.doesNotMatch(page,/sessions\\.map\\(session/);
+});
