@@ -5,9 +5,9 @@ import fs from "node:fs";
 const read=(path)=>fs.readFileSync(path,"utf8");
 
 test("facilitator workflow separates ending a session from releasing Daily Path",()=>{
- const page=read("app/admin/studies/page.tsx");
+ const page=read("app/admin/meetings/[id]/page.tsx");
  const actions=read("app/admin/studies/actions.ts");
- assert.match(page,/End Session/);
+ assert.match(page,/End meeting/);
  assert.match(page,/Release Daily Path/);
  assert.doesNotMatch(page,/End Study & Release Daily Path/);
  assert.match(actions,/export async function endStudySession/);
@@ -16,10 +16,13 @@ test("facilitator workflow separates ending a session from releasing Daily Path"
 });
 
 test("completed sessions remain visible so Daily Path can be released later",()=>{
- const page=read("app/admin/studies/page.tsx");
- assert.match(page,/\["scheduled","live","completed"\]/);
- assert.match(page,/Add devotionals before release/);
- assert.match(page,/participant/);
+ const dashboard=read("app/admin/meetings/page.tsx");
+ const detail=read("app/admin/meetings/[id]/page.tsx");
+ assert.match(dashboard,/status==="completed"/);
+ assert.match(dashboard,/Recent completed meetings/);
+ assert.match(detail,/No devotionals available for release/);
+ assert.match(detail,/Release Daily Path/);
+ assert.match(detail,/attendees/);
 });
 
 test("study deletion preserves session history",()=>{
