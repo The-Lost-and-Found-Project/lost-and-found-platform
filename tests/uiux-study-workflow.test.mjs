@@ -59,19 +59,16 @@ test("facilitators and supervisors can reach their study workspace from Home",()
 });
 
 
-test("Meetings navigation remains reachable without covering the end of app pages",()=>{
+test("Meetings navigation and compact overview are wired to their new locations",()=>{
  const frame=read("components/AppFrame.tsx");
  const nav=read("components/BottomNav.tsx");
- assert.match(frame,/pb-\\[calc\\(8\\.5rem\\+env\\(safe-area-inset-bottom\\)\\)\\]/);
- assert.match(nav,/label:"Meetings"/);
- assert.match(nav,/label:"Studies"/);
- assert.match(nav,/item.href!=="\\/admin"/);
-});
-
-test("legacy studies page delegates meeting management without crowded completed-session controls",()=>{
  const page=read("app/admin/studies/page.tsx");
- assert.match(page,/Meeting overview/);
- assert.match(page,/href="\\/admin\\/meetings"/);
- assert.doesNotMatch(page,/Create Meet fallback/);
- assert.doesNotMatch(page,/sessions\\.map\\(session/);
+ assert.ok(frame.includes("8.5rem+env(safe-area-inset-bottom)"));
+ assert.ok(nav.includes('label:"Meetings"'));
+ assert.ok(nav.includes('label:"Studies"'));
+ assert.ok(nav.includes('item.href!=="/admin"'));
+ assert.ok(page.includes("Meeting overview"));
+ assert.ok(page.includes('href="/admin/meetings"'));
+ assert.ok(!page.includes("Create Meet fallback"));
+ assert.ok(!page.includes("sessions.map(session"));
 });
