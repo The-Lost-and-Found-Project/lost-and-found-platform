@@ -16,9 +16,9 @@ export default async function MeetingDetail({params}:{params:Promise<{id:string}
  const {data:meeting}=await db.from("study_sessions").select("id,bible_study_id,group_id,facilitator_user_id,scheduled_start,scheduled_end,status,google_meeting_uri,daily_path_released_at").eq("id",id).maybeSingle();
  if(!meeting)notFound();
  if(role!=="admin"){
-  if(!meeting.group_id)notFound();
-  const {data:facilitators}=await db.from("study_group_members").select("user_id").eq("group_id",meeting.group_id).eq("group_role","facilitator").eq("membership_status","active");
-  const ids=(facilitators||[]).map(x=>x.user_id);
+  
+  const {data:facilitators}=meeting.group_id?await db.from("study_group_members").select("user_id").eq("group_id",meeting.group_id).eq("group_role","facilitator").eq("membership_status","active"):{data:[] as {user_id:string}[]};
+  const ids=[...new Set([...(facilitators||[]).map(x=>x.user_id),...(meeting.facilitator_user_id?[meeting.facilitator_user_id]:[])])];
   let allowed=ids.includes(user.id);
   if(!allowed&&role==="supervisor"&&ids.length){
    const {data:supervised}=await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",user.id).in("facilitator_user_id",ids);
