@@ -72,7 +72,7 @@ async function assertSessionManager(sessionId:string){
  if(!ctx.isAdmin&&(!session.group_id||!await canManageGroup(ctx.user.id,ctx.role,session.group_id)))throw new Error("You do not manage this session.");return{ctx,db,session};
 }
 
-export async function provisionLiveSession(f:FormData){const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing live study session.");const{db,session}=await assertSessionManager(sessionId);if(session.google_space_name&&session.google_meeting_uri)return;let facilitatorEmail:string|null=null;if(session.facilitator_user_id){const{data:facilitator}=await db.from("profiles").select("email").eq("id",session.facilitator_user_id).maybeSingle();facilitatorEmail=facilitator?.email||null;}const meeting=await provisionMeetSpace(facilitatorEmail);const{error:updateError}=await db.from("study_sessions").update({google_space_name:meeting.spaceName,google_meeting_code:meeting.meetingCode,google_meeting_uri:meeting.meetingUri,google_organizer_email:meeting.organizerEmail,updated_at:new Date().toISOString()}).eq("id",sessionId).is("google_space_name",null);if(updateError)throw new Error(updateError.message);revalidatePath("/admin/studies");revalidatePath("/dashboard");revalidatePath("/events");revalidatePath(`/studies/${session.bible_study_id}`);}
+export async function provisionLiveSession(f:FormData){const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing live study session.");const{db,session}=await assertSessionManager(sessionId);if(session.google_space_name&&session.google_meeting_uri)return;let facilitatorEmail:string|null=null;if(session.facilitator_user_id){const{data:facilitator}=await db.from("profiles").select("email").eq("id",session.facilitator_user_id).maybeSingle();facilitatorEmail=facilitator?.email||null;}const meeting=await provisionMeetSpace(facilitatorEmail);const{error:updateError}=await db.from("study_sessions").update({google_space_name:meeting.spaceName,google_meeting_code:meeting.meetingCode,google_meeting_uri:meeting.meetingUri,google_organizer_email:meeting.organizerEmail,updated_at:new Date().toISOString()}).eq("id",sessionId).is("google_space_name",null);if(updateError)throw new Error(updateError.message);revalidatePath("/admin/studies");revalidatePath("/admin/meetings");revalidatePath(`/admin/meetings/${sessionId}`);revalidatePath("/dashboard");revalidatePath("/events");revalidatePath(`/studies/${session.bible_study_id}`);}
 
 export async function endStudySession(f:FormData){
  const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing study session.");
@@ -98,12 +98,13 @@ export async function releaseDailyPath(f:FormData){
  const ids=Array.from(new Set((participants||[]).map(p=>p.user_id)));
  if(!ids.length)throw new Error("This session has no assigned participants.");
  const now=new Date().toISOString();
- const{error}=await db.from("study_sessions").update({daily_path_released_at:now,updated_at:now}).eq("id",sessionId);
+ const{data:claimed,error}=await db.from("study_sessions").update({daily_path_released_at:now,updated_at:now}).eq("id",sessionId).is("daily_path_released_at",null).select("id").maybeSingle();
  if(error)throw new Error(error.message);
+ if(!claimed)return;
  const{error:notificationError}=await db.from("notifications").insert(ids.map(user_id=>({user_id,type:"daily_study",title:"Day 1 is ready",body:`Continue ${study.title||"your Bible study"} in Daily Path.`,link:`/study-path/${sessionId}/1`,push_status:"pending"})));
  if(notificationError)console.error("Daily Path notification save failed",{sessionId,message:notificationError.message});
  try{await sendPushToUsers(ids,{title:"Day 1 is ready",body:`Continue ${study.title||"your Bible study"} in Daily Path.`,url:`/study-path/${sessionId}/1`});}catch(pushError){console.error("Daily Path push send failed",{sessionId,error:pushError instanceof Error?pushError.message:String(pushError)});}
- revalidatePath("/admin/studies");revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);
+ revalidatePath("/admin/studies");revalidatePath("/admin/meetings");revalidatePath(`/admin/meetings/${sessionId}`);revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);
  return;
 }
 
