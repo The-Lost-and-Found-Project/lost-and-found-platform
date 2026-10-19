@@ -14,18 +14,18 @@ const ministrySlugs=new Set(["hearth","foundry","mens-study"]);
 
 async function currentUser(){
  const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/login");
- const{data:p}=await s.from("profiles").select("role,preview_role").eq("id",user.id).single();const role=getEffectiveRole(p?.role,p?.preview_role);
+ const{data:p,error:profileError}=await s.from("profiles").select("role,preview_role").eq("id",user.id).single();if(profileError||!p)throw new Error("Unable to verify your role.");const role=getEffectiveRole(p?.role,p?.preview_role);
  return{s,user,role,isAdmin:role==="admin"};
 }
 async function requireAdmin(){const ctx=await currentUser();if(!ctx.isAdmin)redirect("/dashboard");return ctx;}
 
 async function canManageGroup(userId:string,role:string,groupId:string){
  if(role==="admin")return true;const db=createAdminClient();
- const{data:facilitators}=await db.from("study_group_members").select("user_id").eq("group_id",groupId).eq("group_role","facilitator").eq("membership_status","active");const facilitatorIds=(facilitators||[]).map(x=>x.user_id);
+ const{data:facilitators,error:facilitatorsError}=await db.from("study_group_members").select("user_id").eq("group_id",groupId).eq("group_role","facilitator").eq("membership_status","active");if(facilitatorsError)throw new Error("Unable to verify group facilitators.");const facilitatorIds=(facilitators||[]).map(x=>x.user_id);
  if(role==="facilitator")return facilitatorIds.includes(userId);
  if(role==="supervisor"){
   if(facilitatorIds.includes(userId))return true;
-  const{data:rows}=await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",userId).in("facilitator_user_id",facilitatorIds.length?facilitatorIds:["00000000-0000-0000-0000-000000000000"]);
+  const{data:rows,error:supervisionError}=await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",userId).in("facilitator_user_id",facilitatorIds.length?facilitatorIds:["00000000-0000-0000-0000-000000000000"]);if(supervisionError)throw new Error("Unable to verify supervisor permissions.");
   return Boolean(rows?.length);
  }
  return false;
@@ -52,7 +52,7 @@ export async function createLiveSession(f:FormData){
  const{data:roster,error:rosterError}=await db.from("study_group_members").select("user_id,group_role").eq("group_id",groupId).eq("membership_status","active");if(rosterError)return{ok:false,message:"The group roster could not be loaded."};const allowed=new Set((roster||[]).map(r=>r.user_id));participantIds=participantIds.filter(id=>allowed.has(id));
  if(!participantIds.length)return{ok:false,message:"Select at least one participant from this group."};
  if(facilitatorUserId){const facilitatorAllowed=(roster||[]).some(r=>r.user_id===facilitatorUserId&&r.group_role==="facilitator");if(!facilitatorAllowed)return{ok:false,message:"Choose a facilitator assigned to this group."};}
- const{data:existing}=await db.from("study_sessions").select("id").eq("bible_study_id",bibleStudyId).eq("group_id",groupId).eq("scheduled_start",scheduledStart).eq("status","scheduled").maybeSingle();
+ const{data:existing,error:existingError}=await db.from("study_sessions").select("id").eq("bible_study_id",bibleStudyId).eq("group_id",groupId).eq("scheduled_start",scheduledStart).eq("status","scheduled").maybeSingle();if(existingError)return{ok:false,message:"Unable to check for an existing scheduled meeting."};
  if(existing){revalidatePath("/admin/studies");return{ok:true,id:existing.id,existing:true,message:"This live study was already scheduled."};}
  const{data:session,error}=await db.from("study_sessions").insert({bible_study_id:bibleStudyId,ministry_slug:ministrySlug,group_id:groupId,facilitator_user_id:facilitatorUserId,scheduled_start:scheduledStart,scheduled_end:scheduledEnd,status:"scheduled",created_by:ctx.user.id}).select("id").single();if(error||!session){console.error("Live study save failed",{code:error?.code,message:error?.message,details:error?.details,hint:error?.hint});return{ok:false,message:error?.message||"Unable to create session."};}
  const{error:pe}=await db.from("study_session_participants").insert(participantIds.map(user_id=>({study_session_id:session.id,user_id,assigned_by:ctx.user.id})));if(pe){await db.from("study_sessions").delete().eq("id",session.id);console.error("Live study participant save failed",{sessionId:session.id,message:pe.message});return{ok:false,message:"The session could not save its participant roster."};}
