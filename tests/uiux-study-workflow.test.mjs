@@ -204,3 +204,11 @@ test("meeting completion prevents late Meet provisioning and limits close transi
  assert.ok(actions.includes('Completed meetings cannot create new Meet links.'));
  assert.ok(actions.includes('.in("status",["scheduled","live"]).is("ended_at",null)'));
 });
+
+
+test("Meet provisioning handles concurrent meeting completion and failed access lookups",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ assert.ok(actions.includes('if(sessionError)throw new Error("Unable to verify study session access.")'));
+ assert.ok(actions.includes('if(facilitatorError)throw new Error("Unable to verify meeting facilitator.")'));
+ assert.ok(actions.includes('.is("google_space_name",null).is("ended_at",null).in("status",["scheduled","live"])'));
+});
