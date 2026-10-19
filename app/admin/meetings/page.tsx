@@ -15,10 +15,11 @@ export default async function MeetingsWorkspace(){
  if(!canManageStudies(role))redirect("/dashboard");
  const db=createAdminClient();
 
- const [{data:activeRows},{data:pastRows}]=await Promise.all([
+ const [{data:activeRows,error:activeError},{data:pastRows,error:pastError}]=await Promise.all([
  db.from("study_sessions").select("id,scheduled_start,status,facilitator_user_id,group_id,bible_study_id").in("status",["scheduled","live"]).order("scheduled_start",{ascending:true}).limit(250),
  db.from("study_sessions").select("id,scheduled_start,status,facilitator_user_id,group_id,bible_study_id").eq("status","completed").order("scheduled_start",{ascending:false}).limit(50)
  ]);
+ if(activeError||pastError)throw new Error("Unable to load the Meetings workspace. Please try again.");
  const rows=[...(activeRows||[]),...(pastRows||[])];
  const {data:membership}=role==="admin"?{data:[]}:await db.from("study_group_members").select("group_id,group_role").eq("user_id",user.id).eq("membership_status","active");
  const {data:supervised}=role==="supervisor"?await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",user.id):{data:[] as {facilitator_user_id:string}[]};
