@@ -104,9 +104,9 @@ export async function releaseDailyPath(f:FormData){
  if(!claimed)return;
  const{error:notificationError}=await db.from("notifications").insert(ids.map(user_id=>({user_id,type:"daily_study",title:"Day 1 is ready",body:`Continue ${study.title||"your Bible study"} in Daily Path.`,link:`/study-path/${sessionId}/1`,push_status:"pending"})));
  if(notificationError)console.error("Daily Path notification save failed",{sessionId,message:notificationError.message});
- try{await sendPushToUsers(ids,{title:"Day 1 is ready",body:`Continue ${study.title||"your Bible study"} in Daily Path.`,url:`/study-path/${sessionId}/1`});}catch(pushError){console.error("Daily Path push send failed",{sessionId,error:pushError instanceof Error?pushError.message:String(pushError)});}
+ let pushDelivered=true;try{await sendPushToUsers(ids,{title:"Day 1 is ready",body:`Continue ${study.title||"your Bible study"} in Daily Path.`,url:`/study-path/${sessionId}/1`});}catch(pushError){pushDelivered=false;console.error("Daily Path push send failed",{sessionId,error:pushError instanceof Error?pushError.message:String(pushError)});}
  revalidatePath("/admin/studies");revalidatePath("/admin/meetings");revalidatePath(`/admin/meetings/${sessionId}`);revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);
- return;
+ return {released:true,notificationStored:!notificationError,pushDelivered};
 }
 
 export async function deleteStudy(f:FormData){
