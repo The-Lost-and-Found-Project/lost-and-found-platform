@@ -115,3 +115,11 @@ test("meeting overview warns when query limits may hide meetings",()=>{
  assert.ok(page.includes('completedLimitReached=(pastRows||[]).length===50'));
  assert.ok(page.includes('Some meetings may not appear here'));
 });
+
+
+test("Meetings workspace does not display false zero counts when database reads fail",()=>{
+ const page=read("app/admin/meetings/page.tsx");
+ assert.ok(page.includes('error:activeError'));
+ assert.ok(page.includes('error:pastError'));
+ assert.ok(page.includes('if(activeError||pastError)throw new Error'));
+});
