@@ -140,3 +140,12 @@ test("Meetings workspace fails closed if role-scoping lookups fail",()=>{
  assert.ok(page.includes('error:supervisedGroupsError'));
  assert.ok(page.includes('if(membershipError||supervisedError||supervisedGroupsError)throw new Error'));
 });
+
+
+test("meeting attendance and follow-up actions reject failed permission lookups",()=>{
+ const actions=read("app/admin/meetings/attendance-actions.ts");
+ for(const name of ["profileError","sessionError","facilitatorsError","supervisedError","assignedError"]){
+  assert.ok(actions.includes('if('+name+')')||actions.includes('if('+name+'||!p)'),name+" must be checked");
+ }
+ assert.ok(actions.includes('Only assigned participants can be marked'));
+});
