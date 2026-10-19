@@ -159,3 +159,12 @@ test("meeting detail fails closed when role or supervisor lookup fails",()=>{
  assert.ok(page.includes('if(profileError||!profile)throw new Error'));
  assert.ok(page.includes('if(supervisedError)throw new Error'));
 });
+
+
+test("meeting detail reports failures loading participation context",()=>{
+ const page=read("app/admin/meetings/[id]/page.tsx");
+ assert.ok(page.includes('if(studyError||groupError||facilitatorError||attendeesError||presenceError)throw new Error'));
+ assert.ok(page.includes('if(namesError)throw new Error'));
+ assert.ok(page.includes('error:attendanceError'));
+ assert.ok(page.includes('error:followupError'));
+});
