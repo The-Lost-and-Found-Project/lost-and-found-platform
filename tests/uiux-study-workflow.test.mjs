@@ -287,3 +287,11 @@ test("Daily Path warns about nonstandard devotional lengths without blocking leg
  assert.ok(detail.includes('The standard Daily Path is seven days.'));
  assert.ok(detail.includes('Review the study content before release.'));
 });
+
+
+test("scheduler reports an incomplete meeting when participant rollback fails",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ assert.ok(actions.includes('const{error:cleanupError}=await db.from("study_sessions").delete().eq("id",session.id)'));
+ assert.ok(actions.includes('the incomplete meeting could not be removed'));
+ assert.ok(actions.includes('Contact an administrator before scheduling again.'));
+});
