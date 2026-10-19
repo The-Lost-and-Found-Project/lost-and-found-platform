@@ -191,3 +191,9 @@ test("meetings errors provide an accessible retry path",()=>{
  assert.ok(page.includes('onClick={()=>reset()}'));
  assert.ok(page.includes('href="/admin/meetings"'));
 });
+
+
+test("meetings dashboard rejects failed role verification",()=>{
+ const page=read("app/admin/meetings/page.tsx");
+ assert.ok(page.includes('if(profileError||!profile)throw new Error'));
+});
