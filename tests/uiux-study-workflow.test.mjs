@@ -262,3 +262,11 @@ test("duplicate meeting detection covers scheduled and live sessions",()=>{
  const actions=read("app/admin/studies/actions.ts");
  assert.ok(actions.includes('.eq("scheduled_start",scheduledStart).in("status",["scheduled","live"]).maybeSingle()'));
 });
+
+
+test("scheduler reports existing meetings and partial notification failures accurately",()=>{
+ const form=read("components/LiveStudySessionForm.tsx");
+ assert.ok(form.includes('result.existing?"This meeting was already scheduled'));
+ assert.ok(form.includes('result.notificationStored===false||result.pushDelivered===false'));
+ assert.ok(form.includes('Check with participants directly.'));
+});
