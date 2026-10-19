@@ -89,6 +89,7 @@ export async function releaseDailyPath(f:FormData){
  const sessionId=val(f,"session_id");if(!sessionId)throw new Error("Missing study session.");
  const{db,session}=await assertSessionManager(sessionId);
  if(session.daily_path_released_at)return;
+ if(session.status!=="completed"||!session.ended_at)throw new Error("End the meeting before releasing Daily Path.");
  const{data:study,error:studyError}=await db.from("bible_studies").select("title,devotional_cards").eq("id",session.bible_study_id).maybeSingle();
  if(studyError||!study)throw new Error("Bible study not found.");
  const cards=Array.isArray(study.devotional_cards)?study.devotional_cards:[];
@@ -98,7 +99,7 @@ export async function releaseDailyPath(f:FormData){
  const ids=Array.from(new Set((participants||[]).map(p=>p.user_id)));
  if(!ids.length)throw new Error("This session has no assigned participants.");
  const now=new Date().toISOString();
- const{data:claimed,error}=await db.from("study_sessions").update({daily_path_released_at:now,updated_at:now}).eq("id",sessionId).is("daily_path_released_at",null).select("id").maybeSingle();
+ const{data:claimed,error}=await db.from("study_sessions").update({daily_path_released_at:now,updated_at:now}).eq("id",sessionId).eq("status","completed").not("ended_at","is",null).is("daily_path_released_at",null).select("id").maybeSingle();
  if(error)throw new Error(error.message);
  if(!claimed)return;
  const{error:notificationError}=await db.from("notifications").insert(ids.map(user_id=>({user_id,type:"daily_study",title:"Day 1 is ready",body:`Continue ${study.title||"your Bible study"} in Daily Path.`,link:`/study-path/${sessionId}/1`,push_status:"pending"})));
