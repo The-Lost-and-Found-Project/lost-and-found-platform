@@ -168,3 +168,10 @@ test("meeting detail reports failures loading participation context",()=>{
  assert.ok(page.includes('error:attendanceError'));
  assert.ok(page.includes('error:followupError'));
 });
+
+
+test("meeting scheduler does not mistake failed queries for empty scheduling options",()=>{
+ const page=read("app/admin/meetings/new/page.tsx");
+ assert.ok(page.includes('if(profileError||!profile)throw new Error'));
+ assert.ok(page.includes('if(studiesError||groupsError||membersError||peopleError||supervisionError)throw new Error'));
+});
