@@ -90,3 +90,11 @@ test("completed meeting details hide live-room entry but retain resources and fo
  assert.ok(page.includes('Meeting resources'));
  assert.ok(page.includes('Follow-up checklist'));
 });
+
+
+test("Meetings dashboard no longer sends managers back to the legacy sessions anchor",()=>{
+ const page=read("app/admin/meetings/page.tsx");
+ assert.ok(!page.includes('/admin/studies#sessions'));
+ assert.ok(page.includes('href="/admin/meetings/new"'));
+ assert.ok(page.includes('Study publishing'));
+});
