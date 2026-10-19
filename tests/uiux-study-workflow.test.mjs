@@ -309,3 +309,10 @@ test("Daily Path release atomically claims the session before notifying particip
  assert.ok(claim>=0&&guard>claim&&notify>guard&&push>notify);
  assert.ok(release.includes('.eq("status","completed").not("ended_at","is",null)'));
 });
+
+
+test("meeting detail fails visibly when its linked study or group is missing",()=>{
+ const detail=read("app/admin/meetings/[id]/page.tsx");
+ assert.ok(detail.includes('if(!study)throw new Error("The Bible study linked to this meeting is missing.'));
+ assert.ok(detail.includes('if(meeting.group_id&&!group)throw new Error("The group linked to this meeting is missing.'));
+});
