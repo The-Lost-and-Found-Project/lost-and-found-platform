@@ -6,14 +6,16 @@ import {getEffectiveRole,canManageStudies} from "@/lib/effective-role";
 
 async function authorizeMeeting(sessionId:string){
  const s=await createClient();const {data:{user}}=await s.auth.getUser();if(!user)throw new Error("Sign in required.");
- const {data:p}=await s.from("profiles").select("role,preview_role").eq("id",user.id).maybeSingle();
+ const {data:p,error:profileError}=await s.from("profiles").select("role,preview_role").eq("id",user.id).maybeSingle();
+ if(profileError||!p)throw new Error("Unable to verify your role.");
  const role=getEffectiveRole(p?.role,p?.preview_role);if(!canManageStudies(role))throw new Error("Not authorized.");
- const db=createAdminClient();const {data:session}=await db.from("study_sessions").select("id,group_id,facilitator_user_id").eq("id",sessionId).maybeSingle();if(!session)throw new Error("Meeting not found.");
+ const db=createAdminClient();const {data:session,error:sessionError}=await db.from("study_sessions").select("id,group_id,facilitator_user_id").eq("id",sessionId).maybeSingle();if(sessionError)throw new Error("Unable to verify meeting access.");if(!session)throw new Error("Meeting not found.");
  if(role!=="admin"){
-  const {data:facilitators}=session.group_id?await db.from("study_group_members").select("user_id").eq("group_id",session.group_id).eq("group_role","facilitator").eq("membership_status","active"):{data:[] as {user_id:string}[]};
+  const {data:facilitators,error:facilitatorsError}=session.group_id?await db.from("study_group_members").select("user_id").eq("group_id",session.group_id).eq("group_role","facilitator").eq("membership_status","active"):{data:[] as {user_id:string}[],error:null};
+  if(facilitatorsError)throw new Error("Unable to verify meeting facilitators.");
   const ids=[...new Set([...(facilitators||[]).map(x=>x.user_id),...(session.facilitator_user_id?[session.facilitator_user_id]:[])])];
   let allowed=ids.includes(user.id);
-  if(!allowed&&role==="supervisor"&&ids.length){const {data:supervised}=await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",user.id).in("facilitator_user_id",ids);allowed=Boolean(supervised?.length);}
+  if(!allowed&&role==="supervisor"&&ids.length){const {data:supervised,error:supervisedError}=await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",user.id).in("facilitator_user_id",ids);if(supervisedError)throw new Error("Unable to verify supervisor access.");allowed=Boolean(supervised?.length);}
   if(!allowed)throw new Error("Not authorized.");
  }
  return {db,user};
@@ -39,7 +41,8 @@ export async function saveMeetingAttendance(form:FormData){
  const status=String(form.get("status")||"");
  if(!/^[0-9a-f-]{36}$/i.test(sessionId)||!/^[0-9a-f-]{36}$/i.test(userId)||!["present","absent","excused","unmarked"].includes(status))throw new Error("Invalid attendance request.");
  const {db,user}=await authorizeMeeting(sessionId);
- const {data:assigned}=await db.from("study_session_participants").select("user_id").eq("study_session_id",sessionId).eq("user_id",userId).maybeSingle();
+ const {data:assigned,error:assignedError}=await db.from("study_session_participants").select("user_id").eq("study_session_id",sessionId).eq("user_id",userId).maybeSingle();
+ if(assignedError)throw new Error("Unable to verify participant assignment.");
  if(!assigned)throw new Error("Only assigned participants can be marked.");
  if(status==="unmarked"){
   const {error}=await db.from("study_session_attendance").delete().eq("session_id",sessionId).eq("user_id",userId);
