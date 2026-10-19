@@ -106,7 +106,8 @@ export async function releaseDailyPath(f:FormData){
  if(notificationError)console.error("Daily Path notification save failed",{sessionId,message:notificationError.message});
  let pushDelivered=true;try{await sendPushToUsers(ids,{title:"Day 1 is ready",body:`Continue ${study.title||"your Bible study"} in Daily Path.`,url:`/study-path/${sessionId}/1`});}catch(pushError){pushDelivered=false;console.error("Daily Path push send failed",{sessionId,error:pushError instanceof Error?pushError.message:String(pushError)});}
  revalidatePath("/admin/studies");revalidatePath("/admin/meetings");revalidatePath(`/admin/meetings/${sessionId}`);revalidatePath("/dashboard");revalidatePath(`/studies/${session.bible_study_id}`);
- return {released:true,notificationStored:!notificationError,pushDelivered};
+ if(notificationError||!pushDelivered)console.warn("Daily Path released with notification delivery issues",{sessionId,notificationStored:!notificationError,pushDelivered});
+ return;
 }
 
 export async function deleteStudy(f:FormData){
