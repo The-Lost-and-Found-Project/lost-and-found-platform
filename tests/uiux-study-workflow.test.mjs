@@ -224,3 +224,10 @@ test("meeting scheduling rejects malformed end dates",()=>{
  const actions=read("app/admin/studies/actions.ts");
  assert.ok(actions.includes('scheduledEnd&&(Number.isNaN(Date.parse(scheduledEnd))||new Date(scheduledEnd)<=new Date(scheduledStart))'));
 });
+
+
+test("scheduler enforces published studies and ministry alignment on server",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ assert.ok(actions.includes('if(studyError||!study||!study.is_published)'));
+ assert.ok(actions.includes('if(study.ministry_slug&&study.ministry_slug!==ministrySlug)'));
+});
