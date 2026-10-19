@@ -240,3 +240,11 @@ test("scheduler filters studies by ministry and clears stale study selection",()
  assert.ok(form.includes('setSelectedMinistry(e.target.value);setSelectedStudy("")'));
  assert.ok(form.includes('value={selectedStudy}'));
 });
+
+
+test("scheduler checks selected study and group ministry before submission",()=>{
+ const form=read("components/LiveStudySessionForm.tsx");
+ assert.ok(form.includes('if(!selectedStudy)throw new Error("Choose a Bible study.")'));
+ assert.ok(form.includes('if(group&&selectedMinistry!==group.ministry_slug)'));
+ assert.ok(form.includes('disabled={pending||!group||!selectedStudy||checked.size===0}'));
+});
