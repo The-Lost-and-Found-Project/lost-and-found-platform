@@ -279,3 +279,11 @@ test("Daily Path can be released only after the meeting is completed",()=>{
  assert.ok(actions.includes('.eq("status","completed").not("ended_at","is",null).is("daily_path_released_at",null)'));
  assert.ok(detail.includes('meeting.status!=="completed"||!meeting.ended_at?'));
 });
+
+
+test("Daily Path warns about nonstandard devotional lengths without blocking legacy studies",()=>{
+ const detail=read("app/admin/meetings/[id]/page.tsx");
+ assert.ok(detail.includes('cards.length>0&&cards.length!==7&&!meeting.daily_path_released_at'));
+ assert.ok(detail.includes('The standard Daily Path is seven days.'));
+ assert.ok(detail.includes('Review the study content before release.'));
+});
