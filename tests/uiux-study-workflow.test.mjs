@@ -72,3 +72,12 @@ test("Meetings navigation and compact overview are wired to their new locations"
  assert.ok(!page.includes("Create Meet fallback"));
  assert.ok(!page.includes("sessions.map(session"));
 });
+
+
+test("meeting follow-up writes only the selected checklist field",()=>{
+ const actions=read("app/admin/meetings/attendance-actions.ts");
+ assert.ok(actions.includes('ignoreDuplicates:true'));
+ assert.ok(actions.includes('.update({[field]:form.get("completed")==="true"'));
+ assert.ok(!actions.includes('...next,updated_by:user.id'));
+ assert.ok(actions.includes('authorizeMeeting(sessionId)'));
+});
