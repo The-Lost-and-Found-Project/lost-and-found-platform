@@ -295,3 +295,17 @@ test("scheduler reports an incomplete meeting when participant rollback fails",(
  assert.ok(actions.includes('the incomplete meeting could not be removed'));
  assert.ok(actions.includes('Contact an administrator before scheduling again.'));
 });
+
+
+test("Daily Path release atomically claims the session before notifying participants",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ const start=actions.indexOf("export async function releaseDailyPath(");
+ const end=actions.indexOf("export async function deleteStudy(",start);
+ const release=actions.slice(start,end);
+ const claim=release.indexOf('.is("daily_path_released_at",null).select("id").maybeSingle()');
+ const guard=release.indexOf("if(!claimed)return;");
+ const notify=release.indexOf('db.from("notifications").insert(');
+ const push=release.indexOf("sendPushToUsers(ids,");
+ assert.ok(claim>=0&&guard>claim&&notify>guard&&push>notify);
+ assert.ok(release.includes('.eq("status","completed").not("ended_at","is",null)'));
+});
