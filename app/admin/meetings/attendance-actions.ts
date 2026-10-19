@@ -24,11 +24,11 @@ export async function saveMeetingFollowup(form:FormData){
  const fields=["attendance_reviewed","participant_followup_done","resources_shared","next_meeting_planned"] as const;
  if(!/^[0-9a-f-]{36}$/i.test(sessionId)||!fields.some(f=>f===field))throw new Error("Invalid follow-up request.");
  const {db,user}=await authorizeMeeting(sessionId);
- const {data:existing,error:readError}=await db.from("study_session_followup").select("attendance_reviewed,participant_followup_done,resources_shared,next_meeting_planned").eq("session_id",sessionId).maybeSingle();
- if(readError)throw new Error("Follow-up status unavailable.");
- const next={attendance_reviewed:existing?.attendance_reviewed||false,participant_followup_done:existing?.participant_followup_done||false,resources_shared:existing?.resources_shared||false,next_meeting_planned:existing?.next_meeting_planned||false};
- next[field as keyof typeof next]=form.get("completed")==="true";
- const {error}=await db.from("study_session_followup").upsert({session_id:sessionId,...next,updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:"session_id"});
+ // Ensure the row exists without overwriting another facilitator's checklist updates.
+ const {error:initError}=await db.from("study_session_followup").upsert({session_id:sessionId},{onConflict:"session_id",ignoreDuplicates:true});
+ if(initError)throw new Error("Follow-up status unavailable.");
+ // Update only the selected column: concurrent changes to other items are preserved.
+ const {error}=await db.from("study_session_followup").update({[field]:form.get("completed")==="true",updated_by:user.id,updated_at:new Date().toISOString()}).eq("session_id",sessionId);
  if(error)throw new Error("Could not save follow-up status.");
  revalidatePath(`/admin/meetings/${sessionId}`);
 }
