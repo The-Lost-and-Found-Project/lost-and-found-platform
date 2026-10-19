@@ -270,3 +270,12 @@ test("scheduler reports existing meetings and partial notification failures accu
  assert.ok(form.includes('result.notificationStored===false||result.pushDelivered===false'));
  assert.ok(form.includes('Check with participants directly.'));
 });
+
+
+test("Daily Path can be released only after the meeting is completed",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ const detail=read("app/admin/meetings/[id]/page.tsx");
+ assert.ok(actions.includes('if(session.status!=="completed"||!session.ended_at)'));
+ assert.ok(actions.includes('.eq("status","completed").not("ended_at","is",null).is("daily_path_released_at",null)'));
+ assert.ok(detail.includes('meeting.status!=="completed"||!meeting.ended_at?'));
+});
