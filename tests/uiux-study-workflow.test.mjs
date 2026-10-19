@@ -123,3 +123,11 @@ test("Meetings workspace does not display false zero counts when database reads 
  assert.ok(page.includes('error:pastError'));
  assert.ok(page.includes('if(activeError||pastError)throw new Error'));
 });
+
+
+test("Meetings workspace reports study and group lookup failures",()=>{
+ const page=read("app/admin/meetings/page.tsx");
+ assert.ok(page.includes('error:studyError'));
+ assert.ok(page.includes('error:groupError'));
+ assert.ok(page.includes('if(studyError||groupError)throw new Error'));
+});
