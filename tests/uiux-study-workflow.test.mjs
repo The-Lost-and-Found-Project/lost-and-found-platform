@@ -81,3 +81,12 @@ test("meeting follow-up writes only the selected checklist field",()=>{
  assert.ok(!actions.includes('...next,updated_by:user.id'));
  assert.ok(actions.includes('authorizeMeeting(sessionId)'));
 });
+
+
+test("completed meeting details hide live-room entry but retain resources and follow-up",()=>{
+ const page=read("app/admin/meetings/[id]/page.tsx");
+ assert.ok(page.includes('meeting.status!=="completed"&&<Link href={`/live/${id}`}'));
+ assert.ok(page.includes('meeting.status!=="completed"&&meeting.google_meeting_uri'));
+ assert.ok(page.includes('Meeting resources'));
+ assert.ok(page.includes('Follow-up checklist'));
+});
