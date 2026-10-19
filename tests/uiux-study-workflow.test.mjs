@@ -107,3 +107,11 @@ test("meeting overview sorts overdue and completed meetings and shows their date
  assert.ok(page.includes('getTime()-new Date(b.scheduled_start!)'));
  assert.ok(page.includes('Older history may not appear in this overview'));
 });
+
+
+test("meeting overview warns when query limits may hide meetings",()=>{
+ const page=read("app/admin/meetings/page.tsx");
+ assert.ok(page.includes('activeLimitReached=(activeRows||[]).length===250'));
+ assert.ok(page.includes('completedLimitReached=(pastRows||[]).length===50'));
+ assert.ok(page.includes('Some meetings may not appear here'));
+});
