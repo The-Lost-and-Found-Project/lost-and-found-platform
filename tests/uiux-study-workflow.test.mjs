@@ -175,3 +175,10 @@ test("meeting scheduler does not mistake failed queries for empty scheduling opt
  assert.ok(page.includes('if(profileError||!profile)throw new Error'));
  assert.ok(page.includes('if(studiesError||groupsError||membersError||peopleError||supervisionError)throw new Error'));
 });
+
+
+test("attendance tool errors do not falsely claim a missing migration",()=>{
+ const page=read("app/admin/meetings/[id]/page.tsx");
+ assert.ok(page.includes('The database updates may not be installed, or a query may have failed'));
+ assert.ok(!page.includes('unavailable until their database updates are installed'));
+});
