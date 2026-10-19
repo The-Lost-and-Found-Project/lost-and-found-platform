@@ -21,10 +21,11 @@ export default async function MeetingsWorkspace(){
  ]);
  if(activeError||pastError)throw new Error("Unable to load the Meetings workspace. Please try again.");
  const rows=[...(activeRows||[]),...(pastRows||[])];
- const {data:membership}=role==="admin"?{data:[]}:await db.from("study_group_members").select("group_id,group_role").eq("user_id",user.id).eq("membership_status","active");
- const {data:supervised}=role==="supervisor"?await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",user.id):{data:[] as {facilitator_user_id:string}[]};
+ const {data:membership,error:membershipError}=role==="admin"?{data:[],error:null}:await db.from("study_group_members").select("group_id,group_role").eq("user_id",user.id).eq("membership_status","active");
+ const {data:supervised,error:supervisedError}=role==="supervisor"?await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",user.id):{data:[] as {facilitator_user_id:string}[],error:null};
  const facilitatorIds=new Set([user.id,...(supervised||[]).map(x=>x.facilitator_user_id)]);
- const {data:supervisedGroups}=role==="supervisor"&&facilitatorIds.size?await db.from("study_group_members").select("group_id,user_id,group_role").in("user_id",[...facilitatorIds]).eq("group_role","facilitator").eq("membership_status","active"):{data:[] as {group_id:string;user_id:string;group_role:string}[]};
+ const {data:supervisedGroups,error:supervisedGroupsError}=role==="supervisor"&&facilitatorIds.size?await db.from("study_group_members").select("group_id,user_id,group_role").in("user_id",[...facilitatorIds]).eq("group_role","facilitator").eq("membership_status","active"):{data:[] as {group_id:string;user_id:string;group_role:string}[],error:null};
+ if(membershipError||supervisedError||supervisedGroupsError)throw new Error("Unable to verify meeting access. Please try again.");
  const ownGroups=new Set([...(membership||[]).filter(x=>x.group_role==="facilitator").map(x=>x.group_id),...(supervisedGroups||[]).map(x=>x.group_id)]);
  const visible=(rows||[]).filter(x=>role==="admin"||(x.facilitator_user_id&&facilitatorIds.has(x.facilitator_user_id))||(x.group_id&&ownGroups.has(x.group_id)));
  const studyIds=[...new Set(visible.map(x=>x.bible_study_id).filter(Boolean))];
