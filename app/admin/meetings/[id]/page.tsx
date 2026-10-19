@@ -33,7 +33,7 @@ export default async function MeetingDetail({params}:{params:Promise<{id:string}
  const [{data:study,error:studyError},{data:group,error:groupError},{data:facilitator,error:facilitatorError},{data:attendees,error:attendeesError},{data:presence,error:presenceError},{data:manual,error:attendanceError},{data:followup,error:followupError}]=await Promise.all([
  db.from("bible_studies").select("id,title,is_published,devotional_cards").eq("id",meeting.bible_study_id).maybeSingle(),
  meeting.group_id?db.from("study_groups").select("name").eq("id",meeting.group_id).maybeSingle():Promise.resolve({data:null,error:null}),
- meeting.facilitator_user_id?db.from("profiles").select("full_name").eq("id",meeting.facilitator_user_id).maybeSingle():Promise.resolve({data:null}),
+ meeting.facilitator_user_id?db.from("profiles").select("full_name").eq("id",meeting.facilitator_user_id).maybeSingle():Promise.resolve({data:null,error:null}),
  db.from("study_session_participants").select("user_id,rsvp_status").eq("study_session_id",id),
  db.from("study_session_live_presence").select("user_id,joined_at,last_seen_at,left_at").eq("session_id",id),
  db.from("study_session_attendance").select("user_id,status").eq("session_id",id),
