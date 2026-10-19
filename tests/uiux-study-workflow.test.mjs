@@ -98,3 +98,12 @@ test("Meetings dashboard no longer sends managers back to the legacy sessions an
  assert.ok(page.includes('href="/admin/meetings/new"'));
  assert.ok(page.includes('Study publishing'));
 });
+
+
+test("meeting overview sorts overdue and completed meetings and shows their dates",()=>{
+ const page=read("app/admin/meetings/page.tsx");
+ assert.ok(page.includes('const recentlyCompleted=[...past].sort('));
+ assert.ok(page.includes('const overdue=visible.filter('));
+ assert.ok(page.includes('getTime()-new Date(b.scheduled_start!)'));
+ assert.ok(page.includes('Older history may not appear in this overview'));
+});
