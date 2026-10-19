@@ -14,7 +14,7 @@ export default async function MeetingDetail({params}:{params:Promise<{id:string}
  if(profileError||!profile)throw new Error("Unable to verify your role.");
  const role=getEffectiveRole(profile?.role,profile?.preview_role);if(!canManageStudies(role))redirect("/dashboard");
  const db=createAdminClient();
- const {data:meeting,error:meetingError}=await db.from("study_sessions").select("id,bible_study_id,group_id,facilitator_user_id,scheduled_start,scheduled_end,status,google_meeting_uri,daily_path_released_at").eq("id",id).maybeSingle();
+ const {data:meeting,error:meetingError}=await db.from("study_sessions").select("id,bible_study_id,group_id,facilitator_user_id,scheduled_start,scheduled_end,status,ended_at,google_meeting_uri,daily_path_released_at").eq("id",id).maybeSingle();
  if(meetingError)throw new Error("Unable to load meeting details.");
  if(!meeting)notFound();
  if(role!=="admin"){
