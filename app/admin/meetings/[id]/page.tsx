@@ -10,18 +10,22 @@ export default async function MeetingDetail({params}:{params:Promise<{id:string}
  const {id}=await params;
  const s=await createClient();const {data:{user}}=await s.auth.getUser();
  if(!user)redirect("/login?next=%2Fadmin%2Fmeetings");
- const {data:profile}=await s.from("profiles").select("role,preview_role").eq("id",user.id).maybeSingle();
+ const {data:profile,error:profileError}=await s.from("profiles").select("role,preview_role").eq("id",user.id).maybeSingle();
+ if(profileError||!profile)throw new Error("Unable to verify your role.");
  const role=getEffectiveRole(profile?.role,profile?.preview_role);if(!canManageStudies(role))redirect("/dashboard");
  const db=createAdminClient();
- const {data:meeting}=await db.from("study_sessions").select("id,bible_study_id,group_id,facilitator_user_id,scheduled_start,scheduled_end,status,google_meeting_uri,daily_path_released_at").eq("id",id).maybeSingle();
+ const {data:meeting,error:meetingError}=await db.from("study_sessions").select("id,bible_study_id,group_id,facilitator_user_id,scheduled_start,scheduled_end,status,google_meeting_uri,daily_path_released_at").eq("id",id).maybeSingle();
+ if(meetingError)throw new Error("Unable to load meeting details.");
  if(!meeting)notFound();
  if(role!=="admin"){
   
-  const {data:facilitators}=meeting.group_id?await db.from("study_group_members").select("user_id").eq("group_id",meeting.group_id).eq("group_role","facilitator").eq("membership_status","active"):{data:[] as {user_id:string}[]};
+  const {data:facilitators,error:facilitatorsError}=meeting.group_id?await db.from("study_group_members").select("user_id").eq("group_id",meeting.group_id).eq("group_role","facilitator").eq("membership_status","active"):{data:[] as {user_id:string}[],error:null};
+  if(facilitatorsError)throw new Error("Unable to verify meeting facilitators.");
   const ids=[...new Set([...(facilitators||[]).map(x=>x.user_id),...(meeting.facilitator_user_id?[meeting.facilitator_user_id]:[])])];
   let allowed=ids.includes(user.id);
   if(!allowed&&role==="supervisor"&&ids.length){
-   const {data:supervised}=await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",user.id).in("facilitator_user_id",ids);
+   const {data:supervised,error:supervisedError}=await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",user.id).in("facilitator_user_id",ids);
+   if(supervisedError)throw new Error("Unable to verify supervisor access.");
    allowed=Boolean(supervised?.length);
   }
   if(!allowed)notFound();
