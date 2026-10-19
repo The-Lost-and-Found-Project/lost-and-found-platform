@@ -231,3 +231,12 @@ test("scheduler enforces published studies and ministry alignment on server",()=
  assert.ok(actions.includes('if(studyError||!study||!study.is_published)'));
  assert.ok(actions.includes('if(study.ministry_slug&&study.ministry_slug!==ministrySlug)'));
 });
+
+
+test("scheduler filters studies by ministry and clears stale study selection",()=>{
+ const form=read("components/LiveStudySessionForm.tsx");
+ assert.ok(form.includes('s.ministry_slug===selectedMinistry'));
+ assert.ok(form.includes('setSelectedGroup(id);setSelectedStudy("")'));
+ assert.ok(form.includes('setSelectedMinistry(e.target.value);setSelectedStudy("")'));
+ assert.ok(form.includes('value={selectedStudy}'));
+});
