@@ -256,3 +256,9 @@ test("scheduler rejects stale group roster selections instead of silently droppi
  assert.ok(actions.includes('The participant list has changed. Refresh the page'));
  assert.ok(!actions.includes('participantIds=participantIds.filter(id=>allowed.has(id))'));
 });
+
+
+test("duplicate meeting detection covers scheduled and live sessions",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ assert.ok(actions.includes('.eq("scheduled_start",scheduledStart).in("status",["scheduled","live"]).maybeSingle()'));
+});
