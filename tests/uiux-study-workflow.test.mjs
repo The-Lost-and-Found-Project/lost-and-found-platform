@@ -197,3 +197,10 @@ test("meetings dashboard rejects failed role verification",()=>{
  const page=read("app/admin/meetings/page.tsx");
  assert.ok(page.includes('if(profileError||!profile)throw new Error'));
 });
+
+
+test("meeting completion prevents late Meet provisioning and limits close transition",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ assert.ok(actions.includes('Completed meetings cannot create new Meet links.'));
+ assert.ok(actions.includes('.in("status",["scheduled","live"]).is("ended_at",null)'));
+});
