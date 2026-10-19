@@ -10,7 +10,8 @@ export default async function MeetingsWorkspace(){
  const supabase=await createClient();
  const {data:{user}}=await supabase.auth.getUser();
  if(!user)redirect("/login?next=%2Fadmin%2Fmeetings");
- const {data:profile}=await supabase.from("profiles").select("role,preview_role").eq("id",user.id).maybeSingle();
+ const {data:profile,error:profileError}=await supabase.from("profiles").select("role,preview_role").eq("id",user.id).maybeSingle();
+ if(profileError||!profile)throw new Error("Unable to verify your role. Please try again.");
  const role=getEffectiveRole(profile?.role,profile?.preview_role);
  if(!canManageStudies(role))redirect("/dashboard");
  const db=createAdminClient();
