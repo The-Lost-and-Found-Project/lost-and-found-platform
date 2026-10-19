@@ -131,3 +131,12 @@ test("Meetings workspace reports study and group lookup failures",()=>{
  assert.ok(page.includes('error:groupError'));
  assert.ok(page.includes('if(studyError||groupError)throw new Error'));
 });
+
+
+test("Meetings workspace fails closed if role-scoping lookups fail",()=>{
+ const page=read("app/admin/meetings/page.tsx");
+ assert.ok(page.includes('error:membershipError'));
+ assert.ok(page.includes('error:supervisedError'));
+ assert.ok(page.includes('error:supervisedGroupsError'));
+ assert.ok(page.includes('if(membershipError||supervisedError||supervisedGroupsError)throw new Error'));
+});
