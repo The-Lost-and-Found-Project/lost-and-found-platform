@@ -248,3 +248,11 @@ test("scheduler checks selected study and group ministry before submission",()=>
  assert.ok(form.includes('if(group&&selectedMinistry!==group.ministry_slug)'));
  assert.ok(form.includes('disabled={pending||!group||!selectedStudy||checked.size===0}'));
 });
+
+
+test("scheduler rejects stale group roster selections instead of silently dropping people",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ assert.ok(actions.includes('participantIds.some(id=>!allowed.has(id))'));
+ assert.ok(actions.includes('The participant list has changed. Refresh the page'));
+ assert.ok(!actions.includes('participantIds=participantIds.filter(id=>allowed.has(id))'));
+});
