@@ -42,6 +42,7 @@ export default async function MeetingDetail({params}:{params:Promise<{id:string}
  if(studyError||groupError||facilitatorError||attendeesError||presenceError)throw new Error("Unable to load meeting details and attendance context.");
  if(!study)throw new Error("The Bible study linked to this meeting is missing. Contact an administrator.");
  if(meeting.group_id&&!group)throw new Error("The group linked to this meeting is missing. Contact an administrator.");
+ if(meeting.facilitator_user_id&&!facilitator)throw new Error("The assigned facilitator profile is missing. Contact an administrator.");
  const presentIds=new Set((presence||[]).filter(p=>p.joined_at).map(p=>p.user_id));
  const confirmed=(attendees||[]).filter(p=>p.rsvp_status==="going").length;
  const declined=(attendees||[]).filter(p=>p.rsvp_status==="declined").length;
