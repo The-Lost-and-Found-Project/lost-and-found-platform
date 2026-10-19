@@ -316,3 +316,9 @@ test("meeting detail fails visibly when its linked study or group is missing",()
  assert.ok(detail.includes('if(!study)throw new Error("The Bible study linked to this meeting is missing.'));
  assert.ok(detail.includes('if(meeting.group_id&&!group)throw new Error("The group linked to this meeting is missing.'));
 });
+
+
+test("meeting detail flags missing assigned facilitator profile",()=>{
+ const detail=read("app/admin/meetings/[id]/page.tsx");
+ assert.ok(detail.includes('if(meeting.facilitator_user_id&&!facilitator)throw new Error("The assigned facilitator profile is missing.'));
+});
