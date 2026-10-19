@@ -30,21 +30,23 @@ export default async function MeetingDetail({params}:{params:Promise<{id:string}
   }
   if(!allowed)notFound();
  }
- const [{data:study},{data:group},{data:facilitator},{data:attendees},{data:presence},{data:manual,error:attendanceError},{data:followup,error:followupError}]=await Promise.all([
+ const [{data:study,error:studyError},{data:group,error:groupError},{data:facilitator,error:facilitatorError},{data:attendees,error:attendeesError},{data:presence,error:presenceError},{data:manual,error:attendanceError},{data:followup,error:followupError}]=await Promise.all([
  db.from("bible_studies").select("id,title,is_published,devotional_cards").eq("id",meeting.bible_study_id).maybeSingle(),
- meeting.group_id?db.from("study_groups").select("name").eq("id",meeting.group_id).maybeSingle():Promise.resolve({data:null}),
+ meeting.group_id?db.from("study_groups").select("name").eq("id",meeting.group_id).maybeSingle():Promise.resolve({data:null,error:null}),
  meeting.facilitator_user_id?db.from("profiles").select("full_name").eq("id",meeting.facilitator_user_id).maybeSingle():Promise.resolve({data:null}),
  db.from("study_session_participants").select("user_id,rsvp_status").eq("study_session_id",id),
  db.from("study_session_live_presence").select("user_id,joined_at,last_seen_at,left_at").eq("session_id",id),
  db.from("study_session_attendance").select("user_id,status").eq("session_id",id),
  db.from("study_session_followup").select("attendance_reviewed,participant_followup_done,resources_shared,next_meeting_planned").eq("session_id",id).maybeSingle()
  ]);
+ if(studyError||groupError||facilitatorError||attendeesError||presenceError)throw new Error("Unable to load meeting details and attendance context.");
  const presentIds=new Set((presence||[]).filter(p=>p.joined_at).map(p=>p.user_id));
  const confirmed=(attendees||[]).filter(p=>p.rsvp_status==="going").length;
  const declined=(attendees||[]).filter(p=>p.rsvp_status==="declined").length;
  const attended=(attendees||[]).filter(p=>presentIds.has(p.user_id)).length;
  const manualByUser=new Map((manual||[]).map(x=>[x.user_id,x.status]));
- const {data:names}=attendees?.length?await db.from("profiles").select("id,full_name").in("id",attendees.map(x=>x.user_id)):{data:[] as {id:string;full_name:string|null}[]};
+ const {data:names,error:namesError}=attendees?.length?await db.from("profiles").select("id,full_name").in("id",attendees.map(x=>x.user_id)):{data:[] as {id:string;full_name:string|null}[],error:null};
+ if(namesError)throw new Error("Unable to load participant names.");
  const namesById=new Map((names||[]).map(x=>[x.id,x.full_name]));
  const fmt=(v:string|null)=>v?new Intl.DateTimeFormat("en-US",{dateStyle:"full",timeStyle:"short",timeZone:"America/New_York"}).format(new Date(v))+" ET":"Not set";
  const cards=Array.isArray(study?.devotional_cards)?study.devotional_cards:[];
