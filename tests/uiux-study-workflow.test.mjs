@@ -182,3 +182,12 @@ test("attendance tool errors do not falsely claim a missing migration",()=>{
  assert.ok(page.includes('The database updates may not be installed, or a query may have failed'));
  assert.ok(!page.includes('unavailable until their database updates are installed'));
 });
+
+
+test("meetings errors provide an accessible retry path",()=>{
+ const page=read("app/admin/meetings/error.tsx");
+ assert.ok(page.includes('"use client"'));
+ assert.ok(page.includes('role="alert"'));
+ assert.ok(page.includes('onClick={()=>reset()}'));
+ assert.ok(page.includes('href="/admin/meetings"'));
+});
