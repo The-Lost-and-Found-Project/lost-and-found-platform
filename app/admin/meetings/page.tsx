@@ -29,7 +29,8 @@ export default async function MeetingsWorkspace(){
  const visible=(rows||[]).filter(x=>role==="admin"||(x.facilitator_user_id&&facilitatorIds.has(x.facilitator_user_id))||(x.group_id&&ownGroups.has(x.group_id)));
  const studyIds=[...new Set(visible.map(x=>x.bible_study_id).filter(Boolean))];
  const groupIds=[...new Set(visible.map(x=>x.group_id).filter(Boolean))];
- const [{data:studyRows},{data:groupRows}]=await Promise.all([studyIds.length?db.from("bible_studies").select("id,title").in("id",studyIds):Promise.resolve({data:[] as {id:string;title:string}[]}),groupIds.length?db.from("study_groups").select("id,name").in("id",groupIds):Promise.resolve({data:[] as {id:string;name:string}[]})]);
+ const [{data:studyRows,error:studyError},{data:groupRows,error:groupError}]=await Promise.all([studyIds.length?db.from("bible_studies").select("id,title").in("id",studyIds):Promise.resolve({data:[] as {id:string;title:string}[],error:null}),groupIds.length?db.from("study_groups").select("id,name").in("id",groupIds):Promise.resolve({data:[] as {id:string;name:string}[],error:null})]);
+ if(studyError||groupError)throw new Error("Unable to load meeting study and group details. Please try again.");
  const studyNames=new Map((studyRows||[]).map(x=>[x.id,x.title]));const groupNames=new Map((groupRows||[]).map(x=>[x.id,x.name]));
  const upcoming=visible.filter(x=>x.status==="scheduled"&&(!x.scheduled_start||new Date(x.scheduled_start).getTime()>=Date.now())).sort((a,b)=>(a.scheduled_start?new Date(a.scheduled_start).getTime():Number.MAX_SAFE_INTEGER)-(b.scheduled_start?new Date(b.scheduled_start).getTime():Number.MAX_SAFE_INTEGER));
  const overdue=visible.filter(x=>x.status==="scheduled"&&x.scheduled_start&&new Date(x.scheduled_start).getTime()<Date.now()).sort((a,b)=>new Date(a.scheduled_start!).getTime()-new Date(b.scheduled_start!).getTime());
