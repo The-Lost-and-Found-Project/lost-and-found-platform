@@ -149,3 +149,13 @@ test("meeting attendance and follow-up actions reject failed permission lookups"
  }
  assert.ok(actions.includes('Only assigned participants can be marked'));
 });
+
+
+test("meeting detail fails closed when role or supervisor lookup fails",()=>{
+ const page=read("app/admin/meetings/[id]/page.tsx");
+ for(const name of ["profileError","meetingError","facilitatorsError","supervisedError"]){
+  assert.ok(page.includes(name),name+" is checked");
+ }
+ assert.ok(page.includes('if(profileError||!profile)throw new Error'));
+ assert.ok(page.includes('if(supervisedError)throw new Error'));
+});
