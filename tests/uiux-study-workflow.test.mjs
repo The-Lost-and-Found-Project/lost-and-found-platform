@@ -331,3 +331,12 @@ test("live meeting access fails closed on authorization and supervision query er
  assert.ok(live.includes('session.status==="completed"'));
  assert.ok(live.includes('session.live_ended_at'));
 });
+
+
+test("live room honors active group facilitators and their supervisors",()=>{
+ const live=read("app/live/[sessionId]/page.tsx");
+ assert.ok(live.includes('.eq("group_role","facilitator").eq("membership_status","active")'));
+ assert.ok(live.includes('if(membersError)throw new Error("Unable to verify active group facilitators.")'));
+ assert.ok(live.includes('.in("facilitator_user_id",facilitatorIds)'));
+ assert.ok(live.includes('groupFacilitator=Boolean(members?.some(m=>m.user_id===user.id))'));
+});
