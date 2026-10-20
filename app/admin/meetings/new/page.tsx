@@ -10,8 +10,8 @@ export const dynamic="force-dynamic";
 export default async function ScheduleMeeting(){
  const s=await createClient();const {data:{user}}=await s.auth.getUser();
  if(!user)redirect("/login?next=%2Fadmin%2Fmeetings%2Fnew");
- const {data:profile,error:profileError}=await s.from("profiles").select("role,preview_role").eq("id",user.id).maybeSingle();
- if(profileError||!profile)throw new Error("Unable to verify your role.");
+ const {data:profile,error:profileError}=await s.from("profiles").select("role,preview_role,is_active").eq("id",user.id).maybeSingle();
+ if(profileError||!profile||!profile.is_active)throw new Error("Unable to verify an active account.");
  const role=getEffectiveRole(profile?.role,profile?.preview_role);if(!canManageStudies(role))redirect("/dashboard");
  const db=createAdminClient();
  const [{data:studies,error:studiesError},{data:groups,error:groupsError},{data:members,error:membersError},{data:people,error:peopleError},{data:supervision,error:supervisionError}]=await Promise.all([
