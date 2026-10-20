@@ -6,8 +6,8 @@ import {getEffectiveRole,canManageStudies} from "@/lib/effective-role";
 
 async function authorizeMeeting(sessionId:string){
  const s=await createClient();const {data:{user}}=await s.auth.getUser();if(!user)throw new Error("Sign in required.");
- const {data:p,error:profileError}=await s.from("profiles").select("role,preview_role").eq("id",user.id).maybeSingle();
- if(profileError||!p)throw new Error("Unable to verify your role.");
+ const {data:p,error:profileError}=await s.from("profiles").select("role,preview_role,is_active").eq("id",user.id).maybeSingle();
+ if(profileError||!p||!p.is_active)throw new Error("Unable to verify an active account.");
  const role=getEffectiveRole(p?.role,p?.preview_role);if(!canManageStudies(role))throw new Error("Not authorized.");
  const db=createAdminClient();const {data:session,error:sessionError}=await db.from("study_sessions").select("id,group_id,facilitator_user_id").eq("id",sessionId).maybeSingle();if(sessionError)throw new Error("Unable to verify meeting access.");if(!session)throw new Error("Meeting not found.");
  if(role!=="admin"){
