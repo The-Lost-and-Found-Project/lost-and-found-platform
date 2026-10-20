@@ -322,3 +322,12 @@ test("meeting detail flags missing assigned facilitator profile",()=>{
  const detail=read("app/admin/meetings/[id]/page.tsx");
  assert.ok(detail.includes('if(meeting.facilitator_user_id&&!facilitator)throw new Error("The assigned facilitator profile is missing.'));
 });
+
+
+test("live meeting access fails closed on authorization and supervision query errors",()=>{
+ const live=read("app/live/[sessionId]/page.tsx");
+ assert.ok(live.includes('if(profileError||sessionError||extensionsError||participantError)throw new Error("Unable to verify live meeting access.")'));
+ assert.ok(live.includes('if(supervisionError)throw new Error("Unable to verify supervisor access.")'));
+ assert.ok(live.includes('session.status==="completed"'));
+ assert.ok(live.includes('session.live_ended_at'));
+});
