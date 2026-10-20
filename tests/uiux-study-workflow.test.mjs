@@ -145,7 +145,7 @@ test("Meetings workspace fails closed if role-scoping lookups fail",()=>{
 test("meeting attendance and follow-up actions reject failed permission lookups",()=>{
  const actions=read("app/admin/meetings/attendance-actions.ts");
  for(const name of ["profileError","sessionError","facilitatorsError","supervisedError","assignedError"]){
-  assert.ok(actions.includes('if('+name+')')||actions.includes('if('+name+'||!p)'),name+" must be checked");
+  assert.ok(actions.includes('if('+name+')')||actions.includes('if('+name+'||!p||!p.is_active)'),name+" must be checked");
  }
  assert.ok(actions.includes('Only assigned participants can be marked'));
 });
@@ -156,7 +156,7 @@ test("meeting detail fails closed when role or supervisor lookup fails",()=>{
  for(const name of ["profileError","meetingError","facilitatorsError","supervisedError"]){
   assert.ok(page.includes(name),name+" is checked");
  }
- assert.ok(page.includes('if(profileError||!profile)throw new Error'));
+ assert.ok(page.includes('if(profileError||!profile||!profile.is_active)throw new Error'));
  assert.ok(page.includes('if(supervisedError)throw new Error'));
 });
 
@@ -172,7 +172,7 @@ test("meeting detail reports failures loading participation context",()=>{
 
 test("meeting scheduler does not mistake failed queries for empty scheduling options",()=>{
  const page=read("app/admin/meetings/new/page.tsx");
- assert.ok(page.includes('if(profileError||!profile)throw new Error'));
+ assert.ok(page.includes('if(profileError||!profile||!profile.is_active)throw new Error'));
  assert.ok(page.includes('if(studiesError||groupsError||membersError||peopleError||supervisionError)throw new Error'));
 });
 
@@ -195,7 +195,7 @@ test("meetings errors provide an accessible retry path",()=>{
 
 test("meetings dashboard rejects failed role verification",()=>{
  const page=read("app/admin/meetings/page.tsx");
- assert.ok(page.includes('if(profileError||!profile)throw new Error'));
+ assert.ok(page.includes('if(profileError||!profile||!profile.is_active)throw new Error'));
 });
 
 
