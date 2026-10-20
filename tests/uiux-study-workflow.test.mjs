@@ -340,3 +340,12 @@ test("live room honors active group facilitators and their supervisors",()=>{
  assert.ok(live.includes('.in("facilitator_user_id",facilitatorIds)'));
  assert.ok(live.includes('groupFacilitator=Boolean(members?.some(m=>m.user_id===user.id))'));
 });
+
+
+test("meeting management pages and actions require an active account",()=>{
+ for(const path of ["app/admin/meetings/page.tsx","app/admin/meetings/new/page.tsx","app/admin/meetings/[id]/page.tsx","app/admin/meetings/attendance-actions.ts"]){
+  const source=read(path);
+  assert.ok(source.includes('select("role,preview_role,is_active")'),path);
+  assert.ok(source.includes('!profile.is_active')||source.includes('!p.is_active'),path);
+ }
+});
