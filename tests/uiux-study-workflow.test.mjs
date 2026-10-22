@@ -216,7 +216,7 @@ test("Meet provisioning handles concurrent meeting completion and failed access 
 
 test("study scheduler fails safely on authorization and duplicate lookup errors",()=>{
  const actions=read("app/admin/studies/actions.ts");
- for(const fragment of ['if(profileError||!p)throw new Error','if(facilitatorsError)throw new Error','if(supervisionError)throw new Error','if(existingError)return{ok:false'])assert.ok(actions.includes(fragment),fragment);
+ for(const fragment of ['if(profileError||!p||!p.is_active)throw new Error','if(facilitatorsError)throw new Error','if(supervisionError)throw new Error','if(existingError)return{ok:false'])assert.ok(actions.includes(fragment),fragment);
 });
 
 
