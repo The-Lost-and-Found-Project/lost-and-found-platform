@@ -85,8 +85,9 @@ test("meeting follow-up writes only the selected checklist field",()=>{
 
 test("completed meeting details hide live-room entry but retain resources and follow-up",()=>{
  const page=read("app/admin/meetings/[id]/page.tsx");
- assert.ok(page.includes('meeting.status!=="completed"&&<Link href={`/live/${id}`}'));
- assert.ok(page.includes('meeting.status!=="completed"&&meeting.google_meeting_uri'));
+ assert.ok(page.includes('const canOpenMeeting=meeting.status==="scheduled"||meeting.status==="live"'));
+ assert.ok(page.includes('canOpenMeeting&&<Link href={`/live/${id}`}'));
+ assert.ok(page.includes('canOpenMeeting&&meeting.google_meeting_uri'));
  assert.ok(page.includes('Meeting resources'));
  assert.ok(page.includes('Follow-up checklist'));
 });
