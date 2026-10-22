@@ -29,9 +29,9 @@ export default async function MeetingsWorkspace(){
   accessibleFacilitatorIds.length?`facilitator_user_id.in.(${accessibleFacilitatorIds.join(",")})`:null,
   accessibleGroupIds.length?`group_id.in.(${accessibleGroupIds.join(",")})`:null
  ].filter(Boolean).join(",");
- const sessionFields="id,scheduled_start,status,facilitator_user_id,group_id,bible_study_id";
+ const sessionFields="id,scheduled_start,ended_at,status,facilitator_user_id,group_id,bible_study_id";
  let activeQuery=db.from("study_sessions").select(sessionFields).in("status",["scheduled","live"]).order("scheduled_start",{ascending:true}).limit(250);
- let pastQuery=db.from("study_sessions").select(sessionFields).eq("status","completed").order("scheduled_start",{ascending:false}).limit(50);
+ let pastQuery=db.from("study_sessions").select(sessionFields).eq("status","completed").order("ended_at",{ascending:false,nullsFirst:false}).limit(50);
  if(role!=="admin"){activeQuery=activeQuery.or(scopeFilter);pastQuery=pastQuery.or(scopeFilter);}
  const [{data:activeRows,error:activeError},{data:pastRows,error:pastError}]=await Promise.all([activeQuery,pastQuery]);
  if(activeError||pastError)throw new Error("Unable to load the Meetings workspace. Please try again.");
@@ -46,7 +46,7 @@ export default async function MeetingsWorkspace(){
  const overdue=visible.filter(x=>x.status==="scheduled"&&x.scheduled_start&&new Date(x.scheduled_start).getTime()<Date.now()).sort((a,b)=>new Date(a.scheduled_start!).getTime()-new Date(b.scheduled_start!).getTime());
  const live=visible.filter(x=>x.status==="live");
  const past=visible.filter(x=>x.status==="completed");
- const recentlyCompleted=[...past].sort((a,b)=>(b.scheduled_start?new Date(b.scheduled_start).getTime():0)-(a.scheduled_start?new Date(a.scheduled_start).getTime():0)).slice(0,6);
+ const recentlyCompleted=[...past].sort((a,b)=>(b.ended_at?new Date(b.ended_at).getTime():0)-(a.ended_at?new Date(a.ended_at).getTime():0)).slice(0,6);
  const activeLimitReached=(activeRows||[]).length===250;
  const completedLimitReached=(pastRows||[]).length===50;
  const tile="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm";
