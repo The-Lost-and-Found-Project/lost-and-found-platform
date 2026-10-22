@@ -7,10 +7,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { provisionMeetSpace } from "@/lib/google-meet/server";
 import { sendPushToUsers } from "@/lib/push/send";
 import { getEffectiveRole } from "@/lib/effective-role";
+import { ministryPortals } from "@/lib/ministry-hub";
 
 const val=(f:FormData,k:string)=>String(f.get(k)||"").trim()||null;
 const lines=(v:string|null)=>(v?v.split("\n").map(x=>x.trim()).filter(Boolean):[]);
-const ministrySlugs=new Set(["hearth","foundry","mens-study"]);
+const ministrySlugs=new Set(ministryPortals.map(ministry=>ministry.slug));
 const validUuid=(value:string|null)=>Boolean(value&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value));
 
 async function currentUser(){
