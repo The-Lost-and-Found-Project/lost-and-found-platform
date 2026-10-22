@@ -426,3 +426,12 @@ test("cancelled meetings explain why Daily Path cannot be released",()=>{
  assert.ok(page.includes('meeting.status==="cancelled"?<span'));
  assert.ok(page.includes('Daily Path is unavailable for cancelled meetings'));
 });
+
+
+test("meeting scheduler uses the same ministry portal slugs as its form",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ const form=read("app/admin/meetings/new/page.tsx");
+ assert.ok(actions.includes('import { ministryPortals } from "@/lib/ministry-hub"'));
+ assert.ok(actions.includes('const ministrySlugs=new Set(ministryPortals.map(ministry=>ministry.slug))'));
+ assert.ok(form.includes('ministryPortals.map(m=>({slug:m.slug,title:m.title}))'));
+});
