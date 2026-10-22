@@ -357,3 +357,13 @@ test("attendance and follow-up actions reject malformed UUIDs",()=>{
  assert.ok(actions.includes('!validUuid(sessionId)'));
  assert.ok(actions.includes('!validUuid(userId)'));
 });
+
+
+test("study scheduling and lifecycle writes require active accounts and valid IDs",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ assert.ok(actions.includes('select("role,preview_role,is_active")'));
+ assert.ok(actions.includes('if(profileError||!p||!p.is_active)throw new Error("Unable to verify an active account.")'));
+ assert.ok(actions.includes('if(!validUuid(groupId))'));
+ assert.ok(actions.includes('if(!validUuid(bibleStudyId))'));
+ assert.equal((actions.match(/if\(!validUuid\(sessionId\)\)throw new Error\("Invalid study session\."\)/g)||[]).length,3);
+});
