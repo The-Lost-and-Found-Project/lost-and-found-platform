@@ -447,3 +447,16 @@ test("meeting details gracefully handle hosts without RSVP migration",()=>{
  assert.ok(page.includes('confirmed??"Unavailable"'));
  assert.ok(page.includes('declined??"Unavailable"'));
 });
+
+
+test("stale live meetings prompt review without changing meeting state",()=>{
+ const overview=read("app/admin/meetings/page.tsx");
+ const detail=read("app/admin/meetings/[id]/page.tsx");
+ assert.ok(overview.includes('const staleLive=live.filter('));
+ assert.ok(overview.includes('24*60*60*1000'));
+ assert.ok(overview.includes('Marked live'));
+ assert.ok(overview.includes('A live status does not confirm that anyone is currently meeting'));
+ assert.ok(overview.includes('MARKED LIVE · REVIEW'));
+ assert.ok(detail.includes('const staleLive=meeting.status==="live"'));
+ assert.ok(detail.includes('no status is changed automatically'));
+});
