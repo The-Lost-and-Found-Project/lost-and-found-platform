@@ -380,3 +380,14 @@ test("live meeting route rejects malformed session IDs before querying",()=>{
  const page=read("app/live/[sessionId]/page.tsx");
  assert.ok(page.includes('}$/i.test(sessionId))redirect("/events")'));
 });
+
+
+test("meeting overview applies facilitator and group permissions before row limits",()=>{
+ const page=read("app/admin/meetings/page.tsx");
+ assert.ok(page.includes('const accessibleFacilitatorIds=[...facilitatorIds]'));
+ assert.ok(page.includes('const accessibleGroupIds=[...ownGroups]'));
+ assert.ok(page.includes('activeQuery=activeQuery.or(scopeFilter)'));
+ assert.ok(page.includes('pastQuery=pastQuery.or(scopeFilter)'));
+ assert.ok(page.indexOf('activeQuery=activeQuery.or(scopeFilter)')<page.indexOf('await Promise.all([activeQuery,pastQuery])'));
+ assert.ok(page.includes('const visible=(rows||[]).filter'));
+});
