@@ -471,3 +471,12 @@ test("assigned gatherings stay visible but RSVP controls are disabled without RS
  assert.ok(events.includes('{rsvpAvailable?<div className="mt-5 flex flex-wrap gap-2">'));
  assert.ok(events.includes('RSVP responses are unavailable until the database update is installed'));
 });
+
+
+test("ministry portals retain meeting assignments without RSVP columns",()=>{
+ const page=read("app/ministries/[slug]/page.tsx");
+ assert.ok(page.includes('assignmentQueryError?.code==="42703"'));
+ assert.ok(page.includes('select("study_session_id,study_sessions('));
+ assert.ok(page.includes('if(fallback.error)throw new Error("Unable to load assigned ministry sessions.")'));
+ assert.ok(page.includes('else if(assignmentQueryError)throw new Error("Unable to load assigned ministry sessions.")'));
+});
