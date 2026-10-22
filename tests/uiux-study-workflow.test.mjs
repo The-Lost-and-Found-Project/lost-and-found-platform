@@ -460,3 +460,14 @@ test("stale live meetings prompt review without changing meeting state",()=>{
  assert.ok(detail.includes('const staleLive=meeting.status==="live"'));
  assert.ok(detail.includes('no status is changed automatically'));
 });
+
+
+test("assigned gatherings stay visible but RSVP controls are disabled without RSVP migration",()=>{
+ const events=read("app/events/page.tsx");
+ assert.ok(events.includes('if(assignmentQueryError?.code==="42703")'));
+ assert.ok(events.includes('select("study_session_id,study_sessions('));
+ assert.ok(events.includes('rsvpAvailable=false'));
+ assert.ok(events.includes('else if(assignmentQueryError)throw new Error("Unable to load assigned gatherings.")'));
+ assert.ok(events.includes('{rsvpAvailable?<div className="mt-5 flex flex-wrap gap-2">'));
+ assert.ok(events.includes('RSVP responses are unavailable until the database update is installed'));
+});
