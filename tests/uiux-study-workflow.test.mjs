@@ -435,3 +435,15 @@ test("meeting scheduler uses the same ministry portal slugs as its form",()=>{
  assert.ok(actions.includes('const ministrySlugs=new Set(ministryPortals.map(ministry=>ministry.slug))'));
  assert.ok(form.includes('ministryPortals.map(m=>({slug:m.slug,title:m.title}))'));
 });
+
+
+test("meeting details gracefully handle hosts without RSVP migration",()=>{
+ const page=read("app/admin/meetings/[id]/page.tsx");
+ assert.ok(page.includes('if(attendeesQueryError?.code==="42703")'));
+ assert.ok(page.includes('const fallback=await db.from("study_session_participants").select("user_id")'));
+ assert.ok(page.includes('attendeesError=fallback.error'));
+ assert.ok(page.includes('rsvpAvailable=false'));
+ assert.ok(page.includes('RSVP tracking is unavailable until its database migration is installed'));
+ assert.ok(page.includes('confirmed??"Unavailable"'));
+ assert.ok(page.includes('declined??"Unavailable"'));
+});
