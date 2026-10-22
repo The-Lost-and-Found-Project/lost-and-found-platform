@@ -406,3 +406,15 @@ test("meeting detail rejects malformed identifiers before database access",()=>{
  assert.ok(page.includes('}$/i.test(id))notFound()'));
  assert.ok(page.indexOf('}$/i.test(id))notFound()')<page.indexOf('const s=await createClient()'));
 });
+
+
+test("cancelled meetings cannot reopen rooms, provision links, or be ended",()=>{
+ const page=read("app/admin/meetings/[id]/page.tsx");
+ const actions=read("app/admin/studies/actions.ts");
+ assert.ok(page.includes('const canOpenMeeting=meeting.status==="scheduled"||meeting.status==="live"'));
+ assert.ok(page.includes('{canOpenMeeting&&<Link href={`/live/${id}`}'));
+ assert.ok(page.includes(':canOpenMeeting&&<form action={provisionLiveSession}>'));
+ assert.ok(page.includes('{canOpenMeeting?<form action={endStudySession}>'));
+ assert.ok(actions.includes('if(!["scheduled","live"].includes(session.status))throw new Error("Only active meetings can create Meet links.")'));
+ assert.ok(actions.includes('if(!["scheduled","live"].includes(session.status))throw new Error("Only scheduled or live meetings can be ended.")'));
+});
