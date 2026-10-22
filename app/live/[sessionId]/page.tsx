@@ -8,7 +8,7 @@ import LfLiveTimingControl from "@/components/LfLiveTimingControl";
 
 export const dynamic="force-dynamic";
 export default async function LiveRoomPage({params}:{params:Promise<{sessionId:string}>}){
- const{sessionId}=await params;const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect(`/login?next=/live/${sessionId}`);
+ const{sessionId}=await params;if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId))redirect("/events");const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect(`/login?next=/live/${sessionId}`);
  const db=createAdminClient();
  const[{data:profile,error:profileError},{data:session,error:sessionError},{data:extensions,error:extensionsError},{data:participant,error:participantError}]=await Promise.all([
   db.from("profiles").select("role,preview_role,is_active").eq("id",user.id).maybeSingle(),
