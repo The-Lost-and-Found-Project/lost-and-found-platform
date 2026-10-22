@@ -374,3 +374,9 @@ test("scheduler validates participant and facilitator identifiers before saving"
  assert.ok(actions.includes('participantIds.some(id=>!validUuid(id))'));
  assert.ok(actions.includes('facilitatorUserId&&!validUuid(facilitatorUserId)'));
 });
+
+
+test("live meeting route rejects malformed session IDs before querying",()=>{
+ const page=read("app/live/[sessionId]/page.tsx");
+ assert.ok(page.includes('}$/i.test(sessionId))redirect("/events")'));
+});
