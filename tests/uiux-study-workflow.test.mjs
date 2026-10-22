@@ -349,3 +349,11 @@ test("meeting management pages and actions require an active account",()=>{
   assert.ok(source.includes('!profile.is_active')||source.includes('!p.is_active'),path);
  }
 });
+
+
+test("attendance and follow-up actions reject malformed UUIDs",()=>{
+ const actions=read("app/admin/meetings/attendance-actions.ts");
+ assert.ok(actions.includes('const validUuid=(value:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)'));
+ assert.ok(actions.includes('!validUuid(sessionId)'));
+ assert.ok(actions.includes('!validUuid(userId)'));
+});
