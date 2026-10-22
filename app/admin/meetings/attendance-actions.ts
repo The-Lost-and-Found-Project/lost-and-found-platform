@@ -4,6 +4,8 @@ import {createClient} from "@/lib/supabase/server";
 import {createAdminClient} from "@/lib/supabase/admin";
 import {getEffectiveRole,canManageStudies} from "@/lib/effective-role";
 
+const validUuid=(value:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
 async function authorizeMeeting(sessionId:string){
  const s=await createClient();const {data:{user}}=await s.auth.getUser();if(!user)throw new Error("Sign in required.");
  const {data:p,error:profileError}=await s.from("profiles").select("role,preview_role,is_active").eq("id",user.id).maybeSingle();
@@ -24,7 +26,7 @@ async function authorizeMeeting(sessionId:string){
 export async function saveMeetingFollowup(form:FormData){
  const sessionId=String(form.get("session_id")||"");const field=String(form.get("field")||"");
  const fields=["attendance_reviewed","participant_followup_done","resources_shared","next_meeting_planned"] as const;
- if(!/^[0-9a-f-]{36}$/i.test(sessionId)||!fields.some(f=>f===field))throw new Error("Invalid follow-up request.");
+ if(!validUuid(sessionId)||!fields.some(f=>f===field))throw new Error("Invalid follow-up request.");
  const {db,user}=await authorizeMeeting(sessionId);
  // Ensure the row exists without overwriting another facilitator's checklist updates.
  const {error:initError}=await db.from("study_session_followup").upsert({session_id:sessionId},{onConflict:"session_id",ignoreDuplicates:true});
@@ -39,7 +41,7 @@ export async function saveMeetingAttendance(form:FormData){
  const sessionId=String(form.get("session_id")||"");
  const userId=String(form.get("user_id")||"");
  const status=String(form.get("status")||"");
- if(!/^[0-9a-f-]{36}$/i.test(sessionId)||!/^[0-9a-f-]{36}$/i.test(userId)||!["present","absent","excused","unmarked"].includes(status))throw new Error("Invalid attendance request.");
+ if(!/^[0-9a-f-]{36}$/i.test(sessionId)||!validUuid(userId)||!["present","absent","excused","unmarked"].includes(status))throw new Error("Invalid attendance request.");
  const {db,user}=await authorizeMeeting(sessionId);
  const {data:assigned,error:assignedError}=await db.from("study_session_participants").select("user_id").eq("study_session_id",sessionId).eq("user_id",userId).maybeSingle();
  if(assignedError)throw new Error("Unable to verify participant assignment.");
