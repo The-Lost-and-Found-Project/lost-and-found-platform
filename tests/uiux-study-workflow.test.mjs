@@ -391,3 +391,11 @@ test("meeting overview applies facilitator and group permissions before row limi
  assert.ok(page.indexOf('activeQuery=activeQuery.or(scopeFilter)')<page.indexOf('await Promise.all([activeQuery,pastQuery])'));
  assert.ok(page.includes('const visible=(rows||[]).filter'));
 });
+
+
+test("recent completed meetings use actual completion timestamp",()=>{
+ const page=read("app/admin/meetings/page.tsx");
+ assert.ok(page.includes('scheduled_start,ended_at,status'));
+ assert.ok(page.includes('.eq("status","completed").order("ended_at",{ascending:false,nullsFirst:false})'));
+ assert.ok(page.includes('b.ended_at?new Date(b.ended_at).getTime():0'));
+});
