@@ -418,3 +418,10 @@ test("cancelled meetings cannot reopen rooms, provision links, or be ended",()=>
  assert.ok(actions.includes('if(!["scheduled","live"].includes(session.status))throw new Error("Only active meetings can create Meet links.")'));
  assert.ok(actions.includes('if(!["scheduled","live"].includes(session.status))throw new Error("Only scheduled or live meetings can be ended.")'));
 });
+
+
+test("cancelled meetings explain why Daily Path cannot be released",()=>{
+ const page=read("app/admin/meetings/[id]/page.tsx");
+ assert.ok(page.includes('meeting.status==="cancelled"?<span'));
+ assert.ok(page.includes('Daily Path is unavailable for cancelled meetings'));
+});
