@@ -367,3 +367,10 @@ test("study scheduling and lifecycle writes require active accounts and valid ID
  assert.ok(actions.includes('if(!validUuid(bibleStudyId))'));
  assert.equal((actions.match(/if\(!validUuid\(sessionId\)\)throw new Error\("Invalid study session\."\)/g)||[]).length,3);
 });
+
+
+test("scheduler validates participant and facilitator identifiers before saving",()=>{
+ const actions=read("app/admin/studies/actions.ts");
+ assert.ok(actions.includes('participantIds.some(id=>!validUuid(id))'));
+ assert.ok(actions.includes('facilitatorUserId&&!validUuid(facilitatorUserId)'));
+});
