@@ -399,3 +399,10 @@ test("recent completed meetings use actual completion timestamp",()=>{
  assert.ok(page.includes('.eq("status","completed").order("ended_at",{ascending:false,nullsFirst:false})'));
  assert.ok(page.includes('b.ended_at?new Date(b.ended_at).getTime():0'));
 });
+
+
+test("meeting detail rejects malformed identifiers before database access",()=>{
+ const page=read("app/admin/meetings/[id]/page.tsx");
+ assert.ok(page.includes('}$/i.test(id))notFound()'));
+ assert.ok(page.indexOf('}$/i.test(id))notFound()')<page.indexOf('const s=await createClient()'));
+});
