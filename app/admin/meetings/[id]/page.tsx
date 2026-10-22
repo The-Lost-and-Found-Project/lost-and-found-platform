@@ -8,6 +8,7 @@ import {endStudySession,provisionLiveSession,releaseDailyPath} from "@/app/admin
 export const dynamic="force-dynamic";
 export default async function MeetingDetail({params}:{params:Promise<{id:string}>}){
  const {id}=await params;
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))notFound();
  const s=await createClient();const {data:{user}}=await s.auth.getUser();
  if(!user)redirect("/login?next=%2Fadmin%2Fmeetings");
  const {data:profile,error:profileError}=await s.from("profiles").select("role,preview_role,is_active").eq("id",user.id).maybeSingle();
