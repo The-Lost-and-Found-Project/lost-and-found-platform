@@ -16,18 +16,26 @@ export default async function MeetingsWorkspace(){
  if(!canManageStudies(role))redirect("/dashboard");
  const db=createAdminClient();
 
- const [{data:activeRows,error:activeError},{data:pastRows,error:pastError}]=await Promise.all([
- db.from("study_sessions").select("id,scheduled_start,status,facilitator_user_id,group_id,bible_study_id").in("status",["scheduled","live"]).order("scheduled_start",{ascending:true}).limit(250),
- db.from("study_sessions").select("id,scheduled_start,status,facilitator_user_id,group_id,bible_study_id").eq("status","completed").order("scheduled_start",{ascending:false}).limit(50)
- ]);
- if(activeError||pastError)throw new Error("Unable to load the Meetings workspace. Please try again.");
- const rows=[...(activeRows||[]),...(pastRows||[])];
  const {data:membership,error:membershipError}=role==="admin"?{data:[],error:null}:await db.from("study_group_members").select("group_id,group_role").eq("user_id",user.id).eq("membership_status","active");
  const {data:supervised,error:supervisedError}=role==="supervisor"?await db.from("facilitator_supervision").select("facilitator_user_id").eq("supervisor_user_id",user.id):{data:[] as {facilitator_user_id:string}[],error:null};
  const facilitatorIds=new Set([user.id,...(supervised||[]).map(x=>x.facilitator_user_id)]);
  const {data:supervisedGroups,error:supervisedGroupsError}=role==="supervisor"&&facilitatorIds.size?await db.from("study_group_members").select("group_id,user_id,group_role").in("user_id",[...facilitatorIds]).eq("group_role","facilitator").eq("membership_status","active"):{data:[] as {group_id:string;user_id:string;group_role:string}[],error:null};
  if(membershipError||supervisedError||supervisedGroupsError)throw new Error("Unable to verify meeting access. Please try again.");
  const ownGroups=new Set([...(membership||[]).filter(x=>x.group_role==="facilitator").map(x=>x.group_id),...(supervisedGroups||[]).map(x=>x.group_id)]);
+ const accessibleFacilitatorIds=[...facilitatorIds];
+ const accessibleGroupIds=[...ownGroups];
+ // Filter by authorized scope in SQL before applying row limits; global limits can hide a facilitator's meetings.
+ const scopeFilter=[
+  accessibleFacilitatorIds.length?`facilitator_user_id.in.(${accessibleFacilitatorIds.join(",")})`:null,
+  accessibleGroupIds.length?`group_id.in.(${accessibleGroupIds.join(",")})`:null
+ ].filter(Boolean).join(",");
+ const sessionFields="id,scheduled_start,status,facilitator_user_id,group_id,bible_study_id";
+ let activeQuery=db.from("study_sessions").select(sessionFields).in("status",["scheduled","live"]).order("scheduled_start",{ascending:true}).limit(250);
+ let pastQuery=db.from("study_sessions").select(sessionFields).eq("status","completed").order("scheduled_start",{ascending:false}).limit(50);
+ if(role!=="admin"){activeQuery=activeQuery.or(scopeFilter);pastQuery=pastQuery.or(scopeFilter);}
+ const [{data:activeRows,error:activeError},{data:pastRows,error:pastError}]=await Promise.all([activeQuery,pastQuery]);
+ if(activeError||pastError)throw new Error("Unable to load the Meetings workspace. Please try again.");
+ const rows=[...(activeRows||[]),...(pastRows||[])];
  const visible=(rows||[]).filter(x=>role==="admin"||(x.facilitator_user_id&&facilitatorIds.has(x.facilitator_user_id))||(x.group_id&&ownGroups.has(x.group_id)));
  const studyIds=[...new Set(visible.map(x=>x.bible_study_id).filter(Boolean))];
  const groupIds=[...new Set(visible.map(x=>x.group_id).filter(Boolean))];
