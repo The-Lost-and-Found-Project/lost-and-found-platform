@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(10);
+select plan(13);
 
 -- Synthetic users and curriculum; the transaction is rolled back.
 insert into auth.users(id,instance_id,aud,role,email,created_at,updated_at)
@@ -15,6 +15,12 @@ values ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-00000000
 insert into public.study_session_participants(study_session_id,user_id)
 values ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b11'),
 ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b12');
+-- A second assigned session deliberately stays unreleased.
+insert into public.study_sessions(id,bible_study_id,ministry_slug,scheduled_start)
+values ('00000000-0000-4000-8000-000000000b23','00000000-0000-4000-8000-000000000b21','hearth',now());
+insert into public.study_session_participants(study_session_id,user_id)
+values ('00000000-0000-4000-8000-000000000b23','00000000-0000-4000-8000-000000000b11');
+
 insert into public.study_daily_responses(study_session_id,user_id,day_number,response_type,response_text,locked_at)
 values ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b11',1,'private_journal','A private note',null),
 ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b12',1,'private_journal','B private note',null),
@@ -22,7 +28,14 @@ values ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-00000000
 
 select set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000b11',true);
 set local role authenticated;
-select is((select count(*)::integer from public.study_session_participants),1,'assigned member sees own study assignment');
+select is((select count(*)::integer from public.study_session_participants),2,'assigned member sees only own study assignments');
+select ok(not public.is_daily_path_day_unlocked(auth.uid(),'00000000-0000-4000-8000-000000000b23',1),'assigned member cannot open unreleased Daily Path');
+select throws_ok($insert into public.study_daily_progress(study_session_id,user_id,day_number)
+values ('00000000-0000-4000-8000-000000000b23','00000000-0000-4000-8000-000000000b11',1)$,'42501',null,
+'unreleased session blocks daily progress');
+select throws_ok($insert into public.study_daily_responses(study_session_id,user_id,day_number,response_type,response_text)
+values ('00000000-0000-4000-8000-000000000b23','00000000-0000-4000-8000-000000000b11',1,'private_journal','premature')$,'42501',null,
+'unreleased session blocks private journal submission');
 select is((select count(*)::integer from public.study_daily_responses where response_type='private_journal'),1,
 'member A cannot read member B private journal');
 select is((select count(*)::integer from public.study_daily_responses where response_type='group_response'),0,
