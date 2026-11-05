@@ -21,7 +21,7 @@ async function harness() {
       then(resolve,reject){return Promise.resolve(execute(false)).then(resolve,reject)}
     };
     function matches(row){return filters.every(([key,value])=>row[key]===value)}
-    function execute(optional) {
+    function execute() {
       if(table!=="giving_communications")throw Error("Unexpected table "+table);
       if(operation==="select")return {data:rows.find(matches)||null,error:null};
       if(operation==="insert") {
@@ -43,9 +43,9 @@ async function harness() {
     insert(row){return query(table,"insert",row);},
     update(row){return query(table,"update",row);}
   }}};
-  const module={exports:{}};
+  const mockModule={exports:{}};
   const sandbox={
-    module,exports:module.exports,
+    module:mockModule,exports:mockModule.exports,
     require(spec){
       if(spec==="server-only")return {};
       if(spec==="@/lib/supabase/admin")return {createAdminClient:()=>db};
@@ -58,7 +58,7 @@ async function harness() {
   };
   vm.runInNewContext(code,sandbox,{filename:"giving-email.mocked.js"});
   return {
-    send:module.exports.sendGivingEmail,
+    send:mockModule.exports.sendGivingEmail,
     rows,
     failOnce:()=>{failures=1;},
     sendCount:()=>sends
