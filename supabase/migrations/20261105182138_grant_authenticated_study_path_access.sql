@@ -19,6 +19,7 @@ begin
   grant insert, update, delete on table public.study_daily_progress to authenticated;
  end if;
  if to_regclass('public.study_daily_responses') is not null then
+  revoke delete on table public.study_daily_responses from authenticated;
   grant insert, update on table public.study_daily_responses to authenticated;
  end if;
 end;
