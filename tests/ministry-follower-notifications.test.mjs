@@ -17,7 +17,9 @@ test("ministry follower dispatch only uses server admin client after scoped mana
 
 test("notifications are dispatched only after successful publish actions",async()=>{
  const source=await readFile(sourcePath,"utf8");
- assert.match(source,/if\(error\)throw new Error\(error\.message\);if\(publish\)await notifyFollowers\(ministry_slug,title,contentType\)/);
- assert.match(source,/if\(error\)throw new Error\(error\.message\);if\(!is_published&&item\)await notifyFollowers\(ministry_slug,item\.title,item\.content_type\)/);
+ assert.match(source,/if\(error\)throw new Error\(error\.message\);if\(publish\)await dispatchFollowerNotice\(ministry_slug,title,contentType\)/);
+ assert.match(source,/if\(error\)throw new Error\(error\.message\);if\(!is_published&&item\)await dispatchFollowerNotice\(ministry_slug,item\.title,item\.content_type\)/);
  assert.match(source,/if\(memberError\)throw new Error/);
+ assert.match(source,/try\{await notifyFollowers\(slug,title,contentType\);\}/);
+ assert.match(source,/catch\(error\)/);
 });
