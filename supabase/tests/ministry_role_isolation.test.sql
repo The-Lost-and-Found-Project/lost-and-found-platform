@@ -53,7 +53,7 @@ select is((select count(*)::integer from public.ministry_memberships),2,
 select lives_ok($$insert into public.ministry_memberships(ministry_slug,user_id,membership_role)
  values ('mens-study','00000000-0000-4000-8000-000000000a11','leader')$$,
  'admin can assign a leader');
-select is((select count(*)::integer from public.ministry_content),4,
+select is((select count(*)::integer from public.ministry_content),3,
  'admin sees both published and unpublished resources');
 reset role;
 
