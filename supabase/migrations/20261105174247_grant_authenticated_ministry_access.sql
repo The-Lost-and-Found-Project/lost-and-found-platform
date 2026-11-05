@@ -8,6 +8,7 @@ begin
     'study_sessions','study_session_participants'
   ] loop
     if to_regclass(format('public.%I',table_name)) is not null then
+      execute format('revoke all on table public.%I from public, anon',table_name);
       execute format('grant select on table public.%I to authenticated',table_name);
     end if;
   end loop;
