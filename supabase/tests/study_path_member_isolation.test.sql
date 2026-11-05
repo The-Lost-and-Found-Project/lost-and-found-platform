@@ -8,10 +8,10 @@ values
 ('00000000-0000-4000-8000-000000000b11','00000000-0000-0000-0000-000000000000','authenticated','authenticated','daily-path-a@example.test',now(),now()),
 ('00000000-0000-4000-8000-000000000b12','00000000-0000-0000-0000-000000000000','authenticated','authenticated','daily-path-b@example.test',now(),now());
 
-insert into public.bible_studies(id,title,is_published)
-values ('00000000-0000-4000-8000-000000000b21','Synthetic Scripture Study',true);
-insert into public.study_sessions(id,bible_study_id,ministry_slug,scheduled_start)
-values ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b21','hearth',now());
+insert into public.bible_studies(id,title,is_published,devotional_cards)
+values ('00000000-0000-4000-8000-000000000b21','Synthetic Scripture Study',true,'[{"day":1}]'::jsonb);
+insert into public.study_sessions(id,bible_study_id,ministry_slug,scheduled_start,daily_path_released_at)
+values ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b21','hearth',now(),now()-interval '1 hour');
 insert into public.study_session_participants(study_session_id,user_id)
 values ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b11'),
 ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b12');
