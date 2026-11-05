@@ -3,7 +3,7 @@ create extension if not exists pgtap with schema extensions;
 select plan(9);
 
 select ok(not has_function_privilege('anon','public.is_lfp_admin(uuid)','EXECUTE'),
- 'anonymous role cannot probe another user's admin status');
+ 'anonymous role cannot probe another account admin status');
 select ok(not has_function_privilege('anon','public.is_study_group_facilitator(uuid,uuid)','EXECUTE'),
  'anonymous role cannot probe facilitator membership');
 select ok(not has_function_privilege('anon','public.has_locked_group_response(uuid,uuid,integer)','EXECUTE'),
