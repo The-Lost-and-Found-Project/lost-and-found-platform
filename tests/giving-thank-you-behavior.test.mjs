@@ -88,3 +88,12 @@ test("already pending thank-you never resends without verified retry state",asyn
  assert.equal(result.skipped,true);
  assert.equal(h.sendCount(),0);
 });
+
+test("overlapping webhook and manual sync attempts produce only one provider send",async()=>{
+ const h=await harness();
+ const outcomes=await Promise.all([h.send(message),h.send(message)]);
+ assert.equal(h.rows.length,1);
+ assert.equal(h.sendCount(),1);
+ assert.equal(outcomes.filter(x=>x.sent===true).length,1);
+ assert.equal(outcomes.filter(x=>x.skipped===true).length,1);
+});
