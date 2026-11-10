@@ -10,7 +10,7 @@ async function harness() {
   const source=await readFile(new URL("../lib/giving-email.ts",import.meta.url),"utf8");
   const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
   const rows=[];
-  let failures=0,sends=0,failSentRecord=false;
+  let failures=0,sends=0,failSentRecord=false,networkFail=false,serverFail=false;
   const outbound=[];
   function query(table,operation,payload){
     const filters=[];
@@ -54,7 +54,7 @@ async function harness() {
       throw Error("Unexpected import "+spec);
     },
     process:{env:{RESEND_API_KEY:"test-only",NEXT_PUBLIC_APP_URL:"https://example.test"}},
-    fetch:async(url,options)=>{outbound.push({url,headers:options.headers,body:options.body});sends++;if(failures-->0)return {ok:false,status:503,json:async()=>({message:"mock provider failure"})};return {ok:true,json:async()=>({id:"mock-provider-"+sends})};},
+    fetch:async(url,options)=>{outbound.push({url,headers:options.headers,body:options.body});sends++;if(networkFail)throw Error("simulated connection lost");if(serverFail)return {ok:false,status:503,json:async()=>({message:"mock ambiguous server error"})};if(failures-->0)return {ok:false,status:400,json:async()=>({message:"mock provider failure"})};return {ok:true,json:async()=>({id:"mock-provider-"+sends})};},
     console:{error(){}},
     Date,Error,Promise,JSON,String,Boolean
   };
@@ -63,6 +63,8 @@ async function harness() {
     send:mockModule.exports.sendGivingEmail,
     rows,
     failOnce:()=>{failures=1;},
+    failNetwork:()=>{networkFail=true;},
+    failServer:()=>{serverFail=true;},
     failSuccessRecording:()=>{failSentRecord=true;},
     sendCount:()=>sends,
     outbound:()=>outbound
@@ -123,5 +125,26 @@ test("provider success followed by database failure remains pending for reconcil
  assert.equal(h.rows[0].status,"pending");
  const repeat=await h.send(message);
  assert.equal(repeat.skipped,true);
+ assert.equal(h.sendCount(),1);
+});
+
+test("network transport failure remains pending and is never automatically retried",async()=>{
+ const h=await harness();
+ h.failNetwork();
+ await assert.rejects(h.send(message),/outcome uncertain after network failure/);
+ assert.equal(h.rows[0].status,"pending");
+ assert.equal(h.sendCount(),1);
+ const r=await h.send(message);
+ assert.equal(r.skipped,true);
+ assert.equal(h.sendCount(),1);
+});
+
+test("provider 5xx response stays pending rather than becoming retryable",async()=>{
+ const h=await harness();
+ h.failServer();
+ await assert.rejects(h.send(message),/outcome uncertain after provider server error/);
+ assert.equal(h.rows[0].status,"pending");
+ const r=await h.send(message);
+ assert.equal(r.skipped,true);
  assert.equal(h.sendCount(),1);
 });
