@@ -60,4 +60,15 @@ ${check}
 ROLLBACK;`;
 run("legacy policy drift corrects in a rolled-back transaction",legacy);
 run("modern baseline repair is idempotent",`BEGIN;\n${sql}\n${check}\nROLLBACK;`);
+const rejection=spawnSync("psql",["-X","-v","ON_ERROR_STOP=1","-q","-d",db],{
+ input:`BEGIN;
+CREATE POLICY "unexpected permissive probe" ON public.study_daily_progress
+FOR SELECT TO authenticated USING (true);
+${sql}
+ROLLBACK;`,
+ encoding:"utf8",timeout:30000
+});
+assert.notEqual(rejection.status,0,"Unexpected permissive policy must block migration");
+assert.match(rejection.stderr||"","unexpected Daily Path RLS policy inventory","Expected deliberate preflight rejection");
+console.log("PASS unexpected permissive policy fails closed (transaction discarded)");
 console.log("No hosted connection; no permanent data or history changes.");
