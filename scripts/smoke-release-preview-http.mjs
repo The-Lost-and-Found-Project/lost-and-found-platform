@@ -51,7 +51,21 @@ try {
     assert.match(response.headers.get("cache-control") || "", /no-store/);
     assert.equal(response.headers.get("x-robots-tag"), "noindex");
   }
-  console.log("PASS: release Preview blocks six real HTTP page/API routes (503, no-store, noindex)");
+  // POST routes are particularly important: a GET-only check cannot prove
+  // that webhook and mutation handlers are intercepted before side effects.
+  for (const path of ["/api/integrations/zeffy/webhook", "/api/cron/push-delivery"]) {
+    const response = await fetch(origin + path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+      redirect: "manual",
+      signal: AbortSignal.timeout(3000),
+    });
+    assert.equal(response.status, 503, path + " POST must be denied before handler execution");
+    assert.match(await response.text(), /Release preview disabled until isolated staging is verified/);
+    assert.match(response.headers.get("cache-control") || "", /no-store/);
+  }
+  console.log("PASS: release Preview blocks six GET and two POST HTTP requests (503, no-store, noindex)");
 } finally {
   child.kill("SIGTERM");
   await pause(400);
