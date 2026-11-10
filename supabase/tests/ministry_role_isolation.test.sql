@@ -2,6 +2,19 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select plan(11);
 
+-- This older fresh-local baseline lacks the production notifications table.
+-- Model only the required contract inside this rolled-back role test.
+create table if not exists public.notifications (
+ id uuid primary key default gen_random_uuid(),
+ user_id uuid not null,
+ type text not null,
+ title text not null,
+ body text,
+ link text,
+ push_status text not null default 'pending'
+);
+
+
 -- Synthetic users and ministry records exist only inside this rolled-back test.
 insert into auth.users(id,instance_id,aud,role,email,created_at,updated_at)
 values
