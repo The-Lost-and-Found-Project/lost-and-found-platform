@@ -8,6 +8,15 @@ import { NextResponse, type NextRequest } from "next/server";
 function unsafeReleasePreview() {
   if (process.env.VERCEL_ENV !== "preview") return false;
   if (process.env.LFP_RELEASE_PREVIEW_ISOLATED !== "true") return true;
+  // Never allow this release Preview to carry live-provider credentials.
+  // Staging uses synthetic users and local/mocked delivery until reviewed
+  // sandbox integrations are explicitly implemented. Production is unaffected.
+  const outboundCredentials = [
+    "RESEND_API_KEY", "VAPID_PRIVATE_KEY", "DAILY_API_KEY", "DAILY_DOMAIN",
+    "ZEFFY_API_KEY", "OPENAI_API_KEY", "TURNSTILE_SECRET_KEY",
+    "INTERNAL_API_SECRET", "CRON_SECRET",
+  ];
+  if (outboundCredentials.some((key) => !!process.env[key])) return true;
   // An operator's flag alone does not establish isolation. Refuse a preview
   // pointed at the known hosted L&F Production project, malformed URLs, and
   // missing destinations. Other credentials and outbound mocks still require
