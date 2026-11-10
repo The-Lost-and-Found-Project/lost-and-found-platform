@@ -1,21 +1,21 @@
 # L&F consolidated release — operator checklist
 
 **Candidate:** PR #178, base `main`. **Tracking:** #174. **Staging isolation:** #179.  
-**Status:** authorized to advance by project owner on 2026-11-10; do not promote a release that has not satisfied the gates below.  
+**Status:** owner authorized release work and explicitly selected **owner-led security review with documented risk** on 2026-11-10. Independent sign-off is **waived by the owner**, not claimed as performed. Do not promote until technical safety gates below pass.  
 **Scope:** database grants and RLS, verified donor history, giving email reliability, ministry/study authorization, atomic follower notifications and notification schema.
 
 ## Known passing evidence
 
-- GitHub **Quality** and **Database Tests** were successful at candidate `f6d427816c59e4984a71c75e241d2afb4726f275`; verify **the exact current head** again before release.
-- Local isolated Supabase: 231 of 231 pgTAP assertions over 20 SQL test files on an earlier compatible release head; database CI should be checked again after any future migration change.
+- GitHub **Quality** and **Database Tests** were successful at candidate `a3879f437ce32b883f7de2f6880d4cab067e3ac1`; verify **the exact current head** again before release.
+- Local isolated Supabase: **242/242 pgTAP tests, 21 SQL files** including scoped authenticated leader publications and denied cross-ministry/member actions, on `a3879f4`; database CI should be rechecked after any migration change.
 - Local app: 219 of 219 tests, TypeScript, lint and Next.js build at `f6d4278`.
 - Hosted notifications baseline **read-only** inspected on 2026-11-10: all 20 migration-required columns/types match, RLS enabled, 3 relevant policies, `service_role` insert/update grants present.
 - New release migrations were **not yet applied** to hosted L&F Supabase at last read-only check.
 
 ## Hard pre-release gates
 
-1. **GitHub governance.** A read-only GitHub API audit on 2026-11-10 found `main` had no classic branch protection (`404 Branch not protected`) and no repository rulesets (`[]`). Do not assume CI or approvals are enforced server-side. Establish an appropriate non-disruptive protected-main policy with required GitHub Quality and Database Tests and independent reviewer eligibility before the release. With only one listed collaborator, a one-review requirement would prevent release until a qualified second reviewer is invited. Do not silently lock out the only maintainer or bypass review.
-2. **Independent code review.** GitHub collaborator metadata showed just one repository collaborator on 2026-11-10. An independent reviewer has not been established. Arrange an authorized reviewer to inspect the full diff, especially the `SECURITY DEFINER` trigger, donor verified-email lookup, giving retry uncertainty, and RLS grants; capture their approval in PR #178. The owner's broad release authorization is not a substitute for actual reviewer evidence.
+1. **Owner-led risk acceptance (accepted exception).** On 2026-11-10 the project owner expressly selected an owner-led security review for PR #178 rather than seeking a second reviewer. GitHub lists only one collaborator, and NO independent review has occurred. This increases the likelihood that a logic, RLS, email, or migration defect could escape review. An AI-assisted audit and automated tests are not an independent human approval; record this exception on #174/#180 and revisit after release. Do not claim a reviewer approved the PR.
+2. **GitHub governance (tracked post-release #180).** `main` has no classic branch protection or rulesets. Checks are verified manually on the **exact release SHA**, and the sole maintainer must not be locked out. Add a guarded branch/ruleset with required checks and at least one qualified reviewer when a second collaborator is available. This accepted governance gap does NOT waive technical safety checks.
 3. **Isolated staging.** Vercel Preview and Production environment scopes currently overlap for Supabase, Resend, VAPID, cron and other integrations. The release preview intentionally returns 503 unless `LFP_RELEASE_PREVIEW_ISOLATED=true` **and** its Supabase URL is a valid `https://*.supabase.co` address different from the known Production host. This is a second-line code safeguard, not verification of secret/key isolation. Never enable the flag until an independent operator verifies the Preview Supabase service-role credential is from a synthetic-only project, all outbound mail/push/payment jobs are sandboxed/disabled, and no Production secrets or member data are copied.
 4. **Cost-conscious acceptance.** Prefer disposable local Supabase with synthetic users to test member/admin/leader/study roles. A separately hosted staging Supabase project must be approved for its concrete cost before creation. Do not repurpose unrelated Emmaus, Rare, or Carolina Hope projects.
 5. **Synthetic end-to-end cases.** Test unauthorized member, leader and admin study access; private responses and session release locking; donor history with unverified vs verified email; duplicate/pending donation thank-you behavior with mocked Resend; publish/unpublish/republish, follower isolation, forced notification failure and existing push sweep. No real donor emails, payment sync or member pushes.
@@ -35,8 +35,8 @@
 
 ## Current blocking decisions
 
-- Independent reviewer identity/approval.
+- Owner-led review documented; independent-review exception accepted, not an outstanding hard gate. Add independent reviewer to post-release governance work (#180).
 - Isolated Preview backend/credential scope, mock mail and push, and cost approval if any additional hosted database is needed.
 - Approved release sequencing after staging acceptance.
 
-**Never set `LFP_RELEASE_PREVIEW_ISOLATED=true` based solely on a non-Production URL.** Confirm service credentials and outbound hooks independently. Never merge or deploy just because CI is green.
+**Never set `LFP_RELEASE_PREVIEW_ISOLATED=true` based solely on a non-Production URL.** Confirm service credentials and outbound hooks independently. Do not treat the owner-led review exception as permission to skip backend isolation, migration safety or deployment rollback checks.
