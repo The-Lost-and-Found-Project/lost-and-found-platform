@@ -28,3 +28,6 @@ for(const [name,hash] of expected){
 console.log("RELEASE SCOPE VALID: 8 reviewed November migration files and SHA-256 hashes match.");
 console.log("NO DATABASE ACTION TAKEN. Hosted history differs from repository (#181).");
 console.log("DO NOT run unrestricted 'supabase db push' against L&F Production.");
+
+// Reuse the single reviewed allowlist for offline bundle preparation.
+export {expected, directory};
