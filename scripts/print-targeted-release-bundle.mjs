@@ -78,6 +78,14 @@ BEGIN
  -- grants member write access; never make those grants until a separately
  -- reviewed correction is present. Checking *all* policy predicates prevents
  -- a same-name but weaker legacy policy from passing this gate.
+ -- PostgreSQL permissive RLS policies are OR-combined. Reject extra or
+ -- stale legacy policies even when the strict policies are also present.
+ IF (SELECT count(*) FROM pg_policies
+     WHERE schemaname='public' AND tablename='study_daily_progress') <> 1
+    OR (SELECT count(*) FROM pg_policies
+     WHERE schemaname='public' AND tablename='study_daily_responses') <> 3 THEN
+    RAISE EXCEPTION 'Release preflight: unexpected Daily Path policies may bypass release lock (#182)';
+ END IF;
  IF to_regprocedure('public.is_daily_path_day_unlocked(uuid,uuid,integer)') IS NULL
     OR NOT EXISTS (
       SELECT 1 FROM pg_policies WHERE schemaname='public'
