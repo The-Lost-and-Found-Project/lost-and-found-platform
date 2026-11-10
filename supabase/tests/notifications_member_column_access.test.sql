@@ -28,7 +28,7 @@ set local role authenticated;
 select lives_ok($stmt$update public.notifications set read_at=now() where user_id='00000000-0000-4000-8000-000000000e31'$stmt$,'member may mark own notice read');
 select is((select count(*)::integer from public.notifications where user_id='00000000-0000-4000-8000-000000000e31' and read_at is not null),1,
  'own notification read receipt was saved');
-select throws_ok($update public.notifications set push_status='sent' where user_id='00000000-0000-4000-8000-000000000e31'$$,
+select throws_ok($stmt$update public.notifications set push_status='sent' where user_id='00000000-0000-4000-8000-000000000e31'$stmt$,
  '42501',null,'member cannot falsify push delivery');
 select throws_ok($$update public.notifications set title='forged' where user_id='00000000-0000-4000-8000-000000000e31'$$,
  '42501',null,'member cannot tamper with notification content');
