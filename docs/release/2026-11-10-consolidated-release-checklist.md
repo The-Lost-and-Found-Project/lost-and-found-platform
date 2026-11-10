@@ -12,6 +12,14 @@
 - Hosted notifications baseline **read-only** inspected on 2026-11-10: all 20 migration-required columns/types match, RLS enabled, 3 relevant policies, `service_role` insert/update grants present.
 - New release migrations were **not yet applied** to hosted L&F Supabase at last read-only check.
 
+## Newly confirmed Production Daily Path blocker (#182)
+
+**HARD STOP — read-only catalog verification on 2026-11-10:** hosted L&F does **not** have `public.is_daily_path_day_unlocked(uuid,uuid,integer)`. Its `study_daily_progress` and `study_daily_responses` RLS still has the older participant-only rules, without the day-release predicate. At inspection, `authenticated` did **not** have INSERT/UPDATE privileges on those tables. However, **reviewed release migration #4 grants those privileges**, so applying the eight-file release to Production *before* restoring release-gated RLS may allow members to create/update unreleased daily responses.
+
+The offline targeted-bundle generator now contains a **preflight that aborts before any reviewed migration** unless the unlock helper and the four modern policy predicates are present. This correctly means the current hosted L&F schema is **not ready for the bundle**. The previously successful disposable-local rehearsal used modern repository migrations and therefore did not reproduce this hosted drift. Do not bypass this new gate or falsely claim the old rehearsal validates Production.
+
+**Resolution required:** prepare a separately reviewed, idempotent correction that establishes release-lock enforcement on the current hosted schema; test it against synthetic legacy and modern baselines without Production data; coordinate safe application and migration-history recording before #178. Continue to prohibit unrestricted `supabase db push` and preserve existing study journals, members, donor activity and push webhook. Owner-led review exception does not waive this technical blocker.
+
 ## Hard pre-release gates
 
 1. **Owner-led risk acceptance (accepted exception).** On 2026-11-10 the project owner expressly selected an owner-led security review for PR #178 rather than seeking a second reviewer. GitHub lists only one collaborator, and NO independent review has occurred. This increases the likelihood that a logic, RLS, email, or migration defect could escape review. An AI-assisted audit and automated tests are not an independent human approval; record this exception on #174/#180 and revisit after release. Do not claim a reviewer approved the PR.
@@ -84,6 +92,8 @@ Supabase CLI **v3** introduced a breaking change on 2026-11-04; current workstat
 - Record Production deployment ID, schema versions, CI, smoke test result and incident/rollback contact in #174.
 
 ## Current blocking decisions
+
+- **NEW #182:** Production Daily Path lacks the release-lock helper and gated RLS. The eight-file bundle now stops before DDL until a separate, tested correction is installed and verified. No release while this drift remains.
 
 - Owner-led review documented; independent-review exception accepted, not an outstanding hard gate. Add independent reviewer to post-release governance work (#180).
 - Migration history mismatch #181: confirm safe targeted eight-file execution and history recording with no bulk push, before any Production DDL.
