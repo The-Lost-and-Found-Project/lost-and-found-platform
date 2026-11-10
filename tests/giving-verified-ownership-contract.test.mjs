@@ -16,6 +16,6 @@ test("member giving pages rely on database RLS rather than interpolated email fi
 test("Zeffy email-to-account matching requires verified and stable account email",async()=>{
  const source=await readFile(new URL("lib/zeffy.ts",root),"utf8");
  assert.match(source,/!!u\.email_confirmed_at/);
- assert.match(source,/!u\.email_change/);
+ assert.match(source,/email_change" in u/);
  assert.match(source,/!u\.is_anonymous/);
 });
