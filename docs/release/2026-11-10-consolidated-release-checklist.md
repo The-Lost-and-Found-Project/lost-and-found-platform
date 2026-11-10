@@ -65,6 +65,14 @@ node scripts/print-targeted-release-bundle.mjs > /secure/path/lfp-reviewed-eight
 
 **Cutover gating still open:** an owner decision for local-only acceptance versus isolated hosted staging (#179), plus a confirmed production backup/rollback window. Owner-led review sign-off is documented separately and does not waive these runtime risks.
 
+## Verified hosted recovery status (read-only, 2026-11-10)
+
+Supabase CLI v2.120.0 `supabase backups list --project-ref lsxaadzyonvvdbzewpql` returned `walg_enabled=true`, `pitr_enabled=false`, and **seven completed physical backups**. The latest reported completed snapshot was **2026-11-10 08:44:04 UTC** (not a backup taken at cutover time). No restore was attempted and recoverability of an individual table or isolated object was not verified.
+
+**Release implication:** Vercel application rollback is available separately, but Supabase has **no point-in-time recovery** enabled; restoring the last whole-database backup could lose donor transactions, accounts and ministry activity added since that snapshot. Do not rely on this snapshot as a safe non-destructive rollback after hours of live use. Before running Production DDL, select a short maintenance window as close as possible to a recent completed backup, confirm recovery access and documented retention, and pause high-risk application admin writes. Keep old and new application versions schema-compatible so a failed UI release can roll back without restoring donor/member data. Do not enable billable PITR or copy/export Production data to staging without separate cost/privacy review. No backup operation was initiated by this read-only check.
+
+Supabase CLI **v3** introduced a breaking change on 2026-11-04; current workstation is pinned to v2.120.0 and the database CI to v2.110.0. Do not casually upgrade the migration operator CLI mid-release. <Link> is not required in runbook; see https://supabase.com/changelog/supabase-cli-v3 and https://supabase.com/docs/reference/cli/supabase-migration-repair.
+
 ## Deployment checklist (operator to execute only after gates)
 
 - Record current Production commit/deployment ID, approved candidate SHA and migration list; confirm backup/recovery route and notification/email kill switches.
