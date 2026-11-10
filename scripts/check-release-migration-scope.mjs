@@ -19,9 +19,20 @@ const expected=[
 ["20261110181936_restore_notifications_schema_baseline.sql","1664fa8b04b51fc47e08ef76f53b374c9d21270e7632e23dc633a615abf48478"],
 ["20261110194736_restrict_notification_member_update_columns.sql","b0797f2e9519bb9ad6c5b15387bcf3cf3b047866d9f2679212822a5a6f1b169c"]
 ];
+// #182 is an independently reviewed prerequisite to this eight-file release.
+// Its version is chronologically later than the eight files, so after PR #183
+// reaches main it will appear in GitHub's synthetic PR merge tree. Permit ONLY
+// its exact name and SHA-256; never include it in the eight-file SQL bundle.
+const prerequisite=[
+ "20261110224156_restore_daily_path_release_gate.sql",
+ "a725991258ae8b8b4cf65d02af56232db1c49e7d9ca0c8abdeae407453fac032"
+];
 const actual=readdirSync(directory).filter(x=>/^202611\d{8}_.*\.sql$/.test(x)).sort();
-assert.deepEqual(actual,expected.map(x=>x[0]),"Unexpected November migration file or version. Review #181 and amend the allowlist before release.");
-for(const [name,hash] of expected){
+const hasPrerequisite=actual.includes(prerequisite[0]);
+const allowed=expected.map(x=>x[0]);
+if(hasPrerequisite)allowed.push(prerequisite[0]);
+assert.deepEqual(actual,allowed.sort(),"Unexpected November migration file or version. Review #181 and amend the allowlist before release.");
+for(const [name,hash] of [...expected,...(hasPrerequisite?[prerequisite]:[])]){
  const actualHash=createHash("sha256").update(readFileSync(join(directory,name))).digest("hex");
  assert.equal(actualHash,hash,`Migration changed without review: ${name}. Re-review the SQL and update the manifest deliberately.`);
 }

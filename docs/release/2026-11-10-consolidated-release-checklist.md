@@ -52,6 +52,12 @@ Read-only production preflight: notification columns/types **20/20 match**, 3 ex
 
 **Residual risk held:** All Preview credentials are currently removed and Preview is intentionally locked. Local pgTAP, Auth/REST, and HTTP tests passed but hosted authenticated staging still has **not** been performed. The owner explicitly accepted owner-led (rather than independent) security review, **not** a hosted-staging waiver. Document an explicit decision on that distinct risk before deploying.
 
+## Corrective PR #183 merge compatibility
+
+PR #183 contains the separately reviewed prerequisite `20261110224156_restore_daily_path_release_gate.sql` (SHA-256 `a725991258ae8b8b4cf65d02af56232db1c49e7d9ca0c8abdeae407453fac032`). When it reaches `main`, GitHub's merge candidate for PR #178 will contain **nine November migration files** rather than eight. The release integrity checker now accepts that *one exact* additional file and hash, while rejecting a renamed, modified, or unrelated migration. The generated production SQL bundle still includes **only the eight separately reviewed PR #178 files**, never the #183 corrective SQL. Keep #183's deployment, history registration, and safety verification a distinct approved prerequisite; passing the merge check does not authorize automatic database deployment.
+
+The Daily Path page and server actions now share a release-timing helper. In addition to database RLS, it rejects future and invalid release timestamps instead of rendering Day 1 early. Test both rendering and RLS before releasing the application.
+
 ## Targeted bundle procedure — validated in disposable local Supabase
 
 The release branch includes `scripts/print-targeted-release-bundle.mjs`. It imports the exact reviewed list and SHA-256 hashes from `scripts/check-release-migration-scope.mjs`, prints **only SQL to stdout**, and never connects to any database or supplies credentials. A reviewer can generate a one-transaction bundle with:
