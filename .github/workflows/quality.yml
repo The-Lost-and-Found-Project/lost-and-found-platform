@@ -25,5 +25,8 @@ jobs:
         with:
           node-version: 22
 
+      - name: Verify reviewed release SQL allowlist and SHA-256 hashes
+        run: node scripts/check-release-migration-scope.mjs
+
       - run: npm install
       - run: npm run check
