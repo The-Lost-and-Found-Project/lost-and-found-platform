@@ -30,3 +30,6 @@ jobs:
 
       - run: npm install
       - run: npm run check
+
+      - name: Verify release Preview denies real HTTP requests
+        run: node scripts/smoke-release-preview-http.mjs
