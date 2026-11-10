@@ -45,7 +45,7 @@ export async function upsertVerifiedZeffyPayment(payment:AnyRecord){
    // Record the Zeffy gift without an account association instead.
    if(lookupError||!userPage){console.error("Donor account verification lookup unavailable");break}
    const users=userPage.users??[];
-   const matched=users.find(u=>u.email?.trim().toLowerCase()===email&&!!u.email_confirmed_at&&!u.email_change&&!u.is_anonymous);
+   const matched=users.find(u=>u.email?.trim().toLowerCase()===email&&!!u.email_confirmed_at&&!("email_change" in u && u.email_change)&&!u.is_anonymous);
    if(matched){userId=matched.id;break}
    if(users.length<pageSize)break;
   }
