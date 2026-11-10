@@ -47,8 +47,14 @@ test("production remains unchanged by release preview guard",async()=>{
  assert.equal(response.status,200);
  assert.equal(calls.length,1);
 });
-test("other previews are unaffected",async()=>{
+test("other preview branches using this release code remain fail-closed",async()=>{
  const {response,calls}=await runProxy({VERCEL_ENV:"preview",VERCEL_GIT_COMMIT_REF:"feat/unrelated"});
- assert.equal(response.status,200);
- assert.equal(calls.length,1);
+ assert.equal(response.status,503);
+ assert.equal(calls.length,0);
+});
+
+test("missing Vercel branch metadata cannot bypass the preview lock",async()=>{
+ const {response,calls}=await runProxy({VERCEL_ENV:"preview"});
+ assert.equal(response.status,503);
+ assert.equal(calls.length,0);
 });
