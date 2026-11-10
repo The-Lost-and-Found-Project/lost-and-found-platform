@@ -58,3 +58,14 @@ test("bundle aborts before migration grants if hosted Daily Path release locks a
  assert.ok((preflight.match(/ILIKE '%is_daily_path_day_unlocked%'/g)||[]).length>=6,
   "gate must verify the actual policy expressions, not names alone");
 });
+
+test("bundle rejects additive permissive RLS policy combinations",()=>{
+ const firstMigration=sql.indexOf("-- BEGIN REVIEWED MIGRATION:");
+ const preflight=sql.slice(0,firstMigration);
+ assert.match(preflight,/unexpected Daily Path policies may bypass release lock \(#182\)/);
+ assert.match(preflight,/tablename='study_daily_progress'\) <> 1/);
+ assert.match(preflight,/tablename='study_daily_responses'\) <> 3/);
+ assert.ok(preflight.indexOf("unexpected Daily Path policies") <
+   preflight.indexOf("Release preflight: Daily Path unlock policies"),
+   "extra-policy rejection must occur before gate can be treated as passed");
+});
