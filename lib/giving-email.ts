@@ -31,6 +31,13 @@ export async function sendGivingEmail(a:{to:string;userId?:string|null;kind:Kind
  }
  const cta=a.ctaLabel&&a.ctaUrl?"\n\n"+a.ctaLabel+": "+a.ctaUrl:"";
  const text="THE LOST & FOUND PROJECT\n\n"+a.heading+"\n\n"+a.body+cta+"\n\nGod first. Scripture first. Thank you for being part of the mission.";
- try{const res=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json",...(a.kind==="thank_you"&&a.transactionId?{"Idempotency-Key":"giving-thank-you/"+a.transactionId}:{})},body:JSON.stringify({from:process.env.RESEND_FROM_EMAIL||"The Lost & Found Project <noreply@lostandfoundproject.org>",to:[email],subject:a.subject,text})});const p=await res.json();if(!res.ok)throw new Error(p?.message||"Resend failed ("+res.status+")");await s.from("giving_communications").update({status:"sent",provider_message_id:p.id||null,sent_at:new Date().toISOString()}).eq("id",logId);return{sent:true,id:p.id};}catch(e:any){await s.from("giving_communications").update({status:"failed",error_message:String(e?.message||e)}).eq("id",logId);throw e}
+ let providerId:string|null=null;
+ try{const res=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json",...(a.kind==="thank_you"&&a.transactionId?{"Idempotency-Key":"giving-thank-you/"+a.transactionId}:{})},body:JSON.stringify({from:process.env.RESEND_FROM_EMAIL||"The Lost & Found Project <noreply@lostandfoundproject.org>",to:[email],subject:a.subject,text})});const p=await res.json();if(!res.ok)throw new Error(p?.message||"Resend failed ("+res.status+")");providerId=p.id||null;}catch(e:any){await s.from("giving_communications").update({status:"failed",error_message:String(e?.message||e)}).eq("id",logId);throw e}
+ // Once the provider has accepted a send, a database failure must NOT turn
+ // the communication into a retryable "failed" state. Preserve "pending"
+ // for explicit reconciliation of uncertain delivery instead.
+ const {error:recordError}=await s.from("giving_communications").update({status:"sent",provider_message_id:providerId,sent_at:new Date().toISOString()}).eq("id",logId);
+ if(recordError)throw new Error("Provider accepted email but delivery state could not be recorded");
+ return {sent:true,id:providerId};
 }
 export const givingLinks={giving:appUrl+"/give",myGiving:appUrl+"/account/giving",annual:appUrl+"/account/giving/annual"};
