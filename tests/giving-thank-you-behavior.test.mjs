@@ -10,7 +10,7 @@ async function harness() {
   const source=await readFile(new URL("../lib/giving-email.ts",import.meta.url),"utf8");
   const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
   const rows=[];
-  let failures=0,sends=0;
+  let failures=0,sends=0,failSentRecord=false;
   const outbound=[];
   function query(table,operation,payload){
     const filters=[];
@@ -30,6 +30,7 @@ async function harness() {
         const row={...payload,id:"test-row-"+(rows.length+1),status:"pending"};rows.push(row);return {data:{id:row.id},error:null};
       }
       if(operation==="update"){
+        if(payload.status==="sent"&&failSentRecord)return {data:null,error:{message:"mock database outage"}};
         const row=rows.find(matches);
         if(!row)return {data:null,error:null};
         Object.assign(row,payload);
@@ -62,6 +63,7 @@ async function harness() {
     send:mockModule.exports.sendGivingEmail,
     rows,
     failOnce:()=>{failures=1;},
+    failSuccessRecording:()=>{failSentRecord=true;},
     sendCount:()=>sends,
     outbound:()=>outbound
   };
@@ -110,4 +112,16 @@ test("thank-you retries reuse the same provider idempotency key and payload",asy
  assert.equal(requests[0].headers["Idempotency-Key"],"giving-thank-you/"+message.transactionId);
  assert.equal(requests[1].headers["Idempotency-Key"],requests[0].headers["Idempotency-Key"]);
  assert.equal(requests[1].body,requests[0].body);
+});
+
+test("provider success followed by database failure remains pending for reconciliation",async()=>{
+ const h=await harness();
+ h.failSuccessRecording();
+ await assert.rejects(h.send(message),/delivery state could not be recorded/);
+ assert.equal(h.sendCount(),1);
+ assert.equal(h.rows.length,1);
+ assert.equal(h.rows[0].status,"pending");
+ const repeat=await h.send(message);
+ assert.equal(repeat.skipped,true);
+ assert.equal(h.sendCount(),1);
 });
