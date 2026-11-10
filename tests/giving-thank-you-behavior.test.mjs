@@ -11,6 +11,7 @@ async function harness() {
   const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
   const rows=[];
   let failures=0,sends=0;
+  const outbound=[];
   function query(table,operation,payload){
     const filters=[];
     const result={
@@ -52,7 +53,7 @@ async function harness() {
       throw Error("Unexpected import "+spec);
     },
     process:{env:{RESEND_API_KEY:"test-only",NEXT_PUBLIC_APP_URL:"https://example.test"}},
-    fetch:async()=>{sends++;if(failures-->0)return {ok:false,status:503,json:async()=>({message:"mock provider failure"})};return {ok:true,json:async()=>({id:"mock-provider-"+sends})};},
+    fetch:async(url,options)=>{outbound.push({url,headers:options.headers,body:options.body});sends++;if(failures-->0)return {ok:false,status:503,json:async()=>({message:"mock provider failure"})};return {ok:true,json:async()=>({id:"mock-provider-"+sends})};},
     console:{error(){}},
     Date,Error,Promise,JSON,String,Boolean
   };
@@ -61,7 +62,8 @@ async function harness() {
     send:mockModule.exports.sendGivingEmail,
     rows,
     failOnce:()=>{failures=1;},
-    sendCount:()=>sends
+    sendCount:()=>sends,
+    outbound:()=>outbound
   };
 }
 const message={to:"synthetic-donor@example.test",userId:null,kind:"thank_you",subject:"Thank you",heading:"Thanks",body:"Synthetic gift",transactionId:"00000000-0000-4000-8000-000000000991"};
@@ -96,4 +98,16 @@ test("overlapping webhook and manual sync attempts produce only one provider sen
  assert.equal(h.sendCount(),1);
  assert.equal(outcomes.filter(x=>x.sent===true).length,1);
  assert.equal(outcomes.filter(x=>x.skipped===true).length,1);
+});
+
+test("thank-you retries reuse the same provider idempotency key and payload",async()=>{
+ const h=await harness();
+ h.failOnce();
+ await assert.rejects(h.send(message),/mock provider failure/);
+ await h.send(message);
+ const requests=h.outbound();
+ assert.equal(requests.length,2);
+ assert.equal(requests[0].headers["Idempotency-Key"],"giving-thank-you/"+message.transactionId);
+ assert.equal(requests[1].headers["Idempotency-Key"],requests[0].headers["Idempotency-Key"]);
+ assert.equal(requests[1].body,requests[0].body);
 });
