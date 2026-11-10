@@ -44,6 +44,27 @@ Read-only production preflight: notification columns/types **20/20 match**, 3 ex
 
 **Residual risk held:** All Preview credentials are currently removed and Preview is intentionally locked. Local pgTAP, Auth/REST, and HTTP tests passed but hosted authenticated staging still has **not** been performed. The owner explicitly accepted owner-led (rather than independent) security review, **not** a hosted-staging waiver. Document an explicit decision on that distinct risk before deploying.
 
+## Targeted bundle procedure — validated in disposable local Supabase
+
+The release branch includes `scripts/print-targeted-release-bundle.mjs`. It imports the exact reviewed list and SHA-256 hashes from `scripts/check-release-migration-scope.mjs`, prints **only SQL to stdout**, and never connects to any database or supplies credentials. A reviewer can generate a one-transaction bundle with:
+
+```bash
+node scripts/check-release-migration-scope.mjs
+node scripts/print-targeted-release-bundle.mjs > /secure/path/lfp-reviewed-eight.sql
+```
+
+**Local rehearsal completed on 2026-11-10.** A fresh disposable local Supabase stack was bootstrapped with the historical repository migrations **excluding the November eight** and with a **synthetic** notifications baseline and no-op `notification_created_push` trigger. No hosted database or real webhook was involved. The generated 22 KB SQL bundle was applied with `psql -X -v ON_ERROR_STOP=1 -f` against local port 54322: **exit 0, COMMIT**. Postflight verified **both triggers enabled**, `authenticated` can update only `read_at` and cannot update `push_status`. On this disposable stack only, the supported CLI `supabase migration repair <8 exact versions> --status applied --local --yes` succeeded and the local migration history showed all eight specific versions. Reapplying the bundle then **failed closed at the preflight** with exit 3 and no additional history entries. The bundle's four structural checks also passed. No old migration history was altered.
+
+**Production execution is not approved by that rehearsal alone.** Before running any SQL on Production, require all of these operator validations:
+
+1. Verify the exact database host/project and the current release commit, production backup/recovery, maintenance window and ministry-publication pause. Never assume local `postgres` defaults correspond to production.
+2. Review the generated bundle and hash manifest. Use `psql -X -v ON_ERROR_STOP=1 -f` only against the explicitly confirmed target, **not** a shell command that silently chooses the active linked project. Keep the bundle and client connection string out of GitHub and logs.
+3. Require a successful terminal `COMMIT`, plus production **read-only** postflight for existing notification webhook, new ministry trigger, RLS and member column grants, **before** registering release migration history.
+4. Register **only the eight reviewed versions** with the official Supabase CLI migration repair `--status applied` against the explicitly verified target. Do not repair older mismatches or call unrestricted migration push. Verify the eight resulting history entries read-only. The local CLI rehearsal required the eight corresponding migration files to be present for repair to work.
+5. Coordinate Vercel application cutover and end-user smoke tests. If the SQL transaction fails, its changes roll back, but external webhook calls are not necessarily reversible. If app promotion fails afterward, app rollback does not reverse committed migrations.
+
+**Cutover gating still open:** an owner decision for local-only acceptance versus isolated hosted staging (#179), plus a confirmed production backup/rollback window. Owner-led review sign-off is documented separately and does not waive these runtime risks.
+
 ## Deployment checklist (operator to execute only after gates)
 
 - Record current Production commit/deployment ID, approved candidate SHA and migration list; confirm backup/recovery route and notification/email kill switches.
