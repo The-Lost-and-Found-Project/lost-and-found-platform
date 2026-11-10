@@ -5,6 +5,7 @@ on:
     paths:
       - "supabase/**"
       - "scripts/local-notification-auth-smoke.mjs"
+      - "scripts/local-study-auth-smoke.mjs"
       - ".github/workflows/database-tests.yml"
   push:
     branches:
@@ -51,3 +52,6 @@ jobs:
 
       - name: Verify synthetic Auth and REST notification isolation
         run: node scripts/local-notification-auth-smoke.mjs
+
+      - name: Verify synthetic Auth and REST Bible-study privacy
+        run: node scripts/local-study-auth-smoke.mjs
