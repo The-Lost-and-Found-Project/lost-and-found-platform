@@ -16,7 +16,7 @@ function unsafeReleasePreview() {
   try {
     const url = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "");
     return url.protocol !== "https:"
-      || !/^[a-z0-9-]+\\.supabase\\.co$/.test(url.hostname)
+      || !/^[a-z0-9-]+\.supabase\.co$/.test(url.hostname)
       || url.hostname === "lsxaadzyonvvdbzewpql.supabase.co"
       || url.username !== ""
       || url.password !== "";
