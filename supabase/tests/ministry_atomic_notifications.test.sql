@@ -2,6 +2,19 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select plan(13);
 
+-- Notifications currently exist in the hosted L&F database, but are absent
+-- from the older clean-local migration baseline. Supply a synthetic minimal
+-- contract inside this rolled-back test; never use actual member records.
+create table if not exists public.notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null,
+  type text not null,
+  title text not null,
+  body text,
+  link text,
+  push_status text not null default 'pending'
+);
+
 insert into auth.users(id,instance_id,aud,role,email,created_at,updated_at) values
  ('00000000-0000-4000-8000-000000000f11','00000000-0000-0000-0000-000000000000','authenticated','authenticated','atomic-hearth-a@example.test',now(),now()),
  ('00000000-0000-4000-8000-000000000f12','00000000-0000-0000-0000-000000000000','authenticated','authenticated','atomic-hearth-b@example.test',now(),now()),
