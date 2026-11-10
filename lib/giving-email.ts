@@ -32,7 +32,28 @@ export async function sendGivingEmail(a:{to:string;userId?:string|null;kind:Kind
  const cta=a.ctaLabel&&a.ctaUrl?"\n\n"+a.ctaLabel+": "+a.ctaUrl:"";
  const text="THE LOST & FOUND PROJECT\n\n"+a.heading+"\n\n"+a.body+cta+"\n\nGod first. Scripture first. Thank you for being part of the mission.";
  let providerId:string|null=null;
- try{const res=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json",...(a.kind==="thank_you"&&a.transactionId?{"Idempotency-Key":"giving-thank-you/"+a.transactionId}:{})},body:JSON.stringify({from:process.env.RESEND_FROM_EMAIL||"The Lost & Found Project <noreply@lostandfoundproject.org>",to:[email],subject:a.subject,text})});const p=await res.json();if(!res.ok)throw new Error(p?.message||"Resend failed ("+res.status+")");providerId=p.id||null;}catch(e:any){await s.from("giving_communications").update({status:"failed",error_message:String(e?.message||e)}).eq("id",logId);throw e}
+ // A transport error or server-side 5xx may mean Resend accepted the request
+ // but the response was lost. Keep the row pending for reconciliation; never
+ // automatically retry an uncertain delivery after the 24-hour key window.
+ let res:Response;
+ try{
+  res=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json",...(a.kind==="thank_you"&&a.transactionId?{"Idempotency-Key":"giving-thank-you/"+a.transactionId}:{})},body:JSON.stringify({from:process.env.RESEND_FROM_EMAIL||"The Lost & Found Project <noreply@lostandfoundproject.org>",to:[email],subject:a.subject,text})});
+ }catch{
+  throw new Error("Email delivery outcome uncertain after network failure; reconcile pending communication before retry");
+ }
+ if(res.status>=500)throw new Error("Email delivery outcome uncertain after provider server error; reconcile pending communication before retry");
+ if(!res.ok){
+  const rejection=await res.json().catch(()=>({message:"Resend rejected request ("+res.status+")"}));
+  const reason=rejection?.message||"Resend rejected request ("+res.status+")";
+  const {error:failureLogError}=await s.from("giving_communications").update({status:"failed",error_message:String(reason)}).eq("id",logId);
+  if(failureLogError)throw new Error("Provider rejected email and delivery failure could not be recorded");
+  throw new Error(String(reason));
+ }
+ // An accepted response is not always valid JSON. That also leaves an
+ // uncertain provider outcome rather than a safely retryable failed send.
+ let accepted:{id?:string};
+ try{accepted=await res.json();}catch{throw new Error("Email accepted but response was unreadable; reconcile pending communication before retry")}
+ providerId=accepted.id||null;
  // Once the provider has accepted a send, a database failure must NOT turn
  // the communication into a retryable "failed" state. Preserve "pending"
  // for explicit reconciliation of uncertain delivery instead.
