@@ -25,7 +25,7 @@ insert into public.notifications(user_id,type,title) values
 
 select set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000e31',true);
 set local role authenticated;
-select lives_ok($update public.notifications set read_at=now() where user_id='00000000-0000-4000-8000-000000000e31'$,'member may mark own notice read');
+select lives_ok($stmt$update public.notifications set read_at=now() where user_id='00000000-0000-4000-8000-000000000e31'$stmt$,'member may mark own notice read');
 select throws_ok($$update public.notifications set push_status='sent' where user_id='00000000-0000-4000-8000-000000000e31'$$,
  '42501',null,'member cannot falsify push delivery');
 select throws_ok($$update public.notifications set title='forged' where user_id='00000000-0000-4000-8000-000000000e31'$$,
