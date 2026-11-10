@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(16);
+select plan(20);
 
 select ok(has_table_privilege('authenticated','public.study_groups','SELECT'),'signed-in members can reach group RLS');
 select ok(has_table_privilege('authenticated','public.study_group_members','SELECT'),'signed-in members can reach group membership RLS');
@@ -24,5 +24,9 @@ select ok((select bool_and(relrowsecurity) from pg_class where oid=any(array[
 'public.study_group_members'::regclass,
 'public.study_daily_progress'::regclass,
 'public.study_daily_responses'::regclass])), 'all study tables retain RLS');
+select ok(has_table_privilege('service_role','public.study_groups','SELECT'),'server-side service retains group reads');
+select ok(has_table_privilege('service_role','public.study_group_members','INSERT'),'server-side service retains group membership writes');
+select ok(has_table_privilege('service_role','public.study_daily_progress','SELECT'),'server-side service retains progress reads');
+select ok(has_table_privilege('service_role','public.study_daily_responses','INSERT'),'server-side service retains response writes');
 select * from finish();
 rollback;
