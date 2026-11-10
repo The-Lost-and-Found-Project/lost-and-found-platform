@@ -71,3 +71,31 @@ test("release preview rejects missing or malformed Supabase URL even when flagge
   assert.equal(calls.length,0);
  }
 });
+
+
+test("release preview blocks all existing organization projects, not just L&F Production",async()=>{
+ for(const ref of [
+  "lsxaadzyonvvdbzewpql",
+  "mlsxnknanhyhqxebrfwz",
+  "abqakvjrtshslvnddinl",
+  "mnrwybmsalvnyloquvan",
+  "iypbqzoudnamjsrmairh"
+ ]){
+  const {response,calls}=await runProxy({VERCEL_ENV:"preview",LFP_RELEASE_PREVIEW_ISOLATED:"true",NEXT_PUBLIC_SUPABASE_URL:"https://"+ref+".supabase.co"});
+  assert.equal(response.status,503,"existing project "+ref+" must never be used as L&F preview staging");
+  assert.equal(calls.length,0);
+ }
+});
+test("release preview rejects Supabase URLs with extra paths, queries, fragments or credentials",async()=>{
+ for(const url of [
+  "https://synthetic-staging.supabase.co/rest/v1",
+  "https://synthetic-staging.supabase.co/?foo=bar",
+  "https://synthetic-staging.supabase.co/#fragment",
+  "https://user:password@synthetic-staging.supabase.co",
+  "https://synthetic-staging.supabase.co:8443/"
+ ]){
+  const {response,calls}=await runProxy({VERCEL_ENV:"preview",LFP_RELEASE_PREVIEW_ISOLATED:"true",NEXT_PUBLIC_SUPABASE_URL:url});
+  assert.equal(response.status,503,"non-origin-only staging URL must be rejected: "+url);
+  assert.equal(calls.length,0);
+ }
+});
