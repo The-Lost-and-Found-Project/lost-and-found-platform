@@ -29,12 +29,12 @@ DECLARE
   actual_progress text[];
   actual_responses text[];
 BEGIN
-  SELECT COALESCE(array_agg(policyname ORDER BY policyname), ARRAY[]::text[])
+  SELECT COALESCE(array_agg(policyname::text ORDER BY policyname::text), ARRAY[]::text[])
     INTO actual_progress
     FROM pg_policies
     WHERE schemaname = 'public' AND tablename = 'study_daily_progress';
 
-  SELECT COALESCE(array_agg(policyname ORDER BY policyname), ARRAY[]::text[])
+  SELECT COALESCE(array_agg(policyname::text ORDER BY policyname::text), ARRAY[]::text[])
     INTO actual_responses
     FROM pg_policies
     WHERE schemaname = 'public' AND tablename = 'study_daily_responses';
