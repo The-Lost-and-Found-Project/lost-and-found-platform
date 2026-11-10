@@ -14,7 +14,7 @@ async function runProxy(env) {
   const exportsRef={};
   vm.runInNewContext(js,{
     exports:exportsRef,
-    process:{env},
+    process:{env}, URL,
     require(id){
       if(id==="@/lib/supabase/middleware")return {updateSession:async(req)=>{calls.push(req);return {status:200}}};
       if(id==="next/server")return {NextResponse:FakeResponse};
@@ -38,7 +38,7 @@ test("release preview remains denied with explicit false staging flag",async()=>
  assert.equal(calls.length,0);
 });
 test("release preview can pass only after isolated staging is explicitly enabled",async()=>{
- const {response,calls}=await runProxy({VERCEL_ENV:"preview",VERCEL_GIT_COMMIT_REF:release,LFP_RELEASE_PREVIEW_ISOLATED:"true"});
+ const {response,calls}=await runProxy({VERCEL_ENV:"preview",VERCEL_GIT_COMMIT_REF:release,LFP_RELEASE_PREVIEW_ISOLATED:"true",NEXT_PUBLIC_SUPABASE_URL:"https://synthetic-staging.supabase.co"});
  assert.equal(response.status,200);
  assert.equal(calls.length,1);
 });
@@ -57,4 +57,17 @@ test("missing Vercel branch metadata cannot bypass the preview lock",async()=>{
  const {response,calls}=await runProxy({VERCEL_ENV:"preview"});
  assert.equal(response.status,503);
  assert.equal(calls.length,0);
+});
+
+test("release preview rejects Production Supabase even when isolation flag is true",async()=>{
+ const {response,calls}=await runProxy({VERCEL_ENV:"preview",LFP_RELEASE_PREVIEW_ISOLATED:"true",NEXT_PUBLIC_SUPABASE_URL:"https://lsxaadzyonvvdbzewpql.supabase.co"});
+ assert.equal(response.status,503);
+ assert.equal(calls.length,0);
+});
+test("release preview rejects missing or malformed Supabase URL even when flagged isolated",async()=>{
+ for(const url of ["", "not-a-url", "http://synthetic-staging.supabase.co", "https://example.com"]){
+  const {response,calls}=await runProxy({VERCEL_ENV:"preview",LFP_RELEASE_PREVIEW_ISOLATED:"true",NEXT_PUBLIC_SUPABASE_URL:url});
+  assert.equal(response.status,503);
+  assert.equal(calls.length,0);
+ }
 });
