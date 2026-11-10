@@ -99,3 +99,21 @@ test("release preview rejects Supabase URLs with extra paths, queries, fragments
   assert.equal(calls.length,0);
  }
 });
+
+test("release preview blocks live outbound credentials even with an explicit staging flag",async()=>{
+ const base={VERCEL_ENV:"preview",LFP_RELEASE_PREVIEW_ISOLATED:"true",NEXT_PUBLIC_SUPABASE_URL:"https://synthetic-staging.supabase.co"};
+ for(const key of [
+  "RESEND_API_KEY","VAPID_PRIVATE_KEY","DAILY_API_KEY","DAILY_DOMAIN",
+  "ZEFFY_API_KEY","OPENAI_API_KEY","TURNSTILE_SECRET_KEY",
+  "INTERNAL_API_SECRET","CRON_SECRET"
+ ]){
+  const {response,calls}=await runProxy({...base,[key]:"synthetic-but-present"});
+  assert.equal(response.status,503,"configured outbound credential "+key+" must block release Preview");
+  assert.equal(calls.length,0);
+ }
+});
+test("production is not blocked by the release Preview provider-credential guard",async()=>{
+ const {response,calls}=await runProxy({VERCEL_ENV:"production",RESEND_API_KEY:"synthetic-but-present",DAILY_API_KEY:"synthetic-but-present"});
+ assert.equal(response.status,200);
+ assert.equal(calls.length,1);
+});
