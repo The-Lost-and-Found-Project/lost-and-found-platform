@@ -18,6 +18,25 @@ if(endpoint.protocol!=="http:" || !["127.0.0.1","localhost"].includes(endpoint.h
  || !["54321","59321"].includes(endpoint.port) || endpoint.pathname!=="/")
  throw Error("Refusing to connect to non-disposable Supabase endpoint.");
 assert.ok(env.ANON_KEY && env.SERVICE_ROLE_KEY,"Local API keys missing.");
+// The fresh repository baseline intentionally does not grant server-side DML on
+// every curriculum table. Give ONLY this disposable stack test-fixture access;
+// do not alter application migrations or hosted project grants to seed tests.
+const db=env.DB_URL;
+if(!db)throw Error("Local DB_URL not found.");
+const dbEndpoint=new URL(db);
+if(!["postgres:","postgresql:"].includes(dbEndpoint.protocol)
+ || !["127.0.0.1","localhost"].includes(dbEndpoint.hostname)
+ || dbEndpoint.port!=="54322" || dbEndpoint.pathname!=="/postgres")
+ throw Error("Refusing non-disposable local Postgres endpoint.");
+const grants=spawnSync("psql",["-X","-v","ON_ERROR_STOP=1","-d",db,
+ "-c",`GRANT SELECT, INSERT, DELETE ON TABLE
+ public.bible_studies,
+ public.study_sessions,
+ public.study_session_participants,
+ public.study_daily_responses,
+ public.study_daily_progress TO service_role;`],{encoding:"utf8",timeout:15000});
+if(grants.status!==0)throw Error("Local-only fixture grant failed: "+grants.stderr);
+
 
 const opts={auth:{persistSession:false,autoRefreshToken:false}};
 const service=createClient(api,env.SERVICE_ROLE_KEY,opts);
