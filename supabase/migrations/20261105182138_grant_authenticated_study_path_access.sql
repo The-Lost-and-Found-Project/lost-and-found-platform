@@ -7,6 +7,9 @@ begin
   if to_regclass(format('public.%I',name)) is not null then
    execute format('revoke all on table public.%I from public, anon',name);
    execute format('grant select on table public.%I to authenticated',name);
+   -- Service-role operations differ between local CLI versions and CI;
+   -- declare the trusted server grants explicitly while RLS still governs members.
+   execute format('grant select, insert, update, delete on table public.%I to service_role',name);
   end if;
  end loop;
  if to_regclass('public.study_groups') is not null then
