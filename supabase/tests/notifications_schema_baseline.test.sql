@@ -7,7 +7,7 @@ select ok((select relrowsecurity from pg_class where oid='public.notifications':
  'notification records require RLS');
 select ok(has_table_privilege('authenticated','public.notifications','SELECT'),
  'member can reach own notification RLS');
-select ok(has_table_privilege('authenticated','public.notifications','UPDATE'),
+select ok(has_column_privilege('authenticated','public.notifications','read_at','UPDATE'),
  'member can mark own notification read');
 select ok(not has_table_privilege('authenticated','public.notifications','INSERT'),
  'ordinary members cannot create forged notifications');
