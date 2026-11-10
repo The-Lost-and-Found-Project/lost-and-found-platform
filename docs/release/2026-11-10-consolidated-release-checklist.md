@@ -25,7 +25,7 @@
 
 ## Verified migration cutover order (2026-11-10 read-only preflight)
 
-The eight SQL files below are present on PR #178 and **none of these eight versions appears in hosted L&F migration history** as of the read-only 2026-11-10 query. Apply in filename/version order, with a preflight immediately before a maintenance cutover:
+**CRITICAL: Supabase migration history diverges (#181).** The eight NEW November SQL files below are present on PR #178 and none of their version IDs appears in hosted L&F migration history as of 2026-11-10. However, hosted L&F has **115 migration versions**, while repository `main` has **86 migration files; 78 of their version IDs do not match hosted history**. Some are already deployed under different IDs. **Never run unrestricted `supabase db push` or automatically repair old migration history.** Do not treat historical version mismatches as unapplied business changes. During an approved cutover, execute a carefully reviewed, explicitly versioned **eight-file allowlist only**, with verified recording of their actual deployment and no historical replay. The immutable file content scope is checked by `node scripts/check-release-migration-scope.mjs` in Quality CI; this script does not execute SQL or verify hosted history. Apply the eight files in filename/version order only after independent hosted preflight and backup confirmation:
 
 1. `20261105170653_restrict_anon_emmaus_table_grants.sql` — reduce anonymous Emmaus table access
 2. `20261105173628_verify_donor_email_before_history_access.sql` — verified donor Auth email ownership
@@ -57,6 +57,7 @@ Read-only production preflight: notification columns/types **20/20 match**, 3 ex
 ## Current blocking decisions
 
 - Owner-led review documented; independent-review exception accepted, not an outstanding hard gate. Add independent reviewer to post-release governance work (#180).
+- Migration history mismatch #181: confirm safe targeted eight-file execution and history recording with no bulk push, before any Production DDL.
 - Shared Production/Preview credential scope was removed on 2026-11-10; **hosted Preview remains locked and lacks synthetic backend credentials**. Either complete real hosted staging isolation with mock mail and push (cost approval if additional hosted DB needed), or explicitly record owner acceptance of a local-only release validation gap. Do not imply hosted staging passed.
 - Approved release sequencing after staging acceptance.
 
