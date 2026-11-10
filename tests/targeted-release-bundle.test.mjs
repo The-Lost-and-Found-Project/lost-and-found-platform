@@ -41,3 +41,20 @@ test("bundle does not silently mark migration history or run a network operation
  assert.doesNotMatch(sql,/^\s*(?:insert|update|delete)\s+(?:into\s+|from\s+)?supabase_migrations\.schema_migrations/im);
  assert.match(sql,/History is NOT automatically repaired/);
 });
+
+
+test("bundle aborts before migration grants if hosted Daily Path release locks are missing",()=>{
+ const firstMigration=sql.indexOf("-- BEGIN REVIEWED MIGRATION:");
+ const gate=sql.indexOf("Release preflight: Daily Path unlock policies absent or unsafe (#182)");
+ assert.ok(gate>0 && gate<firstMigration,"legacy policies must be rejected before any DDL");
+ const preflight=sql.slice(0,firstMigration);
+ assert.match(preflight,/to_regprocedure\('public\.is_daily_path_day_unlocked\(uuid,uuid,integer\)'\) IS NULL/);
+ for(const policy of [
+  "participants manage own unlocked daily progress",
+  "participants insert own unlocked daily responses",
+  "participants update own unlocked responses",
+  "participants read unlocked own or revealed group responses"
+ ])assert.ok(preflight.includes(policy),"missing strict policy preflight: "+policy);
+ assert.ok((preflight.match(/ILIKE '%is_daily_path_day_unlocked%'/g)||[]).length>=6,
+  "gate must verify the actual policy expressions, not names alone");
+});
