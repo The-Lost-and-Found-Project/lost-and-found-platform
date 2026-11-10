@@ -41,10 +41,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
-      - name: Install locked dependencies
-        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install dependencies for local-only smoke
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
 
       - name: Verify synthetic Auth and REST notification isolation
         run: node scripts/local-notification-auth-smoke.mjs
