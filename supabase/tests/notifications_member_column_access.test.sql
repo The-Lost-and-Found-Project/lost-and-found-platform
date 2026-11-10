@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(10);
+select plan(11);
 
 select ok(has_column_privilege('authenticated','public.notifications','read_at','UPDATE'),
  'authenticated members may acknowledge their notifications');
@@ -26,7 +26,9 @@ insert into public.notifications(user_id,type,title) values
 select set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000e31',true);
 set local role authenticated;
 select lives_ok($stmt$update public.notifications set read_at=now() where user_id='00000000-0000-4000-8000-000000000e31'$stmt$,'member may mark own notice read');
-select throws_ok($$update public.notifications set push_status='sent' where user_id='00000000-0000-4000-8000-000000000e31'$$,
+select is((select count(*)::integer from public.notifications where user_id='00000000-0000-4000-8000-000000000e31' and read_at is not null),1,
+ 'own notification read receipt was saved');
+select throws_ok($update public.notifications set push_status='sent' where user_id='00000000-0000-4000-8000-000000000e31'$$,
  '42501',null,'member cannot falsify push delivery');
 select throws_ok($$update public.notifications set title='forged' where user_id='00000000-0000-4000-8000-000000000e31'$$,
  '42501',null,'member cannot tamper with notification content');
