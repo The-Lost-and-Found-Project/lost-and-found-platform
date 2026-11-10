@@ -1,9 +1,8 @@
 import { updateSession } from "@/lib/supabase/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 
-// This release preview still shares integration variable targets with Production.
-// Deny all preview traffic from this code until a separate staging backend and
-// mocked outbound integrations have been independently verified.
+// Release Preview has no approved staging credentials. Deny traffic until a separate
+// synthetic-only backend and mocked outbound integrations have been verified.
 // Do not depend on optional Vercel Git metadata: its absence must fail closed.
 // Production traffic is unaffected.
 function unsafeReleasePreview() {
@@ -13,13 +12,26 @@ function unsafeReleasePreview() {
   // pointed at the known hosted L&F Production project, malformed URLs, and
   // missing destinations. Other credentials and outbound mocks still require
   // an explicit independent environment review before setting the flag.
+  // None of the organization's existing Supabase projects are valid L&F staging.
+  // These project refs are public identifiers, not credentials.
+  const reservedProjectRefs = new Set([
+    "lsxaadzyonvvdbzewpql", // L&F Production
+    "mlsxnknanhyhqxebrfwz", // Carolina Hope
+    "abqakvjrtshslvnddinl", // Rare Network Production
+    "mnrwybmsalvnyloquvan", // Emmaus
+    "iypbqzoudnamjsrmairh", // Rare Network Development
+  ]);
   try {
     const url = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "");
     return url.protocol !== "https:"
       || !/^[a-z0-9-]+\.supabase\.co$/.test(url.hostname)
-      || url.hostname === "lsxaadzyonvvdbzewpql.supabase.co"
+      || reservedProjectRefs.has(url.hostname.split(".")[0])
       || url.username !== ""
-      || url.password !== "";
+      || url.password !== ""
+      || url.port !== ""
+      || url.pathname !== "/"
+      || url.search !== ""
+      || url.hash !== "";
   } catch {
     return true;
   }
