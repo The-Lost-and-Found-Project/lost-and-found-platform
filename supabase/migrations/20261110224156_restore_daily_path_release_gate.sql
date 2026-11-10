@@ -20,6 +20,53 @@ BEGIN
  END IF;
 END $preflight$;
 
+-- Fail closed if unexpected permissive policies have appeared since the
+-- read-only hosted inventory. Never quietly retain a parallel access path.
+-- Accept the two verified shapes: legacy hosted policy names or the already
+-- modern local baseline, so that disposable replay remains idempotent.
+DO $policy_preflight$
+DECLARE
+  actual_progress text[];
+  actual_responses text[];
+BEGIN
+  SELECT COALESCE(array_agg(policyname ORDER BY policyname), ARRAY[]::text[])
+    INTO actual_progress
+    FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'study_daily_progress';
+
+  SELECT COALESCE(array_agg(policyname ORDER BY policyname), ARRAY[]::text[])
+    INTO actual_responses
+    FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'study_daily_responses';
+
+  IF actual_progress NOT IN (
+    ARRAY['participants manage own daily progress']::text[],
+    ARRAY['participants manage own unlocked daily progress']::text[]
+  ) OR actual_responses NOT IN (
+    ARRAY[
+      'participants insert own daily responses',
+      'participants read own or revealed group responses',
+      'participants update own unlocked responses'
+    ]::text[],
+    ARRAY[
+      'participants insert own unlocked daily responses',
+      'participants read unlocked own or revealed group responses',
+      'participants update own unlocked responses'
+    ]::text[]
+  ) THEN
+    RAISE EXCEPTION '#182: unexpected Daily Path RLS policy inventory; aborting before changes';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename IN ('study_daily_progress', 'study_daily_responses')
+      AND (permissive <> 'PERMISSIVE' OR roles <> ARRAY['authenticated']::name[])
+  ) THEN
+    RAISE EXCEPTION '#182: unexpected Daily Path policy role/type; aborting before changes';
+  END IF;
+END $policy_preflight$;
+
 -- SECURITY DEFINER is necessary to inspect membership despite the caller's
 -- participant-only RLS. Bind the requested identity to auth.uid() to disallow
 -- RPC probes for someone else's participation or unlocked days.
