@@ -73,6 +73,44 @@ BEGIN
          WHERE oid='public.notifications'::regclass) THEN
     RAISE EXCEPTION 'Release preflight: notifications RLS disabled';
  END IF;
+ -- #182: Production presently lacks the Daily Path unlock helper and
+ -- still has earlier permissive response/progress policies. Migration #4
+ -- grants member write access; never make those grants until a separately
+ -- reviewed correction is present. Checking *all* policy predicates prevents
+ -- a same-name but weaker legacy policy from passing this gate.
+ IF to_regprocedure('public.is_daily_path_day_unlocked(uuid,uuid,integer)') IS NULL
+    OR NOT EXISTS (
+      SELECT 1 FROM pg_policies WHERE schemaname='public'
+        AND tablename='study_daily_progress'
+        AND policyname='participants manage own unlocked daily progress'
+        AND cmd='ALL'
+        AND qual ILIKE '%is_daily_path_day_unlocked%'
+        AND with_check ILIKE '%is_daily_path_day_unlocked%'
+    )
+    OR NOT EXISTS (
+      SELECT 1 FROM pg_policies WHERE schemaname='public'
+        AND tablename='study_daily_responses'
+        AND policyname='participants insert own unlocked daily responses'
+        AND cmd='INSERT'
+        AND with_check ILIKE '%is_daily_path_day_unlocked%'
+    )
+    OR NOT EXISTS (
+      SELECT 1 FROM pg_policies WHERE schemaname='public'
+        AND tablename='study_daily_responses'
+        AND policyname='participants update own unlocked responses'
+        AND cmd='UPDATE'
+        AND qual ILIKE '%is_daily_path_day_unlocked%'
+        AND with_check ILIKE '%is_daily_path_day_unlocked%'
+    )
+    OR NOT EXISTS (
+      SELECT 1 FROM pg_policies WHERE schemaname='public'
+        AND tablename='study_daily_responses'
+        AND policyname='participants read unlocked own or revealed group responses'
+        AND cmd='SELECT'
+        AND qual ILIKE '%is_daily_path_day_unlocked%'
+    ) THEN
+   RAISE EXCEPTION 'Release preflight: Daily Path unlock policies absent or unsafe (#182)';
+ END IF;
 END $lfp_preflight$;
 `);
 for (const [name,sha] of expected) {
