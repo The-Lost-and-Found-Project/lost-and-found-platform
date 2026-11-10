@@ -37,7 +37,19 @@ export async function upsertVerifiedZeffyPayment(payment:AnyRecord){
  const receiptUrl=String(first(payment,"tax_receipt_url","receipt_url","receipt.url","taxReceipt.url")??"").trim()||null;
  const transactionType=String(first(payment,"subscription_id","recurring","frequency")?"recurring":"one_time");
  let userId:null|string=null;
- if(email){const{data:userPage}=await supabase.auth.admin.listUsers({page:1,perPage:1000});const matched=userPage?.users?.find((u:any)=>u.email?.toLowerCase()===email);userId=matched?.id??null}
+ if(email){
+  const pageSize=1000;
+  for(let page=1;;page++){
+   const{data:userPage,error:lookupError}=await supabase.auth.admin.listUsers({page,perPage:pageSize});
+   // Never infer donor ownership if Auth cannot complete a lookup.
+   // Record the Zeffy gift without an account association instead.
+   if(lookupError||!userPage){console.error("Donor account verification lookup unavailable");break}
+   const users=userPage.users??[];
+   const matched=users.find(u=>u.email?.trim().toLowerCase()===email&&!!u.email_confirmed_at&&!("email_change" in u && u.email_change)&&!u.is_anonymous);
+   if(matched){userId=matched.id;break}
+   if(users.length<pageSize)break;
+  }
+ }
  let localCampaignId:null|string=null;
  if(campaignId){const{data:campaign}=await supabase.from("giving_campaigns").select("id,slug").eq("zeffy_campaign_id",campaignId).maybeSingle();localCampaignId=campaign?.id??null}
  const row={user_id:userId,provider:"zeffy",provider_transaction_id:id,campaign_id:localCampaignId,source:localCampaignId?"campaign":"general_mission",amount,currency,transaction_type:transactionType,status:status==="succeeded"?"completed":status,donated_at:donatedAt,receipt_url:receiptUrl,contact_email:email,contact_name:name,zeffy_campaign_id:campaignId,raw_metadata:{zeffy_type:first(payment,"type"),line_items:first(payment,"line_items"),refund:first(payment,"refund")}};
