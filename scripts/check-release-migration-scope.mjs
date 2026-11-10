@@ -25,9 +25,11 @@ for(const [name,hash] of expected){
  const actualHash=createHash("sha256").update(readFileSync(join(directory,name))).digest("hex");
  assert.equal(actualHash,hash,`Migration changed without review: ${name}. Re-review the SQL and update the manifest deliberately.`);
 }
-console.log("RELEASE SCOPE VALID: 8 reviewed November migration files and SHA-256 hashes match.");
-console.log("NO DATABASE ACTION TAKEN. Hosted history differs from repository (#181).");
-console.log("DO NOT run unrestricted 'supabase db push' against L&F Production.");
+if (process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
+ console.log("RELEASE SCOPE VALID: 8 reviewed November migration files and SHA-256 hashes match.");
+ console.log("NO DATABASE ACTION TAKEN. Hosted history differs from repository (#181).");
+ console.log("DO NOT run unrestricted 'supabase db push' against L&F Production.");
+}
 
 // Reuse the single reviewed allowlist for offline bundle preparation.
 export {expected, directory};
