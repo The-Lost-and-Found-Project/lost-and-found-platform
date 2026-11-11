@@ -16,3 +16,14 @@ test('trauma and spiritual abuse are not normalized by marriage content', () => 
   assert.match(guidance, /qualified support/);
   assert.match(guidance, /Ministry must not become a loophole for neglect/);
 });
+
+test('daily couple study and weekly mentor meetings have distinct roles', () => {
+ const rhythm = readFileSync(new URL('../lib/marriage-couple-rhythm.ts', import.meta.url), 'utf8');
+ assert.match(rhythm, /Read Scripture aloud/);
+ assert.match(rhythm, /Listen and discuss/);
+ assert.match(rhythm, /Practice together/);
+ assert.match(rhythm, /Pray with one another/);
+ assert.match(rhythm, /Record your own reflection/);
+ assert.match(rhythm, /After every seven daily sessions/);
+ assert.match(page, /Your time together today/);
+});

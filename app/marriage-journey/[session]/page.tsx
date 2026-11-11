@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { saveMarriageSession } from "./actions";
 import { marriageSessions, marriageMilestones } from "@/lib/marriage-journey";
 import { marriageGuidance } from "@/lib/marriage-journey-guidance";
+import { marriageCoupleRhythm, marriageWeeklyRhythm } from "@/lib/marriage-couple-rhythm";
 
 export default async function MarriageSessionPage({ params, searchParams }: { params: Promise<{ session: string }>; searchParams: Promise<{ saved?: string }> }) {
   const { session: slug } = await params;
@@ -24,7 +25,13 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
     <p className="mt-8 text-xs font-black uppercase tracking-widest text-indigo-700">Session {number} of 21 · {item.week}</p>
     <h1 className="mt-3 text-4xl font-black text-slate-900">{item.title}</h1>
     <p className="mt-4 text-lg text-slate-600">Read Scripture together: {item.scripture}</p>
-    <section className="lfp-card mt-8 p-6 sm:p-8"><h2 className="text-xl font-black">Today's focus</h2>
+    <section className="lfp-card mt-8 p-6 sm:p-8" aria-label="Our daily rhythm">
+      <h2 className="text-xl font-black">Your time together today</h2>
+      <p className="mt-2 text-sm text-slate-600">Work through these five steps together at a comfortable pace. Both spouses should participate willingly.</p>
+      <ol className="mt-5 space-y-4">{marriageCoupleRhythm.map((step, index) => <li key={step.title} className="flex gap-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 font-black text-indigo-800">{index + 1}</span><div><h3 className="font-bold">{step.title}</h3><p className="mt-1 text-sm leading-6 text-slate-700">{step.detail}</p></div></li>)}</ol>
+      <p className="mt-5 border-t border-slate-200 pt-4 text-sm text-slate-600">{marriageWeeklyRhythm}</p>
+    </section>
+    <section className="lfp-card mt-6 p-6 sm:p-8"><h2 className="text-xl font-black">Today's focus</h2>
       <p className="mt-3 leading-8 text-slate-700">{item.teaching}</p>
       <h3 className="mt-6 font-black">Understanding the passage</h3><p className="mt-2 leading-8 text-slate-700">{context}</p>
       <h3 className="mt-6 font-black">Bring it home</h3><p className="mt-2 leading-7">{application}</p>

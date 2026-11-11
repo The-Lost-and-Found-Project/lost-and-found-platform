@@ -23,8 +23,8 @@ export const marriageSessions = [
 ].map(([title,scripture,teaching,discussion,practice], index) => ({title,scripture,teaching,discussion,practice,week: Math.floor(index/7)+1}));
 
 
-// The milestone review is intentionally self-directed. No mentor can access
-// these responses until separate enrollment and explicit sharing exist.
+// The couple prepares these milestones together before its weekly mentor meeting.
+// Individual reflections remain private unless separately and explicitly shared.
 export const marriageMilestones: Record<number, { title: string; questions: string[]; practice: string }> = {
   7: {
     title: "Communication review",
