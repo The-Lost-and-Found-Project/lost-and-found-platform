@@ -7,6 +7,7 @@ on:
       - "scripts/local-notification-auth-smoke.mjs"
       - "scripts/local-study-auth-smoke.mjs"
       - "scripts/local-giving-auth-smoke.mjs"
+      - "scripts/local-app-study-http-smoke.mjs"
       - ".github/workflows/database-tests.yml"
   push:
     branches:
@@ -16,6 +17,7 @@ on:
       - "scripts/local-notification-auth-smoke.mjs"
       - "scripts/local-study-auth-smoke.mjs"
       - "scripts/local-giving-auth-smoke.mjs"
+      - "scripts/local-app-study-http-smoke.mjs"
       - ".github/workflows/database-tests.yml"
   workflow_dispatch:
 
@@ -61,3 +63,6 @@ jobs:
 
       - name: Verify synthetic Auth and REST donor identity isolation
         run: node scripts/local-giving-auth-smoke.mjs
+
+      - name: Verify authenticated Next.js Daily Path page isolation
+        run: node scripts/local-app-study-http-smoke.mjs
