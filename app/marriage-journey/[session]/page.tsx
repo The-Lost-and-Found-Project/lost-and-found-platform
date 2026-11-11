@@ -2,13 +2,14 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { saveMarriageSession } from "./actions";
-import { marriageSessions } from "@/lib/marriage-journey";
+import { marriageSessions, marriageMilestones } from "@/lib/marriage-journey";
 
 export default async function MarriageSessionPage({ params, searchParams }: { params: Promise<{ session: string }>; searchParams: Promise<{ saved?: string }> }) {
   const { session: slug } = await params;
   const number = Number(slug);
   if (!Number.isInteger(number) || number < 1 || number > 21) notFound();
   const item = marriageSessions[number - 1];
+  const milestone = marriageMilestones[number];
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?next=/marriage-journey/${number}`);
@@ -26,6 +27,13 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
       <h3 className="mt-6 font-black">Discuss together</h3><p className="mt-2 leading-7">{item.discussion}</p>
       <h3 className="mt-6 font-black">Practice this week</h3><p className="mt-2 leading-7">{item.practice}</p>
     </section>
+    {milestone && <section className="lfp-card mt-6 border-amber-200 bg-amber-50/40 p-6 sm:p-8">
+      <p className="text-xs font-black uppercase tracking-widest text-amber-800">End-of-week checkpoint</p>
+      <h2 className="mt-2 text-2xl font-black text-slate-900">{milestone.title}</h2>
+      <p className="mt-2 text-sm text-slate-600">Reflect privately, then discuss only what each person freely chooses to share. This is not a test or a requirement to disclose trauma.</p>
+      <ol className="mt-5 list-decimal space-y-3 pl-6 text-slate-800">{milestone.questions.map(question => <li key={question}>{question}</li>)}</ol>
+      <p className="mt-5 font-bold text-slate-900">Practice: <span className="font-normal">{milestone.practice}</span></p>
+    </section>}
     <form action={saveMarriageSession} className="lfp-card mt-6 space-y-6 p-6 sm:p-8">
       <input type="hidden" name="session" value={number}/>
       <h2 className="text-xl font-black">Your personal workbook</h2>

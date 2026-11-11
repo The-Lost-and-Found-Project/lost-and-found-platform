@@ -21,3 +21,36 @@ export const marriageSessions = [
 ["Weathering Difficult Seasons","Matthew 7:24-27; Ecclesiastes 4:9-12","Jesus calls us to build on obedience to his words. Lasting habits matter when life is exhausting.","Which practice would make your marriage more resilient?","Choose daily, weekly, and monthly connection rhythms."],
 ["Choosing Each Other, Choosing Christ","Joshua 24:15; Colossians 3:12-17","A marriage centered on Christ is strengthened through ongoing repentance, patience, service, and love.","What has changed, and what still needs support?","Write one personal commitment and one shared 30-day goal."],
 ].map(([title,scripture,teaching,discussion,practice], index) => ({title,scripture,teaching,discussion,practice,week: Math.floor(index/7)+1}));
+
+
+// The milestone review is intentionally self-directed. No mentor can access
+// these responses until separate enrollment and explicit sharing exist.
+export const marriageMilestones: Record<number, { title: string; questions: string[]; practice: string }> = {
+  7: {
+    title: "Communication review",
+    questions: [
+      "When did I listen well this week, and when did I interrupt or withdraw?",
+      "What helps us disagree without fear, contempt, or pressure?",
+      "Which one communication habit will I practice for the next seven days?",
+    ],
+    practice: "Create a brief communication covenant. Each spouse may pause or decline a conversation that feels unsafe.",
+  },
+  14: {
+    title: "Family and ministry review",
+    questions: [
+      "Did our family receive the time and attention we promised?",
+      "What responsibilities or ministry requests need clearer boundaries?",
+      "What practical support will help us welcome the new baby and care for every child?",
+    ],
+    practice: "Agree on protected family time, a backup ministry contact, and a realistic newborn support plan.",
+  },
+  21: {
+    title: "Thirty-day covenant review",
+    questions: [
+      "Where have I seen God change my responses and priorities?",
+      "Where do we still need wise support or professional help?",
+      "What two small habits will we revisit together in thirty days?",
+    ],
+    practice: "Schedule a thirty-day follow-up. Choose one daily connection practice and one weekly planning conversation.",
+  },
+};
