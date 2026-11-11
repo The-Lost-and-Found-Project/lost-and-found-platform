@@ -15,7 +15,7 @@ export default async function MarriageJourneyPage() {
       <p className="text-xs font-black uppercase tracking-[.2em] text-amber-300">The Lost & Found Project · Marriage Discipleship</p>
       <h1 className="mt-3 text-4xl font-black sm:text-6xl">One Flesh, One Foundation</h1>
       <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">A Christ-centered, 21-session journey through communication, expectations, family, ministry, and healing. Progress at your own pace.</p>
-      <p className="mt-5 text-sm text-amber-200">Your reflections are private to your account. Mentor sharing is not enabled. Do not enter sensitive information until the database migration and privacy checks are verified.</p>
+      <p className="mt-5 text-sm text-amber-200">Your reflections are private to your account. Mentor updates are shared only when you explicitly send them. This feature is in development; do not enter sensitive information until launch approval.</p>
     </div></section>
     <div className="lfp-shell py-10 space-y-10">
       <nav className="flex flex-wrap gap-4"><Link href="/marriage-journey/sharing" className="rounded-xl border px-5 py-3 font-black text-indigo-700">Manage mentor sharing</Link><Link href="/marriage-journey/mentor" className="rounded-xl border px-5 py-3 font-black text-indigo-700">Mentor check-ins</Link></nav>
