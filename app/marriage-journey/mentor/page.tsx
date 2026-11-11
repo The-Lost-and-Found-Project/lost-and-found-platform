@@ -14,6 +14,7 @@ export default async function MarriageMentorPage() {
   return <main className="lfp-page pb-24"><div className="lfp-shell max-w-5xl py-10">
     <Link href="/marriage-journey" className="font-bold text-indigo-700">← Marriage journey</Link>
     <h1 className="mt-6 text-4xl font-black">Mentor check-ins</h1>
+    <section className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-5"><h2 className="font-black">Your mentor account ID</h2><p className="mt-2 break-all font-mono text-sm">{user.id}</p><p className="mt-2 text-sm text-slate-600">Share this ID directly with a participant who has asked you to mentor them. This ID is not a password.</p></section>
     <p className="mt-4 max-w-3xl leading-7 text-slate-700">Only updates that a participant deliberately sends appear here. Personal journals, unshared commitments, and other account data are not accessible.</p>
     {grantsError || updatesError ? <p role="alert" className="mt-6 rounded-xl bg-amber-50 p-5">Mentor updates are unavailable. No information is being shown as complete.</p> :
       grants?.length ? <div className="mt-8 grid gap-5">{grants.map(grant => {

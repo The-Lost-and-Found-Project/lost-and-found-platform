@@ -14,6 +14,7 @@ export async function changeMentorShare(formData: FormData) {
     const { error } = await supabase.from("marriage_mentor_shares").delete().eq("participant_id", user.id).eq("mentor_id", mentorId);
     if (error) throw new Error("Could not revoke access");
   } else {
+    if (formData.get("verifiedMentor") !== "on") throw new Error("Confirm the mentor identity before granting access");
     const { error } = await supabase.from("marriage_mentor_shares").upsert({
       participant_id: user.id, mentor_id: mentorId, status: "active",
       share_progress: formData.get("shareProgress") === "on",

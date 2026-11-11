@@ -24,3 +24,9 @@ test('mentor dashboard queries only mentor-scoped shared updates', () => {
  assert.match(dashboard,/\.eq\("mentor_id",user.id\)/);
  assert.doesNotMatch(dashboard,/marriage_journey_progress/);
 });
+test('new grants require explicit confirmation of mentor identity', () => {
+ const page = read('app/marriage-journey/sharing/page.tsx');
+ assert.match(page,/name="verifiedMentor" required/);
+ assert.match(actions,/formData.get\("verifiedMentor"\) !== "on"/);
+ assert.match(page,/independently confirmed/);
+});
