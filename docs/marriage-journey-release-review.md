@@ -26,6 +26,7 @@
 - macOS Quick Look successfully generated a participant-workbook thumbnail. This is **not** a full page-by-page layout inspection; visual QA remains open.
 - TypeScript, 211 automated tests, and production build passed locally after the lesson-page cleanup.
 - No authenticated hosted Preview session, database migration, or mobile-device test was performed in this pass.
+- Re-ran local Chrome participant and mentor tests with synthetic accounts on November 11: participant sign-in, save/reload, sharing and mentor navigation passed; mentor grant, explicit sharing, isolation, and revocation passed. This is local-only evidence.
 
 ## Technical release gates
 
