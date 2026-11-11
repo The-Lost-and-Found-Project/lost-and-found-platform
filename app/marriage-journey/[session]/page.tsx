@@ -23,20 +23,20 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
     <Link href="/marriage-journey" className="font-bold text-indigo-700">← All sessions</Link>
     <p className="mt-8 text-xs font-black uppercase tracking-widest text-indigo-700">Session {number} of 21 · {item.week}</p>
     <h1 className="mt-3 text-4xl font-black text-slate-900">{item.title}</h1>
-    <p className="mt-4 text-lg text-slate-600">Your Scripture reading: {item.scripture}</p>
+    <p className="mt-4 text-lg text-slate-600">Read Scripture together: {item.scripture}</p>
     <section className="lfp-card mt-8 p-6 sm:p-8"><h2 className="text-xl font-black">Today's focus</h2>
       <p className="mt-3 leading-8 text-slate-700">{item.teaching}</p>
       <h3 className="mt-6 font-black">Understanding the passage</h3><p className="mt-2 leading-8 text-slate-700">{context}</p>
       <h3 className="mt-6 font-black">Bring it home</h3><p className="mt-2 leading-7">{application}</p>
       <h3 className="mt-6 font-black">Heart question</h3><p className="mt-2 leading-7">{reflection}</p>
-      <h3 className="mt-6 font-black">Consider privately</h3><p className="mt-2 leading-7">{item.discussion}</p>
-      <h3 className="mt-6 font-black">Personal practice</h3><p className="mt-2 leading-7">{item.practice}</p>
-      <p className="mt-5 text-sm text-slate-600">Complete this session independently. When an exercise involves your spouse, use it naturally and only when both people are willing and feel safe. You do not need to compare workbook answers or hold a daily study meeting.</p>
+      <h3 className="mt-6 font-black">Discuss together</h3><p className="mt-2 leading-7">{item.discussion}</p>
+      <h3 className="mt-6 font-black">Practice together</h3><p className="mt-2 leading-7">{item.practice}</p>
+      <p className="mt-5 text-sm text-slate-600">Complete this daily session together: read the passage, discuss the questions, pray for one another, and try the exercise as a couple. Both people should participate freely and safely. Write personal reflections in your own private workbook; sharing private answers is optional.</p>
     </section>
     {milestone && <section className="lfp-card mt-6 border-amber-200 bg-amber-50/40 p-6 sm:p-8">
       <p className="text-xs font-black uppercase tracking-widest text-amber-800">End-of-week checkpoint</p>
       <h2 className="mt-2 text-2xl font-black text-slate-900">{milestone.title}</h2>
-      <p className="mt-2 text-sm text-slate-600">Prepare privately for your weekly meeting with your ministry mentor. You decide what to share; private workbook answers and trauma disclosures are never required.</p>
+      <p className="mt-2 text-sm text-slate-600">Review this week together before meeting your ministry mentor. Each person chooses what to share; private workbook answers and trauma disclosures are never required.</p>
       <ol className="mt-5 list-decimal space-y-3 pl-6 text-slate-800">{milestone.questions.map(question => <li key={question}>{question}</li>)}</ol>
       <p className="mt-5 font-bold text-slate-900">Practice: <span className="font-normal">{milestone.practice}</span></p>
     </section>}
