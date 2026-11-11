@@ -1,3 +1,4 @@
+import { requireMarriageAssignment } from "@/lib/marriage-assignment";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -16,9 +17,7 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
   const item = marriageSessions[number - 1];
   const milestone = marriageMilestones[number];
   const deepLesson = marriageDeepLessons[number];
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`/login?next=/marriage-journey/${number}`);
+  const { supabase, user } = await requireMarriageAssignment(`/marriage-journey/${number}`);
   const { data: progress, error: progressError } = await supabase.from("marriage_journey_progress")
     .select("private_reflection,shared_commitment,completed_at")
     .eq("user_id", user.id).eq("session_number", number).maybeSingle();

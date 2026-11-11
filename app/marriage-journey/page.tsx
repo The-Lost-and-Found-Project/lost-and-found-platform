@@ -1,12 +1,11 @@
+import { requireMarriageAssignment } from "@/lib/marriage-assignment";
 import Link from "next/link";
 import { marriageSessions } from "@/lib/marriage-journey";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function MarriageJourneyPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/marriage-journey");
+  const { supabase, user } = await requireMarriageAssignment(`/marriage-journey/`);
   const { data: progress, error: progressError } = await supabase.from("marriage_journey_progress").select("session_number,completed_at").eq("user_id", user.id);
   const completed = new Set((progress ?? []).filter(row => row.completed_at).map(row => row.session_number));
   const completedCount = completed.size;
@@ -15,7 +14,7 @@ export default async function MarriageJourneyPage() {
       <p className="text-xs font-black uppercase tracking-[.2em] text-amber-300">The Lost & Found Project · Marriage Discipleship</p>
       <h1 className="mt-3 text-4xl font-black sm:text-6xl">One Flesh, One Foundation</h1>
       <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">A Christ-centered, 21-day journey for husband and wife to complete together. Read Scripture, discuss the teaching, pray, and practice one marriage exercise each day. Meet with your ministry mentor once a week after days 7, 14, and 21. Adjust the pace when needed.</p>
-      <p className="mt-5 text-sm text-amber-200">Your reflections are private to your account. Mentor updates are shared only when you explicitly send them. This feature is in development; do not enter sensitive information until launch approval.</p>
+      <p className="mt-5 text-sm text-amber-200">Your reflections are private to your account. Mentor updates are shared only when you explicitly send them. Only assigned participants can open this study.</p>
     </div></section>
     <div className="lfp-shell py-10 space-y-10">
       <nav className="flex flex-wrap gap-4"><Link href="/marriage-journey/sharing" className="rounded-xl border px-5 py-3 font-black text-indigo-700">Manage mentor sharing</Link><Link href="/marriage-journey/mentor" className="rounded-xl border px-5 py-3 font-black text-indigo-700">Mentor check-ins</Link></nav>

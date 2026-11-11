@@ -1,11 +1,10 @@
+import { requireMarriageAssignment } from "@/lib/marriage-assignment";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { changeMentorShare, shareMarriageUpdate } from "./actions";
 export default async function MarriageSharingPage({ searchParams }: { searchParams: Promise<{ updated?: string }> }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/marriage-journey/sharing");
+  const { supabase, user } = await requireMarriageAssignment(`/marriage-journey/sharing`);
   const { data: grants, error } = await supabase.from("marriage_mentor_shares")
     .select("mentor_id,share_progress,share_commitments,status").eq("participant_id", user.id);
   const { updated } = await searchParams;

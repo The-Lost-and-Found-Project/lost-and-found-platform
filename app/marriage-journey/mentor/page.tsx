@@ -7,12 +7,14 @@ export default async function MarriageMentorPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/marriage-journey/mentor");
+  const { data: ownAssignment } = await supabase.from("marriage_journey_assignments").select("user_id").eq("user_id",user.id).is("revoked_at",null).maybeSingle();
   const { data: grants, error: grantsError } = await supabase.from("marriage_mentor_shares")
     .select("participant_id,share_progress,share_commitments")
     .eq("mentor_id",user.id).eq("status","active");
   const { data: updates, error: updatesError } = await supabase.from("marriage_mentor_updates")
     .select("participant_id,session_number,completed,commitment,shared_at")
     .eq("mentor_id",user.id).order("session_number");
+  if (!ownAssignment && !(grants?.length)) redirect("/dashboard?marriage=not-assigned");
   return <main className="lfp-page pb-24"><div className="lfp-shell max-w-5xl py-10">
     <Link href="/marriage-journey" className="font-bold text-indigo-700">← Marriage journey</Link>
     <h1 className="mt-6 text-4xl font-black">Mentor check-ins</h1>

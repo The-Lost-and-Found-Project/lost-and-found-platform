@@ -1,4 +1,5 @@
 "use server";
+import { requireMarriageAssignment } from "@/lib/marriage-assignment";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -10,9 +11,7 @@ export async function saveMarriageSession(formData: FormData) {
   const sharedCommitment = String(formData.get("sharedCommitment") ?? "").trim();
   if (privateReflection.length > 10000 || sharedCommitment.length > 3000) throw new Error("Response is too long");
   const completed = formData.get("completed") === "on";
-  const supabase = await createClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) redirect(`/login?next=/marriage-journey/${session}`);
+  const { supabase, user } = await requireMarriageAssignment(`/marriage-journey/${session}`);
   const { error: saveError } = await supabase.from("marriage_journey_progress").upsert({
     user_id: user.id,
     session_number: session,

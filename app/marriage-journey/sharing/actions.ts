@@ -1,12 +1,11 @@
 "use server";
+import { requireMarriageAssignment } from "@/lib/marriage-assignment";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export async function changeMentorShare(formData: FormData) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/marriage-journey/sharing");
+  const { supabase, user } = await requireMarriageAssignment("/marriage-journey/sharing");
   const mentorId = String(formData.get("mentorId") ?? "").trim();
   const operation = String(formData.get("operation") ?? "");
   if (!uuid.test(mentorId) || mentorId === user.id || !["grant","revoke"].includes(operation)) throw new Error("Invalid sharing request");
@@ -29,9 +28,7 @@ export async function changeMentorShare(formData: FormData) {
   redirect("/marriage-journey/sharing?updated=1");
 }
 export async function shareMarriageUpdate(formData: FormData) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/marriage-journey/sharing");
+  const { supabase, user } = await requireMarriageAssignment("/marriage-journey/sharing");
   const mentorId = String(formData.get("mentorId") ?? "");
   const session = Number(formData.get("session"));
   if (!uuid.test(mentorId) || !Number.isInteger(session) || session < 1 || session > 21) throw new Error("Invalid update");
