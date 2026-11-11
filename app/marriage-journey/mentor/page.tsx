@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { marriageFacilitatorGuidance, marriageSafetyGuidance } from "@/lib/marriage-facilitator-guidance";
+import { marriageWeeklyMeetings } from "@/lib/marriage-weekly-meetings";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 export default async function MarriageMentorPage() {
@@ -23,6 +24,7 @@ export default async function MarriageMentorPage() {
         <h3 className="font-black">{guide.title}</h3><p className="mt-2 text-sm font-bold text-indigo-700">Read: {guide.scripture}</p>
         <p className="mt-3 leading-7 text-slate-700">{guide.focus}</p>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-slate-700">{guide.questions.map(question => <li key={question}>{question}</li>)}</ul>
+        <h4 className="mt-4 font-bold">Suggested meeting flow</h4><ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-slate-700">{marriageWeeklyMeetings[Number(day)].agenda.map(step => <li key={step}>{step}</li>)}</ol>
         <p className="mt-3 text-sm"><strong>Next step:</strong> {guide.nextStep}</p>
       </section>)}</div>
       <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{marriageSafetyGuidance}</p>

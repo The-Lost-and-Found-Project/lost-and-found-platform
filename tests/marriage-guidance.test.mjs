@@ -45,3 +45,10 @@ test('every marriage lesson distinguishes passage context from pastoral applicat
  assert.match(notes, /stop joint exercises/);
  assert.match(page, /Reading Scripture in context/);
 });
+
+test('weekly pastoral meetings have preparation and an agenda for each checkpoint', () => {
+ const meetings = readFileSync(new URL('../lib/marriage-weekly-meetings.ts', import.meta.url), 'utf8');
+ assert.equal((meetings.match(/^  (7|14|21): \{/gm) ?? []).length, 3);
+ assert.match(meetings, /Individual journal entries and trauma histories are not required/);
+ assert.match(page, /Prepare together for your weekly meeting/);
+});

@@ -7,6 +7,7 @@ import { marriageGuidance } from "@/lib/marriage-journey-guidance";
 import { marriageCoupleRhythm, marriageWeeklyRhythm } from "@/lib/marriage-couple-rhythm";
 import { marriageDailyExercises } from "@/lib/marriage-daily-exercises";
 import { marriageEditorialNotes, marriagePastoralSafetyNote } from "@/lib/marriage-editorial-notes";
+import { marriageWeeklyMeetings, marriageMeetingPrivacy } from "@/lib/marriage-weekly-meetings";
 
 export default async function MarriageSessionPage({ params, searchParams }: { params: Promise<{ session: string }>; searchParams: Promise<{ saved?: string }> }) {
   const { session: slug } = await params;
@@ -50,6 +51,9 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
       <h2 className="mt-2 text-2xl font-black text-slate-900">{milestone.title}</h2>
       <p className="mt-2 text-sm text-slate-600">Review this week together before meeting your ministry mentor. Each person chooses what to share; private workbook answers and trauma disclosures are never required.</p>
       <ol className="mt-5 list-decimal space-y-3 pl-6 text-slate-800">{milestone.questions.map(question => <li key={question}>{question}</li>)}</ol>
+      <h3 className="mt-6 font-black">Prepare together for your weekly meeting</h3>
+      <ul className="mt-3 list-disc space-y-2 pl-6 text-slate-800">{marriageWeeklyMeetings[number].preparation.map(step => <li key={step}>{step}</li>)}</ul>
+      <p className="mt-4 text-sm leading-6 text-slate-600">{marriageMeetingPrivacy}</p>
       <p className="mt-5 font-bold text-slate-900">Practice: <span className="font-normal">{milestone.practice}</span></p>
     </section>}
     <form action={saveMarriageSession} className="lfp-card mt-6 space-y-6 p-6 sm:p-8">
