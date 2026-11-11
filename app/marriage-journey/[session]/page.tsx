@@ -43,7 +43,7 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
       <input type="hidden" name="session" value={number}/>
       <h2 className="text-xl font-black">Your personal workbook</h2>
       {progressError && <p role="alert" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900">Private saving is unavailable. Your responses cannot be stored until the database is ready.</p>}
-      <p className="text-sm text-slate-600">Your private reflection is visible only to your account. The commitment field is also private for now; mentor sharing is not enabled.</p>
+      <p className="text-sm text-slate-600">Your private reflection is visible only to your account. Your practical commitment stays private unless you explicitly choose to share a session update with a verified mentor and enable commitment sharing. Nothing is sent automatically.</p>
       <label className="block font-bold" htmlFor="privateReflection">Private reflection</label>
       <textarea id="privateReflection" name="privateReflection" maxLength={10000} rows={7} defaultValue={progress?.private_reflection ?? ""} className="w-full rounded-xl border border-slate-300 p-4" placeholder="What is God showing me about my own heart and actions?"/>
       <label className="block font-bold" htmlFor="sharedCommitment">A practical commitment</label>
