@@ -18,7 +18,7 @@ const admin=createClient('http://127.0.0.1:54321',env.SERVICE_ROLE_KEY,{auth:{pe
   await page.getByRole('button',{name:'Sign In',exact:true}).click();
   await page.waitForURL('**/marriage-journey/1',{timeout:20000});
   await page.getByLabel('Private reflection').waitFor();
-  for(const day of [1,7,14,16,18,21]){await page.goto(`http://127.0.0.1:3187/marriage-journey/${day}`);await page.getByText('Understanding Scripture in its setting').waitFor({timeout:15000});const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);assert.ok(overflow<=2,`Day ${day}: horizontal overflow ${overflow}`);}await page.goto('http://127.0.0.1:3187/marriage-journey/1');
+  for(const day of Array.from({length:21},(_,i)=>i+1)){await page.goto(`http://127.0.0.1:3187/marriage-journey/${day}`);await page.getByText('Understanding Scripture in its setting').waitFor({timeout:15000});const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);assert.ok(overflow<=2,`Day ${day}: horizontal overflow ${overflow}`);assert.equal(await page.getByLabel('Private reflection').count(),1,`Day ${day}: reflection input missing`);}await page.goto('http://127.0.0.1:3187/marriage-journey/1');
   await page.getByLabel('Private reflection').fill('Synthetic private reflection');
   await page.getByLabel('A practical commitment').fill('Listen before responding');
   await page.getByLabel('Mark this session complete').check();
@@ -29,6 +29,6 @@ const admin=createClient('http://127.0.0.1:54321',env.SERVICE_ROLE_KEY,{auth:{pe
   await page.getByRole('heading',{name:'Your sharing permissions'}).waitFor();
   await page.goto('http://127.0.0.1:3187/marriage-journey/mentor');
   await page.getByRole('heading',{name:'Mentor check-ins'}).waitFor();
-  console.log('PASS: iPhone-sized Chrome viewport, representative lessons, no horizontal overflow, private save and mentor navigation');
+  console.log('PASS: iPhone-sized Chrome viewport, all 21 lessons, no horizontal overflow, private save and mentor navigation');
  } finally {if(browser)await browser.close();if(id){const r=await admin.auth.admin.deleteUser(id);if(r.error)console.error('cleanup:',r.error.message)}}
 })().catch(e=>{console.error(e);process.exitCode=1});
