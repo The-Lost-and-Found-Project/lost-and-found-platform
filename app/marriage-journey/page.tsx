@@ -18,6 +18,7 @@ export default async function MarriageJourneyPage() {
       <p className="mt-5 text-sm text-amber-200">Your reflections are private to your account. Mentor sharing is not enabled. Do not enter sensitive information until the database migration and privacy checks are verified.</p>
     </div></section>
     <div className="lfp-shell py-10 space-y-10">
+      <nav className="flex flex-wrap gap-4"><Link href="/marriage-journey/sharing" className="rounded-xl border px-5 py-3 font-black text-indigo-700">Manage mentor sharing</Link><Link href="/marriage-journey/mentor" className="rounded-xl border px-5 py-3 font-black text-indigo-700">Mentor check-ins</Link></nav>
       <section aria-label="Your journey progress" className="lfp-card p-6 sm:p-8">
         <div className="flex items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-widest text-indigo-700">Your journey</p><h2 className="mt-2 text-2xl font-black">{completedCount} of 21 sessions completed</h2></div><p className="text-2xl font-black text-slate-900">{Math.round(completedCount / 21 * 100)}%</p></div>
         <div role="progressbar" aria-label="Sessions completed" aria-valuemin={0} aria-valuemax={21} aria-valuenow={completedCount} className="mt-5 h-3 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-indigo-700" style={{width: `${completedCount / 21 * 100}%`}}/></div>
