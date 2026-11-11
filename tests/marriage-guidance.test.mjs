@@ -6,9 +6,9 @@ const page = readFileSync(new URL('../app/marriage-journey/[session]/page.tsx', 
 test('all 21 marriage sessions have separate biblical teaching and application', () => {
   const sections = guidance.match(/^  \["/gm) ?? [];
   assert.equal(sections.length, 21);
-  assert.match(page, /Understanding the passage/);
-  assert.match(page, /Bring it home/);
-  assert.match(page, /Heart question/);
+  assert.match(page, /Understanding Scripture in its setting/);
+  assert.match(page, /Put the teaching into practice/);
+  assert.match(page, /Talk it through together/);
 });
 test('trauma and spiritual abuse are not normalized by marriage content', () => {
   assert.match(guidance, /coercion/);
@@ -34,7 +34,7 @@ test('all 21 days have a concrete shared exercise', () => {
  assert.match(exercises, /newborn support plan/i);
  assert.match(exercises, /ministry response boundary/i);
  assert.match(exercises, /No one has to describe past trauma/);
- assert.match(page, /Today’s step-by-step exercise/);
+ assert.match(page, /marriageDailyExercises\[number - 1\]\[1\]/);
 });
 
 test('every marriage lesson distinguishes passage context from pastoral application', () => {
@@ -43,7 +43,7 @@ test('every marriage lesson distinguishes passage context from pastoral applicat
  assert.match(notes, /Mark 7:9–13/);
  assert.match(notes, /not a direct teaching/);
  assert.match(notes, /stop joint exercises/);
- assert.match(page, /Reading Scripture in context/);
+ assert.match(page, /Understanding Scripture in its setting/);
 });
 
 test('weekly pastoral meetings have preparation and an agenda for each checkpoint', () => {

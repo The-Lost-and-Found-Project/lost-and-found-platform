@@ -1,6 +1,6 @@
 # One Flesh, One Foundation — pastoral review and controlled-release checklist
 
-**Status:** Development complete enough for pastoral review; NOT approved for production or real participant information.
+**Status:** All 21 expanded lessons and matching participant/facilitator documents generated; local validation passed. Pastoral sign-off, full visual QA, nonproduction Preview validation, and release approval are still outstanding. NOT approved for production or real participant information.
 
 ## Intended experience
 
@@ -17,6 +17,15 @@
 3. Confirm the privacy explanation is understandable: each spouse owns their journal, mentor sharing is opt-in, and revocation removes shared snapshots.
 4. Confirm that the participant-facing material does not imply pastoral care replaces qualified trauma-informed counseling, emergency assistance, or postpartum medical care.
 5. Approve or request revisions to the complete journey **before** real participants receive invitations.
+
+## November 11 curriculum and document review
+
+- All 21 expanded lessons now include Scripture context, five practical teaching paragraphs, six discussion prompts, and a prayer. The participant workbook pulls the same 21 specific exercises as the app.
+- The app lesson page was simplified to show the expanded teaching once, rather than repeating older brief context, reflection, and discussion blocks after the expanded content.
+- Both Word documents were generated on the owner's Mac under `Documents/Lost and Found Project/Marriage Journey Review`. Structural inspection verified 21 lessons, exercises, discussion sections, prayers, and three mentor checkpoints.
+- macOS Quick Look successfully generated a participant-workbook thumbnail. This is **not** a full page-by-page layout inspection; visual QA remains open.
+- TypeScript, 211 automated tests, and production build passed locally after the lesson-page cleanup.
+- No authenticated hosted Preview session, database migration, or mobile-device test was performed in this pass.
 
 ## Technical release gates
 
