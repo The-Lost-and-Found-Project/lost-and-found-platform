@@ -27,3 +27,12 @@ test('daily couple study and weekly mentor meetings have distinct roles', () => 
  assert.match(rhythm, /After every seven daily sessions/);
  assert.match(page, /Your time together today/);
 });
+
+test('all 21 days have a concrete shared exercise', () => {
+ const exercises = readFileSync(new URL('../lib/marriage-daily-exercises.ts', import.meta.url), 'utf8');
+ assert.equal((exercises.match(/^  \['/gm) ?? []).length, 21);
+ assert.match(exercises, /newborn support plan/i);
+ assert.match(exercises, /ministry response boundary/i);
+ assert.match(exercises, /No one has to describe past trauma/);
+ assert.match(page, /Today’s step-by-step exercise/);
+});

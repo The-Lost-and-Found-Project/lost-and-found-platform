@@ -5,6 +5,7 @@ import { saveMarriageSession } from "./actions";
 import { marriageSessions, marriageMilestones } from "@/lib/marriage-journey";
 import { marriageGuidance } from "@/lib/marriage-journey-guidance";
 import { marriageCoupleRhythm, marriageWeeklyRhythm } from "@/lib/marriage-couple-rhythm";
+import { marriageDailyExercises } from "@/lib/marriage-daily-exercises";
 
 export default async function MarriageSessionPage({ params, searchParams }: { params: Promise<{ session: string }>; searchParams: Promise<{ saved?: string }> }) {
   const { session: slug } = await params;
@@ -38,6 +39,7 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
       <h3 className="mt-6 font-black">Heart question</h3><p className="mt-2 leading-7">{reflection}</p>
       <h3 className="mt-6 font-black">Discuss together</h3><p className="mt-2 leading-7">{item.discussion}</p>
       <h3 className="mt-6 font-black">Practice together</h3><p className="mt-2 leading-7">{item.practice}</p>
+      <div className="mt-4 rounded-xl border border-indigo-200 bg-indigo-50/60 p-5"><h4 className="font-black text-indigo-950">Today’s step-by-step exercise</h4><p className="mt-2 leading-7 text-slate-800">{marriageDailyExercises[number - 1][1]}</p></div>
       <p className="mt-5 text-sm text-slate-600">Complete this daily session together: read the passage, discuss the questions, pray for one another, and try the exercise as a couple. Both people should participate freely and safely. Write personal reflections in your own private workbook; sharing private answers is optional.</p>
     </section>
     {milestone && <section className="lfp-card mt-6 border-amber-200 bg-amber-50/40 p-6 sm:p-8">
