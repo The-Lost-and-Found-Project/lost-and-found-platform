@@ -55,7 +55,7 @@ test('weekly pastoral meetings have preparation and an agenda for each checkpoin
 
 test('expanded lessons offer contextual teaching, discussion, and prayer', () => {
  const deep = readFileSync(new URL('../lib/marriage-deep-lessons.ts', import.meta.url), 'utf8');
- assert.equal((deep.match(/^  [1-3]: \{/gm) ?? []).length, 3);
+ assert.equal((deep.match(/^  [1-7]: \{/gm) ?? []).length, 7);
  assert.match(deep, /James 1:19–20/);
  assert.match(deep, /prayer:/);
  assert.match(page, /Expanded Scripture teaching/);
