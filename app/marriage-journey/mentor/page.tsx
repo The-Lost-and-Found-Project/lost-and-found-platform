@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { marriageFacilitatorGuidance, marriageSafetyGuidance } from "@/lib/marriage-facilitator-guidance";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 export default async function MarriageMentorPage() {
@@ -16,6 +17,16 @@ export default async function MarriageMentorPage() {
     <h1 className="mt-6 text-4xl font-black">Mentor check-ins</h1>
     <section className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-5"><h2 className="font-black">Your mentor account ID</h2><p className="mt-2 break-all font-mono text-sm">{user.id}</p><p className="mt-2 text-sm text-slate-600">Share this ID directly with a participant who has asked you to mentor them. This ID is not a password.</p></section>
     <p className="mt-4 max-w-3xl leading-7 text-slate-700">Only updates that a participant deliberately sends appear here. Personal journals, unshared commitments, and other account data are not accessible.</p>
+    <section className="lfp-card mt-8 p-6 sm:p-8"><h2 className="text-2xl font-black">Facilitator check-in guide</h2>
+      <p className="mt-3 text-sm text-slate-700">Use these voluntary check-ins after sessions 7, 14, and 21. They guide ministry conversations, not assessments or private journal reviews.</p>
+      <div className="mt-6 space-y-6">{Object.entries(marriageFacilitatorGuidance).map(([day,guide]) => <section key={day} className="rounded-xl border border-slate-200 p-5">
+        <h3 className="font-black">{guide.title}</h3><p className="mt-2 text-sm font-bold text-indigo-700">Read: {guide.scripture}</p>
+        <p className="mt-3 leading-7 text-slate-700">{guide.focus}</p>
+        <ul className="mt-3 list-disc space-y-2 pl-5 text-slate-700">{guide.questions.map(question => <li key={question}>{question}</li>)}</ul>
+        <p className="mt-3 text-sm"><strong>Next step:</strong> {guide.nextStep}</p>
+      </section>)}</div>
+      <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">{marriageSafetyGuidance}</p>
+    </section>
     {grantsError || updatesError ? <p role="alert" className="mt-6 rounded-xl bg-amber-50 p-5">Mentor updates are unavailable. No information is being shown as complete.</p> :
       grants?.length ? <div className="mt-8 grid gap-5">{grants.map(grant => {
         const shared = (updates ?? []).filter(update => update.participant_id === grant.participant_id);
