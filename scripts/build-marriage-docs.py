@@ -1,10 +1,11 @@
-import json, os
+import json, os, subprocess
 from pathlib import Path
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 root=Path(__file__).parent
-lessons=json.loads((root/'marriage-lessons-export.json').read_text())
+node_script = "const fs=require('fs'),ts=require('typescript'),vm=require('vm');const src=fs.readFileSync('lib/marriage-deep-lessons.ts','utf8');const js=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;const ctx={exports:{}};vm.runInNewContext(js,ctx);process.stdout.write(JSON.stringify(ctx.exports.marriageDeepLessons));"
+lessons=json.loads(subprocess.check_output(['node','-e',node_script], cwd=root.parent, text=True))
 out=Path.home()/'Documents'/'Lost and Found Project'/'Marriage Journey Review'
 out.mkdir(parents=True,exist_ok=True)
 titles=['Listening Is an Act of Love','Why Do We React So Strongly?','Speaking Truth Without Causing Harm','When Conflict Becomes a Battle','Intentions and Impact','Understanding Your Spouse’s Needs','Our Communication Covenant','Becoming One Flesh','God’s Calling and Family Responsibilities','Leadership That Looks Like Jesus','Expectations We Never Discussed','Recovery and Healthy Boundaries','Becoming a Family','Protecting Our Marriage in a New Season','Your Past and Your Future','Forgiveness and Rebuilding Trust','When Ministry Becomes Our Identity','Creating Emotional Safety','Praying as Husband and Wife','Weathering Difficult Seasons','Choosing Each Other, Choosing Christ']
