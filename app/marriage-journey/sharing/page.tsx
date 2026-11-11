@@ -16,7 +16,7 @@ export default async function MarriageSharingPage({ searchParams }: { searchPara
     {updated === "1" && <p role="status" className="mt-4 font-bold text-emerald-700">Sharing settings updated.</p>}
     {error ? <p role="alert" className="mt-6 rounded-xl bg-amber-50 p-5">Sharing is unavailable until the database is ready.</p> : <>
       <section className="lfp-card mt-7 p-6"><h2 className="text-xl font-black">Add a mentor</h2>
-        <p className="mt-2 text-sm text-slate-600">Your mentor can find their account ID on the <a className="font-bold text-indigo-700 underline" href="/marriage-journey/mentor">mentor check-ins page</a>. Ask them to send it directly to you. Verify the ID with them directly by phone or in person. Do not grant access to an unverified ID.</p>
+        <p className="mt-2 text-sm text-slate-600">Your mentor can find their account ID on the <Link className="font-bold text-indigo-700 underline" href="/marriage-journey/mentor">mentor check-ins page</Link>. Ask them to send it directly to you. Verify the ID with them directly by phone or in person. Do not grant access to an unverified ID.</p>
         <form action={changeMentorShare} className="mt-5 space-y-4"><input type="hidden" name="operation" value="grant"/>
           <label className="block font-bold" htmlFor="mentorId">Mentor account ID</label><input id="mentorId" name="mentorId" required placeholder="Account UUID" className="w-full rounded-xl border p-3"/>
           <label className="flex gap-3"><input type="checkbox" name="shareProgress" defaultChecked/>Allow session completion updates</label>
