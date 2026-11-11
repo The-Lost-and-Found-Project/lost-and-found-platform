@@ -4,14 +4,26 @@ on:
   pull_request:
     paths:
       - "supabase/**"
+      - "scripts/local-notification-auth-smoke.mjs"
+      - "scripts/local-study-auth-smoke.mjs"
+      - "scripts/local-giving-auth-smoke.mjs"
+      - "scripts/local-app-study-http-smoke.mjs"
       - ".github/workflows/database-tests.yml"
   push:
     branches:
       - main
     paths:
       - "supabase/**"
+      - "scripts/local-notification-auth-smoke.mjs"
+      - "scripts/local-study-auth-smoke.mjs"
+      - "scripts/local-giving-auth-smoke.mjs"
+      - "scripts/local-app-study-http-smoke.mjs"
       - ".github/workflows/database-tests.yml"
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -32,5 +44,25 @@ jobs:
       - name: Start isolated Supabase
         run: supabase start
 
-      - name: Test prayer-care database lifecycle
+      - name: Test database RLS and ministry workflows
         run: supabase test db
+
+      - name: Install Node.js for real Auth and REST smoke
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies for local-only smoke
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+
+      - name: Verify synthetic Auth and REST notification isolation
+        run: node scripts/local-notification-auth-smoke.mjs
+
+      - name: Verify synthetic Auth and REST Bible-study privacy
+        run: node scripts/local-study-auth-smoke.mjs
+
+      - name: Verify synthetic Auth and REST donor identity isolation
+        run: node scripts/local-giving-auth-smoke.mjs
+
+      - name: Verify authenticated Next.js Daily Path page isolation
+        run: node scripts/local-app-study-http-smoke.mjs

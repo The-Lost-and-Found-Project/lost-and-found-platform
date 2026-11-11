@@ -100,6 +100,7 @@ create table public.prayer_reactions (
 alter table public.prayer_reactions enable row level security;
 grant insert on public.prayer_reactions to anon;
 grant insert, select on public.prayer_reactions to authenticated;
+revoke select on public.prayer_reactions from anon;
 
 create policy reactions_insert_valid_identity
 on public.prayer_reactions
