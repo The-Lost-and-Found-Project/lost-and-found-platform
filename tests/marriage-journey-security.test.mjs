@@ -16,7 +16,7 @@ test('marriage progress is RLS-protected and scoped to auth user for every opera
   assert.match(migration, /revoke all .* from anon/i);
 });
 test('server action requires authenticated user and derives ownership from auth', () => {
-  assert.match(action, /auth\.getUser\(\)/);
+  assert.match(action, /requireMarriageAssignment\(/);
   assert.match(action, /user_id:\s*user\.id/);
   assert.doesNotMatch(action, /formData\.get\(["']user_id/);
   assert.match(action, /session < 1 \|\| session > 21/);
