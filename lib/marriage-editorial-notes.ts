@@ -1,0 +1,25 @@
+/** Scripture-context and pastoral-use notes. Not a substitute for reviewing the Bible text. */
+export const marriageEditorialNotes: Record<number, string> = {
+  1: 'James 1:19–20 speaks broadly about receiving God’s word and responding without sinful anger. Applying it to marital listening is a pastoral application, not the passage’s sole subject.',
+  2: 'Proverbs 4:23 addresses guarding the heart as a source of life; Psalm 139:23–24 is a prayer of self-examination. Neither passage diagnoses trauma.',
+  3: 'Ephesians 4 addresses Christian community life. Marriage is one setting where truthful, edifying speech should be practiced.',
+  4: 'Romans 12:18 qualifies the call to peace: “as far as it depends on you.” One spouse cannot guarantee peace or safety by behaving better.',
+  5: 'Philippians 2 points believers to Christlike humility; 1 Corinthians 13 describes love. These texts do not excuse harmful conduct.',
+  6: 'Romans 12:10 concerns mutual honor among believers. First Peter 3:7 speaks specifically to husbands about living considerately with their wives.',
+  7: 'Colossians 3 describes Christian virtues within the church. A communication agreement is a modern application, not a direct biblical command.',
+  8: 'Genesis 2 describes the creation of marriage, and Jesus cites it in Matthew 19 when answering a question about divorce. Do not use covenant language to pressure someone to endure abuse.',
+  9: 'Mark 7:9–13 rebukes religious traditions used to avoid honoring parents. Applying its principle to ministry-related family neglect is an analogy, not a direct teaching about modern ministry schedules.',
+  10: 'Mark 10:42–45 addresses leadership among Jesus’ disciples. John 13 depicts Jesus washing his disciples’ feet; service within marriage is an application.',
+  11: 'Philippians 2 teaches humility and concern for others. Proverbs 20:5 compares human purposes to deep waters, encouraging patient understanding.',
+  12: 'Galatians 6:2 and 6:5 distinguish bearing one another’s burdens from carrying one’s own load. Luke 5:16 describes Jesus withdrawing to pray, not a universal scheduling rule.',
+  13: 'Deuteronomy 6 addresses Israel’s covenant instruction in the home. Ephesians 6:4 calls fathers not to provoke children but to nurture them in the Lord.',
+  14: 'Ecclesiastes 3 describes seasons and times in human life. It does not give medical or postpartum advice; practical planning should respect each family’s needs.',
+  15: 'Psalm 34:18 declares the Lord’s nearness to the brokenhearted. Romans 12:2 speaks of renewed minds; neither guarantees immediate trauma recovery.',
+  16: 'Ephesians 4:31–32 calls Christians to kindness and forgiveness. Luke 17:3–4 includes rebuke and repentance; trust and safety require separate discernment.',
+  17: 'Luke 10:38–42 contrasts Martha’s distraction with Mary’s attention to Jesus. John 15 describes abiding in Christ; do not shame necessary service or caregiving.',
+  18: 'Romans 12 and Colossians 3 call Christians to genuine love and compassion. Emotional-safety practices are a responsible application, not a clinical treatment.',
+  19: 'Philippians 4:6–7 addresses prayer amid anxiety. First Peter 3:7 warns husbands that mistreatment of wives affects their prayers.',
+  20: 'Matthew 7:24–27 concludes the Sermon on the Mount: wise builders hear and do Jesus’ words. The illustration is not a promise of trouble-free marriage.',
+  21: 'Joshua 24:15 concerns Israel’s covenant choice to serve the Lord. Using it for a household commitment is an application, not a marriage-specific instruction.',
+};
+export const marriagePastoralSafetyNote = 'These exercises are voluntary and are not couples therapy. If one spouse fears threats, coercion, retaliation, or violence, stop joint exercises and seek appropriate individual support. Never use Scripture to demand silence, forced forgiveness, or unsafe reconciliation.';
