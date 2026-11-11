@@ -8,6 +8,7 @@ import { marriageCoupleRhythm, marriageWeeklyRhythm } from "@/lib/marriage-coupl
 import { marriageDailyExercises } from "@/lib/marriage-daily-exercises";
 import { marriageEditorialNotes, marriagePastoralSafetyNote } from "@/lib/marriage-editorial-notes";
 import { marriageWeeklyMeetings, marriageMeetingPrivacy } from "@/lib/marriage-weekly-meetings";
+import { marriageDeepLessons } from "@/lib/marriage-deep-lessons";
 
 export default async function MarriageSessionPage({ params, searchParams }: { params: Promise<{ session: string }>; searchParams: Promise<{ saved?: string }> }) {
   const { session: slug } = await params;
@@ -15,6 +16,7 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
   if (!Number.isInteger(number) || number < 1 || number > 21) notFound();
   const item = marriageSessions[number - 1];
   const milestone = marriageMilestones[number];
+  const deepLesson = marriageDeepLessons[number];
   const [context, application, reflection] = marriageGuidance[number - 1];
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -36,6 +38,16 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
     </section>
     <section className="lfp-card mt-6 p-6 sm:p-8"><h2 className="text-xl font-black">Today's focus</h2>
       <p className="mt-3 leading-8 text-slate-700">{item.teaching}</p>
+      {deepLesson && <section className="mt-8 border-t border-slate-200 pt-6" aria-label="Expanded Scripture teaching">
+        <h3 className="text-xl font-black">Understanding Scripture in its setting</h3>
+        <p className="mt-3 leading-8 text-slate-700">{deepLesson.setting}</p>
+        <h3 className="mt-7 text-xl font-black">A deeper look at your marriage</h3>
+        {deepLesson.teaching.map((paragraph, index) => <p key={index} className="mt-4 leading-8 text-slate-700">{paragraph}</p>)}
+        <h3 className="mt-7 text-xl font-black">Talk it through together</h3>
+        <ol className="mt-3 list-decimal space-y-3 pl-6 leading-7 text-slate-700">{deepLesson.questions.map(question => <li key={question}>{question}</li>)}</ol>
+        <h3 className="mt-7 text-xl font-black">Pray together</h3>
+        <p className="mt-3 leading-8 text-slate-700">{deepLesson.prayer}</p>
+      </section>}
       <h3 className="mt-6 font-black">Understanding the passage</h3><p className="mt-2 leading-8 text-slate-700">{context}</p>
       <h3 className="mt-6 font-black">Reading Scripture in context</h3><p className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-7 text-slate-700">{marriageEditorialNotes[number]}</p>
       <h3 className="mt-6 font-black">Bring it home</h3><p className="mt-2 leading-7">{application}</p>
