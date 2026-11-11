@@ -35,3 +35,7 @@ test('sharing rejects grants with no authorized categories', () => {
  assert.match(actions,/Choose at least one category to share/);
  assert.match(actions,/No sharing categories are enabled/);
 });
+
+test('sharing never manufactures an update for an unsaved session', () => {
+ assert.match(actions,/if \(!progress\) throw new Error/);
+});

@@ -42,6 +42,7 @@ export async function shareMarriageUpdate(formData: FormData) {
   const { data: progress, error: progressError } = await supabase.from("marriage_journey_progress")
     .select("completed_at,shared_commitment").eq("user_id", user.id).eq("session_number", session).maybeSingle();
   if (progressError) throw new Error("Progress unavailable");
+  if (!progress) throw new Error("Complete or save this session before sharing an update");
   const { error } = await supabase.from("marriage_mentor_updates").upsert({
     participant_id: user.id, mentor_id: mentorId, session_number: session,
     completed: grant.share_progress && Boolean(progress?.completed_at),

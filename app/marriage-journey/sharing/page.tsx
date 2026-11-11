@@ -29,7 +29,7 @@ export default async function MarriageSharingPage({ searchParams }: { searchPara
           <p className="break-all font-bold">Mentor ID: {grant.mentor_id}</p>
           <p className="mt-2 text-sm">Completion updates: {grant.share_progress ? "Allowed" : "Off"} · Commitments: {grant.share_commitments ? "Allowed" : "Off"}</p>
           <div className="mt-5 flex flex-wrap gap-3"><form action={changeMentorShare}><input type="hidden" name="operation" value="revoke"/><input type="hidden" name="mentorId" value={grant.mentor_id}/><button className="rounded-xl border border-red-300 px-4 py-2 font-bold text-red-800">Revoke and delete shared updates</button></form></div>
-          <p className="mt-5 text-sm text-slate-600">To send a specific session update, select its number. Only its completion status and, if permitted, its practical commitment will be copied. Your private reflection is excluded. Nothing is shared automatically.</p>
+          <p className="mt-5 text-sm text-slate-600">Save the session first. To send a specific session update, select its number. Only its completion status and, if permitted, its practical commitment will be copied. Your private reflection is excluded. Nothing is shared automatically.</p>
           <form action={shareMarriageUpdate} className="mt-3 flex flex-wrap gap-3"><input type="hidden" name="mentorId" value={grant.mentor_id}/><select name="session" aria-label="Session to share" className="rounded-xl border p-2">{Array.from({length:21},(_,i)=><option key={i} value={i+1}>Session {i+1}</option>)}</select><button className="rounded-xl bg-indigo-700 px-4 py-2 font-bold text-white">Share this session update</button></form>
         </div>) : <p className="text-slate-600">No mentor access granted.</p>}
       </section>
