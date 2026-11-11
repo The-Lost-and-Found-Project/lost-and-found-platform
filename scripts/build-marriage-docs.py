@@ -6,6 +6,9 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 root=Path(__file__).parent
 node_script = "const fs=require('fs'),ts=require('typescript'),vm=require('vm');const src=fs.readFileSync('lib/marriage-deep-lessons.ts','utf8');const js=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;const ctx={exports:{}};vm.runInNewContext(js,ctx);process.stdout.write(JSON.stringify(ctx.exports.marriageDeepLessons));"
 lessons=json.loads(subprocess.check_output(['node','-e',node_script], cwd=root.parent, text=True))
+exercise_script = "const fs=require('fs'),ts=require('typescript'),vm=require('vm');const src=fs.readFileSync('lib/marriage-daily-exercises.ts','utf8');const js=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;const ctx={exports:{}};vm.runInNewContext(js,ctx);process.stdout.write(JSON.stringify(ctx.exports.marriageDailyExercises));"
+exercises=json.loads(subprocess.check_output(['node','-e',exercise_script], cwd=root.parent, text=True))
+assert len(lessons)==21 and len(exercises)==21
 out=Path.home()/'Documents'/'Lost and Found Project'/'Marriage Journey Review'
 out.mkdir(parents=True,exist_ok=True)
 titles=['Listening Is an Act of Love','Why Do We React So Strongly?','Speaking Truth Without Causing Harm','When Conflict Becomes a Battle','Intentions and Impact','Understanding Your Spouse’s Needs','Our Communication Covenant','Becoming One Flesh','God’s Calling and Family Responsibilities','Leadership That Looks Like Jesus','Expectations We Never Discussed','Recovery and Healthy Boundaries','Becoming a Family','Protecting Our Marriage in a New Season','Your Past and Your Future','Forgiveness and Rebuilding Trust','When Ministry Becomes Our Identity','Creating Emotional Safety','Praying as Husband and Wife','Weathering Difficult Seasons','Choosing Each Other, Choosing Christ']
@@ -31,13 +34,13 @@ for i in range(1,22):
  for paragraph in lesson['teaching']:add(d,paragraph)
  heading(d,'Discuss together')
  for j,q in enumerate(lesson['questions'],1):add(d,'%s. %s'%(j,q))
- heading(d,'Practice as a couple');add(d,'Each spouse chooses one specific action based on today’s teaching. Take turns explaining what will help; agree freely on one realistic next step.')
+ heading(d,'Practice as a couple');add(d,exercises[i-1][0]);add(d,exercises[i-1][1])
  heading(d,'Pray together');add(d,lesson['prayer'])
  heading(d,'Private personal reflection');add(d,'What is God showing me about my own response? What will I practice before tomorrow? Keep this response private unless you freely choose to share it.')
  add(d,'Notes: ______________________________________________________________')
  add(d,'_____________________________________________________________________')
  if i in (7,14,21):
-  heading(d,'Weekly mentor meeting');add(d,'Prepare one observation, one question, and one practical commitment to discuss voluntarily with your mentor. Private reflections and trauma disclosures are not required.')
+  heading(d,'Weekly mentor meeting');add(d,'Together prepare one observation, one question, and one practical commitment to discuss voluntarily with your mentor. Private reflections and trauma disclosures are not required.')
 participant=out/'One Flesh One Foundation - Participant Workbook.docx';d.save(participant)
 f=Document();setup(f);f.add_heading('One Flesh, One Foundation',0);add(f,'Facilitator guide | Three weekly mentoring meetings')
 add(f,'The couple completes daily lessons together. Your role is to teach Scripture in context, ask thoughtful questions, and support practical next steps. Never require access to private journal entries.')
