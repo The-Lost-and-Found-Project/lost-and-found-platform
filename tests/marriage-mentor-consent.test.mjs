@@ -30,3 +30,8 @@ test('new grants require explicit confirmation of mentor identity', () => {
  assert.match(actions,/formData.get\("verifiedMentor"\) !== "on"/);
  assert.match(page,/independently confirmed/);
 });
+
+test('sharing rejects grants with no authorized categories', () => {
+ assert.match(actions,/Choose at least one category to share/);
+ assert.match(actions,/No sharing categories are enabled/);
+});

@@ -15,6 +15,7 @@ export async function changeMentorShare(formData: FormData) {
     if (error) throw new Error("Could not revoke access");
   } else {
     if (formData.get("verifiedMentor") !== "on") throw new Error("Confirm the mentor identity before granting access");
+    if (formData.get("shareProgress") !== "on" && formData.get("shareCommitments") !== "on") throw new Error("Choose at least one category to share");
     const { error } = await supabase.from("marriage_mentor_shares").upsert({
       participant_id: user.id, mentor_id: mentorId, status: "active",
       share_progress: formData.get("shareProgress") === "on",
@@ -37,6 +38,7 @@ export async function shareMarriageUpdate(formData: FormData) {
   const { data: grant, error: grantError } = await supabase.from("marriage_mentor_shares")
     .select("share_progress,share_commitments").eq("participant_id", user.id).eq("mentor_id", mentorId).eq("status", "active").single();
   if (grantError || !grant) throw new Error("Sharing permission is unavailable");
+  if (!grant.share_progress && !grant.share_commitments) throw new Error("No sharing categories are enabled");
   const { data: progress, error: progressError } = await supabase.from("marriage_journey_progress")
     .select("completed_at,shared_commitment").eq("user_id", user.id).eq("session_number", session).maybeSingle();
   if (progressError) throw new Error("Progress unavailable");
