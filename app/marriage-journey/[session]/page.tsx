@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { saveMarriageSession } from "./actions";
 import { marriageSessions, marriageMilestones } from "@/lib/marriage-journey";
+import { marriageGuidance } from "@/lib/marriage-journey-guidance";
 
 export default async function MarriageSessionPage({ params, searchParams }: { params: Promise<{ session: string }>; searchParams: Promise<{ saved?: string }> }) {
   const { session: slug } = await params;
@@ -10,6 +11,7 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
   if (!Number.isInteger(number) || number < 1 || number > 21) notFound();
   const item = marriageSessions[number - 1];
   const milestone = marriageMilestones[number];
+  const [context, application, reflection] = marriageGuidance[number - 1];
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?next=/marriage-journey/${number}`);
@@ -24,6 +26,9 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
     <p className="mt-4 text-lg text-slate-600">Read together: {item.scripture}</p>
     <section className="lfp-card mt-8 p-6 sm:p-8"><h2 className="text-xl font-black">Today's focus</h2>
       <p className="mt-3 leading-8 text-slate-700">{item.teaching}</p>
+      <h3 className="mt-6 font-black">Understanding the passage</h3><p className="mt-2 leading-8 text-slate-700">{context}</p>
+      <h3 className="mt-6 font-black">Bring it home</h3><p className="mt-2 leading-7">{application}</p>
+      <h3 className="mt-6 font-black">Heart question</h3><p className="mt-2 leading-7">{reflection}</p>
       <h3 className="mt-6 font-black">Discuss together</h3><p className="mt-2 leading-7">{item.discussion}</p>
       <h3 className="mt-6 font-black">Practice this week</h3><p className="mt-2 leading-7">{item.practice}</p>
     </section>
