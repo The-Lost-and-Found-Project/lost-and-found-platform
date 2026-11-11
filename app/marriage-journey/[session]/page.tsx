@@ -12,7 +12,7 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?next=/marriage-journey/${number}`);
-  const { data: progress } = await supabase.from("marriage_journey_progress")
+  const { data: progress, error: progressError } = await supabase.from("marriage_journey_progress")
     .select("private_reflection,shared_commitment,completed_at")
     .eq("user_id", user.id).eq("session_number", number).maybeSingle();
   const { saved } = await searchParams;
@@ -29,6 +29,7 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
     <form action={saveMarriageSession} className="lfp-card mt-6 space-y-6 p-6 sm:p-8">
       <input type="hidden" name="session" value={number}/>
       <h2 className="text-xl font-black">Your personal workbook</h2>
+      {progressError && <p role="alert" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900">Private saving is unavailable. Your responses cannot be stored until the database is ready.</p>}
       <p className="text-sm text-slate-600">Your private reflection is visible only to your account. The commitment field is also private for now; mentor sharing is not enabled.</p>
       <label className="block font-bold" htmlFor="privateReflection">Private reflection</label>
       <textarea id="privateReflection" name="privateReflection" maxLength={10000} rows={7} defaultValue={progress?.private_reflection ?? ""} className="w-full rounded-xl border border-slate-300 p-4" placeholder="What is God showing me about my own heart and actions?"/>
@@ -36,7 +37,7 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
       <textarea id="sharedCommitment" name="sharedCommitment" maxLength={3000} rows={3} defaultValue={progress?.shared_commitment ?? ""} className="w-full rounded-xl border border-slate-300 p-4" placeholder="One specific change I will practice..."/>
       <label className="flex items-center gap-3 font-bold"><input type="checkbox" name="completed" defaultChecked={Boolean(progress?.completed_at)} className="h-5 w-5"/>Mark this session complete</label>
       {saved === "1" && <p role="status" className="font-bold text-emerald-700">Your responses were saved.</p>}
-      <button type="submit" className="rounded-xl bg-slate-950 px-6 py-3 font-black text-white">Save my responses</button>
+      <button type="submit" disabled={Boolean(progressError)} className="rounded-xl bg-slate-950 px-6 py-3 font-black text-white disabled:cursor-not-allowed disabled:opacity-40">Save my responses</button>
     </form>
     <nav className="mt-8 flex justify-between font-bold text-indigo-700">{number > 1 ? <Link href={`/marriage-journey/${number-1}`}>← Previous</Link> : <span/>}{number < 21 && <Link href={`/marriage-journey/${number+1}`}>Next →</Link>}</nav>
   </div></main>;
