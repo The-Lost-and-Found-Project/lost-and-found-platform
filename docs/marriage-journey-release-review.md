@@ -27,6 +27,7 @@
 - TypeScript, 211 automated tests, and production build passed locally after the lesson-page cleanup.
 - No authenticated hosted Preview session, database migration, or mobile-device test was performed in this pass.
 - Re-ran local Chrome participant and mentor tests with synthetic accounts on November 11: participant sign-in, save/reload, sharing and mentor navigation passed; mentor grant, explicit sharing, isolation, and revocation passed. This is local-only evidence.
+- Added and passed a local iPhone-sized (390 × 844) Chrome viewport regression across Days 1, 7, 14, 16, 18, and 21. Confirmed no horizontal document overflow, synthetic sign-in, private reflection save/reload, and sharing/mentor navigation. Initial run hit an authentication-page readiness race; test now waits for authenticated content. Physical-device and hosted Preview QA remain open.
 
 ## Technical release gates
 
