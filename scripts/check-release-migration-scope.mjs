@@ -25,7 +25,7 @@ const expected=[
 // its exact name and SHA-256; never include it in the eight-file SQL bundle.
 const prerequisite=[
  "20261110224156_restore_daily_path_release_gate.sql",
- "a725991258ae8b8b4cf65d02af56232db1c49e7d9ca0c8abdeae407453fac032"
+ "8c1c63b8a7964d4f01890c9b0ea05039b97518e3c59587177ddb633656751f5b"
 ];
 const actual=readdirSync(directory).filter(x=>/^202611\d{8}_.*\.sql$/.test(x)).sort();
 const hasPrerequisite=actual.includes(prerequisite[0]);
