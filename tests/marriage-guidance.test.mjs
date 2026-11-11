@@ -36,3 +36,12 @@ test('all 21 days have a concrete shared exercise', () => {
  assert.match(exercises, /No one has to describe past trauma/);
  assert.match(page, /Today’s step-by-step exercise/);
 });
+
+test('every marriage lesson distinguishes passage context from pastoral application', () => {
+ const notes = readFileSync(new URL('../lib/marriage-editorial-notes.ts', import.meta.url), 'utf8');
+ assert.equal((notes.match(/^  [0-9]+: '/gm) ?? []).length, 21);
+ assert.match(notes, /Mark 7:9–13/);
+ assert.match(notes, /not a direct teaching/);
+ assert.match(notes, /stop joint exercises/);
+ assert.match(page, /Reading Scripture in context/);
+});
