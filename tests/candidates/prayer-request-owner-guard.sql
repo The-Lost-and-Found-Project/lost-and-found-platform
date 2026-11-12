@@ -46,7 +46,7 @@ BEGIN
      ]) IS DISTINCT FROM
      (to_jsonb(OLD) - ARRAY[
        'request_text','category_id','is_public','is_anonymous',
-       'status','answered','answered_update','archived','updated_at'
+       'status','answered','answered_update','archived'
      ]) THEN
     RAISE EXCEPTION 'You are not allowed to change that field on your prayer request.';
   END IF;
