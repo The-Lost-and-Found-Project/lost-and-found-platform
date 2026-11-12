@@ -31,15 +31,50 @@ DO $$ BEGIN
     UPDATE prayer_contract.requests SET status='Resolved',answered=true;
     RAISE EXCEPTION 'FAIL: owner status update was unexpectedly permitted';
   EXCEPTION WHEN raise_exception THEN
-    IF SQLERRM = 'FAIL: owner status update was unexpectedly permitted' THEN RAISE; END IF;
+    IF SQLERRM IS DISTINCT FROM 'You are not allowed to change that field on your prayer request.' THEN RAISE; END IF;
   END;
   BEGIN
     UPDATE prayer_contract.requests SET archived=true,status='Withdrawn';
     RAISE EXCEPTION 'FAIL: owner withdrawal was unexpectedly permitted';
   EXCEPTION WHEN raise_exception THEN
-    IF SQLERRM = 'FAIL: owner withdrawal was unexpectedly permitted' THEN RAISE; END IF;
+    IF SQLERRM IS DISTINCT FROM 'You are not allowed to change that field on your prayer request.' THEN RAISE; END IF;
   END;
 END $$;
+-- Additional guard cases: ordinary owners must not assign or moderate requests.
+DO $$ BEGIN
+  BEGIN
+    UPDATE prayer_contract.requests SET assigned_to='22222222-2222-4222-8222-222222222222';
+    RAISE EXCEPTION 'FAIL: owner assignment was unexpectedly permitted';
+  EXCEPTION WHEN raise_exception THEN
+    IF SQLERRM IS DISTINCT FROM 'You are not allowed to change that field on your prayer request.' THEN RAISE; END IF;
+  END;
+  BEGIN
+    UPDATE prayer_contract.requests SET moderation_status='approved-by-member';
+    RAISE EXCEPTION 'FAIL: owner moderation was unexpectedly permitted';
+  EXCEPTION WHEN raise_exception THEN
+    IF SQLERRM IS DISTINCT FROM 'You are not allowed to change that field on your prayer request.' THEN RAISE; END IF;
+  END;
+END $$;
+-- An unrelated member does not satisfy the owner-specific trigger branch.
+-- This is NOT proof of access: the fixture has no RLS, whereas Production does.
+SELECT set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
+UPDATE prayer_contract.requests SET status='Resolved';
+DO $$ BEGIN
+ IF (SELECT status FROM prayer_contract.requests) IS DISTINCT FROM 'Resolved' THEN
+   RAISE EXCEPTION 'Expected non-owner to bypass this trigger (RLS is separately required)';
+ END IF;
+END $$;
+UPDATE prayer_contract.requests SET status='Open';
+SELECT set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+-- The care-team branch bypasses this trigger; authorization is delegated elsewhere.
+SELECT set_config('prayer_contract.is_care_team','true',true);
+UPDATE prayer_contract.requests SET assigned_to='33333333-3333-4333-8333-333333333333';
+DO $$ BEGIN
+ IF (SELECT assigned_to FROM prayer_contract.requests) IS DISTINCT FROM '33333333-3333-4333-8333-333333333333'::uuid THEN
+   RAISE EXCEPTION 'Expected care-team branch to bypass this trigger';
+ END IF;
+END $$;
+SELECT set_config('prayer_contract.is_care_team','false',true);
 -- The existing guard allows fields not in its comparison list; document that explicitly.
 UPDATE prayer_contract.requests SET action_contacted_at=now();
 DO $$ BEGIN
