@@ -118,6 +118,7 @@ END $test$;
 -- it does not establish API gateway JWT signature verification.
 SELECT set_config('request.jwt.claim.sub','',true);
 SELECT set_config('request.jwt.claim.role','service_role',true);
+SELECT set_config('request.jwt.claims','{"role":"service_role"}',true);
 UPDATE public.prayer_requests SET action_contacted_at=now() WHERE id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 DO $test$ BEGIN
  IF NOT EXISTS (SELECT 1 FROM public.prayer_requests WHERE id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' AND action_contacted_at IS NOT NULL) THEN
