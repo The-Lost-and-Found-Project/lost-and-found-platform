@@ -66,13 +66,13 @@ END $$;
 -- Confirm additional gaps in the hosted comparison list without modifying hosted data.
 UPDATE prayer_hosted_repro.requests
 SET admin_idle_notified_at=now(), checkin_notified_at=now();
-DO $ BEGIN
+DO $verify$ BEGIN
  IF NOT EXISTS (
   SELECT 1 FROM prayer_hosted_repro.requests
   WHERE admin_idle_notified_at IS NOT NULL AND checkin_notified_at IS NOT NULL
  ) THEN
   RAISE EXCEPTION 'Expected administrative timestamp gaps to be reproduced';
  END IF;
-END $;
+END $verify$;
 ROLLBACK;
 SELECT 'PASS: hosted guard comparison list reproduced locally (not full hosted integration)';
