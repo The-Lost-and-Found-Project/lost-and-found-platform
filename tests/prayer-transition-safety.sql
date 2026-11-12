@@ -43,5 +43,33 @@ UPDATE prayer_transition_test.requests SET status='Withdrawn',archived=true;
 DO $$ BEGIN
  IF NOT EXISTS (SELECT 1 FROM prayer_transition_test.requests WHERE status='Withdrawn' AND archived) THEN RAISE EXCEPTION 'Withdraw failed'; END IF;
 END $$;
+-- Already answered Reviewed rows exist in Production: neither transition is valid.
+TRUNCATE prayer_transition_test.requests;
+INSERT INTO prayer_transition_test.requests VALUES ('11111111-1111-4111-8111-111111111111','Reviewed',false,true,null,'approved');
+DO $$ BEGIN
+ BEGIN
+  UPDATE prayer_transition_test.requests SET status='Resolved';
+  RAISE EXCEPTION 'FAIL: answered request resolved again';
+ EXCEPTION WHEN raise_exception THEN
+  IF SQLERRM <> 'Invalid member transition' THEN RAISE; END IF;
+ END;
+ BEGIN
+  UPDATE prayer_transition_test.requests SET status='Withdrawn',archived=true;
+  RAISE EXCEPTION 'FAIL: answered request withdrawn';
+ EXCEPTION WHEN raise_exception THEN
+  IF SQLERRM <> 'Invalid member transition' THEN RAISE; END IF;
+ END;
+END $$;
+-- Archived requests must never be reactivated by a member transition.
+TRUNCATE prayer_transition_test.requests;
+INSERT INTO prayer_transition_test.requests VALUES ('11111111-1111-4111-8111-111111111111','Reviewed',true,false,null,'approved');
+DO $$ BEGIN
+ BEGIN
+  UPDATE prayer_transition_test.requests SET status='Resolved',answered=true,archived=false;
+  RAISE EXCEPTION 'FAIL: archived request reactivated';
+ EXCEPTION WHEN raise_exception THEN
+  IF SQLERRM <> 'Invalid member transition' THEN RAISE; END IF;
+ END;
+END $$;
 ROLLBACK;
 SELECT 'PASS: proposed prayer transition model';
