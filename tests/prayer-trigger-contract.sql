@@ -5,7 +5,8 @@ CREATE SCHEMA prayer_contract;
 CREATE TABLE prayer_contract.requests (
   user_id uuid, status text, archived boolean, assigned_to uuid,
   moderation_status text, care_level text, answered boolean,
-  answered_update text, action_contacted_at timestamptz
+  answered_update text, action_contacted_at timestamptz,
+  admin_idle_notified_at timestamptz, checkin_notified_at timestamptz
 );
 CREATE FUNCTION prayer_contract.guard() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
@@ -82,5 +83,15 @@ DO $$ BEGIN
    RAISE EXCEPTION 'Expected unguarded action timestamp to change';
  END IF;
 END $$;
+-- Additional missing-column contract: these administrative fields are not guarded.
+-- These assertions document current behavior and must be inverted by the remediation.
+UPDATE prayer_contract.requests SET admin_idle_notified_at=now(), checkin_notified_at=now();
+DO $verify$ BEGIN
+ IF (SELECT admin_idle_notified_at IS NULL OR checkin_notified_at IS NULL FROM prayer_contract.requests) THEN
+   RAISE EXCEPTION 'Expected legacy guard to permit administrative timestamp changes';
+ END IF;
+END $verify$;
+-- The fixture does not simulate PostgreSQL RLS or actual role grants.
+-- Do not treat this passing contract as a production security signoff.
 ROLLBACK;
 SELECT 'PASS: existing guard behavior reproduced in isolated fixture';

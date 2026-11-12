@@ -6,12 +6,16 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3
 const ACTIONS = new Set(["edit", "resolve", "withdraw"]);
 
 export async function POST(request: Request) {
-  let body: Record<string, unknown>;
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: "Please review that change and try again." }, { status: 400 });
   }
+  if (!rawBody || typeof rawBody !== "object" || Array.isArray(rawBody)) {
+    return NextResponse.json({ error: "Please review that change and try again." }, { status: 400 });
+  }
+  const body = rawBody as Record<string, unknown>;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
