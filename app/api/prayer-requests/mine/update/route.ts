@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
   const { data: existing, error: existingError } = await supabase
     .from("prayer_requests")
-    .select("id, answered, archived")
+    .select("id, status, answered, archived")
     .eq("id", requestId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -39,8 +39,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Prayer request not found." }, { status: 404 });
   }
 
-  // A member cannot transition a request again after it has been answered or archived.
-  if (action !== "edit" && (existing.answered || existing.archived)) {
+  // Terminal workflow statuses remain terminal even if legacy flags are inconsistent.
+  const isTerminal = existing.answered || existing.archived || ["Resolved", "Closed", "Withdrawn"].includes(existing.status);
+  if (action !== "edit" && isTerminal) {
     return NextResponse.json({ error: "This prayer request has already been answered or withdrawn." }, { status: 409 });
   }
 
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
   if (action === "edit") {
     const requestText = typeof body.requestText === "string" ? body.requestText.trim().slice(0, 5000) : "";
     const categoryId = typeof body.categoryId === "string" ? body.categoryId : "";
-    if (existing.answered || existing.archived || requestText.length < 10 || !UUID_PATTERN.test(categoryId)) {
+    if (isTerminal || requestText.length < 10 || !UUID_PATTERN.test(categoryId)) {
       return NextResponse.json({ error: "Please provide a complete prayer request and category." }, { status: 400 });
     }
     changes = {
