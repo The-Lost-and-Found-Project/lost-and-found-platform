@@ -44,11 +44,11 @@ DO $$ BEGIN
 END $$;
 -- Editing the request text remains possible without changing protected workflow fields.
 UPDATE prayer_transition_test.requests SET request_text='Please pray for my family',is_public=false;
-DO $ BEGIN
+DO $verify$ BEGIN
  IF NOT EXISTS (SELECT 1 FROM prayer_transition_test.requests WHERE request_text='Please pray for my family' AND is_public=false) THEN
   RAISE EXCEPTION 'Expected ordinary member edit to remain possible';
  END IF;
-END $;
+END $verify$;
 UPDATE prayer_transition_test.requests SET status='Resolved',answered=true;
 DO $$ BEGIN
  IF NOT EXISTS (SELECT 1 FROM prayer_transition_test.requests WHERE status='Resolved' AND answered) THEN RAISE EXCEPTION 'Resolve failed'; END IF;
