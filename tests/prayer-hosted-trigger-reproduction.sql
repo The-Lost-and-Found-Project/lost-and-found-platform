@@ -9,7 +9,8 @@ CREATE TABLE prayer_hosted_repro.requests (
   follow_up_needed boolean, follow_up_date date,
   last_checkin_notified_at timestamptz, last_followup_reminder_at timestamptz,
   answered boolean, answered_update text, is_public boolean,
-  action_contacted_at timestamptz
+  action_contacted_at timestamptz, admin_idle_notified_at timestamptz,
+  checkin_notified_at timestamptz
 );
 CREATE FUNCTION prayer_hosted_repro.is_care_team() RETURNS boolean
 LANGUAGE sql STABLE AS $$ SELECT coalesce(current_setting('prayer_hosted_repro.care_team',true) = 'true',false) $$;
@@ -62,5 +63,16 @@ DO $$ BEGIN
   RAISE EXCEPTION 'Expected missing care timestamp protection to be reproduced';
  END IF;
 END $$;
+-- Confirm additional gaps in the hosted comparison list without modifying hosted data.
+UPDATE prayer_hosted_repro.requests
+SET admin_idle_notified_at=now(), checkin_notified_at=now();
+DO $ BEGIN
+ IF NOT EXISTS (
+  SELECT 1 FROM prayer_hosted_repro.requests
+  WHERE admin_idle_notified_at IS NOT NULL AND checkin_notified_at IS NOT NULL
+ ) THEN
+  RAISE EXCEPTION 'Expected administrative timestamp gaps to be reproduced';
+ END IF;
+END $;
 ROLLBACK;
 SELECT 'PASS: hosted guard comparison list reproduced locally (not full hosted integration)';
