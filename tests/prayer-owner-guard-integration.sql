@@ -21,6 +21,19 @@ AS $fn$ SELECT EXISTS (
  WHERE id=auth.uid() AND role='admin'
 ) $fn$;
 \ir candidates/prayer-request-owner-guard.sql
+CREATE OR REPLACE FUNCTION public.prayer_guard_test_flagger()
+RETURNS trigger LANGUAGE plpgsql AS $flag$
+BEGIN
+ IF NEW.request_text LIKE '%[flag]%' THEN
+  NEW.flagged := true;
+  NEW.moderation_status := 'pending';
+  NEW.flag_reason := 'Automated review';
+ END IF;
+ RETURN NEW;
+END $flag$;
+CREATE TRIGGER flag_prayer_request_content_trigger
+BEFORE UPDATE OF request_text ON public.prayer_requests
+FOR EACH ROW EXECUTE FUNCTION public.prayer_guard_test_flagger();
 CREATE TRIGGER a_restrict_prayer_request_self_update_trigger
 BEFORE UPDATE ON public.prayer_requests
 FOR EACH ROW EXECUTE FUNCTION public.restrict_prayer_request_self_update();
@@ -36,6 +49,14 @@ VALUES
 SELECT set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
 SELECT set_config('request.jwt.claim.role','authenticated',true);
 UPDATE public.prayer_requests SET request_text='Please pray for us' WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+-- The member guard executes before the trusted flagger and must permit
+-- text edits while the flagger sets moderation fields afterwards.
+UPDATE public.prayer_requests SET request_text='Please pray [flag]' WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+DO $test$ BEGIN
+ IF NOT EXISTS (SELECT 1 FROM public.prayer_requests WHERE flagged AND moderation_status='pending' AND flag_reason='Automated review') THEN
+  RAISE EXCEPTION 'FAIL: automatic moderation was blocked';
+ END IF;
+END $test$;
 DO $test$
 BEGIN
  BEGIN
