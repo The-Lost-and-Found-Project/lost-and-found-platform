@@ -10,8 +10,12 @@ BEGIN
  IF to_regprocedure('community_security.is_admin()') IS NULL THEN
   RAISE EXCEPTION 'Community admin helper missing; refusing prayer guard migration';
  END IF;
- IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.prayer_requests'::regclass AND tgname='restrict_prayer_request_self_update_trigger') THEN
-  RAISE EXCEPTION 'Expected legacy prayer guard trigger missing';
+ IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.prayer_requests'::regclass AND tgname IN ('restrict_prayer_request_self_update_trigger','a_restrict_prayer_request_self_update_trigger')) THEN
+  RAISE EXCEPTION 'Expected prayer guard trigger missing';
+ END IF;
+ IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.prayer_requests'::regclass AND tgname='restrict_prayer_request_self_update_trigger')
+ AND EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.prayer_requests'::regclass AND tgname='a_restrict_prayer_request_self_update_trigger') THEN
+  RAISE EXCEPTION 'Both prayer guard triggers exist; manual reconciliation required';
  END IF;
 END $preflight$;
 
@@ -102,6 +106,8 @@ BEGIN
   RETURN NEW;
 END;
 $guard$;$definition$;
- ALTER TRIGGER restrict_prayer_request_self_update_trigger
-  ON public.prayer_requests RENAME TO a_restrict_prayer_request_self_update_trigger;
+ IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.prayer_requests'::regclass AND tgname='restrict_prayer_request_self_update_trigger') THEN
+  ALTER TRIGGER restrict_prayer_request_self_update_trigger
+   ON public.prayer_requests RENAME TO a_restrict_prayer_request_self_update_trigger;
+ END IF;
 END $migration$;
