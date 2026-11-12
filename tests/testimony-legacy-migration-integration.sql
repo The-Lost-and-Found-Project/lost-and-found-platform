@@ -39,5 +39,28 @@ DO $$ DECLARE saved uuid; BEGIN
  END;
 END $$;
 RESET ROLE;
+-- A different signed-in member must not update the first member's testimony.
+SELECT set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
+DO $$ DECLARE victim uuid; BEGIN
+ SELECT id INTO victim FROM public.testimonies WHERE user_id='11111111-1111-4111-8111-111111111111';
+ BEGIN
+  PERFORM public.update_own_testimony(victim,'Unauthorized overwrite attempt',false);
+  RAISE EXCEPTION 'Cross-member update unexpectedly succeeded';
+ EXCEPTION WHEN raise_exception THEN
+  IF SQLERRM <> 'Testimony not found' THEN RAISE; END IF;
+ END;
+ IF EXISTS (SELECT 1 FROM public.testimonies WHERE id=victim AND content_text='Unauthorized overwrite attempt') THEN
+  RAISE EXCEPTION 'Cross-member update changed victim content'; END IF;
+END $$;
+-- Anonymous callers must not invoke either RPC, even with a fabricated JWT subject.
+RESET ROLE;
+SET LOCAL ROLE anon;
+DO $$ BEGIN
+ IF has_function_privilege('anon','public.submit_own_testimony(text,boolean)','EXECUTE') THEN
+  RAISE EXCEPTION 'Anonymous role can execute submit RPC'; END IF;
+ IF has_function_privilege('anon','public.update_own_testimony(uuid,text,boolean)','EXECUTE') THEN
+  RAISE EXCEPTION 'Anonymous role can execute update RPC'; END IF;
+END $$;
+RESET ROLE;
 ROLLBACK;
 SELECT 'PASS: legacy testimony RPC migration works on isolated table fixture';
