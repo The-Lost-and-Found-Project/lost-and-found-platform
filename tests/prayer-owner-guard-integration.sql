@@ -132,5 +132,14 @@ DO $test$ BEGIN
   RAISE EXCEPTION 'FAIL: admin update';
  END IF;
 END $test$;
+-- Service-role JWT is trusted by the guard; a member JWT is not.
+SELECT set_config('request.jwt.claim.sub','',true);
+SELECT set_config('request.jwt.claim.role','service_role',true);
+UPDATE public.prayer_requests SET action_contacted_at='2026-11-12 12:00:00+00';
+DO $test$ BEGIN
+ IF (SELECT count(*) FROM public.prayer_requests WHERE action_contacted_at='2026-11-12 12:00:00+00') <> 2 THEN
+  RAISE EXCEPTION 'FAIL: service role maintenance update';
+ END IF;
+END $test$;
 ROLLBACK;
 SELECT 'PASS: candidate guard local integration (schema subset only)';
