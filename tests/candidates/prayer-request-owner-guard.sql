@@ -12,10 +12,15 @@ DECLARE
   workflow_changed boolean;
   allowed_transition boolean;
 BEGIN
-  -- Service-role maintenance (without a member JWT) and current Community
-  -- administrators use their existing database/RLS authorization.
-  IF member_id IS NULL OR (SELECT community_security.is_admin()) THEN
+  -- Do not equate a missing auth.uid() with service-role authorization:
+  -- anonymous requests also have no member identity. Only a trusted
+  -- service-role JWT or an authorized Community administrator bypasses.
+  IF (SELECT auth.jwt() ->> 'role') = 'service_role'
+     OR (member_id IS NOT NULL AND (SELECT community_security.is_admin())) THEN
     RETURN NEW;
+  END IF;
+  IF member_id IS NULL THEN
+    RAISE EXCEPTION 'Authentication required for prayer request updates';
   END IF;
 
   -- The table's RLS must still enforce row ownership. Never let the trigger
@@ -26,11 +31,13 @@ BEGIN
     RAISE EXCEPTION 'Prayer request owner or identity cannot be changed';
   END IF;
 
-  -- Updated_at is maintained by a separate trigger; only these member
-  -- fields and tightly constrained workflow transitions may change.
+  -- Updated_at is maintained by a separate BEFORE UPDATE trigger, which
+  -- executes after this guard by trigger-name ordering. Never let a member
+  -- supply updated_at directly; only the later maintenance trigger may set it.
+  -- Only these member fields and constrained workflow transitions may change.
   IF (to_jsonb(NEW) - ARRAY[
        'request_text','category_id','is_public','is_anonymous',
-       'status','answered','answered_update','archived','updated_at'
+       'status','answered','answered_update','archived'
      ]) IS DISTINCT FROM
      (to_jsonb(OLD) - ARRAY[
        'request_text','category_id','is_public','is_anonymous',
