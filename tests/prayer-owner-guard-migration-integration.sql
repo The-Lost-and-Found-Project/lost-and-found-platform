@@ -27,6 +27,8 @@ CREATE TRIGGER restrict_prayer_request_self_update_trigger
 BEFORE UPDATE ON public.prayer_requests
 FOR EACH ROW EXECUTE FUNCTION public.restrict_prayer_request_self_update();
 \ir ../supabase/migrations/20261112090000_harden_prayer_request_member_guard.sql
+-- Reapply to confirm the migration is repeatable on a partially upgraded database.
+\ir ../supabase/migrations/20261112090000_harden_prayer_request_member_guard.sql
 DO $verify$ BEGIN
  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.prayer_requests'::regclass
   AND tgname='a_restrict_prayer_request_self_update_trigger') THEN
