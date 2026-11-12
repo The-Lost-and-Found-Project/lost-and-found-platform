@@ -1,8 +1,9 @@
+import { getMarriageCouple } from "@/lib/marriage-couple";
 import { requireMarriageAssignment } from "@/lib/marriage-assignment";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { saveMarriageSession } from "./actions";
+import { saveMarriageSession, submitMarriageCoupleAnswer } from "./actions";
 import { marriageSessions, marriageMilestones } from "@/lib/marriage-journey";
 import { marriageCoupleRhythm, marriageWeeklyRhythm } from "@/lib/marriage-couple-rhythm";
 import { marriageDailyExercises } from "@/lib/marriage-daily-exercises";
@@ -21,6 +22,11 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
   const { data: progress, error: progressError } = await supabase.from("marriage_journey_progress")
     .select("private_reflection,shared_commitment,completed_at")
     .eq("user_id", user.id).eq("session_number", number).maybeSingle();
+  const couple=await getMarriageCouple(supabase,user.id);
+  const {data:coupleAnswers}=couple?await supabase.from("marriage_couple_answers").select("user_id,answer_text,submitted_at")
+    .eq("couple_id",couple.id).eq("session_number",number):{data:null};
+  const myAnswer=coupleAnswers?.find(a=>a.user_id===user.id);
+  const spouseAnswer=myAnswer?coupleAnswers?.find(a=>a.user_id!==user.id):null;
   const { saved } = await searchParams;
   return <main className="lfp-page pb-24"><div className="lfp-shell max-w-4xl py-10">
     <Link href="/marriage-journey" className="font-bold text-indigo-700">← All sessions</Link>
@@ -60,6 +66,11 @@ export default async function MarriageSessionPage({ params, searchParams }: { pa
       <p className="mt-4 text-sm leading-6 text-slate-600">{marriageMeetingPrivacy}</p>
       <p className="mt-5 font-bold text-slate-900">Practice: <span className="font-normal">{milestone.practice}</span></p>
     </section>}
+    <section className="lfp-card mt-6 space-y-4 p-6 sm:p-8" aria-label="Private couple discussion">
+      <h2 className="text-xl font-black">Our couple discussion</h2>
+      <p className="text-sm leading-6 text-slate-600">Each spouse answers before seeing the other spouse’s response. Only your assigned spouse can see your submitted answer. Other couples, facilitators, and mentors cannot read this discussion. Your personal journal stays private.</p>
+      {!myAnswer?<form action={submitMarriageCoupleAnswer} className="space-y-3"><input type="hidden" name="session" value={number}/><label htmlFor="coupleAnswer" className="block font-bold">My answer for our discussion</label><textarea id="coupleAnswer" name="coupleAnswer" required maxLength={3000} rows={5} className="w-full rounded-xl border border-slate-300 p-4" placeholder="Write your answer before seeing your spouse’s…"/><button className="rounded-xl bg-indigo-700 px-5 py-3 font-black text-white">Submit answer &amp; unlock spouse’s answer</button></form>:<><div className="rounded-xl bg-indigo-50 p-4"><p className="text-sm font-black text-indigo-900">My submitted answer</p><p className="mt-2 whitespace-pre-wrap">{myAnswer.answer_text}</p></div>{spouseAnswer?<div className="rounded-xl bg-emerald-50 p-4"><p className="text-sm font-black text-emerald-900">My spouse’s answer</p><p className="mt-2 whitespace-pre-wrap">{spouseAnswer.answer_text}</p></div>:<p className="text-sm text-slate-500">Your spouse’s answer will appear here once they submit it.</p>}</>}
+    </section>
     <form action={saveMarriageSession} className="lfp-card mt-6 space-y-6 p-6 sm:p-8">
       <input type="hidden" name="session" value={number}/>
       <h2 className="text-xl font-black">Your personal workbook</h2>

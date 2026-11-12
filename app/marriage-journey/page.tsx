@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 
 export default async function MarriageJourneyPage() {
   const { supabase, user } = await requireMarriageAssignment(`/marriage-journey/`);
+  const {data:coupleCompletion}=await supabase.rpc("marriage_couple_completed_sessions");
+  const bothCompleted=new Set((coupleCompletion||[]).filter((r:{spouse_one_done:boolean;spouse_two_done:boolean;session_number:number})=>r.spouse_one_done&&r.spouse_two_done).map((r:{session_number:number})=>r.session_number));
   const { data: progress, error: progressError } = await supabase.from("marriage_journey_progress").select("session_number,completed_at").eq("user_id", user.id);
   const completed = new Set((progress ?? []).filter(row => row.completed_at).map(row => row.session_number));
   const completedCount = completed.size;
@@ -21,13 +23,13 @@ export default async function MarriageJourneyPage() {
       <section aria-label="Your journey progress" className="lfp-card p-6 sm:p-8">
         <div className="flex items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-widest text-indigo-700">Your journey</p><h2 className="mt-2 text-2xl font-black">{completedCount} of 21 sessions completed</h2></div><p className="text-2xl font-black text-slate-900">{Math.round(completedCount / 21 * 100)}%</p></div>
         <div role="progressbar" aria-label="Sessions completed" aria-valuemin={0} aria-valuemax={21} aria-valuenow={completedCount} className="mt-5 h-3 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-indigo-700" style={{width: `${completedCount / 21 * 100}%`}}/></div>
-        <p className="mt-3 text-sm text-slate-600">Your progress belongs to your account. Study together daily, then meet with your ministry mentor after sessions 7, 14, and 21. Each spouse’s personal workbook remains private.</p>
+        <p className="mt-3 text-sm text-slate-600">Both spouses keep separate private workbooks. You have completed {completedCount} sessions; you have both completed {bothCompleted.size} sessions. Your spouse’s private answers are never exposed. Study together daily, then meet with your ministry mentor after sessions 7, 14, and 21. Each spouse’s personal workbook remains private.</p>
       </section>{progressError && <p role="alert" className="rounded-xl border border-amber-300 bg-amber-50 p-4 font-bold text-amber-900">Progress is unavailable until the private workbook database is set up. Do not enter personal information yet.</p>}{[0,1,2].map(week => <section key={week}>
       <h2 className="text-2xl font-black text-slate-900">Week {week+1} · {['Learning to Hear and Understand','Marriage, Ministry, and Expectations','Healing, Trust, and Lasting Habits'][week]}</h2>
       <div className="mt-5 grid gap-4 md:grid-cols-2">{marriageSessions.slice(week*7,week*7+7).map(({title,scripture},index)=><article key={title} className="lfp-card p-6">
         <p className="text-xs font-black uppercase tracking-widest text-indigo-700">Session {week*7+index+1}</p>
         <h3 className="mt-2 text-xl font-black">{title}</h3><p className="mt-2 text-sm text-slate-600">Read: {scripture}</p>
-        <p className="mt-4 text-sm font-bold text-slate-600">{completed.has(week*7+index+1) ? "Completed" : "Not yet completed"}</p>
+        <p className="mt-4 text-sm font-bold text-slate-600">{bothCompleted.has(week*7+index+1) ? "Both completed" : completed.has(week*7+index+1) ? "You completed · waiting for spouse" : "Not yet completed by you"}</p>
         <Link href={`/marriage-journey/${week*7+index+1}`} className="mt-4 inline-block font-black text-indigo-700">Open session →</Link>
       </article>)}</div>
     </section>)}
