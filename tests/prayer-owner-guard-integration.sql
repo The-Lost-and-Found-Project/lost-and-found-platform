@@ -29,32 +29,58 @@ INSERT INTO public.prayer_requests
 VALUES
 ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
  '11111111-1111-4111-8111-111111111111',
- 'Please pray',true,false,'Submitted',false,false);
+ 'Please pray',true,false,'Submitted',false,false),
+('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+ '11111111-1111-4111-8111-111111111111',
+ 'Withdraw this',true,false,'Submitted',false,false);
 SELECT set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
 SELECT set_config('request.jwt.claim.role','authenticated',true);
 UPDATE public.prayer_requests SET request_text='Please pray for us' WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 DO $test$
 BEGIN
  BEGIN
-  UPDATE public.prayer_requests SET action_contacted_at=now();
+  UPDATE public.prayer_requests SET action_contacted_at=now() WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
   RAISE EXCEPTION 'FAIL: member modified protected timestamp';
  EXCEPTION WHEN raise_exception THEN
   IF SQLERRM <> 'You are not allowed to change that field on your prayer request.' THEN RAISE; END IF;
  END;
  BEGIN
-  UPDATE public.prayer_requests SET user_id='22222222-2222-4222-8222-222222222222';
+  UPDATE public.prayer_requests SET user_id='22222222-2222-4222-8222-222222222222' WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
   RAISE EXCEPTION 'FAIL: member changed ownership';
  EXCEPTION WHEN raise_exception THEN
   IF SQLERRM <> 'Prayer request owner or identity cannot be changed' THEN RAISE; END IF;
  END;
 END $test$;
-UPDATE public.prayer_requests SET status='Resolved',answered=true,answered_update='Thank you',is_public=false;
+UPDATE public.prayer_requests SET status='Resolved',answered=true,answered_update='Thank you',is_public=false WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+UPDATE public.prayer_requests SET status='Withdrawn',archived=true,is_public=false WHERE id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 DO $test$ BEGIN
+ IF NOT EXISTS (SELECT 1 FROM public.prayer_requests WHERE status='Withdrawn' AND archived) THEN
+  RAISE EXCEPTION 'FAIL: member withdraw';
+ END IF;
  IF NOT EXISTS (SELECT 1 FROM public.prayer_requests WHERE status='Resolved' AND answered) THEN
   RAISE EXCEPTION 'FAIL: member resolve';
  END IF;
 END $test$;
+DO $test$ BEGIN
+ BEGIN
+  UPDATE public.prayer_requests SET request_text='Reopened' WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  RAISE EXCEPTION 'FAIL: terminal request edited';
+ EXCEPTION WHEN raise_exception THEN
+  IF SQLERRM <> 'Terminal prayer requests cannot be edited' THEN RAISE; END IF;
+ END;
+END $test$;
+SELECT set_config('request.jwt.claim.sub','',true);
+SELECT set_config('request.jwt.claim.role','anon',true);
+DO $test$ BEGIN
+ BEGIN
+  UPDATE public.prayer_requests SET request_text='Anonymous edit' WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  RAISE EXCEPTION 'FAIL: anonymous update';
+ EXCEPTION WHEN raise_exception THEN
+  IF SQLERRM <> 'Authentication required for prayer request updates' THEN RAISE; END IF;
+ END;
+END $test$;
 SELECT set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
+SELECT set_config('request.jwt.claim.role','authenticated',true);
 UPDATE public.prayer_requests SET action_contacted_at=now();
 DO $test$ BEGIN
  IF NOT EXISTS (SELECT 1 FROM public.prayer_requests WHERE action_contacted_at IS NOT NULL) THEN
