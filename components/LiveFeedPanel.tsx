@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
 type LivePost = {
   id: string;
@@ -58,7 +58,7 @@ export default function LiveFeedPanel({ sessionId, facilitator }: { sessionId: s
     return () => window.clearInterval(timer);
   }, [load]);
 
-  async function publish(event: React.FormEvent) {
+  async function publish(event: FormEvent) {
     event.preventDefault();
     if (busy) return;
     setBusy(true);
