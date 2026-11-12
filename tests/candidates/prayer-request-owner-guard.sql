@@ -1,6 +1,11 @@
 -- Candidate replacement for public.restrict_prayer_request_self_update().
 -- REVIEW ONLY: not a migration and not executed on Production.
 -- Requires isolated integration tests against actual prayer_requests triggers/RLS.
+-- CRITICAL: flag_prayer_request_content_trigger runs alphabetically before the
+-- existing restrict_prayer_request_self_update_trigger and may legitimately
+-- change flagged, moderation_status, and flag_reason during text edits.
+-- A deployable migration must rename the guard trigger to execute BEFORE
+-- the automatic content flagger; otherwise normal member edits can fail.
 CREATE OR REPLACE FUNCTION public.restrict_prayer_request_self_update()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -84,3 +89,9 @@ BEGIN
   RETURN NEW;
 END;
 $guard$;
+
+-- DEPLOYMENT ORDERING REQUIREMENT (review only; do not run on hosted DB):
+-- ALTER TRIGGER restrict_prayer_request_self_update_trigger
+--   ON public.prayer_requests RENAME TO a_restrict_prayer_request_self_update_trigger;
+-- The guard must inspect the member's submitted values BEFORE the flagger
+-- performs trusted moderation mutations. Confirm this order in pg_trigger.
