@@ -34,6 +34,11 @@ test.describe('local authenticated member journeys', () => {
     }
   });
 
+  test('rejects malformed prayer update JSON', async ({ request }) => {
+    const malformedUpdate = await request.post('/api/prayer-requests/mine/update', { data: null });
+    expect(malformedUpdate.status()).toBe(400);
+  });
+
   test('member signs in and can access private prayer requests', async ({ page }) => {
     await page.goto('/login?next=%2Fprayer%2Fmy-requests');
     await page.getByRole('textbox', { name: 'Email' }).fill(email);
