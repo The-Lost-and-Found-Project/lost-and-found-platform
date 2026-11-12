@@ -21,7 +21,7 @@ BEGIN
   -- anonymous requests also have no member identity. Only a trusted
   -- service-role JWT or an authorized Community administrator bypasses.
   IF (SELECT auth.jwt() ->> 'role') = 'service_role'
-     OR (member_id IS NOT NULL AND (SELECT community_security.is_admin())) THEN
+     OR (member_id IS NOT NULL AND (SELECT public.is_care_team())) THEN
     RETURN NEW;
   END IF;
   IF member_id IS NULL THEN

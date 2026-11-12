@@ -15,11 +15,11 @@ INSERT INTO public.prayer_guard_test_profiles VALUES
  ('11111111-1111-4111-8111-111111111111','member'),
  ('22222222-2222-4222-8222-222222222222','admin'),
  ('33333333-3333-4333-8333-333333333333','member');
-CREATE OR REPLACE FUNCTION community_security.is_admin()
+CREATE OR REPLACE FUNCTION public.is_care_team()
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=''
 AS $fn$ SELECT EXISTS (
  SELECT 1 FROM public.prayer_guard_test_profiles
- WHERE id=auth.uid() AND role='admin'
+ WHERE id=auth.uid() AND role IN ('prayer_team','pastor','admin')
 ) $fn$;
 \ir candidates/prayer-request-owner-guard.sql
 CREATE OR REPLACE FUNCTION public.prayer_guard_test_flagger()

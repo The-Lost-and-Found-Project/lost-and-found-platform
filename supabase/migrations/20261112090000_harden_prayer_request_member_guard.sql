@@ -7,8 +7,8 @@ BEGIN
   RAISE NOTICE 'Skipping prayer guard hardening: historical table absent';
   RETURN;
  END IF;
- IF to_regprocedure('community_security.is_admin()') IS NULL THEN
-  RAISE EXCEPTION 'Community admin helper missing; refusing prayer guard migration';
+ IF to_regprocedure('public.is_care_team()') IS NULL THEN
+  RAISE EXCEPTION 'Prayer care-team helper missing; refusing prayer guard migration';
  END IF;
  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.prayer_requests'::regclass AND tgname IN ('restrict_prayer_request_self_update_trigger','a_restrict_prayer_request_self_update_trigger')) THEN
   RAISE EXCEPTION 'Expected prayer guard trigger missing';
@@ -36,9 +36,9 @@ DECLARE
 BEGIN
   -- Do not equate a missing auth.uid() with service-role authorization:
   -- anonymous requests also have no member identity. Only a trusted
-  -- service-role JWT or an authorized Community administrator bypasses.
+  -- service-role JWT or an authorized prayer care-team member bypasses.
   IF (SELECT auth.jwt() ->> 'role') = 'service_role'
-     OR (member_id IS NOT NULL AND (SELECT community_security.is_admin())) THEN
+     OR (member_id IS NOT NULL AND (SELECT public.is_care_team())) THEN
     RETURN NEW;
   END IF;
   IF member_id IS NULL THEN
