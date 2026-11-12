@@ -13,7 +13,8 @@ CREATE TABLE public.prayer_requests (
 CREATE TABLE public.prayer_guard_test_profiles (id uuid PRIMARY KEY, role text);
 INSERT INTO public.prayer_guard_test_profiles VALUES
  ('11111111-1111-4111-8111-111111111111','member'),
- ('22222222-2222-4222-8222-222222222222','admin');
+ ('22222222-2222-4222-8222-222222222222','admin'),
+ ('33333333-3333-4333-8333-333333333333','member');
 CREATE OR REPLACE FUNCTION community_security.is_admin()
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=''
 AS $fn$ SELECT EXISTS (
@@ -99,6 +100,29 @@ DO $test$ BEGIN
  EXCEPTION WHEN raise_exception THEN
   IF SQLERRM <> 'Authentication required for prayer request updates' THEN RAISE; END IF;
  END;
+END $test$;
+-- A different member must not be able to update someone else's request.
+-- This assertion checks the guard; a separate RLS fixture checks row access.
+SELECT set_config('request.jwt.claim.sub','33333333-3333-4333-8333-333333333333',true);
+SELECT set_config('request.jwt.claim.role','authenticated',true);
+DO $test$ BEGIN
+ BEGIN
+  UPDATE public.prayer_requests SET request_text='Cross-member edit' WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  RAISE EXCEPTION 'FAIL: cross-member update';
+ EXCEPTION WHEN raise_exception THEN
+  IF SQLERRM <> 'Prayer request owner or identity cannot be changed' THEN RAISE; END IF;
+ END;
+END $test$;
+-- Service role maintenance must still be possible when a trusted JWT role
+-- is present. This fixture uses postgres and emulated verified JWT claims;
+-- it does not establish API gateway JWT signature verification.
+SELECT set_config('request.jwt.claim.sub','',true);
+SELECT set_config('request.jwt.claim.role','service_role',true);
+UPDATE public.prayer_requests SET action_contacted_at=now() WHERE id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+DO $test$ BEGIN
+ IF NOT EXISTS (SELECT 1 FROM public.prayer_requests WHERE id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' AND action_contacted_at IS NOT NULL) THEN
+  RAISE EXCEPTION 'FAIL: service-role maintenance';
+ END IF;
 END $test$;
 SELECT set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
 SELECT set_config('request.jwt.claim.role','authenticated',true);
