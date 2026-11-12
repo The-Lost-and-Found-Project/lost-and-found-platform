@@ -39,6 +39,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Prayer request not found." }, { status: 404 });
   }
 
+  // A member cannot transition a request again after it has been answered or archived.
+  if (action !== "edit" && (existing.answered || existing.archived)) {
+    return NextResponse.json({ error: "This prayer request has already been answered or withdrawn." }, { status: 409 });
+  }
+
   let changes: Record<string, unknown>;
   if (action === "edit") {
     const requestText = typeof body.requestText === "string" ? body.requestText.trim().slice(0, 5000) : "";
