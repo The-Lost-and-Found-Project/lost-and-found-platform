@@ -9,6 +9,9 @@ BEGIN
  IF NEW.owner_id IS DISTINCT FROM OLD.owner_id OR NEW.assigned_to IS DISTINCT FROM OLD.assigned_to OR NEW.moderation_status IS DISTINCT FROM OLD.moderation_status THEN
   RAISE EXCEPTION 'Protected field changed';
  END IF;
+ IF (to_jsonb(NEW) - ARRAY['request_text','is_public','status','archived','answered']) IS DISTINCT FROM (to_jsonb(OLD) - ARRAY['request_text','is_public','status','archived','answered']) THEN
+  RAISE EXCEPTION 'Protected field changed';
+ END IF;
  IF NEW.status IS DISTINCT FROM OLD.status OR NEW.archived IS DISTINCT FROM OLD.archived OR NEW.answered IS DISTINCT FROM OLD.answered THEN
   IF NOT ((OLD.status IN ('Submitted','Reviewed','Assigned','Active Care','Follow-Up','Needs Reassignment','Escalated','Unable to Contact') AND NOT OLD.archived AND NOT OLD.answered AND NEW.status='Resolved' AND NEW.answered AND NOT NEW.archived)
     OR (OLD.status IN ('Submitted','Reviewed','Assigned','Active Care','Follow-Up','Needs Reassignment','Escalated','Unable to Contact') AND NOT OLD.archived AND NOT OLD.answered AND NEW.status='Withdrawn' AND NEW.archived AND NOT NEW.answered)) THEN
