@@ -4,12 +4,14 @@ on:
   pull_request:
     paths:
       - "supabase/**"
+      - "tests/*.sql"
       - ".github/workflows/database-tests.yml"
   push:
     branches:
       - main
     paths:
       - "supabase/**"
+      - "tests/*.sql"
       - ".github/workflows/database-tests.yml"
   workflow_dispatch:
 
@@ -34,3 +36,10 @@ jobs:
 
       - name: Test prayer-care database lifecycle
         run: supabase test db
+
+      - name: Test RLS helper authorization against local database
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 54322 -U postgres -d postgres -f tests/rls-helper-caller-isolation.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 54322 -U postgres -d postgres -f tests/rls-helper-positive-access.sql
