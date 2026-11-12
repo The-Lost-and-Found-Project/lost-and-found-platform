@@ -86,11 +86,11 @@ END $$;
 -- Additional missing-column contract: these administrative fields are not guarded.
 -- These assertions document current behavior and must be inverted by the remediation.
 UPDATE prayer_contract.requests SET admin_idle_notified_at=now(), checkin_notified_at=now();
-DO $ BEGIN
+DO $verify$ BEGIN
  IF (SELECT admin_idle_notified_at IS NULL OR checkin_notified_at IS NULL FROM prayer_contract.requests) THEN
    RAISE EXCEPTION 'Expected legacy guard to permit administrative timestamp changes';
  END IF;
-END $;
+END $verify$;
 -- The fixture does not simulate PostgreSQL RLS or actual role grants.
 -- Do not treat this passing contract as a production security signoff.
 ROLLBACK;
