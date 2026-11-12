@@ -43,5 +43,10 @@ test.describe('local authenticated member journeys', () => {
     await expect(page.getByRole('heading', { name: 'My Prayer Requests' })).toBeVisible();
     await page.goto('/dashboard');
     await expect(page.getByRole('heading', { name: /Good to see you/i })).toBeVisible();
+    await page.getByRole('button', { name: 'Account menu' }).click();
+    await page.getByRole('menuitem', { name: 'Sign Out' }).click();
+    await expect(page).toHaveURL(/\/login\?signedOut=1/);
+    await page.goto('/prayer/my-requests');
+    await expect(page).toHaveURL(/\/login\?next=/);
   });
 });
