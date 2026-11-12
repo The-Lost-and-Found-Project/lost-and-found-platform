@@ -74,12 +74,19 @@ export async function POST(request: Request) {
     .update(changes)
     .eq("id", requestId)
     .eq("user_id", user.id)
+    // Recheck terminal state in the UPDATE itself to close the read-then-write race.
+    .eq("answered", false)
+    .eq("archived", false)
+    .in("status", ["Submitted", "Reviewed", "Assigned", "Active Care", "Follow-Up", "Needs Reassignment", "Escalated", "Unable to Contact"])
     .select("id, request_text, status, category_id, is_public, is_anonymous, moderation_status, answered, answered_update, archived, prayer_count")
-    .single();
+    .maybeSingle();
 
-  if (updateError || !updated) {
+  if (updateError) {
     console.error("Member prayer request update failed:", updateError);
     return NextResponse.json({ error: "We could not save that change. Please try again." }, { status: 500 });
+  }
+  if (!updated) {
+    return NextResponse.json({ error: "This prayer request changed before your update. Refresh and try again." }, { status: 409 });
   }
 
   return NextResponse.json({ request: updated });
