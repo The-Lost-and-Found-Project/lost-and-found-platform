@@ -3,7 +3,7 @@
 -- Permitted source states remain a proposal until full lifecycle approval.
 BEGIN;
 CREATE SCHEMA prayer_transition_test;
-CREATE TABLE prayer_transition_test.requests (owner_id uuid, status text, archived boolean, answered boolean, assigned_to uuid, moderation_status text, request_text text, is_public boolean);
+CREATE TABLE prayer_transition_test.requests (owner_id uuid, status text, archived boolean, answered boolean, assigned_to uuid, moderation_status text, request_text text, is_public boolean, action_contacted_at timestamptz);
 CREATE FUNCTION prayer_transition_test.guard() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  IF NEW.owner_id IS DISTINCT FROM OLD.owner_id OR NEW.assigned_to IS DISTINCT FROM OLD.assigned_to OR NEW.moderation_status IS DISTINCT FROM OLD.moderation_status THEN
@@ -26,6 +26,12 @@ DO $$ BEGIN
  BEGIN
   UPDATE prayer_transition_test.requests SET status='Resolved',answered=true,assigned_to='22222222-2222-4222-8222-222222222222';
   RAISE EXCEPTION 'FAIL: bundled administrative update accepted';
+ EXCEPTION WHEN raise_exception THEN
+  IF SQLERRM <> 'Protected field changed' THEN RAISE; END IF;
+ END;
+ BEGIN
+  UPDATE prayer_transition_test.requests SET action_contacted_at=now();
+  RAISE EXCEPTION 'FAIL: administrative timestamp accepted';
  EXCEPTION WHEN raise_exception THEN
   IF SQLERRM <> 'Protected field changed' THEN RAISE; END IF;
  END;
