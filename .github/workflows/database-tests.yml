@@ -43,3 +43,4 @@ jobs:
         run: |
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 54322 -U postgres -d postgres -f tests/rls-helper-caller-isolation.sql
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 54322 -U postgres -d postgres -f tests/rls-helper-positive-access.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 54322 -U postgres -d postgres -f tests/group-membership-permissions.sql
