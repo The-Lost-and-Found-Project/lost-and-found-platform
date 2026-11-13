@@ -13,7 +13,7 @@ test("admin ministry and marriage pages require an active effective administrato
   assert.match(ministriesPage, /const isActive=p\?\.is_active===true/);
   assert.match(ministriesPage, /getEffectiveRole\(p\?\.role,p\?\.preview_role\)==="admin"/);
   assert.match(ministriesActions, /select\("role,preview_role,is_active"\)/);
-  assert.match(ministriesActions, /profile\?\.is_active===true&&getEffectiveRole/);
+  assert.match(ministriesActions, /profile\?\.is_active!==true\) redirect\("\/dashboard"\)/);\n  assert.match(ministriesActions, /getEffectiveRole/);
   assert.match(marriagePage, /select\("role,preview_role,is_active"\)/);
   assert.match(marriagePage, /profile\?\.is_active!==true\|\|getEffectiveRole/);
   assert.match(marriageActions, /select\("role,preview_role,is_active"\)/);
