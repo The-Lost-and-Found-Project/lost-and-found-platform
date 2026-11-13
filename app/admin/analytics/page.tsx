@@ -16,7 +16,7 @@ export default async function AdminAnalyticsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, preview_role")
+    .select("role, preview_role, is_active")
     .eq("id", user.id)
     .single();
 
@@ -24,7 +24,7 @@ export default async function AdminAnalyticsPage() {
   // Manage Users and Feedback.
   const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
 
-  if (effectiveRole !== "admin") {
+  if (profile?.is_active !== true || effectiveRole !== "admin") {
     redirect("/dashboard");
   }
 
