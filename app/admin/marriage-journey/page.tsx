@@ -6,8 +6,8 @@ import { updateMarriageAssignment } from "./actions";
 export const dynamic="force-dynamic";
 export default async function MarriageAssignmentAdmin(){
  const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)redirect("/login?next=/admin/marriage-journey");
- const {data:profile}=await supabase.from("profiles").select("role,preview_role").eq("id",user.id).single();
- if(getEffectiveRole(profile?.role,profile?.preview_role)!=="admin")redirect("/dashboard");
+ const {data:profile}=await supabase.from("profiles") .select("role,preview_role,is_active").eq("id",user.id).single();
+ if(profile?.is_active!==true||getEffectiveRole(profile?.role,profile?.preview_role)!=="admin")redirect("/dashboard");
  const db=createAdminClient();
  const [{data:people,error:peopleError},{data:couples,error:coupleError}]=await Promise.all([
   db.from("profiles").select("id,full_name,email").eq("is_active",true).order("full_name"),
