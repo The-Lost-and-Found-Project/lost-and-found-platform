@@ -8,8 +8,8 @@ export async function updateMarriageAssignment(form: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Sign in required");
-  const { data: profile } = await supabase.from("profiles").select("role,preview_role").eq("id",user.id).single();
-  if (getEffectiveRole(profile?.role,profile?.preview_role)!=="admin") throw new Error("Admin access required");
+  const { data: profile } = await supabase.from("profiles") .select("role,preview_role,is_active").eq("id",user.id).single();
+  if (profile?.is_active!==true||getEffectiveRole(profile?.role,profile?.preview_role)!=="admin") throw new Error("Admin access required");
   const target = String(form.get("userId")||"");
   const partner = String(form.get("partnerId")||"");
   const coupleId = String(form.get("coupleId")||"");
