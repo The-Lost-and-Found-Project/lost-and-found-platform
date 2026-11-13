@@ -1,3 +1,4 @@
+import { getEffectiveRole } from "@/lib/effective-role";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -13,12 +14,12 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    const { data: callerProfile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-    if (callerProfile?.role !== "admin") return NextResponse.json({ error: "Admins only" }, { status: 403 });
+    const { data: callerProfile } = await supabase.from("profiles").select("role,preview_role,is_active").eq("id", user.id).single();
+    if (callerProfile?.is_active !== true || getEffectiveRole(callerProfile?.role, callerProfile?.preview_role) !== "admin") return NextResponse.json({ error: "Admins only" }, { status: 403 });
     if (userId === user.id && role !== "admin") return NextResponse.json({ error: "You can't change your own admin role here." }, { status: 400 });
 
     const admin = createAdminClient();
-    const { data: target } = await admin.from("profiles").select("role").eq("id", userId).single();
+    const { data: target } = await admin.from("profiles").select("role,preview_role,is_active").eq("id", userId).single();
     if (target?.role === "admin" && role !== "admin") {
       const { count } = await admin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "admin");
       if ((count ?? 0) <= 1) return NextResponse.json({ error: "You can't remove the only remaining admin." }, { status: 400 });
