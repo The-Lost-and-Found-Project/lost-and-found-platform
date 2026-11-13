@@ -10,6 +10,7 @@ const adminNav = [
   { href: "/admin/studies", label: "Studies & Discipleship" },
   { href: "/admin/notifications", label: "Communication" },
   { href: "/admin/analytics", label: "Reports" },
+  { href: "/admin/feedback", label: "Feedback" },
   { href: "/admin/live", label: "Live Operations" },
 ];
 
