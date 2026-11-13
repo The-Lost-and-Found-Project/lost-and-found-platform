@@ -36,7 +36,7 @@ export default async function AdminPage() {
     deliveryClient.rpc("get_notification_delivery_health"),
     supabase
       .from("prayer_requests")
-      .select("id, is_public, moderation_status, status, answered, flagged")
+      .select("id, is_public, moderation_status, status, answered, flagged, prayer_count")
       .order("created_at", { ascending: false }),
   ]);
 
