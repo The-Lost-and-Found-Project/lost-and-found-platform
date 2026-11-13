@@ -37,7 +37,7 @@ export default async function AdminPage() {
         stats={{
           openPrayerRequests: openRequests,
           moderationAttention: flaggedRequests,
-          answeredPrayers,
+          answeredPrayers: answeredRequests,
           notificationIssues: deliveryIssues,
         }}
       />
