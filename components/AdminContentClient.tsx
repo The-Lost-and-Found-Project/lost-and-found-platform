@@ -64,8 +64,8 @@ export default function AdminContentClient({testimonies:initialTestimonies,prais
   const pending=pendingId===item.id;
   const confirming=confirmingId===item.id;
   return <article key={item.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-   <div className="flex flex-wrap items-start justify-between gap-4">
-    <div className="min-w-0 flex-1">
+   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="w-full min-w-0 sm:flex-1">
      <div className="flex flex-wrap items-center gap-2">
       <p className="text-sm font-black text-gray-900">{author}</p>
       <span className={"rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider "+statusClasses(item.moderation_status)}>{item.moderation_status}</span>
@@ -73,10 +73,10 @@ export default function AdminContentClient({testimonies:initialTestimonies,prais
      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-gray-600">{item.content_text}</p>
      <p className="mt-2 text-xs text-gray-400">{new Date(item.created_at).toLocaleDateString()}</p>
     </div>
-    <div className="flex flex-wrap justify-end gap-2">
-     <button type="button" disabled={pending||item.moderation_status==="approved"} onClick={()=>moderate(contentType,item.id,"approved")} className="min-h-11 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800 disabled:opacity-40">Approve</button>
-     <button type="button" disabled={pending||item.moderation_status==="denied"} onClick={()=>moderate(contentType,item.id,"denied")} className="min-h-11 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-800 disabled:opacity-40">Deny</button>
-     {confirming?<><button type="button" disabled={pending} onClick={()=>deleteContent(contentType,item.id)} className="min-h-11 rounded-xl bg-red-600 px-3 py-2 text-xs font-black text-white disabled:opacity-50">Delete</button><button type="button" onClick={()=>setConfirmingId(null)} className="min-h-11 rounded-xl border px-3 py-2 text-xs font-black">Cancel</button></>:contentType==="testimony"?<button type="button" aria-label={`Delete ${author}'s testimony`} onClick={()=>setConfirmingId(item.id)} className="min-h-11 rounded-xl border px-3 py-2 text-xs font-black text-red-700">Remove</button>:<button type="button" aria-label={`Delete ${author}'s praise report`} onClick={()=>setConfirmingId(item.id)} className="min-h-11 rounded-xl border px-3 py-2 text-xs font-black text-red-700">Remove</button>}
+    <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:justify-end">
+     <button type="button" disabled={pending||item.moderation_status==="approved"} onClick={()=>moderate(contentType,item.id,"approved")} className="min-h-11 w-full rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800 disabled:opacity-40 sm:w-auto">Approve</button>
+     <button type="button" disabled={pending||item.moderation_status==="denied"} onClick={()=>moderate(contentType,item.id,"denied")} className="min-h-11 w-full rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-800 disabled:opacity-40 sm:w-auto">Deny</button>
+     {confirming?<><button type="button" disabled={pending} onClick={()=>deleteContent(contentType,item.id)} className="min-h-11 w-full rounded-xl bg-red-600 px-3 py-2 text-xs font-black text-white disabled:opacity-50 sm:w-auto">Delete</button><button type="button" onClick={()=>setConfirmingId(null)} className="min-h-11 w-full rounded-xl border px-3 py-2 text-xs font-black sm:w-auto">Cancel</button></>:contentType==="testimony"?<button type="button" aria-label={`Delete ${author}'s testimony`} onClick={()=>setConfirmingId(item.id)} className="min-h-11 w-full rounded-xl border px-3 py-2 text-xs font-black text-red-700 sm:w-auto">Remove</button>:<button type="button" aria-label={`Delete ${author}'s praise report`} onClick={()=>setConfirmingId(item.id)} className="min-h-11 rounded-xl border px-3 py-2 text-xs font-black text-red-700">Remove</button>}
     </div>
    </div>
   </article>;
