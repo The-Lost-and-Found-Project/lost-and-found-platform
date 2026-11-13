@@ -38,11 +38,11 @@ export default function AdminCommandCenter({ modules, stats }: { modules: AdminM
   const specializedModules = modules.filter((module) => !primaryHrefs.has(module.href));
 
   return (
-    <section className="mt-8 space-y-6" aria-labelledby="admin-tools-heading">
+    <section className="space-y-6" aria-labelledby="admin-tools-heading">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="lfp-eyebrow">Command center</p>
-          <h2 id="admin-tools-heading" className="mt-2 text-3xl font-black">Oversee the mission from one place</h2>
+          <p className="lfp-eyebrow">Today at L&amp;F</p>
+          <h1 id="admin-tools-heading" className="mt-2 text-3xl font-black">Ministry signals and next actions</h1>
           <p className="mt-3 max-w-2xl text-slate-600">Live signals, care work, studies, and follow-up stay visible without repeating the same action in multiple places.</p>
         </div>
         <ActionLink href="/help/manual/admin">Open admin guide</ActionLink>

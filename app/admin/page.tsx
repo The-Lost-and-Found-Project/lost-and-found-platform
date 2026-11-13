@@ -31,31 +31,16 @@ export default async function AdminPage() {
   const firstName = profile?.full_name?.trim().split(" ")[0] || "Administrator";
 
   return (
-    <main className="lfp-page pb-24">
-      <section className="relative overflow-hidden bg-slate-950 text-white">
-        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_85%_10%,rgba(124,58,237,.34),transparent_34rem)]" />
-        <div className="lfp-shell relative py-8 sm:py-12">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[.2em] text-amber-300">Administration Center</p>
-            <h1 className="mt-3 text-3xl font-black sm:text-5xl">Command Center, {firstName}.</h1>
-            <p className="mt-4 max-w-3xl text-indigo-100/75">Oversee community activity, streaming, care, and follow-up from one place.</p>
-          </div>
-          <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-5">
-            <AdminStat label="Open prayer requests" value={String(openRequests)} />
-            <AdminStat label="Moderation attention" value={String(flaggedRequests)} />
-            <AdminStat label="Needs prayer exposure" value={String(underexposedRequests)} />
-            <AdminStat label="Answered prayers" value={String(answeredRequests)} />
-            <AdminStat label="Notification delivery issues" value={String(deliveryIssues)} />
-          </div>
-        </div>
-      </section>
-      <div className="lfp-shell py-7 sm:py-10">
-        <AdminCommandCenter modules={adminModules} stats={{ openPrayerRequests: openRequests, moderationAttention: flaggedRequests, answeredPrayers: answeredRequests, notificationIssues: deliveryIssues }} />
-      </div>
+    <main className="lfp-page">
+      <AdminCommandCenter
+        modules={adminModules}
+        stats={{
+          openPrayerRequests: openRequests,
+          moderationAttention: flaggedRequests,
+          answeredPrayers: answeredRequests,
+          notificationIssues: deliveryIssues,
+        }}
+      />
     </main>
   );
-}
-
-function AdminStat({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-2xl border border-white/10 bg-white/[.07] p-4"><p className="text-2xl font-black">{value}</p><p className="mt-1 text-xs text-indigo-100/70">{label}</p></div>;
 }
