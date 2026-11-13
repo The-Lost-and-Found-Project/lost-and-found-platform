@@ -43,7 +43,4 @@ export default async function AdminPage() {
       />
     </main>
   );
-
-function AdminStat({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-2xl border border-white/10 bg-white/[.07] p-4"><p className="text-2xl font-black">{value}</p><p className="mt-1 text-xs text-indigo-100/70">{label}</p></div>;
 }
