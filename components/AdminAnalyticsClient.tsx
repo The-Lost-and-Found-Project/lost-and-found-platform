@@ -132,39 +132,74 @@ function bucketTimestamps(
 function TimeSeriesBarChart({
   data,
   color = "bg-indigo-500",
+  seriesLabel,
+  rangeDescription,
 }: {
   data: { label: string; count: number }[];
   color?: string;
+  seriesLabel: string;
+  rangeDescription: string;
 }) {
   const max = Math.max(1, ...data.map((d) => d.count));
+  const total = data.reduce((sum, bucket) => sum + bucket.count, 0);
+  const unit = rangeDescription.includes("daily") ? "daily" : "weekly";
+  const firstLabel = data[0]?.label ?? "no dates";
+  const lastLabel = data[data.length - 1]?.label ?? "no dates";
+
   return (
-    // Horizontally scrollable rather than squeezed to fit — "All" and "5yr"
-    // ranges can produce hundreds of weekly bars, far too many columns to
-    // cram into one screen width without every bar going illegibly thin.
-    <div className="overflow-x-auto pb-1">
-      <div
-        className="flex items-end gap-1.5"
-        style={{ height: 120, minWidth: data.length * 20 }}
-      >
-        {data.map((d, i) => (
-          <div key={i} className="flex w-4 shrink-0 flex-col items-center gap-1">
-            <div className="flex h-24 w-full items-end justify-center">
-              <div
-                className={`w-full max-w-[14px] rounded-t ${color}`}
-                style={{
-                  height: `${Math.max(4, (d.count / max) * 96)}px`,
-                }}
-                title={`${d.label}: ${d.count}`}
-              />
+    <>
+      {/* The numeric chart is decorative; an exact values list is available below. */}
+      <div className="overflow-x-auto pb-1" aria-hidden="true">
+        <div
+          className="flex items-end gap-1.5"
+          style={{ height: 120, minWidth: data.length * 20 }}
+        >
+          {data.map((bucket, index) => (
+            <div
+              key={`${bucket.label}-${index}`}
+              className="flex w-4 shrink-0 flex-col items-center gap-1"
+            >
+              <div className="flex h-24 w-full items-end justify-center">
+                <div
+                  className={`w-full max-w-[14px] rounded-t ${color}`}
+                  style={{
+                    height: `${Math.max(4, (bucket.count / max) * 96)}px`,
+                  }}
+                  title={`${bucket.label}: ${bucket.count}`}
+                />
+              </div>
+              <span className="text-[8px] text-gray-500">{bucket.count}</span>
             </div>
-            <span className="text-[8px] text-gray-400">{d.count}</span>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+
+      <p className="sr-only">
+        {seriesLabel}: {total.toLocaleString()} total across {data.length} {unit}{" "}
+        buckets, {firstLabel} through {lastLabel}.
+      </p>
+
+      <details className="mt-3 text-xs text-slate-700">
+        <summary className="min-h-11 cursor-pointer rounded-lg py-3 font-semibold underline decoration-slate-300 underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+          View {seriesLabel.toLowerCase()} values
+        </summary>
+        <ol className="mt-2 grid max-h-48 gap-1 overflow-y-auto rounded-lg bg-slate-50 p-3 sm:grid-cols-2 lg:grid-cols-1">
+          {data.map((bucket, index) => (
+            <li
+              key={`${bucket.label}-${index}`}
+              className="flex items-center justify-between gap-4"
+            >
+              <span>{bucket.label}</span>
+              <span className="font-bold tabular-nums">
+                {bucket.count.toLocaleString()}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </>
   );
 }
-
 function StatCard({
   label,
   value,
@@ -355,7 +390,7 @@ export default function AdminAnalyticsClient({
             {RANGE_SUBTITLES[range]}
           </p>
           <div className="mt-4">
-            <TimeSeriesBarChart data={requestsSeries} color="bg-indigo-500" />
+            <TimeSeriesBarChart data={requestsSeries} color="bg-indigo-500" seriesLabel="Prayer requests" rangeDescription={RANGE_SUBTITLES[range]} />
           </div>
         </div>
 
@@ -367,7 +402,7 @@ export default function AdminAnalyticsClient({
             {RANGE_SUBTITLES[range]}
           </p>
           <div className="mt-4">
-            <TimeSeriesBarChart data={signupsSeries} color="bg-emerald-500" />
+            <TimeSeriesBarChart data={signupsSeries} color="bg-emerald-500" seriesLabel="New members" rangeDescription={RANGE_SUBTITLES[range]} />
           </div>
         </div>
       </div>
