@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 
 type Author={full_name:string|null;email:string|null}|null;
 type ModerationStatus="pending"|"approved"|"denied"|string;
@@ -71,7 +70,7 @@ export default function AdminContentClient({testimonies:initialTestimonies,prais
  }
 
  return <div className="mx-auto max-w-5xl px-4 py-10 pb-28 sm:px-6">
-  <div className="flex items-center justify-between gap-4"><div><p className="lfp-eyebrow">Community Moderation</p><h1 className="mt-2 text-3xl font-black text-gray-900">Praise & Testimony Review</h1></div><Link href="/admin" className="inline-flex min-h-11 items-center text-sm font-black text-indigo-700">← Admin Center</Link></div>
+  <div><p className="lfp-eyebrow">Community Moderation</p><h1 className="mt-2 text-3xl font-black text-gray-900">Praise & Testimony Review</h1></div>
   <p className="mt-3 max-w-3xl text-gray-600">Approve, deny, or remove member submissions. Approved content is eligible for the public Community projections; denied content remains preserved but unpublished.</p>
   {error&&<p role="alert" aria-live="assertive" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</p>}
   <section className="mt-8"><h2 className="text-xl font-black text-gray-900">Testimonies ({testimonies.length})</h2><div className="mt-4 space-y-3">{testimonies.length?testimonies.map(x=>card("testimony",x)):<p className="text-sm text-gray-500">No testimonies yet.</p>}</div></section>

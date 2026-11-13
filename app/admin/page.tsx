@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -12,17 +11,14 @@ export default async function AdminPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=%2Fadmin");
-
   const { data: profile } = await supabase.from("profiles").select("full_name, role, preview_role").eq("id", user.id).single();
   const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
   if (effectiveRole !== "admin") redirect("/dashboard");
-
   const deliveryClient = createAdminClient();
   const [deliveryResult, requestsResult] = await Promise.all([
     deliveryClient.rpc("get_notification_delivery_health"),
     supabase.from("prayer_requests").select("id, is_public, moderation_status, status, answered, flagged, prayer_count").order("created_at", { ascending: false }),
   ]);
-
   const deliveryHealth = deliveryResult.data;
   const requestRows = requestsResult.data ?? [];
   const failedPushCount = deliveryHealth?.[0]?.failed_count ?? 0;
@@ -39,13 +35,10 @@ export default async function AdminPage() {
       <section className="relative overflow-hidden bg-slate-950 text-white">
         <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_85%_10%,rgba(124,58,237,.34),transparent_34rem)]" />
         <div className="lfp-shell relative py-8 sm:py-12">
-          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[.2em] text-amber-300">Administration Center</p>
-              <h1 className="mt-3 text-3xl font-black sm:text-5xl">Command Center, {firstName}.</h1>
-              <p className="mt-4 max-w-3xl text-indigo-100/75">Oversee community activity, streaming, care, and follow-up from one place.</p>
-            </div>
-            <Link href="/dashboard" className="lfp-button bg-white/10 text-white">Return to Member App</Link>
+          <div>
+            <p className="text-xs font-black uppercase tracking-[.2em] text-amber-300">Administration Center</p>
+            <h1 className="mt-3 text-3xl font-black sm:text-5xl">Command Center, {firstName}.</h1>
+            <p className="mt-4 max-w-3xl text-indigo-100/75">Oversee community activity, streaming, care, and follow-up from one place.</p>
           </div>
           <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-5">
             <AdminStat label="Open prayer requests" value={String(openRequests)} />
