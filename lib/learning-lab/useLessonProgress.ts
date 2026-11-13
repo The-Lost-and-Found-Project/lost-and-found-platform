@@ -24,7 +24,7 @@ export function useLessonProgress(key:string,total:number){
    userId.current=authError?null:user?.id??null;
    let local=empty;
    const storageKey="lfp-learning-v2:"+(userId.current??"guest")+":"+key;
-   try{const raw=window.localStorage.getItem(storageKey);if(raw)local=normalize(JSON.parse(raw),total);else {const legacy=window.localStorage.getItem("lfp-learning-v1:"+key);if(legacy)local=normalize(JSON.parse(legacy),total)}}catch{}
+   try{const raw=window.localStorage.getItem(storageKey);if(raw)local=normalize(JSON.parse(raw),total);else if(!userId.current){const legacy=window.localStorage.getItem("lfp-learning-v1:"+key);if(legacy)local=normalize(JSON.parse(legacy),total)}}catch{}
    let merged=local;
    if(userId.current){
     const {data,error}=await supabase.from("learning_lab_progress").select("lesson_index,completed,missed,updated_at").eq("user_id",userId.current).eq("collection_key",key).maybeSingle();
@@ -33,7 +33,7 @@ export function useLessonProgress(key:string,total:number){
      const remote=normalize({index:data.lesson_index,completed:data.completed,missed:data.missed},total);
      merged={index:remote.index,completed:Array.from(new Set([...remote.completed,...local.completed])),missed:Array.from(new Set([...remote.missed,...local.missed])).filter(n=>!remote.completed.includes(n)||remote.missed.includes(n))};
     }
-    if(error)setSyncStatus("error");else setSyncStatus("saved");
+    if(error){setSyncStatus("error");setProgress(local);hydrated.current=true;setReady(true);return;}else setSyncStatus("saved");
    }else setSyncStatus("local");
    if(cancelled)return;
    setProgress(merged);hydrated.current=true;setReady(true);
