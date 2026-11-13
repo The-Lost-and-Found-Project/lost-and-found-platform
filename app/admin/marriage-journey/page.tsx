@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -17,8 +16,7 @@ export default async function MarriageAssignmentAdmin(){
  const names=new Map((people||[]).map(p=>[p.id,p.full_name||p.email||"Member"]));
  const paired=new Set((couples||[]).flatMap(c=>[c.spouse_one,c.spouse_two]));
  const available=(people||[]).filter(p=>!paired.has(p.id));
- return <main className="lfp-page pb-24"><div className="lfp-shell max-w-4xl py-10"><Link href="/admin/studies" className="font-bold text-indigo-700">← Study workspace</Link>
- <p className="lfp-eyebrow mt-7">Couples discipleship</p><h1 className="mt-2 text-4xl font-black">Marriage Journey · Couple assignments</h1>
+ return <main className="lfp-page pb-24"><div className="lfp-shell max-w-4xl py-10"><p className="lfp-eyebrow mt-7">Couples discipleship</p><h1 className="mt-2 text-4xl font-black">Marriage Journey · Couple assignments</h1>
  <p className="mt-4 text-slate-600">Assign two active members together. Both receive the 21-day journey, and only their explicitly shared discussion answers can be seen by their spouse after answering. Personal workbooks remain private. Couples are never connected to other couples automatically.</p>
  {(peopleError||coupleError)?<p role="alert" className="mt-6 rounded-xl bg-amber-50 p-5">Couple assignments are unavailable. No changes can be made.</p>:<>
  <form action={updateMarriageAssignment} className="lfp-card mt-8 grid gap-4 p-6 sm:grid-cols-2"><input type="hidden" name="operation" value="assign"/>
