@@ -11,9 +11,9 @@ export default async function AdminPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=%2Fadmin");
-  const { data: profile } = await supabase.from("profiles").select("full_name, role, preview_role").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("full_name, role, preview_role, is_active").eq("id", user.id).single();
   const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
-  if (effectiveRole !== "admin") redirect("/dashboard");
+  if (profile?.is_active !== true || effectiveRole !== "admin") redirect("/dashboard");
   const deliveryClient = createAdminClient();
   const [deliveryResult, requestsResult] = await Promise.all([
     deliveryClient.rpc("get_notification_delivery_health"),

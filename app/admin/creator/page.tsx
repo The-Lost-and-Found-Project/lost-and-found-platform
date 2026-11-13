@@ -14,8 +14,8 @@ export default async function CreatorStudioPage(){
  const supabase=await createClient();
  const {data:{user}}=await supabase.auth.getUser();
  if(!user)redirect("/login?next=%2Fadmin%2Fcreator");
- const {data:profile}=await supabase.from("profiles").select("role,preview_role").eq("id",user.id).single();
- if(getEffectiveRole(profile?.role,profile?.preview_role)!=="admin")redirect("/dashboard");
+ const {data:profile}=await supabase.from("profiles").select("role,preview_role,is_active").eq("id",user.id).single();
+ if(profile?.is_active!==true||getEffectiveRole(profile?.role,profile?.preview_role)!=="admin")redirect("/dashboard");
  const [{data:catalog},{data:studies},{data:ministryContent}]=await Promise.all([
   supabase.from("content_catalog").select("id,is_published,is_featured,content_type,provenance"),
   supabase.from("bible_studies").select("id,is_published"),
