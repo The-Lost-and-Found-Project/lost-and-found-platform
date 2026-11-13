@@ -1,3 +1,4 @@
+import { getEffectiveRole } from "@/lib/effective-role";
 import {NextResponse} from "next/server";
 import {createClient} from "@/lib/supabase/server";
 import {createAdminClient} from "@/lib/supabase/admin";
@@ -5,7 +6,7 @@ import {fetchZeffyPayments,upsertVerifiedZeffyPayment} from "@/lib/zeffy";
 
 export async function POST(){
  const supabase=await createClient();const{data:{user}}=await supabase.auth.getUser();if(!user)return NextResponse.json({error:"Unauthorized"},{status:401});
- const{data:callerProfile}=await supabase.from("profiles").select("role").eq("id",user.id).maybeSingle();if(callerProfile?.role !== "admin")return NextResponse.json({error:"Forbidden"},{status:403});
+ const{data:callerProfile}=await supabase.from("profiles").select("role,preview_role,is_active").eq("id",user.id).maybeSingle();if(callerProfile?.is_active !== true || getEffectiveRole(callerProfile?.role, callerProfile?.preview_role) !== "admin")return NextResponse.json({error:"Forbidden"},{status:403});
  const admin=createAdminClient();const{data:run}=await admin.from("giving_sync_runs").insert({provider:"zeffy"}).select("id").single();
  let seen=0,upserted=0,cursor:string|undefined;
  try{
