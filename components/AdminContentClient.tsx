@@ -18,6 +18,19 @@ export default function AdminContentClient({testimonies:initialTestimonies,prais
  const[confirmingId,setConfirmingId]=useState<string|null>(null);
  const[pendingId,setPendingId]=useState<string|null>(null);
  const[error,setError]=useState("");
+ const[testimonyStatus,setTestimonyStatus]=useState("pending");
+ const[praiseStatus,setPraiseStatus]=useState("pending");
+ const[testimonyQuery,setTestimonyQuery]=useState("");
+ const[praiseQuery,setPraiseQuery]=useState("");
+
+ const matchesSubmission=(item:Testimony|PraiseReport,status:string,query:string)=>{
+  const matchesStatus=status==="all"||item.moderation_status===status;
+  const search=query.trim().toLowerCase();
+  const searchable=`${item.content_text} ${authorLabel(item.author,"is_anonymous" in item?item.is_anonymous:false)}`.toLowerCase();
+  return matchesStatus&&(!search||searchable.includes(search));
+ };
+ const filteredTestimonies=testimonies.filter(item=>matchesSubmission(item,testimonyStatus,testimonyQuery));
+ const filteredPraiseReports=praiseReports.filter(item=>matchesSubmission(item,praiseStatus,praiseQuery));
 
  async function moderate(contentType:"testimony"|"praise",contentId:string,moderationStatus:"approved"|"denied"){
   setError("");setPendingId(contentId);
@@ -69,11 +82,61 @@ export default function AdminContentClient({testimonies:initialTestimonies,prais
   </article>;
  }
 
- return <div className="mx-auto max-w-5xl px-4 py-10 pb-28 sm:px-6">
-  <div><p className="lfp-eyebrow">Community Moderation</p><h1 className="mt-2 text-3xl font-black text-gray-900">Praise & Testimony Review</h1></div>
-  <p className="mt-3 max-w-3xl text-gray-600">Approve, deny, or remove member submissions. Approved content is eligible for the public Community projections; denied content remains preserved but unpublished.</p>
-  {error&&<p role="alert" aria-live="assertive" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</p>}
-  <section className="mt-8"><h2 className="text-xl font-black text-gray-900">Testimonies ({testimonies.length})</h2><div className="mt-4 space-y-3">{testimonies.length?testimonies.map(x=>card("testimony",x)):<p className="text-sm text-gray-500">No testimonies yet.</p>}</div></section>
-  <section className="mt-10"><h2 className="text-xl font-black text-gray-900">Praise Reports ({praiseReports.length})</h2><div className="mt-4 space-y-3">{praiseReports.length?praiseReports.map(x=>card("praise",x)):<p className="text-sm text-gray-500">No praise reports yet.</p>}</div></section>
- </div>;
+ return (
+  <main className="mx-auto max-w-5xl px-4 py-10 pb-28 sm:px-6">
+   <header>
+    <p className="lfp-eyebrow">Community Moderation</p>
+    <h1 className="mt-2 text-3xl font-black text-gray-900">Praise &amp; Testimony Review</h1>
+    <p className="mt-3 max-w-3xl text-gray-600">Review new submissions first. Approved content is eligible for public Community projections; denied content stays preserved but unpublished.</p>
+   </header>
+
+   {error&&<p role="alert" aria-live="assertive" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</p>}
+
+   <section className="mt-8" aria-labelledby="testimonies-heading">
+    <div className="flex flex-wrap items-end justify-between gap-3">
+     <div>
+      <h2 id="testimonies-heading" className="text-xl font-black text-gray-900">Testimonies</h2>
+      <p className="mt-1 text-sm text-slate-600">{testimonies.filter(x=>x.moderation_status==="pending").length} awaiting review · {testimonies.length} total</p>
+     </div>
+     <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-[minmax(14rem,1fr)_12rem]">
+      <label className="text-xs font-bold text-slate-700">Search testimonies
+       <input value={testimonyQuery} onChange={e=>setTestimonyQuery(e.target.value)} placeholder="Text or author" className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-normal"/>
+      </label>
+      <label className="text-xs font-bold text-slate-700">Status
+       <select aria-label="Filter testimonies by status" value={testimonyStatus} onChange={e=>setTestimonyStatus(e.target.value)} className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+        <option value="pending">Pending review</option><option value="approved">Approved</option><option value="denied">Denied</option><option value="all">All statuses</option>
+       </select>
+      </label>
+     </div>
+    </div>
+    <p className="sr-only" role="status">Showing {filteredTestimonies.length} of {testimonies.length} testimonies.</p>
+    <div className="mt-4 space-y-3">
+     {filteredTestimonies.length?filteredTestimonies.map(x=>card("testimony",x)):<p className="rounded-xl border border-dashed border-slate-300 p-5 text-sm text-slate-600">{testimonies.length?"No testimonies match these filters.":"No testimonies have been submitted yet."}</p>}
+    </div>
+   </section>
+
+   <section className="mt-10" aria-labelledby="praise-heading">
+    <div className="flex flex-wrap items-end justify-between gap-3">
+     <div>
+      <h2 id="praise-heading" className="text-xl font-black text-gray-900">Praise Reports</h2>
+      <p className="mt-1 text-sm text-slate-600">{praiseReports.filter(x=>x.moderation_status==="pending").length} awaiting review · {praiseReports.length} total</p>
+     </div>
+     <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-[minmax(14rem,1fr)_12rem]">
+      <label className="text-xs font-bold text-slate-700">Search praise reports
+       <input value={praiseQuery} onChange={e=>setPraiseQuery(e.target.value)} placeholder="Text or author" className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-normal"/>
+      </label>
+      <label className="text-xs font-bold text-slate-700">Status
+       <select aria-label="Filter praise reports by status" value={praiseStatus} onChange={e=>setPraiseStatus(e.target.value)} className="mt-1 min-h-11 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+        <option value="pending">Pending review</option><option value="approved">Approved</option><option value="denied">Denied</option><option value="all">All statuses</option>
+       </select>
+      </label>
+     </div>
+    </div>
+    <p className="sr-only" role="status">Showing {filteredPraiseReports.length} of {praiseReports.length} praise reports.</p>
+    <div className="mt-4 space-y-3">
+     {filteredPraiseReports.length?filteredPraiseReports.map(x=>card("praise",x)):<p className="rounded-xl border border-dashed border-slate-300 p-5 text-sm text-slate-600">{praiseReports.length?"No praise reports match these filters.":"No praise reports have been submitted yet."}</p>}
+    </div>
+   </section>
+  </main>
+ );
 }
