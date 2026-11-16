@@ -4,11 +4,11 @@ This first implementation package adds `/rebuild-preview` as a public, read-only
 
 The preview contains three switchable surfaces:
 
-- Administration: the approved cream sidebar, compact overview, attention queue, schedule, calendar, and a sample People & roles workspace.
+- Administration: the approved cream sidebar, compact overview, attention queue, schedule, calendar, a sample People & roles workspace, and a sample Prayer review workspace.
 - Public homepage: the approved typography-led direction with Luke 19:10 as the focal Scripture.
 - Member home: personal study continuation, groups, commitments, and a personal calendar.
 
-All counts, events, studies, role requests, and assignments are synthetic design fixtures. The People & roles screen demonstrates role requests, scoped delegation, and current access while preserving the existing Supervisor lane and Owner-only administrator boundary. Preview buttons display explanations. There are no submission, approval, membership, preference, account, or content writes. The calendar controls demonstrate presentation filtering, not authorization. The client has no API calls or browser storage access. No new dependency or paid service is introduced.
+All counts, events, studies, role requests, and assignments are synthetic design fixtures. The People & roles screen demonstrates role requests, scoped delegation, and current access while preserving the existing Supervisor lane and Owner-only administrator boundary. Prayer review separates visitor submissions awaiting public clearance, member requests with member-selected audiences, and cleared public requests. Visitor submissions are public-only; member privacy is never broadened by moderation. Preview buttons display explanations. There are no submission, approval, membership, preference, account, or content writes. The calendar controls demonstrate presentation filtering, not authorization. The client has no API calls or browser storage access. No new dependency or paid service is introduced.
 
 The shared app frame omits its existing header, footer, bottom navigation, floating actions, and push-subscription sync on this exact preview route to avoid duplicate navigation and automatic subscription side effects. Existing routes retain their behavior. The preview is marked noindex.
 
@@ -20,7 +20,8 @@ The shared app frame omits its existing header, footer, bottom navigation, float
 4. Change calendar view, category filter, and ministry. Verify combined filtering and the empty-result state.
 5. Open section information icons. Confirm the explanation remains optional and readable.
 6. Open sample review actions. Verify that an explanatory message appears and no real approval is performed.
-7. Exit the preview to return to existing administration.
+7. Open Ministry tools → Prayer review. Switch among Visitor requests, Member requests, and Cleared public. Confirm pending visitor requests are hidden from the public, and the member audience stays Prayer team only.
+8. Exit the preview to return to existing administration.
 
 ## Validation
 
