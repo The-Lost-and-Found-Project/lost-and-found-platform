@@ -1,22 +1,22 @@
 import "server-only";
 
-type VerifiedIdentity = {
-  email?: string | null;
-  email_confirmed_at?: string | null;
+type AuthIdentity = {
+  id?: string | null;
 };
 
 /**
  * Owner identities come from server-side deployment configuration, never from
- * profile metadata or a client request. Requiring a confirmed email prevents
- * an unverified account from matching an Owner address.
+ * profile metadata or a client request. Auth user IDs remain stable if an
+ * Owner changes their email address.
  */
-export function isConfiguredOwner(user: VerifiedIdentity): boolean {
-  if (!user.email || !user.email_confirmed_at) return false;
+export function isConfiguredOwner(user: AuthIdentity): boolean {
+  const userId = user.id?.trim().toLowerCase();
+  if (!userId) return false;
 
-  const owners = (process.env.LFP_OWNER_EMAILS ?? "")
+  const owners = (process.env.LFP_OWNER_USER_IDS ?? "")
     .split(",")
-    .map((email) => email.trim().toLowerCase())
+    .map((id) => id.trim().toLowerCase())
     .filter(Boolean);
 
-  return owners.includes(user.email.trim().toLowerCase());
+  return owners.includes(userId);
 }
