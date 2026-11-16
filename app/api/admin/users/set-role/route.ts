@@ -2,6 +2,7 @@ import { getEffectiveRole } from "@/lib/effective-role";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isConfiguredOwner } from "@/lib/owner-access";
 
 const ALLOWED_ROLES = new Set(["member", "facilitator", "supervisor", "admin"]);
 
@@ -20,6 +21,10 @@ export async function POST(request: NextRequest) {
 
     const admin = createAdminClient();
     const { data: target } = await admin.from("profiles").select("role,preview_role,is_active").eq("id", userId).single();
+    const changesAdminAccess = role === "admin" || target?.role === "admin";
+    if (changesAdminAccess && !isConfiguredOwner(user)) {
+      return NextResponse.json({ error: "Only a configured Owner can grant or remove administrator access." }, { status: 403 });
+    }
     if (target?.role === "admin" && role !== "admin") {
       const { count } = await admin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "admin");
       if ((count ?? 0) <= 1) return NextResponse.json({ error: "You can't remove the only remaining admin." }, { status: 400 });
