@@ -20,10 +20,10 @@ test("clearing filters restores the fixture without mutating source events", () 
   assert.equal(filterPreviewEvents(previewEvents, "Master calendar", "All", "All ministries").length, 3);
 });
 
-test("preview entry uses the existing active-admin capability before rendering", () => {
+test("preview entry is public, noindex, and renders only the sample design", () => {
   const route = readFileSync(new URL("../app/rebuild-preview/page.tsx", import.meta.url), "utf8");
-  assert.match(route, /await requireAppCapability\("admin_center", "\/rebuild-preview"\)/);
-  assert.ok(route.indexOf("await requireAppCapability") < route.indexOf("return <RebuildPreview"));
+  assert.doesNotMatch(route, /requireAppCapability|createClient|fetch\s*\(/);
+  assert.match(route, /return <RebuildPreview\s*\/>/);
   assert.match(route, /index: false, follow: false/);
 });
 
