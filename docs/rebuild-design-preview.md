@@ -4,11 +4,11 @@ This first implementation package adds `/rebuild-preview` as a public, read-only
 
 The preview contains three switchable surfaces:
 
-- Administration: the approved cream sidebar, compact overview, attention queue, schedule, calendar, a sample People & roles workspace, a sample Prayer review workspace, and notification settings.
+- Administration: the approved cream sidebar, compact overview, attention queue, schedule, calendar, a sample People & roles workspace, a sample Prayer review workspace, and notification and profile-sharing settings.
 - Public homepage: the approved typography-led direction with Luke 19:10 as the focal Scripture.
 - Member home: personal study continuation, groups, commitments, and a personal calendar.
 
-All counts, events, studies, role requests, and assignments are synthetic design fixtures. The People & roles screen demonstrates role requests, scoped delegation, and current access while preserving the existing Supervisor lane and Owner-only administrator boundary. Prayer review separates visitor submissions awaiting public clearance, member requests with member-selected audiences, and cleared public requests. Notification settings show every category enabled by default, individual opt-outs, and a sample sign-in push prompt with Enable and Not now choices. Visitor submissions are public-only; member privacy is never broadened by moderation. Preview buttons display explanations. There are no submission, approval, membership, preference, account, or content writes. The push prompt does not invoke the browser permission API. The calendar controls demonstrate presentation filtering, not authorization. The client has no API calls or browser storage access. No new dependency or paid service is introduced.
+All counts, events, studies, role requests, and assignments are synthetic design fixtures. The People & roles screen demonstrates role requests, scoped delegation, and current access while preserving the existing Supervisor lane and Owner-only administrator boundary. Prayer review separates visitor submissions awaiting public clearance, member requests with member-selected audiences, and cleared public requests. Notification settings show every category enabled by default, individual opt-outs, and a sample sign-in push prompt with Enable and Not now choices. Profile sharing keeps each field private by default, gives contact fields independent switches, and previews the fields visible to the selected audience. Visitor submissions are public-only; member privacy is never broadened by moderation. Preview buttons display explanations. There are no submission, approval, membership, preference, account, or content writes. The push prompt does not invoke the browser permission API. The calendar controls demonstrate presentation filtering, not authorization. The client has no API calls or browser storage access. No new dependency or paid service is introduced.
 
 The shared app frame omits its existing header, footer, bottom navigation, floating actions, and push-subscription sync on this exact preview route to avoid duplicate navigation and automatic subscription side effects. Existing routes retain their behavior. The preview is marked noindex.
 
@@ -20,9 +20,10 @@ The shared app frame omits its existing header, footer, bottom navigation, float
 4. Change calendar view, category filter, and ministry. Verify combined filtering and the empty-result state.
 5. Open section information icons. Confirm the explanation remains optional and readable.
 6. Open sample review actions. Verify that an explanatory message appears and no real approval is performed.
-7. Open Settings. Confirm all five notification categories start on, can be turned off individually, and the push prompt offers Enable and Not now without triggering a browser permission request.
-8. Open Ministry tools → Prayer review. Switch among Visitor requests, Member requests, and Cleared public. Confirm pending visitor requests are hidden from the public, and the member audience stays Prayer team only.
-9. Exit the preview to return to existing administration.
+7. Open Settings → Notifications. Confirm all five categories start on, can be turned off individually, and the push prompt offers Enable and Not now without triggering a browser permission request.
+8. Open Settings → Profile sharing. Confirm every field starts private, contact fields are independent, and the preview reflects only selected fields.
+9. Open Ministry tools → Prayer review. Switch among Visitor requests, Member requests, and Cleared public. Confirm pending visitor requests are hidden from the public, and the member audience stays Prayer team only.
+10. Exit the preview to return to existing administration.
 
 ## Validation
 
@@ -30,6 +31,6 @@ Five focused regression checks cover calendar-scope composition, combined filter
 
 On the unchanged `origin/main` baseline, the full unit suite has eight failures, including a malformed active-guard test and outdated source-string assertions. The preview branch has the same eight failures and adds five passing checks. These baseline failures must not be described as a passing full suite.
 
-Local Chromium failed to launch in this workspace. The public sample was reviewed in a connected browser: Prayer review, People & roles, and notification settings fit a 390px viewport without horizontal page overflow; all prayer tabs and the push prompt dismissal were inspected. No real browser notification permission was requested. The notification preference switches are local design state only and were not tested for persistence. No production data fixture is included in this change.
+Local Chromium failed to launch in this workspace. The public sample was reviewed in a connected browser: Prayer review, People & roles, and Settings fit a 390px viewport without horizontal page overflow; all prayer tabs, the push prompt dismissal, and profile-sharing preview were inspected. No real browser notification permission was requested. Notification and profile-sharing switches are local design state only and were not tested for persistence. No production data fixture is included in this change.
 
 The remaining blueprint features—delegated approvals, privacy sharing, event registration, shared calendars, role expansion, and cross-application progress—are not implemented by this visual preview.
