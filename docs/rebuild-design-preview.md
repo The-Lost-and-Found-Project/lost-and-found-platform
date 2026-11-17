@@ -30,6 +30,6 @@ Five focused regression checks cover calendar-scope composition, combined filter
 
 On the unchanged `origin/main` baseline, the full unit suite has eight failures, including a malformed active-guard test and outdated source-string assertions. The preview branch has the same eight failures and adds five passing checks. These baseline failures must not be described as a passing full suite.
 
-Local Chromium failed to launch in this workspace. Browser layout and interactions remain to be verified on the public sample preview. No production data fixture is included in this change.
+Local Chromium failed to launch in this workspace. The public sample was reviewed in a connected browser: Prayer review, People & roles, and notification settings fit a 390px viewport without horizontal page overflow; all prayer tabs and the push prompt dismissal were inspected. No real browser notification permission was requested. The notification preference switches are local design state only and were not tested for persistence. No production data fixture is included in this change.
 
 The remaining blueprint features—delegated approvals, privacy sharing, event registration, shared calendars, role expansion, and cross-application progress—are not implemented by this visual preview.
