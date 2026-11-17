@@ -203,11 +203,23 @@ function ProfileSharing() {
   </section>;
 }
 
+function AccountDataSettings({ onOpen }: { onOpen: (message: string) => void }) {
+  const [showRemoval, setShowRemoval] = useState(false);
+  const [confirmation, setConfirmation] = useState("");
+  return <section className={styles.panel} aria-label="Account and data preview">
+    <div className={styles.approvalHeading}><SectionTitle title="Account & data" help="Members should be able to take their personal information and content with them when they leave. This preview shows the intended flow; it does not export or delete real data."/><p>Your information stays under your control</p></div>
+    <div className={styles.dataActionCard}><div><span className={styles.requestLabel}>Download a copy</span><h3>Export my data</h3><p>Review your profile, prayer requests, study progress, event registrations, and other content linked to your account.</p></div><button className={styles.outlineButton} onClick={() => onOpen("Sample only: your account export would be prepared for review. No real data was downloaded.")}>Preview export</button></div>
+    <div className={styles.dataRemovalCard}><div><span className={styles.requestLabel}>Leaving L&amp;F</span><h3>Remove my account and data</h3><p>The planned removal covers your profile, authored prayer content, saved study progress, event registrations, preferences, and other personal content linked to your L&amp;F account.</p><p className={styles.requestMeta}>Your membership and ministry roles end with account removal. Connected Emmaus data belongs in the same export and removal checklist.</p></div><button className={styles.dangerButton} onClick={() => {setConfirmation("");setShowRemoval(true);}}>Review removal</button></div>
+    <p className={styles.caption}>Preview only · no export, account removal, or data changes are performed</p>
+    {showRemoval && <div className={styles.modalBackdrop}><section className={styles.eventDialog} role="dialog" aria-modal="true" aria-labelledby="removal-title" aria-describedby="removal-description"><p className={styles.eyebrow}>Account removal</p><h2 id="removal-title">Take your information with you.</h2><p id="removal-description" className={styles.eventDialogIntro}>The real removal flow must include your L&amp;F account-linked data and coordinate the connected Emmaus data. This action is permanent after it is implemented and confirmed.</p><ul className={styles.removalList}><li>Profile and contact information</li><li>Prayer requests and personal content</li><li>Saved study progress and registrations</li><li>Notification and sharing preferences</li><li>Connected Emmaus account data</li></ul><label className={styles.confirmRemoval}>Type REMOVE to preview the final step<input value={confirmation} onChange={(event) => setConfirmation(event.target.value)} autoComplete="off"/></label><div className={styles.requestActions}><button className={styles.dangerButton} disabled={confirmation !== "REMOVE"} onClick={() => {setShowRemoval(false);onOpen("Sample only: the account-removal flow would begin after a final review. No account or content was removed.");}}>Continue to final review</button><button className={styles.outlineButton} onClick={() => setShowRemoval(false)}>Cancel</button></div></section></div>}
+  </section>;
+}
+
 function SettingsWorkspace({ onOpen }: { onOpen: (message: string) => void }) {
   const [view, setView] = useState("Notifications");
   return <div className={styles.settingsWorkspace}>
-    <div className={styles.approvalTabs} role="group" aria-label="Settings views">{["Notifications", "Profile sharing"].map((item) => <button key={item} aria-pressed={view === item} onClick={() => setView(item)}>{item}</button>)}</div>
-    {view === "Notifications" ? <NotificationSettings onOpen={onOpen}/> : <ProfileSharing/>}
+    <div className={styles.approvalTabs} role="group" aria-label="Settings views">{["Notifications", "Profile sharing", "Account & data"].map((item) => <button key={item} aria-pressed={view === item} onClick={() => setView(item)}>{item}</button>)}</div>
+    {view === "Notifications" ? <NotificationSettings onOpen={onOpen}/> : view === "Profile sharing" ? <ProfileSharing/> : <AccountDataSettings onOpen={onOpen}/>}
   </div>;
 }
 
