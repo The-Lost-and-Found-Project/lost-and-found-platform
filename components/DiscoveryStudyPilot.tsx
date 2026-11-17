@@ -14,6 +14,7 @@ export default function DiscoveryStudyPilot({mode,leaderNotes,initialPhase=0}:Pr
  const [hold,setHold]=useState(false);
  const [connected,setConnected]=useState(false);
  const channel=useRef<BroadcastChannel|null>(null);
+ const indexRef=useRef(index);
  const phase=JAMES_DISCOVERY_CARDS[index];
  const advance=useCallback((delta:number)=>{if(!hold)setIndex(i=>clamp(i+delta));},[hold]);
 
@@ -24,14 +25,14 @@ export default function DiscoveryStudyPilot({mode,leaderNotes,initialPhase=0}:Pr
    const msg=event.data;
    if(!msg||typeof msg!=="object")return;
    if(!facilitator&&msg.type==="phase"&&Number.isInteger(msg.phase))setIndex(clamp(msg.phase!));
-   if(facilitator&&msg.type==="request")bus.postMessage({type:"phase",phase:index});
+   if(facilitator&&msg.type==="request")bus.postMessage({type:"phase",phase:indexRef.current});
   };
   if(!facilitator)bus.postMessage({type:"request"});
   return()=>{bus.close();channel.current=null};
  // Initial sync only; facilitator phase updates are sent below.
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[facilitator]);
- useEffect(()=>{if(facilitator)channel.current?.postMessage({type:"phase",phase:index});},[facilitator,index]);
+ useEffect(()=>{indexRef.current=index;if(facilitator)channel.current?.postMessage({type:"phase",phase:index});},[facilitator,index]);
 
  useEffect(()=>{
   if(!facilitator)return;
