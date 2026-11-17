@@ -7,6 +7,7 @@ Status: implementation design for review. This document does not change database
 - Signup creates a member account immediately.
 - Every capability beyond baseline membership requires an explicit approval.
 - A person may hold several roles at once; role assignments carry their ministry or group scope.
+- Group participation has a separate lifecycle from role assignment; joining a group never grants authority. See `docs/group-membership-and-approval-flow.md`.
 - An approver may act only inside the role types and scopes explicitly delegated to them.
 - No person approves their own request or grants authority beyond their own.
 - Only configured Owners can grant or remove administrator access, change integrations, or authorize paid services.
