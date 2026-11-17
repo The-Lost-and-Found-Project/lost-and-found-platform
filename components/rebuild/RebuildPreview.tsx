@@ -6,7 +6,7 @@ import styles from "./RebuildPreview.module.css";
 
 type Surface = "Administration" | "Public homepage" | "Member home";
 type Workspace = "Home" | "My tasks" | "Calendars" | "People & roles" | "Prayer review" | "Settings";
-type RoleView = "Requests" | "Delegation" | "Current access";
+type RoleView = "Member directory" | "Role requests" | "Delegation" | "Current access";
 const surfaces: Surface[] = ["Administration", "Public homepage", "Member home"];
 const calendarFilters: CalendarFilter[] = ["All", "Mine", "Assigned", "Shared"];
 
@@ -62,13 +62,30 @@ function MyTasks({ onOpen, personal = false }: { onOpen: (message: string) => vo
   </section>;
 }
 
+function MemberDirectory() {
+  const [query, setQuery] = useState("");
+  const members = [
+    { name: "Leah Carter", audience: "L&F members", fields: [["Faith story", "Jesus met me in a difficult season and kept drawing me closer."], ["Favorite Scripture", "Psalm 46:1"]] },
+    { name: "Marcus Reed", audience: "Accepted groups", fields: [["Favorite Scripture", "John 15:5"]] },
+    { name: "Dana Miller", audience: "L&F members", fields: [] },
+  ];
+  const visible = members.filter((member) => member.name.toLowerCase().includes(query.trim().toLowerCase()));
+  return <div className={styles.directory}>
+    <p className={styles.approvalIntro}>This directory includes only people who chose to share their directory name. Other profile details appear only when each member has opted in to those fields.</p>
+    <label className={styles.directorySearch}>Search shared profiles<input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by name"/></label>
+    {visible.length ? <ul className={styles.directoryList}>{visible.map((member) => <li key={member.name}><div className={styles.memberCardHeading}><div><span className={styles.requestLabel}>Shared profile</span><h3>{member.name}</h3></div><span className={styles.statusPill}>{member.audience}</span></div>{member.fields.length ? <dl className={styles.sharedProfileFields}>{member.fields.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl> : <p className={styles.emptyProfile}>No other fields shared.</p>}</li>)}</ul> : <p className={styles.empty}>No shared profile names match your search.</p>}
+    <p className={styles.ownerRule}>Members who keep Directory name private do not appear in search. Contact details remain hidden unless that person explicitly shares them.</p>
+  </div>;
+}
+
 function RoleApprovals({ onOpen }: { onOpen: (message: string) => void }) {
-  const [view, setView] = useState<RoleView>("Requests");
-  const views: RoleView[] = ["Requests", "Delegation", "Current access"];
+  const [view, setView] = useState<RoleView>("Member directory");
+  const views: RoleView[] = ["Member directory", "Role requests", "Delegation", "Current access"];
   return <section className={styles.panel} aria-label="People and roles preview">
     <div className={styles.approvalHeading}><SectionTitle title="People & roles" help="A person becomes a member after signup. Additional roles need approval. Delegation can cover approved role types and scopes; only the Owner grants or removes administrator access." /><p>Membership and ministry access</p></div>
     <div className={styles.approvalTabs} role="group" aria-label="People and roles views">{views.map((item) => <button key={item} aria-pressed={view === item} onClick={() => setView(item)}>{item}</button>)}</div>
-    {view === "Requests" && <><p className={styles.approvalIntro}>Review the requested role, ministry, and any required training before deciding.</p><ul className={styles.requestList}>
+    {view === "Member directory" && <MemberDirectory/>}
+    {view === "Role requests" && <><p className={styles.approvalIntro}>Review the requested role, ministry, and any required training before deciding.</p><ul className={styles.requestList}>
       <li><div className={styles.requestTop}><div><span className={styles.requestLabel}>Role request</span><h3>Study facilitator</h3></div><span className={styles.statusPill}>Training complete</span></div><p>Requested for <strong>Men’s Forge</strong></p><p className={styles.requestMeta}>Sample member · Submitted Nov 12</p><div className={styles.requestActions}><button className={styles.primaryButton} onClick={() => onOpen("Sample only: a delegated reviewer could approve this scoped facilitator role. No access was granted.")}>Approve role</button><button className={styles.outlineButton} onClick={() => onOpen("Sample only: a reviewer could decline this request with a reason. No record changed.")}>Decline</button></div></li>
       <li><div className={styles.requestTop}><div><span className={styles.requestLabel}>Role request</span><h3>Prayer team</h3></div><span className={styles.statusPill}>Leader review</span></div><p>Requested for <strong>Prayer ministry</strong></p><p className={styles.requestMeta}>Sample member · Training not required</p><div className={styles.requestActions}><button className={styles.primaryButton} onClick={() => onOpen("Sample only: this role would be routed to an authorized reviewer. No access was granted.")}>Review request</button></div></li>
     </ul></>}
