@@ -12,6 +12,17 @@ Status: proposed authorization policy for review. No permission or database beha
 - Configured Owners retain exclusive authority over administrator access, integration changes, and paid-service authorization.
 - Group membership and role assignment are separate decisions; group access alone does not grant a role.
 
+## Verified current-state evidence
+
+The existing single-role path is documented separately from the proposed workflow:
+
+- Draft PR #253's `set-role` route accepts only `member`, `facilitator`, `supervisor`, and `admin`. It requires an active Admin caller. Granting or removing `admin` additionally requires a configured Owner identity; the existing last-admin guard remains.
+- That route writes the profile role directly. It does not create a request, decision history, scoped assignment, or delegated approval record.
+- The existing supervision route lets an active Admin assign or remove a `supervisor` to `facilitator` relationship. It is not a general delegation mechanism and does not grant role-approval authority.
+- PR #253 remains a draft and has not changed Production. Its Owner allowlist only affects a future deployment of that code.
+
+These facts establish the compatibility boundary; they do not answer who should approve newly introduced scoped roles. The proposed matrix below must not be read as already deployed behavior.
+
 ## Proposed approval matrix
 
 | Request | Default reviewer | Delegated review | Boundary |
