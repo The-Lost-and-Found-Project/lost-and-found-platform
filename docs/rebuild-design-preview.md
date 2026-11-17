@@ -31,7 +31,8 @@ The shared app frame omits its existing header, footer, bottom navigation, float
 15. Open Ministry tools → Prayer review. Switch among Visitor requests, Member requests, and Cleared public. Confirm pending visitor requests are hidden from the public, and the member audience stays Prayer team only.
 16. On Public homepage, open Share a prayer request. Confirm the public-only explanation, required acknowledgement, and disabled submit until both fields are complete. Close without submitting.
 17. On Member home, open Share a prayer request. Confirm Prayer team only is selected by default; inspect the accepted-group and public-after-review options and the moderator audience rule. Do not submit real content.
-18. Exit the preview to return to existing administration.
+18. On Public homepage, review Prayer & praise. Confirm only sample items marked cleared are displayed and no names or real requests appear.
+19. Exit the preview to return to existing administration.
 
 ## Validation
 
