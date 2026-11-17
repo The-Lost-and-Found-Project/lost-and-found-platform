@@ -8,6 +8,18 @@ Status: product and authorization design proposal for review. This document adds
 - Signup creates baseline L&F membership immediately.
 - Any additional role or ministry capability requires approval.
 - Group membership is separate from app membership and from role assignments.
+
+## Existing data structures and implementation boundary
+
+A read-only repository audit found two existing membership systems with different purposes:
+
+- `ministry_memberships` represents follows/participation in the current ministry spaces. It stores one row per member and ministry, with `membership_role` set to `member` or `leader`. The current join action inserts a member row immediately; leaving deletes it. Its current policies let a member read, join, and leave their own ministry membership, while administrator access can manage records. The `leader` value is also used to authorize ministry content management, so membership and authority are currently coupled.
+- `study_groups` and `study_group_members` represent Bible-study cohorts. They track `active`/`inactive` membership and `member`/`facilitator` group roles. Current policies let members see their own membership, facilitators see their cohort roster, and administrators manage groups and memberships. This model is tied to study sessions and should not automatically become the home for every fellowship or service team.
+
+Neither model currently stores open/request/invitation access modes, pending requests, invitation acceptance/expiry, membership decision history, or field-level profile-sharing choices. The current ministry join action is a direct authenticated insert, so access rules cannot safely be implemented only by hiding or changing a button. Current role values (`membership_role` and `group_role`) also carry authority and must not be silently reinterpreted as the new scoped-role system.
+
+Implementation should first classify each product group as a ministry space, Bible-study cohort, or a genuinely different community group. Reuse the existing ministry and study records where their semantics fit. Do not duplicate either system or turn study cohorts into generic groups for convenience. If a new shared group model is needed, document the mapping and migration path before adding it; requests and invitations must link to a stable group identity and be enforced by server authorization and database policy.
+
 - Groups may be open, approval-required, or invitation-only.
 - Group participation is free. The app does not add member-to-member messaging.
 - Members control which profile fields are shared. A group join must not publish a member's profile or group affiliations publicly.
@@ -66,7 +78,7 @@ For each request, invitation, approval, decline, withdrawal, removal, and delega
 
 These choices affect data visibility and workflow, so keep them configurable or resolve them before building persistence:
 
-1. Whether group leaders can see a member's shared email/phone by default for group operations, or only when the member shares those fields with group leaders.
+1. The member-facing roster policy. Existing ministry membership policies expose only a member's own row to that member or an administrator; the study-group policy also permits facilitators to read their cohort roster. Decide which fields active group leaders need, while honoring each member's sharing choices.
 2. Whether removed members may submit a new request, and which authorized role may reinstate them.
 3. Whether an open group has a capacity limit and who may pause or close joining.
 4. Whether invitations expire, and the default expiration period.
