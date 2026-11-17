@@ -30,7 +30,7 @@ test("presentation has no participant answer storage, automatic advancement or n
  const src=read("components/DiscoveryStudyPilot.tsx");
  assert.match(src,/BroadcastChannel/);
  assert.match(src,/type:"phase",phase:/);
- assert.match(src,/mode="projector"|mode:"projector"/);
+ assert.match(src,/mode:"facilitator"\|"projector"/);
  assert.match(src,/facilitator&&<aside/);
  assert.match(src,/No answers, testimonies or prayer requests are collected/);
  assert.doesNotMatch(src,/localStorage|sessionStorage|setInterval|setTimeout|\.insert\(|\.upsert\(/);
