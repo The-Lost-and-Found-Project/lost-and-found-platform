@@ -36,7 +36,7 @@ The shared app frame omits its existing header, footer, bottom navigation, float
 20. In Administration → My tasks, choose Ministry leader and confirm the assigned care follow-ups include a member-requested check-in and a regular leader check-in reminder, with no private note in the queue. Set a sample follow-up to planned and complete; confirm the status is not saved. No message is sent.
 21. On Member home, open the Men’s Forge gathering and inspect the free registration details. Confirm submit stays disabled until the member acknowledges the group audience; cancel without submitting.
 22. On Member home, open Ministry tools → Studies. Review My studies, Browse studies, and Emmaus; confirm it is separate from the administration planning workspace and does not load or change Emmaus content or progress.
-23. On Member home, open My groups. Compare accepted groups, Find a group, and Requests & invitations. Inspect the pending request and invitation actions, confirm open/approval/invitation rules are distinct, and check that accepting group access does not grant a leadership role. Keep every action sample-only.
+23. On Member home, open My groups. Compare accepted groups, Find a group, and Requests & invitations. In My groups, open the Men’s Forge leave review, confirm it affects group participation only, cancel, then confirm the sample leave and verify the group remains listed. Inspect the pending request and invitation actions, confirm open/approval/invitation rules are distinct, and check that accepting group access does not grant a leadership role. Keep every action sample-only.
 24. Exit the preview to return to existing administration.
 
 ## Validation
