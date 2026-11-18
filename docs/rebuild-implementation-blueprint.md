@@ -22,6 +22,18 @@ This inventory combines checked-in source with a read-only listing of public-sch
 
 **Build implication:** retain the existing Auth user and profile identity and preserve both current membership systems and their history. Before changing access, map the deployed rows and consumers, then decide how approved L&F roles, group requests/invitations, Owner authority, field sharing, and expiring delegation extend the existing model. Do not turn the sample preview controls into live writes until server-side checks, RLS, audit behavior, and rollback are reviewed.
 
+### Live RLS policy notes (read-only)
+
+A read-only catalog query of `pg_policies` checked policies on the five L&F access tables above. It did not read member rows and is not a full security audit.
+
+- **Profiles:** signed-in members can select their own profile; the community-admin helper can select profiles across members. The checked update policy limits a member to their own row, with column grants controlling editable fields. These row policies do not provide member-controlled, field-by-field directory visibility.
+- **Ministry memberships:** members may insert their own row only with `membership_role = member`, select their own rows, and delete their own rows. Admins can select, update, or delete membership rows. This is direct join/leave behavior, not a pending approval flow.
+- **Study groups:** active participants and admins can read a group; admins manage group records. A member can read their own group-membership row, while facilitators and admins can read the group's roster. Admins manage membership rows; the reviewed policy set does not let facilitators change them.
+- **Facilitator supervision:** the assigned supervisor and facilitator can read their relationship; admins manage it. It remains narrower than general delegation.
+- **Administrator boundary:** the checked policies rely on the existing admin role or helper. They do not encode the agreed Chad/Chrissy Owner-only ability to grant or remove admin access.
+
+These observations describe the current policies on these selected tables only. Check database functions, grants, views, storage, and every application route before any real access change.
+
 ## Draft data mapping (not a schema specification)
 
 This mapping translates the approved experience into the existing source model. It proposes no migration or live-data change; confirm the deployed schema, existing rows, and all consumers before choosing implementation details.
