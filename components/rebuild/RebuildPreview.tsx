@@ -221,8 +221,56 @@ function EventManagement({ onOpen }: { onOpen: (message: string) => void }) {
     {view === "Registrations" && <><p className={styles.approvalIntro}>View responses for gatherings that require registration. No payment is collected.</p><ul className={styles.accessList}><li><div><strong>Faith That Shows Up</strong><span>Men’s Forge · 9 registrations · Capacity 15</span></div><span className={styles.statusPill}>Open</span></li><li><div><strong>Faithful Together</strong><span>The Hearth · 6 registrations · Capacity 12</span></div><span className={styles.statusPill}>Open</span></li></ul><p className={styles.ownerRule}>Sample attendee names and contact details are not shown in this overview.</p></>}
     {view === "Drafts" && <ul className={styles.eventList}><li><div className={styles.eventCardTop}><div><span className={styles.requestLabel}>Draft · Outreach</span><h3>Serve team preparation</h3><p>Date and assignments still need review.</p></div><span className={styles.statusPill}>Not published</span></div><button className={styles.outlineButton} onClick={() => onOpen("Sample only: this would return to the event planner. No draft was changed.")}>Continue draft</button></li></ul>}
     <p className={styles.caption}>Sample events only · no signups, messages, payments, or schedule changes</p>
-    {showPlanner && <div className={styles.modalBackdrop}><section className={styles.eventDialog} role="dialog" aria-modal="true" aria-labelledby="event-planner-title"><p className={styles.eyebrow}>Event setup</p><h2 id="event-planner-title">Plan a gathering</h2><p className={styles.eventDialogIntro}>Start with the details people need. Add approved roles and assignments before sharing.</p><div className={styles.eventFormGrid}><label>Event name<input placeholder="Name this gathering"/></label><label>Ministry<select defaultValue=""><option value="" disabled>Select a ministry</option><option>Men’s Forge</option><option>The Hearth</option><option>Prayer ministry</option><option>Outreach</option></select></label><label>Date<input type="date"/></label><label>Start time<input type="time"/></label><label>Location<input placeholder="Address or online location"/></label><label>Registration<select defaultValue="Open"><option>Open</option><option>No registration</option></select></label></div><p className={styles.eventFreeNote}>Free participation · no payment field</p><div className={styles.requestActions}><button className={styles.primaryButton} onClick={() => {setShowPlanner(false);onOpen("Sample only: this would save an event draft after an authorized leader reviews role sharing. No event was created.");}}>Save draft</button><button className={styles.outlineButton} onClick={() => setShowPlanner(false)}>Cancel</button></div></section></div>}
+    {showPlanner && <EventPlanner onOpen={onOpen} onClose={() => setShowPlanner(false)}/>}
   </section>;
+}
+
+function EventPlanner({ onOpen, onClose }: { onOpen: (message: string) => void; onClose: () => void }) {
+  const [title, setTitle] = useState("");
+  const [ministry, setMinistry] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [location, setLocation] = useState("");
+  const [registration, setRegistration] = useState("Registration required");
+  const [audienceType, setAudienceType] = useState<"group" | "role" | "all">("group");
+  const [audienceScope, setAudienceScope] = useState("");
+  const [reviewing, setReviewing] = useState(false);
+  const minDate = new Date().toISOString().slice(0, 10);
+  const audienceOptions: Record<string, { group: string[]; role: string[] }> = {
+    "Men’s Forge": { group: ["Men’s Forge"], role: ["Study facilitator"] },
+    "The Hearth": { group: ["The Hearth"], role: ["Ministry leader"] },
+    "Prayer ministry": { group: ["Prayer ministry"], role: ["Prayer team", "Ministry leader"] },
+    Outreach: { group: ["Outreach Serve Team"], role: ["Serve team"] },
+  };
+  const scopes = ministry ? audienceOptions[ministry][audienceType === "all" ? "group" : audienceType] : [];
+  const valid = Boolean(title.trim() && ministry && date >= minDate && time && location.trim() && (audienceType === "all" || audienceScope));
+  const audienceSummary = audienceType === "all" ? "All L&F members · adults 18+" : audienceType === "group" ? `Group participants · ${audienceScope}` : `Approved role holders · ${audienceScope}`;
+  const resetReview = () => setReviewing(false);
+  return <div className={styles.modalBackdrop}><section className={`${styles.eventDialog} ${styles.eventPlanner}`} role="dialog" aria-modal="true" aria-labelledby="event-planner-title">
+    <div className={styles.eventCardTop}><div><p className={styles.eyebrow}>Event setup</p><h2 id="event-planner-title">Plan a gathering</h2></div><button className={styles.outlineButton} onClick={onClose}>Close</button></div>
+    <p className={styles.eventDialogIntro}>Set the audience and practical details before a gathering is shared. Events are free and adults only.</p>
+    {!reviewing ? <>
+      <div className={styles.eventFormGrid}>
+        <label>Event name<input required value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Name this gathering"/></label>
+        <label>Ministry<select required value={ministry} onChange={(event) => { const next = event.target.value; setMinistry(next); setAudienceScope(next ? audienceOptions[next].group[0] : ""); setAudienceType("group"); resetReview(); }}><option value="">Select a ministry</option>{Object.keys(audienceOptions).map((item) => <option key={item}>{item}</option>)}</select></label>
+        <label>Date<input required type="date" min={minDate} value={date} onChange={(event) => setDate(event.target.value)}/></label>
+        <label>Start time<input required type="time" value={time} onChange={(event) => setTime(event.target.value)}/></label>
+        <label>Location or meeting link<input required value={location} onChange={(event) => setLocation(event.target.value)} placeholder="Venue or online details"/></label>
+        <label>Registration<select value={registration} onChange={(event) => setRegistration(event.target.value)}><option>Registration required</option><option>No registration</option></select></label>
+        <label>Who can attend?<select value={audienceType} onChange={(event) => { const next = event.target.value as "group" | "role" | "all"; setAudienceType(next); setAudienceScope(next === "role" ? (ministry ? audienceOptions[ministry].role[0] : "") : next === "group" ? (ministry ? audienceOptions[ministry].group[0] : "") : ""); resetReview(); }}><option value="group">Selected group</option><option value="role">Approved role holders</option><option value="all">All L&amp;F members</option></select></label>
+        {audienceType !== "all" && <label>{audienceType === "role" ? "Approved role" : "Group audience"}<select required disabled={!ministry} value={audienceScope} onChange={(event) => { setAudienceScope(event.target.value); resetReview(); }}><option value="">Choose ministry first</option>{scopes.map((item) => <option key={item}>{item}</option>)}</select></label>}
+      </div>
+      <div className={styles.eventAccessNote}><strong>Adults 18+ only</strong><span>{audienceType === "role" ? "Only members with the approved role in this scope can access role-shared details. Assigned event work is shown separately." : audienceType === "group" ? "Only members of the selected group can see this event and register." : "The event is available to L&F members; it remains limited to adults 18+."}</span></div>
+      <p className={styles.eventFreeNote}>Free participation · no payment field</p>
+      <div className={styles.requestActions}><button className={styles.primaryButton} disabled={!valid} onClick={() => setReviewing(true)}>Review event details</button><button className={styles.outlineButton} onClick={onClose}>Cancel</button></div>
+    </> : <section className={styles.eventReviewPanel} aria-labelledby="event-review-title">
+      <p className={styles.requestLabel}>Review before saving</p><h3 id="event-review-title">{title}</h3>
+      <dl className={styles.eventReviewDetails}><div><dt>Ministry</dt><dd>{ministry}</dd></div><div><dt>Audience</dt><dd>{audienceSummary}</dd></div><div><dt>When</dt><dd>{date} · {time}</dd></div><div><dt>Where</dt><dd>{location}</dd></div><div><dt>Registration</dt><dd>{registration}</dd></div><div><dt>Cost and age</dt><dd>Free · adults 18+ only</dd></div></dl>
+      <p>Being assigned event work does not grant access to the event audience. Only authorized roles and memberships control visibility.</p>
+      <div className={styles.requestActions}><button className={styles.outlineButton} onClick={() => setReviewing(false)}>Edit details</button><button className={styles.primaryButton} onClick={() => { onOpen(`Sample only: “${title}” would be saved as a draft for ${audienceSummary}. It is free and adults-only; no event was created or shared.`); onClose(); }}>Confirm sample draft</button></div>
+    </section>}
+    <p className={styles.caption}>Sample-only planning · no event, registration, payment, notification, or access change is saved</p>
+  </section></div>;
 }
 
 function StudyWorkspace({ onOpen }: { onOpen: (message: string) => void }) {
