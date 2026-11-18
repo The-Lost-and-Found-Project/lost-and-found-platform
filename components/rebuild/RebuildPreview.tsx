@@ -244,7 +244,7 @@ function EventPlanner({ onOpen, onClose }: { onOpen: (message: string) => void; 
     Outreach: { group: ["Outreach Serve Team"], role: ["Serve team"] },
   };
   const scopes = ministry ? audienceOptions[ministry][audienceType === "all" ? "group" : audienceType] : [];
-  const valid = Boolean(title.trim() && ministry && date >= minDate && time && location.trim() && (!registrationLimit || Number(registrationLimit) >= 1) && (audienceType === "all" || audienceScope));
+  const valid = Boolean(title.trim() && ministry && date >= minDate && time && location.trim() && (!registrationLimit || (Number.isInteger(Number(registrationLimit)) && Number(registrationLimit) >= 1)) && (audienceType === "all" || audienceScope));
   const audienceSummary = audienceType === "all" ? "All L&F members · adults 18+" : audienceType === "group" ? `Group participants · ${audienceScope}` : `Approved role holders · ${audienceScope}`;
   const resetReview = () => setReviewing(false);
   return <div className={styles.modalBackdrop}><section className={`${styles.eventDialog} ${styles.eventPlanner}`} role="dialog" aria-modal="true" aria-labelledby="event-planner-title">
