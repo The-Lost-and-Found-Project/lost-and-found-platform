@@ -299,7 +299,7 @@ function MemberGatherings({ onOpen }: { onOpen: (message: string) => void }) {
 function MemberGroups({ onOpen }: { onOpen: (message: string) => void }) {
   const [view, setView] = useState("My groups");
   const [leaveTarget, setLeaveTarget] = useState<string | null>(null);
-  const views = ["My groups", "Find a group", "Requests & invitations"];
+  const views = ["My groups", "Find a group", "Requests & invitations", "Roles & requests"];
   return <section className={styles.panel} aria-label="Member groups and ministries">
     <div className={styles.approvalHeading}><SectionTitle title="My groups & ministries" help="L&F membership is separate from joining a group. Each group sets its own participation rules. Group membership does not grant an additional ministry role."/><p>Belong, grow, and serve together</p></div>
     <p className={styles.approvalIntro}>Your L&amp;F account gives you member access. Groups and ministries have separate access and may be open, approval-required, or invitation-only.</p>
@@ -317,8 +317,26 @@ function MemberGroups({ onOpen }: { onOpen: (message: string) => void }) {
       <li><div><span className={styles.requestLabel}>Join request · The Hearth</span><h3>Faithful Together</h3><p>Submitted Nov 12 · Awaiting an authorized group reviewer</p><small>Withdrawing a request does not affect your account or other groups.</small></div><button className={styles.outlineButton} onClick={() => onOpen("Sample only: this would withdraw the pending group request. No request or membership changed.")}>Withdraw request</button></li>
       <li><div><span className={styles.requestLabel}>Invitation · Outreach Serve Team</span><h3>Outreach Serve Team</h3><p>Invited by a sample group leader</p><small>Accepting adds group participation only. Any serving or leadership role requires its own approval.</small></div><div className={styles.groupActions}><button className={styles.primaryButton} onClick={() => onOpen("Sample only: accepting would add group membership, not a serving or leadership role. No record changed.")}>Accept invitation</button><button className={styles.outlineButton} onClick={() => onOpen("Sample only: declining would close this invitation. No record changed.")}>Decline</button></div></li>
     </ul></>}
+    {view === "Roles & requests" && <MemberRoleRequests onOpen={onOpen}/>}
     <p className={styles.caption}>Sample groups and rules · no join, request, invitation, or role change is submitted</p>
   </section>;
+}
+
+function MemberRoleRequests({ onOpen }: { onOpen: (message: string) => void }) {
+  const roleScopes: Record<string, string[]> = {
+    "Study facilitator": ["Men’s Forge"],
+    "Prayer team": ["Prayer ministry"],
+    "Ministry leader": ["Prayer ministry"],
+    "Serve team": ["Outreach Serve Team"],
+  };
+  const [role, setRole] = useState("Study facilitator");
+  const [scope, setScope] = useState("Men’s Forge");
+  return <div className={styles.memberRoleRequests} aria-label="Member role requests">
+    <p className={styles.approvalIntro}>Your L&amp;F account is active after signup. Additional ministry responsibilities require approval for the exact role and ministry scope. Group membership alone never grants a role, and you cannot approve your own request.</p>
+    <section className={styles.memberRoleStatus} aria-label="Current access"><h3>Current access</h3><ul className={styles.accessList}><li><div><strong>L&amp;F member</strong><span>Account membership · Active</span></div><span className={styles.statusPill}>Active</span></li><li><div><strong>Men’s Forge</strong><span>Group participation · no leadership role</span></div><span className={styles.statusPill}>Member</span></li></ul></section>
+    <section className={styles.memberRoleStatus} aria-label="Pending role requests"><h3>Pending request</h3><div className={styles.roleRequestCard}><div><span className={styles.requestLabel}>Awaiting authorized review</span><strong>Prayer team · Prayer ministry</strong><p>Submitted Nov 12 · Group participation remains separate</p></div><button className={styles.outlineButton} onClick={() => onOpen("Sample only: withdrawing this scoped Prayer team request would not change the member account or existing group access. No request changed.")}>Withdraw request</button></div></section>
+    <section className={styles.memberRoleStatus} aria-label="Request a ministry role"><h3>Request another role</h3><div className={styles.memberRoleForm}><label className={styles.selectLabel}>Role<select value={role} onChange={(event) => { const nextRole = event.target.value; setRole(nextRole); setScope(roleScopes[nextRole][0]); }}>{Object.keys(roleScopes).map((item) => <option key={item}>{item}</option>)}</select></label><label className={styles.selectLabel}>Ministry or group<select value={scope} onChange={(event) => setScope(event.target.value)}>{roleScopes[role].map((item) => <option key={item}>{item}</option>)}</select></label></div><p className={styles.roleRequestScope}>The request will be for <strong>{role}</strong> in <strong>{scope}</strong>. An authorized reviewer with that scope decides; a request does not grant access.</p><button className={styles.primaryButton} onClick={() => onOpen(`Sample only: a request for ${role} in ${scope} would be sent to an authorized reviewer. Group membership would not change, and no role would be granted until approval. No request was submitted.`)}>Review role request</button><p className={styles.caption}>Role and scope choices are illustrative; the final catalog and reviewer authority must be configured.</p></section>
+  </div>;
 }
 
 function MemberStudyLibrary({ onOpen }: { onOpen: (message: string) => void }) {
