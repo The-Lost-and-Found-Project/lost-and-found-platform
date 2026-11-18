@@ -19,6 +19,7 @@ This inventory combines checked-in source with a read-only listing of public-sch
 - **Requests and invitations:** No general role-request, group-request, invitation, or scoped-delegation tables were found in the migrations reviewed. Study-session invitations are a separate workflow and should not be reused as group invitations.
 - **Profile sharing:** The checked-in profile baseline includes identity, contact, faith-story, and Scripture fields with row-level profile access; the migrations reviewed do not define per-field directory-sharing preferences. The new field-by-field sharing experience needs explicit storage and row/field-safe reads, not a broader profile query.
 - **Separate product roles:** `companion_memberships` has its own `owner` role for Study Companion. That role is product-specific and does not grant L&F Owner access.
+- **Emmaus sign-in handoff (repository review):** `app/auth/emmaus/route.ts` requires an authenticated L&F user, a verified email, and `EMMAUS_SSO_SECRET`; it signs a short-lived (120-second) HMAC assertion containing the same Auth user ID as `sub`, email, display name, and a validated destination path, then redirects to Emmaus. This supports the agreed “logins are already connected” handoff. The route does not itself sync study records or progress. Before account removal is enabled, confirm the Emmaus-side assertion validation, data ownership, deletion/export boundaries, and what happens if one side is unavailable; do not claim cross-product deletion until both sides complete it.
 
 **Build implication:** retain the existing Auth user and profile identity and preserve both current membership systems and their history. Before changing access, map the deployed rows and consumers, then decide how approved L&F roles, group requests/invitations, Owner authority, field sharing, and expiring delegation extend the existing model. Do not turn the sample preview controls into live writes until server-side checks, RLS, audit behavior, and rollback are reviewed.
 
@@ -71,7 +72,7 @@ This mapping translates the approved experience into the existing source model. 
 | Profiles | Members control sharing field by field, including whether their directory information appears. The preview uses private-by-default as the proposed baseline; confirm the defaults before implementation. |
 | Notifications | Categories start enabled; members can opt out of each category. Prompt for push notifications at sign-in, then honor the device permission and the member’s preferences. |
 | Leaving L&F | Members should be able to take their information with them when leaving, through a complete export and removal flow covering L&F and connected Emmaus data. |
-| Emmaus | The login is already connected. L&F can show a clear Emmaus handoff. Sharing studies or syncing progress is a separate feature requiring its own scope and consent. |
+| Emmaus | L&F already has a signed single-sign-on handoff to Emmaus. Treat this as authentication continuity only; it does not establish that study content or progress is synchronized. Sharing or syncing remains a separate feature requiring explicit scope and consent. |
 
 ## Product surfaces
 
