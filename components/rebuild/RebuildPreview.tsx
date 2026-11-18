@@ -232,6 +232,7 @@ function EventPlanner({ onOpen, onClose }: { onOpen: (message: string) => void; 
   const [time, setTime] = useState("");
   const [location, setLocation] = useState("");
   const [registration, setRegistration] = useState("Registration required");
+  const [registrationLimit, setRegistrationLimit] = useState("");
   const [audienceType, setAudienceType] = useState<"group" | "role" | "all">("group");
   const [audienceScope, setAudienceScope] = useState("");
   const [reviewing, setReviewing] = useState(false);
@@ -243,7 +244,7 @@ function EventPlanner({ onOpen, onClose }: { onOpen: (message: string) => void; 
     Outreach: { group: ["Outreach Serve Team"], role: ["Serve team"] },
   };
   const scopes = ministry ? audienceOptions[ministry][audienceType === "all" ? "group" : audienceType] : [];
-  const valid = Boolean(title.trim() && ministry && date >= minDate && time && location.trim() && (audienceType === "all" || audienceScope));
+  const valid = Boolean(title.trim() && ministry && date >= minDate && time && location.trim() && (!registrationLimit || Number(registrationLimit) >= 1) && (audienceType === "all" || audienceScope));
   const audienceSummary = audienceType === "all" ? "All L&F members · adults 18+" : audienceType === "group" ? `Group participants · ${audienceScope}` : `Approved role holders · ${audienceScope}`;
   const resetReview = () => setReviewing(false);
   return <div className={styles.modalBackdrop}><section className={`${styles.eventDialog} ${styles.eventPlanner}`} role="dialog" aria-modal="true" aria-labelledby="event-planner-title">
@@ -256,7 +257,8 @@ function EventPlanner({ onOpen, onClose }: { onOpen: (message: string) => void; 
         <label>Date<input required type="date" min={minDate} value={date} onChange={(event) => setDate(event.target.value)}/></label>
         <label>Start time<input required type="time" value={time} onChange={(event) => setTime(event.target.value)}/></label>
         <label>Location or meeting link<input required value={location} onChange={(event) => setLocation(event.target.value)} placeholder="Venue or online details"/></label>
-        <label>Registration<select value={registration} onChange={(event) => setRegistration(event.target.value)}><option>Registration required</option><option>No registration</option></select></label>
+        <label>Registration<select value={registration} onChange={(event) => { const next = event.target.value; setRegistration(next); if (next === "No registration") setRegistrationLimit(""); }}><option>Registration required</option><option>No registration</option></select></label>
+        {registration === "Registration required" && <label>Registration limit (optional)<input type="number" min="1" step="1" inputMode="numeric" value={registrationLimit} onChange={(event) => setRegistrationLimit(event.target.value)} placeholder="No limit"/><span className={styles.caption}>Leave blank for an event without a set capacity.</span></label>}
         <label>Who can attend?<select value={audienceType} onChange={(event) => { const next = event.target.value as "group" | "role" | "all"; setAudienceType(next); setAudienceScope(next === "role" ? (ministry ? audienceOptions[ministry].role[0] : "") : next === "group" ? (ministry ? audienceOptions[ministry].group[0] : "") : ""); resetReview(); }}><option value="group">Selected group</option><option value="role">Approved role holders</option><option value="all">All L&amp;F members</option></select></label>
         {audienceType !== "all" && <label>{audienceType === "role" ? "Approved role" : "Group audience"}<select required disabled={!ministry} value={audienceScope} onChange={(event) => { setAudienceScope(event.target.value); resetReview(); }}><option value="">Choose ministry first</option>{scopes.map((item) => <option key={item}>{item}</option>)}</select></label>}
       </div>
@@ -265,9 +267,9 @@ function EventPlanner({ onOpen, onClose }: { onOpen: (message: string) => void; 
       <div className={styles.requestActions}><button className={styles.primaryButton} disabled={!valid} onClick={() => setReviewing(true)}>Review event details</button><button className={styles.outlineButton} onClick={onClose}>Cancel</button></div>
     </> : <section className={styles.eventReviewPanel} aria-labelledby="event-review-title">
       <p className={styles.requestLabel}>Review before saving</p><h3 id="event-review-title">{title}</h3>
-      <dl className={styles.eventReviewDetails}><div><dt>Ministry</dt><dd>{ministry}</dd></div><div><dt>Audience</dt><dd>{audienceSummary}</dd></div><div><dt>When</dt><dd>{date} · {time}</dd></div><div><dt>Where</dt><dd>{location}</dd></div><div><dt>Registration</dt><dd>{registration}</dd></div><div><dt>Cost and age</dt><dd>Free · adults 18+ only</dd></div></dl>
+      <dl className={styles.eventReviewDetails}><div><dt>Ministry</dt><dd>{ministry}</dd></div><div><dt>Audience</dt><dd>{audienceSummary}</dd></div><div><dt>When</dt><dd>{date} · {time}</dd></div><div><dt>Where</dt><dd>{location}</dd></div><div><dt>Registration</dt><dd>{registration}{registration === "Registration required" ? ` · ${registrationLimit ? `Limit ${registrationLimit}` : "No limit"}` : ""}</dd></div><div><dt>Cost and age</dt><dd>Free · adults 18+ only</dd></div></dl>
       <p>Being assigned event work does not grant access to the event audience. Only authorized roles and memberships control visibility.</p>
-      <div className={styles.requestActions}><button className={styles.outlineButton} onClick={() => setReviewing(false)}>Edit details</button><button className={styles.primaryButton} onClick={() => { onOpen(`Sample only: “${title}” would be saved as a draft for ${audienceSummary}. It is free and adults-only; no event was created or shared.`); onClose(); }}>Confirm sample draft</button></div>
+      <div className={styles.requestActions}><button className={styles.outlineButton} onClick={() => setReviewing(false)}>Edit details</button><button className={styles.primaryButton} onClick={() => { onOpen(`Sample only: “${title}” would be saved as a draft for ${audienceSummary}${registration === "Registration required" ? ` with ${registrationLimit ? `a limit of ${registrationLimit}` : "no registration limit"}` : " without registration"}. It is free and adults-only; no event was created or shared.`); onClose(); }}>Confirm sample draft</button></div>
     </section>}
     <p className={styles.caption}>Sample-only planning · no event, registration, payment, notification, or access change is saved</p>
   </section></div>;
