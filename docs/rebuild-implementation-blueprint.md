@@ -92,21 +92,27 @@ This mapping translates the approved experience into the existing source model. 
 
 ## Adult-only signup and initial access contract (proposal)
 
-The approved product rules are adults only, immediate baseline membership after sign-up, and approval for every ministry or elevated role. The current L&F form requires full name, email, password, gender, and a community-guidelines acknowledgement; phone is optional. It sends an email-confirmation link, and the existing Auth trigger creates a baseline `member` profile as soon as the Auth user is created.
+The approved product rules are adults only, immediate baseline membership after sign-up, and approval for every ministry or elevated role. The existing form requires full name, email, password, gender, and community-guidelines acknowledgement; phone is optional. Email confirmation remains required before an authenticated app session, while the Auth trigger creates the baseline `member` profile at account creation.
 
-| Step | Intended behavior |
-| --- | --- |
-| Before account creation | Require an “I confirm I am 18 or older” attestation, community-guidelines acknowledgement, and current CAPTCHA challenge. Do not ask for or store date of birth by default. Show the applicable policy version. |
-| Create baseline account | Create the L&F Auth identity and default member profile immediately. Do not leave a new adult in a pending-member approval queue. |
-| Confirm email | Preserve the current email-confirmation requirement before the first authenticated app session. Explain that the member account is created, but the app opens after they verify email. |
-| Request ministry/elevated access | Keep the member role until the exact role/scope request is approved. Never infer a ministry role from signup answers or user-editable metadata. |
-| Visitor prayer | Require the same 18+ attestation and the separate public-after-moderation acknowledgement. Do not create a member account or retain an identity record solely for age confirmation. |
+| Field / step | Requirement | Intended use and privacy |
+| --- | --- | --- |
+| Full name, email, password | Required | Create and secure the account. Email verification remains required before app access. |
+| 18+ affirmation | Required | Member confirms they are at least 18. Store the affirmation timestamp and policy version. This is self-attestation, not identity-verified age assurance. |
+| Date of birth | Optional | If provided, validate adult eligibility and derive broad age-band analytics. Do not display it in the directory or general admin roster. Keep raw DOB out of analytics reports and expose it only to the member and the restricted eligibility service. |
+| Gender | Optional recommendation | The current form requires it. Make it optional unless a specific approved ministry workflow requires it; never use it as a general eligibility or access condition. |
+| Phone | Optional | Account/contact use only; never directory-visible unless the member separately shares it. |
+| Ministry interests | Optional | Help members find relevant studies and ministries; also support aggregate program planning. Do not assign roles automatically. |
+| How they heard about L&F | Optional | Aggregate referral-source reporting. |
+| General region (state or broad area) | Optional | High-level service planning only; do not request a street address or precise location for analytics. |
+| Community-guidelines acknowledgement and CAPTCHA | Required | Preserve existing moderation expectations and CAPTCHA verification. |
 
-For an auditable self-attestation, store only the age-confirmed state, attestation timestamp, and policy version with the account; do not store a birth date. This is an adult-only affirmation, not identity-verified age assurance. If the ministry requires stronger verification, define that separately before collecting additional data.
+Make optional profile and analytics fields explicitly skippable; collect them on signup only if they do not make account creation burdensome, otherwise offer a later “Complete your profile” step. Optional answers do not affect membership, role approval, access, or service. Clearly label why each field is requested. Analytics use aggregate reports with small groups suppressed; never turn profile data into member scores, eligibility rankings, or public profile fields. Analytics consent is separate from directory sharing, and each shared profile field remains under the member’s control.
 
-Enforce the required age acknowledgement across every account-creation path, including the Emmaus return/sign-up path and direct Auth API access; the visible checkbox alone is not a complete enforcement boundary. Preserve the existing email confirmation, safe redirect, duplicate-account handling, and CAPTCHA verification. Review the current required gender field before rebuild: defer it or make it optional unless a specific approved ministry workflow demonstrates a need at account creation. Phone stays optional. Do not add a paid verification provider or collect more identity data by default.
+If DOB is provided and indicates the person is under 18, do not create the account or retain the submitted DOB from the rejected attempt. If omitted, the required 18+ affirmation is the eligibility gate. For visitor prayer, use the required 18+ affirmation and public-after-moderation acknowledgement; do not request or retain a visitor’s DOB or create an account just to submit prayer.
 
-This is an implementation proposal for the approved adults-only and membership rules. The exact policy language, versioning/retention, treatment of already-existing accounts, and any legally or ministry-required stronger assurance remain open before release; no existing member should be locked out by a new gate without a migration/notice plan.
+Enforce the required age affirmation across account-creation paths, including Emmaus entry points and direct Auth API access; a visible checkbox alone is not a complete enforcement boundary. Preserve the current safe redirect, duplicate-account handling, email confirmation, and CAPTCHA behavior. Never infer an elevated role from signup answers or user-editable metadata.
+
+Before release, define privacy notice text, field retention/update rules, policy versioning, minimum analytics cohort size, existing-account treatment, and what happens if an existing member later reports an under-18 DOB. No paid verification provider is proposed. No live signup behavior is changed by this section.
 
 ## Calendar and event implementation contract (proposal)
 
