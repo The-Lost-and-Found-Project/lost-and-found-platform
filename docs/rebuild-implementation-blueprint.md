@@ -154,6 +154,26 @@ Treat each kind of access as independent data. Keep a member record, group membe
 
 Use server-side authorization and database row-level policies for every private read and write. Hiding a control in the interface is not access control. Record role grants, removals, delegation changes, and moderation decisions with actor, scope, reason where supplied, and time.
 
+## Rebuild readiness checkpoint
+
+Use this checkpoint to separate approved experience decisions from work that must be complete before connecting real member data.
+
+| Area | Current status | Gate before live integration |
+| --- | --- | --- |
+| Visual direction and navigation | The sample preview reflects the accepted flat-color admin direction, overview, member home, public home, responsive layout, and accessible help patterns. | Continue synthetic UI refinement; review small-screen completion interactions before release. |
+| Membership and roles | Immediate baseline membership, approval for additional roles, Owner-only admin grants/removals, delegated approvals, and role-scoped access are approved. | Finalize role catalog/reviewers and stable Owner account IDs; implement server-side checks, audit, and RLS. |
+| Calendars and events | Master/personal calendars, filters, role/assignment sharing, free registration, and the UI concept are agreed. | Define L&F event/audience records; resolve the current study-session join-link visibility issue before using live schedules. |
+| Prayer | Visitor requests are public only after clearance; member requests use a member-selected audience. | Build visitor intake, pending moderation, group/Prayer-team audience storage, and feed/count safeguards across every route and policy. |
+| Profiles and directory | Members control sharing field by field. | Specify per-field audience defaults and implement allowlisted reads and field-safe updates. |
+| Notifications and push | Categories start enabled; members can opt out individually; request push permission at sign-in. | Map exact categories/channels, permission-denied handling, and preference storage to existing delivery routes. |
+| Studies and groups | Preserve existing Bible study content, group history, and member progress. | Confirm study-session audience rules; restrict meeting links and responses to the approved group, role, assignment, or invitation. |
+| Emmaus | Signed-in handoff and identity-link behavior are confirmed; study/progress sync is not approved. | Identify authoritative data source per feature and coordinate export/removal with Emmaus through a server-side flow. |
+| Data export and departure | Portable export plus removal of personal L&F and connected Emmaus data is approved. | Complete table-by-table export/delete/retain/anonymize rules, including financial, shared, partner-linked, public, and audit records; define partial-failure recovery. |
+| Adult eligibility | Adults-only initial release is approved. | Approve the proposed age-confirmation approach or specify stronger age assurance and data retention. |
+| Cost | No member payment and no new paid service without a cost review. | Keep the design within current services; review any new recurring cost before adding it. |
+
+**Build recommendation:** the synthetic front end can continue to be refined against the approved layout and workflows. Keep live reads/writes, permission migrations, and account deletion behind the gates above; the preview is not a substitute for those controls.
+
 ## Core workflows
 
 ### Sign-up and access
