@@ -336,7 +336,23 @@ The approved product rule is that members decide whether any profile information
 - Do not migrate existing values into shared visibility automatically. Keep profile sharing separate from optional analytics collection/consent.
 - Any future public-web profile requires a separate explicit member choice and a product/privacy review; directory inclusion alone never means public indexing.
 
-This specifies the approved member control while leaving the complete field catalog and exact audience choices for implementation review. It does not authorize a Production permission change.
+| Profile field | Member directory behavior | Default and guard |
+| --- | --- | --- |
+| Display name | Share with selected authenticated audience when directory inclusion is on. | Private until explicitly shared; never expose the full name solely because account creation requires it. |
+| Profile photo | Share with the same or narrower audience selected for display name. | Private until explicitly shared; use a neutral placeholder otherwise. |
+| Email | Separate explicit share control; authenticated audience only. | Private; never shown just because a member is searchable. |
+| Phone | Separate explicit share control; authenticated audience only. | Private; never shown just because a member is searchable. |
+| Gender | Do not include in the initial member directory. | Private; collect only if the member chooses to provide it. |
+| Faith story | Separate explicit share control with audience choice. | Private; do not surface as a directory preview or analytics field. |
+| Favorite Scripture | Separate explicit share control with audience choice. | Private until shared; may be displayed as a short, member-authored profile detail. |
+| Date of salvation | Separate explicit share control with audience choice. | Private; treat as sensitive faith information. |
+| Date of baptism | Separate explicit share control with audience choice. | Private; treat as sensitive faith information. |
+| Date of birth | Never part of a directory profile. | Optional signup/eligibility and restricted aggregate age-band use only; never share with members or include in general analytics exports. |
+| Roles, account status, ministry availability, assignments, internal notes | Not part of member directory profiles. | Show only in the authorized role workflow that requires each field. |
+
+For shareable fields, present a simple audience picker: **All members**, **Selected groups/ministry spaces**, or **Private**. A field is visible to the intersection of its selected audience and the member’s current access; audience settings cannot grant group membership or ministry access. Require an additional explicit confirmation before sharing email or phone. Public-web visibility is not an option in this first release.
+
+This is the proposed first-release field catalog. Confirm exact audience labels and accessibility details during implementation review; the private-by-default rule, member opt-in, and exclusion of DOB/internal fields follow the approved product boundaries. It does not authorize a Production permission change.
 
 ### Notification delivery and push contract (proposal)
 
