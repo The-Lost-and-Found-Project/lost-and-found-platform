@@ -283,6 +283,23 @@ Only the directly authorized reviewer or a currently active, matching delegation
 4. Keep private member requests out of public feeds and public-facing counts that could reveal them.
 5. Keep prayer activity repeatable; do not use public leaderboards or popularity rankings.
 
+### Prayer intake and audience contract (proposal)
+
+The approved boundary is: visitors may submit public prayer requests without a member account, and a visitor request is invisible on public surfaces until an authorized moderator clears it; once cleared, it is public. A member may choose a private audience. The current `is_public` flag cannot represent the approved audiences and must not be reused as a substitute for explicit moderation state.
+
+| Request type | Required persisted state | Visibility rule |
+| --- | --- | --- |
+| Visitor | `user_id = null`, visitor submission marker, `audience = public`, `moderation_status = pending`, public-sharing acknowledgement timestamp. | Hidden from feeds, search, previews, counts, and notifications until an authorized reviewer clears it. Clearance makes it public; reviewers cannot republish it under another audience. |
+| Member, public audience | Authenticated `user_id`, `audience = public`, member acknowledgement timestamp, moderation state. | Public only after the member’s audience choice and any required clearance are satisfied. |
+| Member, prayer team | Authenticated `user_id`, `audience = prayer_team`, moderation state. | Visible only to the requester and currently authorized Prayer-team members. Never included in public feeds/counts. |
+| Member, accepted group | Authenticated `user_id`, exact `group_id`, moderation state. | Visible only to the requester and authorized members of that accepted group. Membership is checked at read time; leaving the group revokes visibility. Never included in public feeds/counts. |
+
+Keep the schema model explicit (for example, `audience_kind`, nullable `group_id`, and `moderation_status`) and enforce valid combinations server-side: visitors cannot choose private audiences; a member’s group audience requires current accepted membership; only public-audience requests can enter public feeds; moderation can clear or decline but cannot widen the member’s chosen audience. Treat the public acknowledgement as a required recorded event before public clearance. Do not collect a visitor’s identity/contact information unless a separately specified feature requires it.
+
+Provide separate creation/read routes and RLS for visitor intake, member submission, public feed, Prayer-team care, group requests, and moderation. Public counts must query only cleared public items; private request existence and reactions must not leak through totals or notifications. Keep prayer engagement supportive and repeatable: no popularity ranking, public leaderboard, or private-request count in public aggregates.
+
+Open implementation details: whether a member’s Prayer-team/group request requires moderator approval before its chosen audience can see it; field-level anonymity options; retention periods; abuse throttling/CAPTCHA approach; and whether visitors can edit or withdraw without an account. These are not settled by the public-after-clearance rule. No change to live behavior is approved by this proposal; implement only after a complete feed/RLS/write-path audit.
+
 ### Data portability and departure
 
 1. Let a member request a complete personal export in a readable, portable format.
