@@ -272,6 +272,17 @@ Only the directly authorized reviewer or a currently active, matching delegation
 3. Explain what account removal deletes and what shared content other people may still need to see.
 4. Delete the member’s L&F and connected Emmaus personal data after confirmation, subject to the retention policy established before release.
 5. Provide a completion receipt without retaining a copy of the exported personal data.
+### Proposed export and departure experience
+
+Keep two distinct Settings actions: **Download my information** and **Delete my account**. Each action explains what it does before the member confirms.
+
+**Export proposal:** generate a downloadable package containing a human-readable index plus machine-readable JSON/CSV for the member’s profile, preferences, authored prayer/praise/testimony, group and ministry memberships, study progress/responses, calendar/registration records when built, and Emmaus records available through the verified identity link. Include the member’s own uploads when present. Do not include another person’s private fields, private care notes, moderator-only content, shared content that the member does not own, or data from Rare Network/Study Companion. Show a list of included and excluded data categories before download.
+
+Protect the package with a recent sign-in check and an authenticated, short-lived download. Do not email the archive as an attachment or retain a permanent copy. Use existing storage only if it supports a short expiry and deletion; otherwise generate the download on demand. Confirm format and delivery details before implementation.
+
+**Deletion proposal:** require a fresh confirmation, explain what may be retained or remain visible as shared content, then revoke sessions and device push subscriptions and coordinate deletion of L&F personal records with Emmaus through a server-to-server operation. Keep a request status such as `requested`, `processing`, `completed`, or `needs_attention`; do not mark the request complete until both product systems confirm their work and any retained categories are disclosed. Retry operations idempotently so a partial failure can resume without duplicating actions. Preserve shared Bible studies and other members’ records; handle authored public/shared items through the retention decision rather than deleting whole shared records.
+
+Export format, link lifetime, re-authentication method, retention exceptions, timing, and treatment of shared content remain open decisions. Do not enable either action against real accounts until the full table/foreign-key inventory, Emmaus service contract, retention policy, and recovery procedure are reviewed.
 
 ## Build sequence
 
