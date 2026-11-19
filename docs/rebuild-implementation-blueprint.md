@@ -324,6 +324,20 @@ Provide separate creation/read routes and RLS for visitor intake, member submiss
 
 Open implementation details: whether a member’s Prayer-team/group request requires moderator approval before its chosen audience can see it; field-level anonymity options; retention periods; abuse throttling/CAPTCHA approach; and whether visitors can edit or withdraw without an account. These are not settled by the public-after-clearance rule. No change to live behavior is approved by this proposal; implement only after a complete feed/RLS/write-path audit.
 
+### Member-controlled profile sharing (proposal)
+
+The approved product rule is that members decide whether any profile information is shared. The initial directory should be limited to signed-in L&F members; a profile must not become publicly available on the web through a directory setting.
+
+- Keep directory inclusion off until the member explicitly enables it. Each shareable field has its own control and audience, so a member can share a name and Scripture preference while keeping contact details or a faith story private.
+- Offer audience choices only where the member has a real relationship: all signed-in members, or a specific accepted group/ministry. Recheck active membership when reading; leaving or losing access to a group immediately removes that group’s audience access.
+- Do not expose date of birth in the directory. Keep role, account status, availability, assignments, internal review notes, and other operational fields outside member-facing profiles. Email, phone, and sensitive faith-story details remain private unless the member explicitly shares them.
+- Use an allowlisted directory response and enforce field plus audience filters at the database/API boundary. Never use the admin service-role roster as the source for member search. A hidden UI toggle is not an access control.
+- Revoking a field or directory share takes effect immediately, including cached cards, search results, and previews. Members retain their own profile view.
+- Do not migrate existing values into shared visibility automatically. Keep profile sharing separate from optional analytics collection/consent.
+- Any future public-web profile requires a separate explicit member choice and a product/privacy review; directory inclusion alone never means public indexing.
+
+This specifies the approved member control while leaving the complete field catalog and exact audience choices for implementation review. It does not authorize a Production permission change.
+
 ### Notification delivery and push contract (proposal)
 
 The approved preference rule is that notification categories start enabled and members can opt out individually. Keep that choice separate from the device’s browser permission and from required account-security messages.
@@ -419,11 +433,11 @@ These details still need a written specification before their respective feature
 
 - Final role catalog, training or evidence requirements, reviewer for each role and scope, and which roles any member may request.
 - Which roles may delegate each decision type, maximum delegation duration, renewal, revocation, and what happens to an in-flight decision when a delegation expires.
-- Complete profile field list, sharing default for each field, directory audiences, and protections for contact details.
+- Complete profile field catalog, exact directory audience choices, and protections for contact details; field-by-field member control and private-by-default sharing are approved.
 - Exact notification categories, channels, delivery rules, and behavior when device-level push permission is denied.
 - Adult eligibility check and the minimum personal information needed to enforce it.
 
-**Privacy-minimizing proposal for review, not an approved implementation rule:** put an “I am 18 or older” confirmation before account creation and before visitor prayer submission, without asking for or storing a full birth date. For an account, record only the member’s age-confirmation state and policy version/timestamp if an auditable record is needed. For visitors, use a required confirmation without retaining an identity record. This is an eligibility gate, not identity-verified age assurance; specify a stronger method only if ministry policy, legal review, or a platform requirement calls for it.
+**Approved direction for review:** provide an “I am 18 or older” confirmation before account creation and visitor prayer submission, and make date of birth optional. If supplied, use it only for the eligibility check and broad aggregate age-band analytics; do not show it in the directory or general analytics exports. If omitted, retain the 18+ self-attestation as the eligibility gate. Do not retain a rejected under-18 birth date. Optional analytics fields must be skippable and must not affect membership or role approval. This remains self-attested eligibility, not identity-verified age assurance; specify a stronger method only if ministry policy, legal review, or a platform requirement calls for it.
 - Export format and departure treatment for public prayer, group-owned resources, shared studies, accounting records, and Emmaus data.
 - Retention periods for visitor requests, declined requests, moderation/audit records, and account-departure records, including partial failure handling between L&F and Emmaus.
 
@@ -435,8 +449,8 @@ These recommendations are offered to make the next product review concrete. They
 | --- | --- | --- |
 | Reviewer assignment | Assign named reviewer roles by request type and ministry/group scope. Existing admins may handle only explicitly delegated non-admin decisions; only Chad and Chrissy may grant or remove admin access. | Avoid a blanket assumption that every admin can approve every role. |
 | Delegation term | Use a 30-day default term, a proposed 90-day maximum, explicit start/end times, revocation at any time, and renewal as a new grant. | Short, auditable grants reduce stale authority; the exact durations remain a ministry decision. |
-| Profile directory defaults | Directory off and every optional field private until the member opts in; no public profile in the initial release. | Matches member-controlled sharing and reduces accidental disclosure. |
-| Adult eligibility | Require an 18+ confirmation before account creation and visitor prayer submission; do not collect full date of birth by default. | Low-data eligibility gate; it is not identity-verified age assurance. |
+| Profile directory defaults | Directory off and each field private until the member opts in; member-only audiences in the initial release; public-web sharing requires a separate explicit decision. | Matches member control and reduces accidental disclosure. |
+| Adult eligibility and optional analytics | Require an 18+ confirmation; make birth date optional and use it only for eligibility/aggregate age-band analytics when supplied. Offer other optional analytics fields with a skip path; keep raw birth date private and separate from directory sharing. | Supports useful aggregate insight without making optional data a membership condition. |
 | Notification controls | Start new categories enabled; let members opt out by category and channel; preserve existing explicit choices; ask for device push permission only after sign-in and member action. | Fits the approved all-on default while respecting browser permission and channel preferences. |
 | Export package | Provide a ZIP containing a human-readable index plus JSON/CSV data, with an authenticated short-lived download. | Gives the member a readable copy and portable structured data without keeping a permanent archive. |
 | Retention after departure | Do not invent a blanket retention period. Set a documented schedule before release; preserve only records that policy requires, and explain each retained category in the completion receipt. | Financial, safety, audit, shared, and partner-linked data need different treatment. |
