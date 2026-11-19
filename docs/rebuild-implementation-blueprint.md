@@ -154,6 +154,41 @@ Treat each kind of access as independent data. Keep a member record, group membe
 
 Use server-side authorization and database row-level policies for every private read and write. Hiding a control in the interface is not access control. Record role grants, removals, delegation changes, and moderation decisions with actor, scope, reason where supplied, and time.
 
+
+## Proposed profile and notification settings details
+
+These recommendations translate the approved member-control decisions into screen behavior. They remain proposals where the exact audience, field defaults, or channel behavior has not been approved.
+
+### Profile sharing
+
+| Setting | Proposed behavior | Privacy boundary |
+| --- | --- | --- |
+| Directory listing | One clear control to appear in the signed-in member directory; off until the member chooses to share. | A member can hide their entire profile from directory search without losing account access or group participation. |
+| Name and photo | Separate member-controlled visibility switches. | Visible only to the selected signed-in audience; no public profile page in the initial release. |
+| Contact details | Separate email and phone switches with audience selection. | Private unless shared; allow sharing with a selected accepted group or the signed-in L&F member directory. Never expose contact fields through public feeds. |
+| Faith story and Scripture | Separate switches for faith story, favorite Scripture, and faith milestones (salvation/baptism dates). | Private unless the member selects a signed-in audience; do not show operational role or availability fields in the directory. |
+| Gender and internal fields | Do not include gender, account status, ministry availability, rotation state, assignment counts, or review flags in the general directory. | These fields remain private or limited to explicitly authorized operational workflows. |
+
+**Recommended default:** keep the directory listing and every shareable field private until the member opts in. Let members review the exact audience before saving. Keep the ability to hide the whole profile independent from field-level choices. This default is a proposal and should be confirmed before implementation.
+
+### Notification categories and push
+
+The existing settings screen supports reaction toggles for prayer, praise, and testimony; a community email toggle; giving-impact, campaign, and annual-report email preferences; and a separate device-level push subscription. The new settings should retain those choices and add missing product categories without overwriting explicit preferences.
+
+| Proposed category | Examples | Existing foundation |
+| --- | --- | --- |
+| Access and approvals | Role/group request decisions, invitations, and access changes | No general approval-notification preference or request tables found. |
+| Prayer and care | Updates to a member’s own prayer request, private care follow-up, and prayer activity reactions | Prayer reaction preference exists; care routes and user-owned notifications exist. |
+| Studies and groups | Study-session changes, group invitations, daily-path reminders, and assigned study work | Study notifications and progress exist; no group-level notification preference. |
+| Events and calendar | Registration confirmation, event changes/cancellation, and optional reminders | No L&F event/registration tables found in the live schema inventory. |
+| Assigned ministry work | New assignment, due-date reminder, reassignment, or completion request | Assignment notifications exist; legacy prayer-care email routes have been retired. |
+| Encouragement | Prayer, praise-report, and testimony reactions | Separate existing in-app reaction toggles. |
+| L&F updates and giving | Ministry impact, campaign notices, and annual giving report availability | Existing email toggles are available. |
+
+**Recommended behavior:** enable all notification categories for newly created preferences, then allow a member to turn off any category. Do not reset a member’s existing explicit choices during migration. Keep in-app history available; preference controls govern future delivery. Push is a per-device channel: show the requested opt-in prompt after successful sign-in, ask the browser permission only after the member taps Enable, and allow push only when browser permission and the category preference both allow it. If the member dismisses or denies the browser prompt, keep in-app notices available and explain how to turn push on later in Settings. On iPhone/iPad, explain the Home Screen installation requirement before asking for push permission.
+
+**Channel question still open:** the current data model combines some in-app categories and email settings, while push uses a device subscription. Decide whether members need one category-level switch across all channels or separate in-app, push, and email switches per category. Keep required account/security notices clearly identified if they cannot be turned off.
+
 ## Rebuild readiness checkpoint
 
 Use this checkpoint to separate approved experience decisions from work that must be complete before connecting real member data.
