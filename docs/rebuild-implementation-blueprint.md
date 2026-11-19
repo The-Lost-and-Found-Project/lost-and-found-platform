@@ -53,6 +53,19 @@ A read-only catalog query of `pg_policies` checked policies on the five L&F acce
 - **Preferences and notifications:** members can select, insert, and update only their own `user_settings`; the checked columns include email, reaction, giving-impact, campaign, and annual-report preferences, with existing defaults enabled. Members can read/update/delete their own notification rows and manage their own push-subscription records. `notifications` also contains delivery-state fields, so new settings must map to the existing channel behavior and preserve history.
 - **Administrator boundary:** the checked policies rely on the existing admin role or helper. They do not encode the agreed Chad/Chrissy Owner-only ability to grant or remove admin access.
 
+### Target audience rules for study sessions and calendars
+
+This is the recommended access contract for the rebuild, derived from the approved role-scoped sharing model. It does not change current database permissions.
+
+| Audience | Study material | Session schedule and join details |
+| --- | --- | --- |
+| Visitor | Public, published study overview only | No group roster, personal progress, or meeting link. |
+| Signed-in member | Published studies and their own progress | Only sessions explicitly designated for all members or visible through an accepted group, role, assignment, or direct invitation. |
+| Accepted group participant | Content shared with that group | Session details only when the session’s scope matches the active group membership. |
+| Assigned facilitator or supervisor | The study and records needed for the assigned group/session | Only assigned session and permitted participant information; no cross-group access from a global role name alone. |
+| Administrator | Operational study and session tools | Broad access for administration, with sensitive access changes and moderation auditable. |
+
+Keep study publication separate from session disclosure. Treat meeting URLs, access codes, organizer email, rosters, and member responses as restricted fields. Because the current session row has a `group_id` but the reviewed policy does not use it, confirm whether an explicit audience field or invitation relation is needed before changing the policy. If a session has no explicit audience, do not expose its join details by default.
 These observations describe the current policies on these selected tables only. Check database functions, grants, views, storage, and every application route before any real access change.
 
 ## Draft data mapping (not a schema specification)
