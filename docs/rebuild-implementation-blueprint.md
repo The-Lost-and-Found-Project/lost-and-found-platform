@@ -215,7 +215,7 @@ Use this checkpoint to separate approved experience decisions from work that mus
 
 1. Before account creation, require the adult-eligibility confirmation if the proposed gate is approved. Then create the Auth account; the profile trigger provisions baseline `member` access without a ministry-role approval.
 2. Require email confirmation before granting an authenticated app session, consistent with the existing sign-up flow; after confirmation, route the member to their personal home.
-3. Ask for profile and directory sharing choices separately; use the approved field defaults.
+3. Ask for profile and directory sharing choices separately; use only the sharing defaults approved for release.
 4. Explain how group participation and ministry roles differ.
 5. Route additional role requests to a reviewer authorized for the exact role and scope. Prevent self-approval and show request state/outcome to the requester.
 
@@ -271,7 +271,7 @@ Only the directly authorized reviewer or a currently active, matching delegation
 
 The following decisions are captured from the planning conversation and should not be reopened during implementation:
 
-- Account creation activates basic L&F membership immediately; every ministry or elevated role still requires approval.
+- Account creation immediately provisions the baseline L&F member profile; consistent with the current sign-up flow, the member enters the authenticated app after confirming email. Every ministry or elevated role still requires approval.
 - Chad and Chrissy are the L&F Owner accounts. Owner authority is separate from ordinary administrator roles and must be enforced server-side.
 - Members control profile sharing at the field level and can opt out of individual notification categories. Notifications begin enabled, and the app prompts for push permission at sign-in.
 - Visitor prayer requests may be submitted without an account, but stay hidden until cleared by an authorized moderator; once cleared, they are public. Private prayer is available only to signed-in members, who choose the audience.
