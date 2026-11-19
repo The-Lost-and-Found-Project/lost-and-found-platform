@@ -500,7 +500,7 @@ function MemberHome({ onOpen }: { onOpen: (message: string) => void }) {
 function SignupPreview({ onClose, onComplete }: { onClose: () => void; onComplete: () => void }) {
   const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState("");
-  function submit(event: React.FormEvent<HTMLFormElement>) {
+  function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (birthDate) {
       const today = new Date();
