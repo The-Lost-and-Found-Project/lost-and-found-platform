@@ -191,6 +191,19 @@ Use this checkpoint to separate approved experience decisions from work that mus
 3. An optional decline reason is returned to the requester through an approved notification channel.
 4. A group decision changes group participation only. A role decision changes only that approved role and scope.
 5. A delegated decision is constrained by its recorded end date; expiration removes decision authority automatically.
+### Approval and invitation record contract (planning proposal; not a migration)
+
+Keep these workflows as separate records so approving one kind of access cannot silently grant another:
+
+| Record | Minimum information | Suggested lifecycle |
+| --- | --- | --- |
+| Role request | Requester, exact role, ministry/group scope, submitted time, current status, reviewer/decision, optional reason, and a protected evidence reference when required. | `pending` → `approved`, `declined`, `withdrawn`, or `expired`; `needs_information` may return to `pending`. |
+| Group join request | Requester, exact group, submitted time, status, reviewer/decision, and optional reason. | Separate from role requests; acceptance grants group participation only. |
+| Group invitation | Inviter, invited member, exact group, sent time, expiry, response, and revocation state. | `pending` → `accepted`, `declined`, `expired`, or `revoked`. |
+| Delegation grant | Grantor, delegate, decision types, exact role/group scope, start/end time, revocation time, and reason if supplied. | `scheduled` → `active` → `expired` or `revoked`; authority stops at end/revocation. |
+| Decision audit entry | Actor, requester/subject, decision type, exact scope, outcome, timestamp, and optional reason, linked to the request/delegation. | Append-only history; corrections create another entry rather than erasing the original decision. |
+
+Only the directly authorized reviewer or a currently active, matching delegation may decide a request. Block self-approval, scope expansion, onward delegation, and administrator grants/removals by delegates. Keep submitted evidence out of general directory and group views. Exact role names, evidence rules, reviewer mapping, delegation duration, and retention remain open specifications.
 
 ### Prayer moderation
 
