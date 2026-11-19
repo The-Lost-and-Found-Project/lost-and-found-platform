@@ -323,4 +323,18 @@ These details still need a written specification before their respective feature
 - Export format and departure treatment for public prayer, group-owned resources, shared studies, accounting records, and Emmaus data.
 - Retention periods for visitor requests, declined requests, moderation/audit records, and account-departure records, including partial failure handling between L&F and Emmaus.
 
+### Recommended starting choices for unresolved details
+
+These recommendations are offered to make the next product review concrete. They remain proposals; do not encode them as approved ministry policy until accepted.
+
+| Open detail | Recommended starting choice | Reason / boundary |
+| --- | --- | --- |
+| Reviewer assignment | Assign named reviewer roles by request type and ministry/group scope. Existing admins may handle only explicitly delegated non-admin decisions; only Chad and Chrissy may grant or remove admin access. | Avoid a blanket assumption that every admin can approve every role. |
+| Delegation term | Use a 30-day default term, a proposed 90-day maximum, explicit start/end times, revocation at any time, and renewal as a new grant. | Short, auditable grants reduce stale authority; the exact durations remain a ministry decision. |
+| Profile directory defaults | Directory off and every optional field private until the member opts in; no public profile in the initial release. | Matches member-controlled sharing and reduces accidental disclosure. |
+| Adult eligibility | Require an 18+ confirmation before account creation and visitor prayer submission; do not collect full date of birth by default. | Low-data eligibility gate; it is not identity-verified age assurance. |
+| Notification controls | Start new categories enabled; let members opt out by category and channel; preserve existing explicit choices; ask for device push permission only after sign-in and member action. | Fits the approved all-on default while respecting browser permission and channel preferences. |
+| Export package | Provide a ZIP containing a human-readable index plus JSON/CSV data, with an authenticated short-lived download. | Gives the member a readable copy and portable structured data without keeping a permanent archive. |
+| Retention after departure | Do not invent a blanket retention period. Set a documented schedule before release; preserve only records that policy requires, and explain each retained category in the completion receipt. | Financial, safety, audit, shared, and partner-linked data need different treatment. |
+
 These implementation details are not permission to change Production. The rebuild preview remains synthetic and sample-only until data, permission, privacy, migration, and rollback plans are reviewed.
