@@ -145,7 +145,7 @@ The product direction is approved: provide a master admin calendar and personal 
 | Visitor prayer | Visitors can submit prayer requests without an account. The request is public only after authorized review; visitors cannot select a private audience. |
 | Member prayer | Members can choose Prayer team only, an accepted group, or public after review. The initial audience is Prayer team only. Moderators cannot broaden the member’s choice. |
 | Events | Member events are free. Show audience, age requirement, availability, and cost before registration. |
-| Profiles | Members control sharing field by field, including whether their directory information appears. The preview uses private-by-default as the proposed baseline; confirm the defaults before implementation. |
+| Profiles | Members control sharing field by field, including whether their directory information appears. Directory inclusion and each field default to private until the member opts in; the proposed field catalog and authenticated audiences are documented above. |
 | Notifications | Categories start enabled; members can opt out of each category. Prompt for push notifications at sign-in, then honor the device permission and the member’s preferences. |
 | Leaving L&F | Members should be able to take their information with them when leaving, through a complete export and removal flow covering L&F and connected Emmaus data. |
 | Emmaus | L&F already has a signed single-sign-on handoff to Emmaus. Treat this as authentication continuity only; it does not establish that study content or progress is synchronized. Sharing or syncing remains a separate feature requiring explicit scope and consent. |
@@ -449,7 +449,7 @@ These details still need a written specification before their respective feature
 
 - Final role catalog, training or evidence requirements, reviewer for each role and scope, and which roles any member may request.
 - Which roles may delegate each decision type, maximum delegation duration, renewal, revocation, and what happens to an in-flight decision when a delegation expires.
-- Complete profile field catalog, exact directory audience choices, and protections for contact details; field-by-field member control and private-by-default sharing are approved.
+- Exact audience labels, member-facing copy, and accessibility behavior for the proposed profile field controls; field-by-field member control, private-by-default sharing, and the proposed initial field catalog are documented above.
 - Exact notification categories, channels, delivery rules, and behavior when device-level push permission is denied.
 - Adult eligibility check and the minimum personal information needed to enforce it.
 
