@@ -114,6 +114,22 @@ Enforce the required age affirmation across account-creation paths, including Em
 
 Before release, define privacy notice text, field retention/update rules, policy versioning, minimum analytics cohort size, existing-account treatment, and what happens if an existing member later reports an under-18 DOB. No paid verification provider is proposed. No live signup behavior is changed by this section.
 
+### Analytics use and privacy boundary (proposal)
+
+Optional profile information should answer practical ministry-planning questions: which ministries people are interested in, how people heard about L&F, where broad regional needs are emerging, and what age bands are being served. It should not be used to judge a member’s faith, rank participation, determine access, or decide role approval.
+
+| Optional information | Useful aggregate view | Privacy boundary |
+| --- | --- | --- |
+| Date of birth | Broad age bands for adult participation and program planning | Never share in the directory or general reports. Use exact DOB only in the restricted eligibility flow when supplied; analytics use a derived age band. |
+| Ministry interests | Interest counts by ministry or study area | Do not auto-join a ministry or grant a role. |
+| How they heard about L&F | Referral-source totals | Report only grouped source categories; do not expose a member’s answer in the directory. |
+| Broad region | Regional participation totals | Ask only for a state or broad area, never a street address or precise location for analytics. |
+| Optional gender | Aggregate demographic context only if the member provides it | Exclude from the initial directory; do not infer or require it for access. |
+
+**Suggested reporting guardrails:** show aggregate counts and trends only; suppress any demographic breakdown with fewer than 10 people; avoid combinations of filters that could reveal one person; and do not create individual engagement scores or leaderboards. Keep profile analytics first-party and use existing infrastructure; do not add a paid analytics vendor. Let members review and edit optional profile answers. On account deletion, remove identifiable profile answers with the account and retain only aggregates that cannot reasonably be tied back to a person, subject to the final retention policy.
+
+These are proposed privacy protections for review, not live analytics behavior. Confirm the cohort threshold, retention schedule, and whether a separate analytics preference is needed before implementation.
+
 ## Calendar and event implementation contract (proposal)
 
 The product direction is approved: provide a master admin calendar and personal member calendars, with category, ministry, role, and assignment filters; events remain free. No L&F calendar/event tables exist yet, so use a small first-party schema rather than adding a paid calendar service.
