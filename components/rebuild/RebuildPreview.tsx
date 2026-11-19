@@ -328,6 +328,7 @@ function ProfileSharing() {
     ["email", "Email address", "Contact detail · requires an extra confirmation before sharing."],
     ["phone", "Phone number", "Contact detail · requires an extra confirmation before sharing."],
   ] as const;
+  const groupOptions = ["Men’s Forge", "Prayer Team", "The Hearth"];
   const [directoryEnabled, setDirectoryEnabled] = useState(false);
   const [shared, setShared] = useState<Record<string, boolean>>({ name: false, photo: false, story: false, scripture: false, salvation: false, baptism: false, email: false, phone: false });
   const [audiences, setAudiences] = useState<Record<string, string>>({
@@ -336,21 +337,37 @@ function ProfileSharing() {
     salvation: "Selected groups / ministry spaces", baptism: "Selected groups / ministry spaces",
     email: "Selected groups / ministry spaces", phone: "Selected groups / ministry spaces",
   });
-  const visibleFields = directoryEnabled ? fields.filter(([id]) => shared[id]) : [];
+  const [selectedSpaces, setSelectedSpaces] = useState<Record<string, string[]>>({});
+  const selectedAudience = (id: string) => audiences[id] === "All L&F members"
+    ? "All L&F members"
+    : (selectedSpaces[id] ?? []).join(", ");
+  const visibleFields = directoryEnabled
+    ? fields.filter(([id]) => shared[id] && selectedAudience(id).length > 0)
+    : [];
+  const toggleSpace = (id: string, space: string, checked: boolean) => setSelectedSpaces((current) => {
+    const nextSpaces = new Set(current[id] ?? []);
+    if (checked) nextSpaces.add(space); else nextSpaces.delete(space);
+    return { ...current, [id]: Array.from(nextSpaces) };
+  });
   return <section className={styles.panel} aria-label="Profile sharing preview">
     <div className={styles.approvalHeading}><SectionTitle title="Profile sharing" help="Choose whether your directory profile appears and control each field separately. Birth date is never shared. Group and ministry visibility is limited to people with current access."/><p>Choose what other members can see</p></div>
     <p className={styles.approvalIntro}>Directory inclusion and every field start private. Turn on only what you choose.</p>
     <label className={styles.directoryOptIn}><input type="checkbox" checked={directoryEnabled} onChange={(event) => setDirectoryEnabled(event.target.checked)}/> Include my profile in the L&amp;F member directory</label>
     <div className={styles.profileSharingGrid}><div className={styles.notificationList}>{fields.map(([id, title, description]) => <div className={styles.notificationRow} key={id}>
       <label className={styles.notificationCopy}><strong>{title}</strong><small>{description}</small><span className={styles.profileFieldToggle}><input type="checkbox" checked={shared[id]} disabled={!directoryEnabled} onChange={(event) => setShared((current) => ({ ...current, [id]: event.target.checked }))} aria-label={"Share " + title}/> Share this field</span></label>
-      <label className={styles.profileAudienceControl}>Audience
-        <select value={audiences[id]} disabled={!directoryEnabled || !shared[id]} onChange={(event) => setAudiences((current) => ({ ...current, [id]: event.target.value }))} aria-label={"Audience for " + title}>
+      <div className={styles.profileAudienceControl}><label htmlFor={"profile-audience-" + id}>Audience</label>
+        <select id={"profile-audience-" + id} value={audiences[id]} disabled={!directoryEnabled || !shared[id]} onChange={(event) => setAudiences((current) => ({ ...current, [id]: event.target.value }))}>
           <option>Selected groups / ministry spaces</option>
           <option>All L&amp;F members</option>
         </select>
-      </label>
+        {directoryEnabled && shared[id] && audiences[id] === "Selected groups / ministry spaces" && <fieldset className={styles.profileScopeChoices}>
+          <legend>Choose accepted spaces</legend>
+          {groupOptions.map((space) => <label key={space}><input type="checkbox" checked={(selectedSpaces[id] ?? []).includes(space)} onChange={(event) => toggleSpace(id, space, event.target.checked)}/>{space}</label>)}
+          <small>Only members with current access can see this field.</small>
+        </fieldset>}
+      </div>
     </div>)}</div>
-      <aside className={styles.profilePreview} aria-live="polite"><p className={styles.eyebrow}>Member preview</p><h3>What others can see</h3>{directoryEnabled ? visibleFields.length ? <ul>{visibleFields.map(([id, title]) => <li key={id}><span aria-hidden="true">✓</span><span>{title}<small>Visible to {audiences[id]}</small></span></li>)}</ul> : <p className={styles.emptyProfile}>No profile fields are shared. Your name may still appear on an accepted group roster.</p> : <p className={styles.emptyProfile}>Your profile is not included in the directory.</p>}<p className={styles.profilePrivacyNote}>Birth date, gender, roles, account status, availability, assignments, and internal notes are not shown in the directory.</p></aside>
+      <aside className={styles.profilePreview} aria-live="polite"><p className={styles.eyebrow}>Member preview</p><h3>What others can see</h3>{visibleFields.length ? <ul>{visibleFields.map(([id, title]) => <li key={id}><span aria-hidden="true">✓</span><span>{title}<small>Visible to {selectedAudience(id)}</small></span></li>)}</ul> : <p className={styles.emptyProfile}>{directoryEnabled ? "Choose a field and at least one audience to preview what is shared." : "Your profile is not included in the directory."}</p>}<p className={styles.profilePrivacyNote}>Birth date, gender, roles, account status, availability, assignments, and internal notes are not shown in the directory. Group and ministry access is checked again whenever a profile is viewed.</p></aside>
     </div>
     <p className={styles.caption}>Sample privacy choices · no profile changes are saved</p>
   </section>;
