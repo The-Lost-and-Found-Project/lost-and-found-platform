@@ -90,6 +90,24 @@ This mapping translates the approved experience into the existing source model. 
 | Auditability | No general role, group-decision, or delegation audit table was found in reviewed migrations | Preserve history for role grants/removals, decisions, delegation changes, and prayer moderation with actor, scope, outcome, timestamp, and reason when supplied. Define retention before enabling real writes. |
 | Member export and departure | Schema metadata identifies member-linked records across `profiles`, `user_settings`, `notifications`, `push_subscriptions`, `ministry_memberships`, prayer/praise/testimony, learning progress, study participation/responses, care applications, directory saves/submissions, ministry stories, marriage journey/couple records, feedback, and giving transactions/communications. | Build a row-level export/delete inventory using all user and relationship foreign keys, not just tables named `user_id`. Separate personal content from shared Bible studies/groups and operational records. Public/shared prayer, partner-linked marriage data, audit history, legacy care archives, and financial records need explicit retain/anonymize/remove rules before release. Never delete shared studies or records belonging to Rare Network, Emmaus, or Study Companion by broad table-name prefix. The L&F project and standalone Emmaus project both contain Emmaus-related schema objects; identify the authoritative source for each data type to avoid missed or duplicate handling. |
 
+## Adult-only signup and initial access contract (proposal)
+
+The approved product rules are adults only, immediate baseline membership after sign-up, and approval for every ministry or elevated role. The current L&F form requires full name, email, password, gender, and a community-guidelines acknowledgement; phone is optional. It sends an email-confirmation link, and the existing Auth trigger creates a baseline `member` profile as soon as the Auth user is created.
+
+| Step | Intended behavior |
+| --- | --- |
+| Before account creation | Require an “I confirm I am 18 or older” attestation, community-guidelines acknowledgement, and current CAPTCHA challenge. Do not ask for or store date of birth by default. Show the applicable policy version. |
+| Create baseline account | Create the L&F Auth identity and default member profile immediately. Do not leave a new adult in a pending-member approval queue. |
+| Confirm email | Preserve the current email-confirmation requirement before the first authenticated app session. Explain that the member account is created, but the app opens after they verify email. |
+| Request ministry/elevated access | Keep the member role until the exact role/scope request is approved. Never infer a ministry role from signup answers or user-editable metadata. |
+| Visitor prayer | Require the same 18+ attestation and the separate public-after-moderation acknowledgement. Do not create a member account or retain an identity record solely for age confirmation. |
+
+For an auditable self-attestation, store only the age-confirmed state, attestation timestamp, and policy version with the account; do not store a birth date. This is an adult-only affirmation, not identity-verified age assurance. If the ministry requires stronger verification, define that separately before collecting additional data.
+
+Enforce the required age acknowledgement across every account-creation path, including the Emmaus return/sign-up path and direct Auth API access; the visible checkbox alone is not a complete enforcement boundary. Preserve the existing email confirmation, safe redirect, duplicate-account handling, and CAPTCHA verification. Review the current required gender field before rebuild: defer it or make it optional unless a specific approved ministry workflow demonstrates a need at account creation. Phone stays optional. Do not add a paid verification provider or collect more identity data by default.
+
+This is an implementation proposal for the approved adults-only and membership rules. The exact policy language, versioning/retention, treatment of already-existing accounts, and any legally or ministry-required stronger assurance remain open before release; no existing member should be locked out by a new gate without a migration/notice plan.
+
 ## Calendar and event implementation contract (proposal)
 
 The product direction is approved: provide a master admin calendar and personal member calendars, with category, ministry, role, and assignment filters; events remain free. No L&F calendar/event tables exist yet, so use a small first-party schema rather than adding a paid calendar service.
