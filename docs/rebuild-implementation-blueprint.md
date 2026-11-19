@@ -165,15 +165,30 @@ Use server-side authorization and database row-level policies for every private 
 7. **Build export and removal:** complete data inventory and deletion/retention mapping across L&F and Emmaus before enabling account removal.
 8. **Validate and migrate:** test permissions and data portability with synthetic or staging accounts, verify mobile layouts, and review rollback steps before any Production change.
 
-## Decisions still needed before implementation
+## Product decisions already approved
 
-- Final role catalog, training requirements, who may approve each role, and whether any roles may be requested by any member.
-- Which roles may delegate each decision type; maximum delegation duration and renewal process.
-- The complete profile field list, directory audiences, private-by-default baseline, and how shared contact details are protected.
-- Exact notification categories and which channels each category uses.
+The following decisions are captured from the planning conversation and should not be reopened during implementation:
+
+- Account creation activates basic L&F membership immediately; every ministry or elevated role still requires approval.
+- Chad and Chrissy are the L&F Owner accounts. Owner authority is separate from ordinary administrator roles and must be enforced server-side.
+- Members control profile sharing at the field level and can opt out of individual notification categories. Notifications begin enabled, and the app prompts for push permission at sign-in.
+- Visitor prayer requests may be submitted without an account, but stay hidden until cleared by an authorized moderator; once cleared, they are public. Private prayer is available only to signed-in members, who choose the audience.
+- Delegated approvals are part of the approval workflow, with scope and expiry enforced.
+- The app is adults-only, free to use, and has no member-to-member messaging in the initial release.
+- Leaving the app includes taking a portable export and removing the member’s L&F personal data and connected Emmaus personal data, subject to clearly explained legal/operational retention limits.
+- Emmaus sign-in already uses the cross-product handoff described above. Study/progress synchronization remains a separate, consent-based future feature.
+- Reuse the existing L&F identity and membership foundation where it fits; keep the rebuild sample-only until the access, privacy, and migration work is reviewed.
+
+## Remaining implementation details
+
+These details still need a written specification before their respective features are built:
+
+- Final role catalog, training or evidence requirements, reviewer for each role and scope, and which roles any member may request.
+- Which roles may delegate each decision type, maximum delegation duration, renewal, revocation, and what happens to an in-flight decision when a delegation expires.
+- Complete profile field list, sharing default for each field, directory audiences, and protections for contact details.
+- Exact notification categories, channels, delivery rules, and behavior when device-level push permission is denied.
 - Adult eligibility check and the minimum personal information needed to enforce it.
-- Whether Emmaus remains a sign-in handoff only, or whether specific study content/progress should sync later; define consent and conflict behavior first.
-- Export format and exact departure treatment for public prayer, group-owned resources, shared studies, accounting records, and Emmaus data.
-- Retention periods for visitor requests, declined requests, audit records, and member-departure records.
+- Export format and departure treatment for public prayer, group-owned resources, shared studies, accounting records, and Emmaus data.
+- Retention periods for visitor requests, declined requests, moderation/audit records, and account-departure records, including partial failure handling between L&F and Emmaus.
 
-These are implementation gates, not permission to change Production. The rebuild preview remains synthetic and sample-only until the data, permission, privacy, migration, and rollback plans are reviewed.
+These implementation details are not permission to change Production. The rebuild preview remains synthetic and sample-only until data, permission, privacy, migration, and rollback plans are reviewed.
