@@ -285,6 +285,17 @@ The same schema review found an important shared-content gate: deleting an accou
 
 This was metadata-only review of foreign-key definitions; no member row values were read and no database changes were made. The admin endpoint remains an existing building block, not member self-service or a complete cross-app workflow. The rebuild still needs a durable request state, explicit cross-app call/verification, a policy for attributed shared content, and a completion receipt that reports any retained attribution or records.
 
+### Live L&F deletion-boundary review
+
+A read-only query of live foreign-key metadata in the L&F Supabase project confirms the current Auth deletion has several distinct effects:
+
+- **Member-owned records that cascade:** profile, user settings, push subscriptions, prayer reactions/notifications, group and ministry membership, study and learning progress, and member-owned Emmaus Companion records in the shared L&F database.
+- **Shared records that remain with author references cleared:** prayer requests, praise reports, testimonies, feedback, Bible studies, ministry content, sessions, and multiple content/audit attribution fields use `SET NULL` for some user references. The departure notice must explain when shared content remains but is no longer attributed.
+- **Records that may block deletion:** live constraints use `NO ACTION` or `RESTRICT` for some giving transactions/communications, couple records and assignments, ministry stories, directory entries/partnerships/moderation, devotion weeks, Emmaus discovery paths and Scripture imports/nodes, impact/compliance records, and other authored or verified records. Whether each can be safely anonymized or reassigned depends on its nullability, retention duties, and ownership; do not delete or rewrite these records automatically.
+- **Separate Rare Network family:** the same L&F Auth user is referenced by Rare Network tables with cascade behavior for memberships, profiles, preferences, prayer, groups, content, events, and progress. The approved L&F departure scope names L&F and connected Emmaus data. Because the current shared Auth deletion can also erase Rare Network records, the rebuild must establish the account-boundary/consent behavior across products before any live deletion path is enabled.
+
+This metadata review read no member row values and changed no database objects. Directly deleting the Auth user is not a complete or safe workflow by itself: preflight all blocking references; preserve records with financial, shared, partner, or audit value; clarify the Rare Network consequence; and report any retained/anonymized categories. Validate these outcomes with synthetic identities in isolated staging before launch.
+
 ### Proposed export and departure experience
 
 Keep two distinct Settings actions: **Download my information** and **Delete my account**. Each action explains what it does before the member confirms.
