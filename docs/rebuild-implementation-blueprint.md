@@ -324,6 +324,28 @@ Provide separate creation/read routes and RLS for visitor intake, member submiss
 
 Open implementation details: whether a member’s Prayer-team/group request requires moderator approval before its chosen audience can see it; field-level anonymity options; retention periods; abuse throttling/CAPTCHA approach; and whether visitors can edit or withdraw without an account. These are not settled by the public-after-clearance rule. No change to live behavior is approved by this proposal; implement only after a complete feed/RLS/write-path audit.
 
+### Notification delivery and push contract (proposal)
+
+The approved preference rule is that notification categories start enabled and members can opt out individually. Keep that choice separate from the device’s browser permission and from required account-security messages.
+
+| Notification category | Example | Default |
+| --- | --- | --- |
+| Prayer care and updates | A response or authorized care update for the member’s own request | On |
+| Prayer, praise, and testimony encouragement | A member reacts to the member’s content | On |
+| Group and ministry updates | Announcements for accepted groups or approved ministry roles | On |
+| Roles and group access | Request decisions, invitations, and expiring access reminders | On |
+| Events and registrations | Registration confirmation, schedule/location change, cancellation | On |
+| Assigned work and studies | A task assigned to the member or a study/session update within their scope | On |
+| Account and security | Email confirmation, password reset, security or essential service notices | Required; not controlled by ministry-notification opt-outs |
+
+Store choices per category and channel (in-app, email, push) so a member can turn off one kind of message without losing other useful updates. New categories default on when no preference exists; migration must preserve every explicit existing opt-out. Any global email preference must be reconciled with these category choices without silently turning a member back on.
+
+**Push prompt:** after sign-in, show an in-app invitation on a device that has not been opted into push. “Enable” is a user gesture that then invokes the browser permission prompt and creates a per-device subscription only if permission is granted and the relevant push preferences are enabled. “Not now” leaves the account and in-app/email preferences unchanged. If browser permission was denied, stop showing the native prompt; explain that device permission must be changed in browser settings and keep the in-app/email options available. Provide per-device unsubscribe and account-wide category controls.
+
+**Privacy and delivery:** check the member’s current audience/role/assignment before creating a notification, and recheck it before delivering delayed work. Never include private prayer text, care notes, meeting links, or sensitive details in lock-screen previews or email subject lines; use a neutral summary and require sign-in for details. Keep delivery logs limited to operational status and short error codes, not private message bodies. Do not reset stored notification history or create duplicate subscriptions when a member signs in again. Use existing delivery infrastructure; no paid notification provider is approved.
+
+Confirm the final category list, quiet-hour behavior, and how repeated “Not now” prompts should be paced before implementation. This is a design proposal, not a change to current notification delivery.
+
 ### Data portability and departure
 
 1. Let a member request a complete personal export in a readable, portable format.
