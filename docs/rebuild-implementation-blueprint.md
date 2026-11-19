@@ -153,6 +153,23 @@ Treat each kind of access as independent data. Keep a member record, group membe
 | Owner | Owner-level controls, including granting or removing administrator access | Unlogged or invisible access changes |
 
 Use server-side authorization and database row-level policies for every private read and write. Hiding a control in the interface is not access control. Record role grants, removals, delegation changes, and moderation decisions with actor, scope, reason where supplied, and time.
+### Resource-level access acceptance matrix
+
+These are required authorization outcomes for later implementation and security verification. They are not evidence that the current Production policies already meet them.
+
+| Resource/action | Visitor | Member | Scoped role or assignment | Administrator | Owner |
+| --- | --- | --- | --- | --- | --- |
+| Member profile/directory | No access | Own profile; other member fields only when explicitly shared to an allowed signed-in audience | Only needed fields within approved scope | Limited to an authorized operational purpose | Same member-data boundary unless an Owner action requires it |
+| Prayer request | Submit visitor request; pending item stays hidden | Own request and selected audience; cleared public items only | Assigned care item only, with minimum necessary details | Moderate/assign within approved role; cannot broaden member audience | Administrative oversight with moderation audit |
+| Group and roster | No access | Own membership and details for accepted groups | Exact assigned group; roster access must be separately granted | Manage membership/workflows | Administrative authority; sensitive changes audited |
+| Bible study and session | Public published overview | Published study material and own progress; session details only when all-member scope is explicit | Assigned group/session details; no other group’s join URL or responses | Manage scheduled sessions and study content | Administrative authority |
+| Calendar/event | Public event summary only | Personal calendar plus matching group, registration, assignment, and explicit shares | Events in exact ministry, group, role, or assignment scope | Master calendar within authorized admin duties | Administrative oversight |
+| Notification/settings | None | Own notification preferences, subscriptions, and history | Send only for authorized workflow; never read another person’s settings | Manage approved campaigns, not personal preference rows | Owner controls only for Owner actions |
+| Role grant/removal | None | Submit own request; no self-approval | Review only exact decision type/scope while active; never grant admin | Cannot grant/remove administrator | Chad and Chrissy only, server-verified and audited |
+| Export/removal | None | Request/export/remove own data with clear retention disclosures | No access except explicitly delegated support steps | Process only authorized support action | Oversight subject to audit; never bypass member confirmation |
+
+**Verification rule:** for each row, test both the permitted path and a near-miss denial (wrong group, expired delegation, unshared profile field, pending prayer request, unassigned work, or non-Owner admin change).
+
 
 
 ## Proposed profile and notification settings details
