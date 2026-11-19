@@ -2,7 +2,7 @@
 
 This first implementation package adds `/rebuild-preview` as a public, read-only design sample. It does not replace the public home, member dashboard, or current administration screens. The route is intentionally available without sign-in because the preview deployment uses isolated synthetic authentication that cannot accept real L&F passwords.
 
-The app route itself has no L&F or Supabase sign-in requirement. However, the current hosted branch deployment redirects unauthenticated visitors to Vercel sign-in (observed Nov. 19, 2026). This is deployment-level protection, before the preview UI loads. Earlier interactive review notes below reflect their original review sessions; a fresh visual review of the latest deployment is pending an accessible preview path.
+The app route itself has no L&F or Supabase sign-in requirement. However, the Vercel project has SSO protection enabled for all deployments except custom domains, so the current hosted branch deployment redirects unauthenticated visitors to Vercel sign-in before the preview UI loads (confirmed Nov. 19, 2026). Earlier interactive review notes below reflect their original review sessions; a fresh visual review of the latest deployment is pending an accessible preview path.
 
 The preview contains three switchable surfaces:
 
@@ -56,4 +56,4 @@ The member role-request withdrawal now has an explicit review step naming the ex
 
 ## Current preview access
 
-The latest deployment at `lost-and-found-platform-2edv9r0wm-lostandfoundteam.vercel.app` is READY, but browser access currently redirects to the Vercel login page. The review preview contains synthetic data only, but the deployment access setting must be checked before reviewers can use the link. No deployment protection setting was changed in this update.
+The latest deployment at `lost-and-found-platform-2edv9r0wm-lostandfoundteam.vercel.app` is READY, but the project’s SSO protection redirects browser access to the Vercel login page. The review preview contains synthetic data only, but the deployment access setting must be checked before reviewers can use the link. No deployment protection setting was changed in this update.
