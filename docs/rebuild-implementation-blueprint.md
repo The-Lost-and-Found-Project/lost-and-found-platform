@@ -188,6 +188,8 @@ These details still need a written specification before their respective feature
 - Complete profile field list, sharing default for each field, directory audiences, and protections for contact details.
 - Exact notification categories, channels, delivery rules, and behavior when device-level push permission is denied.
 - Adult eligibility check and the minimum personal information needed to enforce it.
+
+**Privacy-minimizing proposal for review, not an approved implementation rule:** put an “I am 18 or older” confirmation before account creation and before visitor prayer submission, without asking for or storing a full birth date. For an account, record only the member’s age-confirmation state and policy version/timestamp if an auditable record is needed. For visitors, use a required confirmation without retaining an identity record. This is an eligibility gate, not identity-verified age assurance; specify a stronger method only if ministry policy, legal review, or a platform requirement calls for it.
 - Export format and departure treatment for public prayer, group-owned resources, shared studies, accounting records, and Emmaus data.
 - Retention periods for visitor requests, declined requests, moderation/audit records, and account-departure records, including partial failure handling between L&F and Emmaus.
 
