@@ -23,6 +23,22 @@ This inventory combines checked-in source with a read-only listing of public-sch
 
 **Build implication:** retain the existing Auth user and profile identity and preserve both current membership systems and their history. Before changing access, map the deployed rows and consumers, then decide how approved L&F roles, group requests/invitations, Owner authority, field sharing, and expiring delegation extend the existing model. Do not turn the sample preview controls into live writes until server-side checks, RLS, audit behavior, and rollback are reviewed.
 
+### Provisional role map for implementation planning
+
+This table is a mapping proposal based on the existing schema and approved product boundaries. It is not a grant of access or a final role catalog.
+
+| Product concept | Existing representation | Intended boundary to preserve |
+| --- | --- | --- |
+| Member | `profiles.role = member`; basic account access | Personal account, own records, and accepted group participation; no ministry or administrative authority by default. |
+| Group participant | `study_group_members.role = member` with active membership | Access only to that accepted group’s shared content and events. |
+| Study facilitator | `profiles.role = facilitator` plus a group assignment | Facilitator tools only for explicitly assigned groups; the global profile value alone should not expose every group. |
+| Supervisor | `profiles.role = supervisor` plus `facilitator_supervision` relationships | Supervision information only for assigned facilitator relationships and their explicitly scoped work. |
+| Ministry leader | `ministry_memberships.membership_role = leader` for a ministry slug | Leadership tools only inside that ministry; this is distinct from study facilitator or system administrator. |
+| Administrator | `profiles.role = admin` | Site administration within an approved boundary; cannot grant or remove administrator access. |
+| Owner | Separate Owner authorization for Chad and Chrissy, not an existing profile-role enum value | Owner-only actions, especially granting/removing administrators, with server-side account-ID checks and an audit record. |
+
+**Recommended authorization rule:** require both the approved capability and its explicit scope relationship for scoped tools. A role name by itself should not grant access across all groups, ministries, assignments, or private records. Resolve the two Owner accounts to stable user IDs from an approved identity source before implementation; do not rely on email text or a hidden interface control.
+
 ### Live RLS policy notes (read-only)
 
 A read-only catalog query of `pg_policies` checked policies on the five L&F access tables above. It did not read member rows and is not a full security audit.
