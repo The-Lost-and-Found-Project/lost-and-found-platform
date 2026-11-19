@@ -279,6 +279,8 @@ The current Settings page covers notification preferences, a default-anonymous p
 
 The existing `POST /api/account/delete-self` route deletes the signed-in user from Supabase Auth directly. It blocks deletion when that account is the last profile with the ordinary `admin` role, but it does not create a durable request, show a reviewable retention summary, revoke device push subscriptions explicitly, export data, or coordinate deletion with Emmaus. Treat it as an incomplete legacy control; do not carry it into the rebuild as the approved departure workflow. The admin user-delete endpoint is also not a substitute for a member portability workflow.
 
+The separate Emmaus project has an MFA-protected administrator deletion action requiring the target email as confirmation and blocking owner/founder accounts. It calls Emmaus Auth deletion directly and reports member-owned Emmaus data deleted; a migration explicitly cascades Emmaus study completion snapshots. This is useful evidence that Emmaus can remove its own account and some linked records, but it is not a member self-service endpoint and does not itself coordinate with L&F. Before relying on it in the rebuild, verify the full Emmaus table/foreign-key cleanup coverage, push-subscription behavior, and an authenticated server-to-server contract with an auditable completion result.
+
 ### Proposed export and departure experience
 
 Keep two distinct Settings actions: **Download my information** and **Delete my account**. Each action explains what it does before the member confirms.
