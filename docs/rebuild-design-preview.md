@@ -2,6 +2,8 @@
 
 This first implementation package adds `/rebuild-preview` as a public, read-only design sample. It does not replace the public home, member dashboard, or current administration screens. The route is intentionally available without sign-in because the preview deployment uses isolated synthetic authentication that cannot accept real L&F passwords.
 
+The app route itself has no L&F or Supabase sign-in requirement. However, the current hosted branch deployment redirects unauthenticated visitors to Vercel sign-in (observed Nov. 19, 2026). This is deployment-level protection, before the preview UI loads. Earlier interactive review notes below reflect their original review sessions; a fresh visual review of the latest deployment is pending an accessible preview path.
+
 The preview contains three switchable surfaces:
 
 - Administration: the approved cream sidebar, compact overview, attention queue, schedule, a role-aware master calendar, free event registration and review, an assignment and role-based work queue, a Scripture-centered Studies workspace, a sample People & roles workspace, a sample Prayer review workspace, and notification and profile-sharing settings.
@@ -14,7 +16,7 @@ The shared app frame omits its existing header, footer, bottom navigation, float
 
 ## Review flow
 
-1. Open `/rebuild-preview` on the preview deployment; no account is needed.
+1. Open `/rebuild-preview` on the preview deployment. The route does not require an L&F or Supabase account; if Vercel redirects to sign-in, deployment protection is blocking the page before it renders.
 2. Compare Administration, Public homepage, and Member home using the clearly labeled review controls.
 3. On a narrow screen, open and close Menu. Confirm there is no horizontal page scrolling and only one application menu.
 4. Open Members → Member directory. Search the sample names and confirm only opted-in directory names and shared fields appear.
@@ -50,3 +52,8 @@ Local Chromium failed to launch in this workspace. The public sample was reviewe
 The member care check-in and assigned follow-up views remain design prototypes. They do not persist private information, implement real care-role access, or send a message. The calendar view remains a design prototype: it does not create events, configure real sharing, enforce access, or connect to member calendars. Role and group decisions and delegation remain sample-only; privacy sharing persistence, event registration, expanded role catalog, and cross-application progress are not implemented by this visual preview.
 
 The member role-request withdrawal now has an explicit review step naming the exact role and ministry scope. Its confirmation is a sample notice only; it does not withdraw or modify the pending request. Administration role and group decisions use a scoped review panel with an authority acknowledgement, optional decline reason, and sample-only confirmation. Desktop review confirmed that the acknowledgement gates the decision and the sample request stays unchanged. Delegation setup previews reviewer, decision type, exact scope, and end date; desktop review confirmed edits reset the acknowledgement and sample confirmation assigns no permission. Visitor public clearance now requires an explicit acknowledgement before sample confirmation; desktop review confirmed the request remains pending and no content is published.  Responsive review at 390px confirmed no horizontal page overflow in the admin dashboards, member roles, role and group decision panels (including their authority acknowledgement step), scoped delegation, and visitor prayer clearance. At 320px, the delegation form, event planner setup dialog, member event registration dialog, group roster removal review, admin role decision acknowledgement, and member role-request review fit without horizontal page overflow. The registration dialog shows six remaining spaces and keeps Register disabled until the member acknowledges eligibility. The event planner was also reviewed in the connected desktop preview: editing from the review summary returns to the setup form; the selected group and approved-role audiences show their exact scope; the review summary repeats the date, time, location, registration choice, free participation, and adults-only rule; and confirming displays a sample-only notice without creating or sharing an event. Mobile event planner interaction was not fully validated.
+
+
+## Current preview access
+
+The latest deployment at `lost-and-found-platform-2edv9r0wm-lostandfoundteam.vercel.app` is READY, but browser access currently redirects to the Vercel login page. The review preview contains synthetic data only, but the deployment access setting must be checked before reviewers can use the link. No deployment protection setting was changed in this update.
