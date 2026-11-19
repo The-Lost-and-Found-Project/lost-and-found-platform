@@ -273,6 +273,12 @@ Only the directly authorized reviewer or a currently active, matching delegation
 3. Explain what account removal deletes and what shared content other people may still need to see.
 4. Delete the member’s L&F and connected Emmaus personal data after confirmation, subject to the retention policy established before release.
 5. Provide a completion receipt without retaining a copy of the exported personal data.
+### Existing account controls reviewed
+
+The current Settings page covers notification preferences, a default-anonymous prayer setting, push setup, profile navigation, and feedback. It does not currently offer a personal-data export or a member-facing account-removal flow.
+
+The existing `POST /api/account/delete-self` route deletes the signed-in user from Supabase Auth directly. It blocks deletion when that account is the last profile with the ordinary `admin` role, but it does not create a durable request, show a reviewable retention summary, revoke device push subscriptions explicitly, export data, or coordinate deletion with Emmaus. Treat it as an incomplete legacy control; do not carry it into the rebuild as the approved departure workflow. The admin user-delete endpoint is also not a substitute for a member portability workflow.
+
 ### Proposed export and departure experience
 
 Keep two distinct Settings actions: **Download my information** and **Delete my account**. Each action explains what it does before the member confirms.
