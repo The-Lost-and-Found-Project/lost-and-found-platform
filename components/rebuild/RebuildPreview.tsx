@@ -323,24 +323,32 @@ function ProfileSharing() {
     ["photo", "Profile photo", "Your selected profile image."],
     ["story", "Faith story", "The story you have chosen to share about your faith."],
     ["scripture", "Favorite Scripture", "The passage you selected for your profile."],
-    ["salvation", "Date of salvation", "The faith milestone date saved on your profile."],
-    ["baptism", "Date of baptism", "The baptism milestone date saved on your profile."],
-    ["email", "Email address", "Your contact email."],
-    ["phone", "Phone number", "Your contact phone number."],
-    ["gender", "Gender", "The gender field on your profile."],
+    ["salvation", "Date of salvation", "A faith milestone date saved on your profile."],
+    ["baptism", "Date of baptism", "A baptism milestone date saved on your profile."],
+    ["email", "Email address", "Contact detail · requires an extra confirmation before sharing."],
+    ["phone", "Phone number", "Contact detail · requires an extra confirmation before sharing."],
   ] as const;
-  const [shared, setShared] = useState<Record<string, boolean>>({ name: false, photo: false, story: false, scripture: false, salvation: false, baptism: false, email: false, phone: false, gender: false });
-  const [audience, setAudience] = useState("Accepted groups");
+  const [shared, setShared] = useState<Record<string, boolean>>({ name: false, photo: false, story: false, scripture: false, salvation: false, baptism: false, email: false, phone: false });
+  const [audiences, setAudiences] = useState<Record<string, string>>({
+    name: "Selected groups / ministry spaces", photo: "Selected groups / ministry spaces",
+    story: "Selected groups / ministry spaces", scripture: "Selected groups / ministry spaces",
+    salvation: "Selected groups / ministry spaces", baptism: "Selected groups / ministry spaces",
+    email: "Selected groups / ministry spaces", phone: "Selected groups / ministry spaces",
+  });
   const visibleFields = fields.filter(([id]) => shared[id]);
   return <section className={styles.panel} aria-label="Profile sharing preview">
-    <div className={styles.approvalHeading}><SectionTitle title="Profile sharing" help="Profile fields are private until you opt in. Contact details have separate controls. A name needed for an accepted group roster is handled separately from directory sharing."/><p>Choose what other members can see</p></div>
-    <p className={styles.approvalIntro}>Everything starts private. Turn on only the fields you want to share.</p>
-    <label className={styles.selectLabel}>Share selected fields with<select value={audience} onChange={(event) => setAudience(event.target.value)}><option>Accepted groups</option><option>L&amp;F members</option></select></label>
-    <div className={styles.profileSharingGrid}><div className={styles.notificationList}>{fields.map(([id, title, description]) => <label className={styles.notificationRow} key={id}>
-      <span className={styles.notificationCopy}><strong>{title}</strong><small>{description}</small></span>
-      <input type="checkbox" checked={shared[id]} onChange={(event) => setShared((current) => ({ ...current, [id]: event.target.checked }))} aria-label={"Share " + title}/>
-    </label>)}</div>
-      <aside className={styles.profilePreview} aria-live="polite"><p className={styles.eyebrow}>Member preview</p><h3>What others can see</h3><p className={styles.profileAudience}>Audience: {audience}</p>{visibleFields.length ? <ul>{visibleFields.map(([id, title]) => <li key={id}><span aria-hidden="true">✓</span>{title}</li>)}</ul> : <p className={styles.emptyProfile}>No profile fields are shared. Your name may still appear on an accepted group roster.</p>}</aside>
+    <div className={styles.approvalHeading}><SectionTitle title="Profile sharing" help="Choose whether your directory profile appears and control each field separately. Birth date is never shared. Group and ministry visibility is limited to people with current access."/><p>Choose what other members can see</p></div>
+    <p className={styles.approvalIntro}>Directory inclusion and every field start private. Turn on only what you choose.</p>
+    <div className={styles.profileSharingGrid}><div className={styles.notificationList}>{fields.map(([id, title, description]) => <div className={styles.notificationRow} key={id}>
+      <label className={styles.notificationCopy}><strong>{title}</strong><small>{description}</small><span className={styles.profileFieldToggle}><input type="checkbox" checked={shared[id]} onChange={(event) => setShared((current) => ({ ...current, [id]: event.target.checked }))} aria-label={"Share " + title}/> Share this field</span></label>
+      <label className={styles.profileAudienceControl}>Audience
+        <select value={audiences[id]} disabled={!shared[id]} onChange={(event) => setAudiences((current) => ({ ...current, [id]: event.target.value }))} aria-label={"Audience for " + title}>
+          <option>Selected groups / ministry spaces</option>
+          <option>All L&amp;F members</option>
+        </select>
+      </label>
+    </div>)}</div>
+      <aside className={styles.profilePreview} aria-live="polite"><p className={styles.eyebrow}>Member preview</p><h3>What others can see</h3>{visibleFields.length ? <ul>{visibleFields.map(([id, title]) => <li key={id}><span aria-hidden="true">✓</span><span>{title}<small>Visible to {audiences[id]}</small></span></li>)}</ul> : <p className={styles.emptyProfile}>No profile fields are shared. Your name may still appear on an accepted group roster.</p>}<p className={styles.profilePrivacyNote}>Birth date, gender, roles, account status, availability, assignments, and internal notes are not shown in the directory.</p></aside>
     </div>
     <p className={styles.caption}>Sample privacy choices · no profile changes are saved</p>
   </section>;
