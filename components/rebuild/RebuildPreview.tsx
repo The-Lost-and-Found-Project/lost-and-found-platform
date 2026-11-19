@@ -493,17 +493,68 @@ function MemberStudyLibrary({ onOpen }: { onOpen: (message: string) => void }) {
 
 function MemberHome({ onOpen }: { onOpen: (message: string) => void }) {
   const [showPrayer, setShowPrayer] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
   const [showCare, setShowCare] = useState(false);
   return <><header className={styles.pageHeading}><p className={styles.eyebrow}>Your next faithful step</p><h1>Welcome home.</h1><p>Continue in the Word and see what’s coming up.</p></header><section className={styles.studyStrip}><p className={styles.eyebrow}>Continue my study</p><h2>Faith That Shows Up</h2><p>James 1:1–4 · Session 1</p><button className={styles.primaryButton} onClick={() => onOpen("Study preview: the final Continue button will return to your saved place. No study progress changed.")}>Continue study <span aria-hidden="true">→</span></button></section><div className={styles.twoColumns}><Schedule/><section className={styles.panel}><SectionTitle title="My groups & ministries" help="Only your accepted groups and ministries will appear here."/><ul className={styles.simpleList}><li><strong>Men’s Forge</strong><span>Next gathering · Thursday</span></li><li><strong>Prayer ministry</strong><span>Member</span></li></ul></section></div><section className={styles.prayerEntry}><div><p className={styles.eyebrow}>Prayer &amp; care</p><h2>Share what’s on your heart.</h2><p>Choose a private audience or request public sharing after review.</p></div><button className={styles.primaryButton} onClick={() => setShowPrayer(true)}>Share a prayer request</button></section><section className={styles.careCheckInCard}><div><p className={styles.eyebrow}>Support for you</p><h2>You pour into others. Let someone pour into you.</h2><p>Ask an authorized ministry leader for a private check-in.</p></div><button className={styles.outlineButton} onClick={() => setShowCare(true)}>Request a check-in</button></section><MemberGatherings onOpen={onOpen}/><Calendar personal/>{showPrayer && <PrayerComposer member onClose={() => setShowPrayer(false)} onSubmit={onOpen}/>}{showCare && <CareCheckIn onClose={() => setShowCare(false)} onSubmit={onOpen}/>}</>;
 }
 
+function SignupPreview({ onClose, onComplete }: { onClose: () => void; onComplete: () => void }) {
+  const [birthDate, setBirthDate] = useState("");
+  const [error, setError] = useState("");
+  function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (birthDate) {
+      const today = new Date();
+      const date = new Date(birthDate + "T00:00:00");
+      let age = today.getFullYear() - date.getFullYear();
+      const beforeBirthday = today.getMonth() < date.getMonth()
+        || (today.getMonth() === date.getMonth() && today.getDate() < date.getDate());
+      if (beforeBirthday) age -= 1;
+      if (!Number.isFinite(date.getTime()) || age < 18) {
+        setError("This sample signup is for adults 18 and older. No account was created.");
+        return;
+      }
+    }
+    onComplete();
+  }
+  return <div className={styles.modalBackdrop} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className={styles.signupDialog} role="dialog" aria-modal="true" aria-labelledby="signup-heading">
+      <button className={styles.signupClose} type="button" onClick={onClose} aria-label="Close signup">×</button>
+      <p className={styles.eyebrow}>Join Lost &amp; Found</p>
+      <h2 id="signup-heading">Create your member account</h2>
+      <p className={styles.signupIntro}>Membership begins after signup and email confirmation. Ministry and elevated roles require separate approval.</p>
+      <form onSubmit={submit} className={styles.signupForm}>
+        <label className={styles.signupField}>Full name <span>Required</span><input name="full_name" autoComplete="name" required maxLength={120}/></label>
+        <label className={styles.signupField}>Email address <span>Required</span><input name="email" type="email" autoComplete="email" required/></label>
+        <label className={styles.signupField}>Password <span>Required</span><input name="password" type="password" autoComplete="new-password" required minLength={8}/></label>
+        <label className={styles.signupCheck}><input type="checkbox" required/> I confirm I am 18 or older.</label>
+        <label className={styles.signupCheck}><input type="checkbox" required/> I agree to follow the community guidelines.</label>
+        <div className={styles.signupSpamNote}><strong>Spam protection</strong><span>A verification step will appear here in the live signup flow.</span></div>
+        <details className={styles.signupOptional}>
+          <summary>Optional profile questions <span>Skip any or all</span></summary>
+          <p>These answers help Lost &amp; Found plan studies and ministry support. They never determine membership, access, or role approval.</p>
+          <label className={styles.signupField}>Date of birth <span>Optional</span><input type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)}/><small>Used for adult eligibility and broad age-band reporting only. Never shown in the directory.</small></label>
+          <label className={styles.signupField}>Phone number <span>Optional</span><input type="tel" autoComplete="tel"/></label>
+          <label className={styles.signupField}>Gender <span>Optional</span><select defaultValue=""><option value="">Prefer not to say</option><option>Woman</option><option>Man</option><option>Self-describe</option></select></label>
+          <fieldset className={styles.signupInterests}><legend>Ministry interests <span>Optional</span></legend>{["Bible studies", "Men’s Forge", "The Hearth", "Prayer ministry"].map((interest) => <label key={interest}><input type="checkbox"/>{interest}</label>)}</fieldset>
+          <label className={styles.signupField}>How did you hear about L&amp;F? <span>Optional</span><select defaultValue=""><option value="">Choose one</option><option>Friend or family</option><option>Church or ministry partner</option><option>Online search</option><option>Social media</option><option>Event</option><option>Other</option></select></label>
+          <label className={styles.signupField}>State or broad region <span>Optional</span><input type="text" maxLength={40} placeholder="For example, North Carolina"/><small>Please do not enter a street address or precise location.</small></label>
+        </details>
+        {error && <p className={styles.signupError} role="alert">{error}</p>}
+        <div className={styles.signupActions}><button type="button" className={styles.outlineButton} onClick={onClose}>Cancel</button><button type="submit" className={styles.primaryButton}>Preview signup</button></div>
+        <p className={styles.caption}>Sample only · no information is saved and no account is created.</p>
+      </form>
+    </section>
+  </div>;
+}
+
 function PublicHome({ onOpen }: { onOpen: (message: string) => void }) {
   const [showPrayer, setShowPrayer] = useState(false);
-  return <div className={styles.publicPage}><header className={styles.publicHeader}><span className={styles.brand}>L&amp;F</span><span className={styles.publicName}>The Lost &amp; Found Project</span><button className={styles.primaryButton} onClick={() => onOpen("Signup preview: membership is immediate after signup; additional roles require approval. No account was created.")}>Join L&amp;F</button></header><section className={styles.scriptureHero}><p className={styles.eyebrow}>The Lost &amp; Found Project</p><h1>“For the Son of Man came to seek and save those who are lost.”</h1><p className={styles.scriptureRef}>Luke 19:10 · NLT</p><p className={styles.invitation}>Find community. Grow in Christ.</p><p>Explore Scripture, share in prayer, and walk alongside others.</p><button className={styles.primaryButton} onClick={() => onOpen("Study library preview: visitors can explore approved previews; members can start personal studies or join eligible groups.")}>Explore Bible studies <span aria-hidden="true">→</span></button></section><section className={styles.publicSteps} aria-label="Find your next step">{[
+  return <div className={styles.publicPage}><header className={styles.publicHeader}><span className={styles.brand}>L&amp;F</span><span className={styles.publicName}>The Lost &amp; Found Project</span><button className={styles.primaryButton} onClick={() => setShowSignup(true)}>Join L&amp;F</button></header><section className={styles.scriptureHero}><p className={styles.eyebrow}>The Lost &amp; Found Project</p><h1>“For the Son of Man came to seek and save those who are lost.”</h1><p className={styles.scriptureRef}>Luke 19:10 · NLT</p><p className={styles.invitation}>Find community. Grow in Christ.</p><p>Explore Scripture, share in prayer, and walk alongside others.</p><button className={styles.primaryButton} onClick={() => onOpen("Study library preview: visitors can explore approved previews; members can start personal studies or join eligible groups.")}>Explore Bible studies <span aria-hidden="true">→</span></button></section><section className={styles.publicSteps} aria-label="Find your next step">{[
     ["01", "Study the Word", "Grow through Scripture-centered studies at your own pace or with a group."],
     ["02", "Find your community", "Discover L&F ministries and people to walk alongside."],
     ["03", "Share a prayer request", "Public requests appear only after review. Members also have private options."],
-  ].map(([number, title, description]) => <button key={number} onClick={() => number === "03" ? setShowPrayer(true) : onOpen(title + ": sample navigation only. Nothing was submitted or joined.")}><span>{number}</span><div><h2>{title}</h2><p>{description}</p></div><span aria-hidden="true">→</span></button>)}</section><section className={styles.publicPrayer}><p className={styles.eyebrow}>Prayer &amp; praise</p><h2>Carry one another in prayer.</h2><p className={styles.prayerScripture}>“Carry each other’s burdens” · Galatians 6:2</p><p>These sample requests represent posts that a moderator has cleared for everyone to see.</p><ul className={styles.publicPrayerList}><li><div><span className={styles.sampleBadge}>Sample · cleared</span><span className={styles.publicPrayerDate}>Shared anonymously</span></div><p>Please pray for wisdom and peace as our family makes an important decision.</p></li><li><div><span className={styles.sampleBadge}>Sample · cleared</span><span className={styles.publicPrayerDate}>Shared anonymously</span></div><p>Pray for strength and encouragement for someone beginning a difficult season.</p></li><li><div><span className={styles.sampleBadge}>Sample · cleared</span><span className={styles.publicPrayerDate}>Praise report</span></div><p>Thankful for friends who keep showing up and pointing one another back to Christ.</p></li></ul><p className={styles.caption}>Illustrative examples only · no real prayer requests or personal details are included.</p></section>{showPrayer && <PrayerComposer member={false} onClose={() => setShowPrayer(false)} onSubmit={onOpen}/>}</div>;
+  ].map(([number, title, description]) => <button key={number} onClick={() => number === "03" ? setShowPrayer(true) : onOpen(title + ": sample navigation only. Nothing was submitted or joined.")}><span>{number}</span><div><h2>{title}</h2><p>{description}</p></div><span aria-hidden="true">→</span></button>)}</section><section className={styles.publicPrayer}><p className={styles.eyebrow}>Prayer &amp; praise</p><h2>Carry one another in prayer.</h2><p className={styles.prayerScripture}>“Carry each other’s burdens” · Galatians 6:2</p><p>These sample requests represent posts that a moderator has cleared for everyone to see.</p><ul className={styles.publicPrayerList}><li><div><span className={styles.sampleBadge}>Sample · cleared</span><span className={styles.publicPrayerDate}>Shared anonymously</span></div><p>Please pray for wisdom and peace as our family makes an important decision.</p></li><li><div><span className={styles.sampleBadge}>Sample · cleared</span><span className={styles.publicPrayerDate}>Shared anonymously</span></div><p>Pray for strength and encouragement for someone beginning a difficult season.</p></li><li><div><span className={styles.sampleBadge}>Sample · cleared</span><span className={styles.publicPrayerDate}>Praise report</span></div><p>Thankful for friends who keep showing up and pointing one another back to Christ.</p></li></ul><p className={styles.caption}>Illustrative examples only · no real prayer requests or personal details are included.</p></section>{showPrayer && <PrayerComposer member={false} onClose={() => setShowPrayer(false)} onSubmit={onOpen}/ >}{showSignup && <SignupPreview onClose={() => setShowSignup(false)} onComplete={() => { setShowSignup(false); onOpen("Sample signup complete: a member profile would be created, then email confirmation is required before app access. No account or data was saved."); }}/>}</div>;
 }
 
 export default function RebuildPreview() {
