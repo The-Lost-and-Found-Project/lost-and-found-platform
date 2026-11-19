@@ -90,6 +90,23 @@ This mapping translates the approved experience into the existing source model. 
 | Auditability | No general role, group-decision, or delegation audit table was found in reviewed migrations | Preserve history for role grants/removals, decisions, delegation changes, and prayer moderation with actor, scope, outcome, timestamp, and reason when supplied. Define retention before enabling real writes. |
 | Member export and departure | Schema metadata identifies member-linked records across `profiles`, `user_settings`, `notifications`, `push_subscriptions`, `ministry_memberships`, prayer/praise/testimony, learning progress, study participation/responses, care applications, directory saves/submissions, ministry stories, marriage journey/couple records, feedback, and giving transactions/communications. | Build a row-level export/delete inventory using all user and relationship foreign keys, not just tables named `user_id`. Separate personal content from shared Bible studies/groups and operational records. Public/shared prayer, partner-linked marriage data, audit history, legacy care archives, and financial records need explicit retain/anonymize/remove rules before release. Never delete shared studies or records belonging to Rare Network, Emmaus, or Study Companion by broad table-name prefix. The L&F project and standalone Emmaus project both contain Emmaus-related schema objects; identify the authoritative source for each data type to avoid missed or duplicate handling. |
 
+## Calendar and event implementation contract (proposal)
+
+The product direction is approved: provide a master admin calendar and personal member calendars, with category, ministry, role, and assignment filters; events remain free. No L&F calendar/event tables exist yet, so use a small first-party schema rather than adding a paid calendar service.
+
+| Record | Purpose | Key fields / constraints |
+| --- | --- | --- |
+| `ministry_events` | One event or gathering; calendar views are derived from this record and the viewer’s authorization. | Title, description, category, start/end timestamps, IANA time zone, location or meeting-link reference, draft/published/cancelled state, creator/updater, optional registration limit, and registration open/closed. No price or payment fields. |
+| `event_audience_rules` | Define who may see event details. | Event, audience kind (`all_members`, `ministry_role`, `group`, or `assigned_members`), and the matching scope ID. A meeting URL or private location uses the same or stricter audience as the event. |
+| `event_assignments` | Identify members assigned to serve or prepare for an event. | Event, member, assignment label/role, assigning actor, status, and timestamps. Assignment grants visibility to that event only; it does not grant a ministry role or access to unrelated admin functions. |
+| `event_registrations` | Record a member’s free registration. | Event, member, registered/cancelled/waitlisted status where capacity requires it, timestamps, and a unique event/member pair. Enforce capacity atomically on the server to prevent overbooking. |
+
+**Calendar behavior:** the master view is an authorized aggregation, not a bypass. A member’s calendar is a personalized query of personal, accepted-group, approved-role, assigned, and explicitly shared events. Filters only narrow that result set; they never grant visibility. Use the event’s saved time zone for display and preserve the underlying absolute timestamps. Recurring event series and external calendar subscriptions are outside the initial schema until specified.
+
+**Privacy and administration:** enforce event audience rules in server queries and RLS, not only in UI. Keep attendee names/contact details out of general calendar and registration summaries; proposed default is that only the member and authorized event managers can see a registration identity, while other members see capacity/remaining-space counts. Do not expose join links or private locations through broad published-study policies. Audit event creation, audience changes, assignment changes, cancellation, and registration overrides with actor, scope, and time.
+
+**Release gates:** confirm whether events may appear on the public homepage, whether any attendee list is needed for event managers, waitlist behavior, recurrence, cancellation notice channels, and whether members may create personal calendar entries. Do not implement external calendar sync or a paid calendar integration by default. This section is a design contract proposal, not a schema migration or authorization to change Production.
+
 ## Confirmed product rules
 
 | Area | Agreed behavior |
