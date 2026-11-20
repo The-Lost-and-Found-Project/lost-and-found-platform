@@ -320,6 +320,8 @@ Use this checkpoint to separate approved experience decisions from work that mus
 
 ### Role and group approvals
 
+**Approved access rule:** sign-up immediately creates baseline L&F member membership; the existing email-confirmation step still controls entry to the authenticated app. Every additional role requires approval before its capabilities are enabled. Joining a group, completing a study, entering optional profile information, or receiving an invitation must never grant a ministry role implicitly. Group participation and role approval stay separate, each with its own exact scope.
+
 1. The reviewer sees the requester, requested role or group, exact scope, training/evidence when applicable, and their authority boundary.
 2. Before a decision, show the exact outcome. Require confirmation that the reviewer is authorized and is not approving their own request.
 3. An optional decline reason is returned to the requester through an approved notification channel.
