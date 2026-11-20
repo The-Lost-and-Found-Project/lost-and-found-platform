@@ -343,25 +343,33 @@ function StudyWorkspace({ onOpen }: { onOpen: (message: string) => void }) {
 
 function NotificationSettings({ onOpen }: { onOpen: (message: string) => void }) {
   const categories = [
-    ["prayer", "Prayer & praise", "Updates about approved public requests and praise reports."],
-    ["studies", "Bible studies", "Study reminders, session changes, and new materials."],
-    ["events", "Events & serving", "Event reminders, invitations, and serving updates."],
-    ["ministry", "Ministry announcements", "News and updates for ministries you belong to."],
-    ["account", "Account & roles", "Membership, role requests, approvals, and account notices."],
+    ["prayer", "Prayer care and updates", "A response or authorized care update about your own prayer requests."],
+    ["encouragement", "Praise and encouragement", "Reactions or encouragement on content you have chosen to share."],
+    ["groups", "Groups and ministries", "Updates for groups you have joined and ministry roles you hold."],
+    ["access", "Roles and group access", "Request decisions, invitations, and access-expiry reminders."],
+    ["events", "Events and registrations", "Registration confirmations, schedule changes, or cancellations."],
+    ["work", "Assigned work and studies", "Tasks assigned to you and study updates within your approved scope."],
   ] as const;
-  const [enabled, setEnabled] = useState<Record<string, boolean>>({ prayer: true, studies: true, events: true, ministry: true, account: true });
+  const channels = ["In-app", "Email", "Push"] as const;
+  type Channel = (typeof channels)[number];
+  const [enabled, setEnabled] = useState<Record<string, Record<Channel, boolean>>>(() =>
+    Object.fromEntries(categories.map(([id]) => [id, { "In-app": true, Email: true, Push: true }])) as Record<string, Record<Channel, boolean>>
+  );
   const [showPrompt, setShowPrompt] = useState(false);
   const pushDialogRef = useDialogAccessibility(() => setShowPrompt(false), showPrompt);
+  function toggleChannel(category: string, channel: Channel, checked: boolean) {
+    setEnabled((current) => ({ ...current, [category]: { ...current[category], [channel]: checked } }));
+  }
   return <section className={styles.panel} aria-label="Notification settings preview">
-    <div className={styles.approvalHeading}><SectionTitle title="Notification settings" help="All notification categories start enabled. Members can switch off any category here. Push permission is requested at sign-in and can be declined." /><p>Choose what reaches you</p></div>
-    <p className={styles.approvalIntro}>All categories are on by default. Turn off only the updates you do not want.</p>
-    <div className={styles.notificationList}>{categories.map(([id, title, description]) => <label className={styles.notificationRow} key={id}>
-      <span className={styles.notificationCopy}><strong>{title}</strong><small>{description}</small></span>
-      <input type="checkbox" checked={enabled[id]} onChange={(event) => setEnabled((current) => ({ ...current, [id]: event.target.checked }))} aria-label={title + " notifications"}/>
-    </label>)}</div>
-    <div className={styles.pushPromptCard}><div><strong>Push notifications for this device</strong><p>Permission is requested when you sign in. You can say “Not now” and still use L&amp;F.</p></div><button className={styles.outlineButton} onClick={() => setShowPrompt(true)}>Preview sign-in prompt</button></div>
+    <div className={styles.approvalHeading}><SectionTitle title="Notification settings" help="New categories start enabled by channel. Turn off an individual category in-app, email, or push preference without changing the others. Device permission still controls whether push can be delivered." /><p>Choose what reaches you</p></div>
+    <p className={styles.approvalIntro}>Each category starts on for in-app, email, and push. Switch off only the channel you do not want. Required account-security notices stay on.</p>
+    <div className={styles.notificationList} aria-label="Optional notification categories">{categories.map(([id, title, description]) => <fieldset className={styles.notificationCategory} key={id}>
+      <legend>{title}</legend><p>{description}</p><div className={styles.notificationChannels} role="group" aria-label={title + " delivery channels"}>{channels.map((channel) => <label key={channel}><input type="checkbox" checked={enabled[id][channel]} onChange={(event) => toggleChannel(id, channel, event.target.checked)}/><span>{channel}</span></label>)}</div>
+    </fieldset>)}</div>
+    <div className={styles.requiredNotice}><strong>Account and security notices · Always on</strong><p>Email confirmation, password reset, and essential account-security messages are not controlled by ministry notification preferences.</p></div>
+    <div className={styles.pushPromptCard}><div><strong>Push notifications for this device</strong><p>The sign-in prompt appears on a device that has not opted in. If permission is declined, in-app and email choices remain available; device permission can be changed in browser settings.</p></div><button className={styles.outlineButton} onClick={() => setShowPrompt(true)}>Preview sign-in prompt</button></div>
     <p className={styles.caption}>Sample preferences · changes stay on this screen and are not saved</p>
-    {showPrompt && <div className={styles.modalBackdrop}><section ref={pushDialogRef} tabIndex={-1} className={styles.pushDialog} role="dialog" aria-modal="true" aria-labelledby="push-dialog-title" aria-describedby="push-dialog-description"><p className={styles.eyebrow}>L&amp;F notifications</p><h2 id="push-dialog-title">Stay connected.</h2><p id="push-dialog-description">Allow push notifications on this device for the categories you leave enabled. You can change your choices later in Settings.</p><div className={styles.requestActions}><button className={styles.primaryButton} onClick={() => { setShowPrompt(false); onOpen("Sample only: the sign-in flow would ask the device for push permission. No browser permission was requested."); }}>Enable push notifications</button><button className={styles.outlineButton} onClick={() => { setShowPrompt(false); onOpen("Sample only: push setup can be revisited in Settings. No browser permission was requested."); }}>Not now</button></div></section></div>}
+    {showPrompt && <div className={styles.modalBackdrop}><section ref={pushDialogRef} tabIndex={-1} className={styles.pushDialog} role="dialog" aria-modal="true" aria-labelledby="push-dialog-title" aria-describedby="push-dialog-description"><p className={styles.eyebrow}>L&amp;F notifications</p><h2 id="push-dialog-title">Stay connected.</h2><p id="push-dialog-description">Choose Enable to ask this device for push permission. Only categories you keep enabled can send push. If you choose Not now or deny permission, your other notification choices stay available.</p><div className={styles.requestActions}><button className={styles.primaryButton} onClick={() => { setShowPrompt(false); onOpen("Sample only: after your sign-in gesture, the live app would request browser permission and create this device subscription only if granted. No permission was requested."); }}>Enable push notifications</button><button className={styles.outlineButton} onClick={() => { setShowPrompt(false); onOpen("Sample only: push setup can be revisited in Settings. No browser permission was requested."); }}>Not now</button></div></section></div>}
   </section>;
 }
 
