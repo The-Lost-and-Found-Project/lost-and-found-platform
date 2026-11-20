@@ -1,10 +1,54 @@
 "use client";
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { filterPreviewEvents, previewEvents, type CalendarFilter, type CalendarScope } from "@/lib/rebuild-preview";
 import styles from "./RebuildPreview.module.css";
 
 type Surface = "Administration" | "Public homepage" | "Member home";
+
+function useDialogAccessibility(onClose: () => void, enabled = true) {
+  const dialogRef = useRef<HTMLElement | null>(null);
+  const closeRef = useRef(onClose);
+  useEffect(() => { closeRef.current = onClose; }, [onClose]);
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!enabled || !dialog) return;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const getFocusable = () => Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector)).filter((item) => item.getAttribute("aria-hidden") !== "true");
+    const focusable = getFocusable();
+    (focusable[0] ?? dialog).focus();
+    function keepFocusInside(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeRef.current();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const current = getFocusable();
+      if (!current.length) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+      const first = current[0];
+      const last = current[current.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+    document.addEventListener("keydown", keepFocusInside);
+    return () => {
+      document.removeEventListener("keydown", keepFocusInside);
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [enabled]);
+  return dialogRef;
+}
 type Workspace = "Home" | "My tasks" | "Calendars" | "Groups" | "People & roles" | "Prayer review" | "Events" | "Studies" | "Settings";
 type RoleView = "Member directory" | "Role requests" | "Group requests" | "Group roster" | "Delegation" | "Current access";
 const surfaces: Surface[] = ["Administration", "Public homepage", "Member home"];
@@ -226,6 +270,7 @@ function EventManagement({ onOpen }: { onOpen: (message: string) => void }) {
 }
 
 function EventPlanner({ onOpen, onClose }: { onOpen: (message: string) => void; onClose: () => void }) {
+  const dialogRef = useDialogAccessibility(onClose);
   const [title, setTitle] = useState("");
   const [ministry, setMinistry] = useState("");
   const [date, setDate] = useState("");
@@ -247,7 +292,7 @@ function EventPlanner({ onOpen, onClose }: { onOpen: (message: string) => void; 
   const valid = Boolean(title.trim() && ministry && date >= minDate && time && location.trim() && (!registrationLimit || (Number.isInteger(Number(registrationLimit)) && Number(registrationLimit) >= 1)) && (audienceType === "all" || audienceScope));
   const audienceSummary = audienceType === "all" ? "All L&F members · adults 18+" : audienceType === "group" ? `Group participants · ${audienceScope}` : `Approved role holders · ${audienceScope}`;
   const resetReview = () => setReviewing(false);
-  return <div className={styles.modalBackdrop}><section className={`${styles.eventDialog} ${styles.eventPlanner}`} role="dialog" aria-modal="true" aria-labelledby="event-planner-title">
+  return <div className={styles.modalBackdrop}><section ref={dialogRef} tabIndex={-1} className={`${styles.eventDialog} ${styles.eventPlanner}`} role="dialog" aria-modal="true" aria-labelledby="event-planner-title">
     <div className={styles.eventCardTop}><div><p className={styles.eyebrow}>Event setup</p><h2 id="event-planner-title">Plan a gathering</h2></div><button className={styles.outlineButton} onClick={onClose}>Close</button></div>
     <p className={styles.eventDialogIntro}>Set the audience and practical details before a gathering is shared. Events are free and adults only.</p>
     {!reviewing ? <>
@@ -303,6 +348,7 @@ function NotificationSettings({ onOpen }: { onOpen: (message: string) => void })
   ] as const;
   const [enabled, setEnabled] = useState<Record<string, boolean>>({ prayer: true, studies: true, events: true, ministry: true, account: true });
   const [showPrompt, setShowPrompt] = useState(false);
+  const pushDialogRef = useDialogAccessibility(() => setShowPrompt(false), showPrompt);
   return <section className={styles.panel} aria-label="Notification settings preview">
     <div className={styles.approvalHeading}><SectionTitle title="Notification settings" help="All notification categories start enabled. Members can switch off any category here. Push permission is requested at sign-in and can be declined." /><p>Choose what reaches you</p></div>
     <p className={styles.approvalIntro}>All categories are on by default. Turn off only the updates you do not want.</p>
@@ -312,7 +358,7 @@ function NotificationSettings({ onOpen }: { onOpen: (message: string) => void })
     </label>)}</div>
     <div className={styles.pushPromptCard}><div><strong>Push notifications for this device</strong><p>Permission is requested when you sign in. You can say “Not now” and still use L&amp;F.</p></div><button className={styles.outlineButton} onClick={() => setShowPrompt(true)}>Preview sign-in prompt</button></div>
     <p className={styles.caption}>Sample preferences · changes stay on this screen and are not saved</p>
-    {showPrompt && <div className={styles.modalBackdrop}><section className={styles.pushDialog} role="dialog" aria-modal="true" aria-labelledby="push-dialog-title" aria-describedby="push-dialog-description"><p className={styles.eyebrow}>L&amp;F notifications</p><h2 id="push-dialog-title">Stay connected.</h2><p id="push-dialog-description">Allow push notifications on this device for the categories you leave enabled. You can change your choices later in Settings.</p><div className={styles.requestActions}><button className={styles.primaryButton} onClick={() => { setShowPrompt(false); onOpen("Sample only: the sign-in flow would ask the device for push permission. No browser permission was requested."); }}>Enable push notifications</button><button className={styles.outlineButton} onClick={() => { setShowPrompt(false); onOpen("Sample only: push setup can be revisited in Settings. No browser permission was requested."); }}>Not now</button></div></section></div>}
+    {showPrompt && <div className={styles.modalBackdrop}><section ref={pushDialogRef} tabIndex={-1} className={styles.pushDialog} role="dialog" aria-modal="true" aria-labelledby="push-dialog-title" aria-describedby="push-dialog-description"><p className={styles.eyebrow}>L&amp;F notifications</p><h2 id="push-dialog-title">Stay connected.</h2><p id="push-dialog-description">Allow push notifications on this device for the categories you leave enabled. You can change your choices later in Settings.</p><div className={styles.requestActions}><button className={styles.primaryButton} onClick={() => { setShowPrompt(false); onOpen("Sample only: the sign-in flow would ask the device for push permission. No browser permission was requested."); }}>Enable push notifications</button><button className={styles.outlineButton} onClick={() => { setShowPrompt(false); onOpen("Sample only: push setup can be revisited in Settings. No browser permission was requested."); }}>Not now</button></div></section></div>}
   </section>;
 }
 
@@ -376,12 +422,13 @@ function ProfileSharing() {
 function AccountDataSettings({ onOpen }: { onOpen: (message: string) => void }) {
   const [showRemoval, setShowRemoval] = useState(false);
   const [confirmation, setConfirmation] = useState("");
+  const removalDialogRef = useDialogAccessibility(() => setShowRemoval(false), showRemoval);
   return <section className={styles.panel} aria-label="Account and data preview">
     <div className={styles.approvalHeading}><SectionTitle title="Account & data" help="Members should be able to take their personal information and content with them when they leave. This preview shows the intended flow; it does not export or delete real data."/><p>Your information stays under your control</p></div>
     <div className={styles.dataActionCard}><div><span className={styles.requestLabel}>Download a copy</span><h3>Export my data</h3><p>Review your profile, prayer requests, study progress, event registrations, and other content linked to your account.</p></div><button className={styles.outlineButton} onClick={() => onOpen("Sample only: your account export would be prepared for review. No real data was downloaded.")}>Preview export</button></div>
     <div className={styles.dataRemovalCard}><div><span className={styles.requestLabel}>Leaving L&amp;F</span><h3>Remove my account and data</h3><p>The planned removal covers your profile, authored prayer content, saved study progress, event registrations, preferences, and other personal content linked to your L&amp;F account.</p><p className={styles.requestMeta}>Your membership and ministry roles end with account removal. Connected Emmaus data belongs in the same export and removal checklist.</p></div><button className={styles.dangerButton} onClick={() => {setConfirmation("");setShowRemoval(true);}}>Review removal</button></div>
     <p className={styles.caption}>Preview only · no export, account removal, or data changes are performed</p>
-    {showRemoval && <div className={styles.modalBackdrop}><section className={styles.eventDialog} role="dialog" aria-modal="true" aria-labelledby="removal-title" aria-describedby="removal-description"><p className={styles.eyebrow}>Account removal</p><h2 id="removal-title">Take your information with you.</h2><p id="removal-description" className={styles.eventDialogIntro}>The real removal flow must include your L&amp;F account-linked data and coordinate the connected Emmaus data. This action is permanent after it is implemented and confirmed.</p><ul className={styles.removalList}><li>Profile and contact information</li><li>Prayer requests and personal content</li><li>Saved study progress and registrations</li><li>Notification and sharing preferences</li><li>Connected Emmaus account data</li></ul><label className={styles.confirmRemoval}>Type REMOVE to preview the final step<input value={confirmation} onChange={(event) => setConfirmation(event.target.value)} autoComplete="off"/></label><div className={styles.requestActions}><button className={styles.dangerButton} disabled={confirmation !== "REMOVE"} onClick={() => {setShowRemoval(false);onOpen("Sample only: the account-removal flow would begin after a final review. No account or content was removed.");}}>Continue to final review</button><button className={styles.outlineButton} onClick={() => setShowRemoval(false)}>Cancel</button></div></section></div>}
+    {showRemoval && <div className={styles.modalBackdrop}><section ref={removalDialogRef} tabIndex={-1} className={styles.eventDialog} role="dialog" aria-modal="true" aria-labelledby="removal-title" aria-describedby="removal-description"><p className={styles.eyebrow}>Account removal</p><h2 id="removal-title">Take your information with you.</h2><p id="removal-description" className={styles.eventDialogIntro}>The real removal flow must include your L&amp;F account-linked data and coordinate the connected Emmaus data. This action is permanent after it is implemented and confirmed.</p><ul className={styles.removalList}><li>Profile and contact information</li><li>Prayer requests and personal content</li><li>Saved study progress and registrations</li><li>Notification and sharing preferences</li><li>Connected Emmaus account data</li></ul><label className={styles.confirmRemoval}>Type REMOVE to preview the final step<input value={confirmation} onChange={(event) => setConfirmation(event.target.value)} autoComplete="off"/></label><div className={styles.requestActions}><button className={styles.dangerButton} disabled={confirmation !== "REMOVE"} onClick={() => {setShowRemoval(false);onOpen("Sample only: the account-removal flow would begin after a final review. No account or content was removed.");}}>Continue to final review</button><button className={styles.outlineButton} onClick={() => setShowRemoval(false)}>Cancel</button></div></section></div>}
   </section>;
 }
 
@@ -403,6 +450,7 @@ function Calendar({ personal = false }: { personal?: boolean }) {
 }
 
 function PrayerComposer({ member, onClose, onSubmit }: { member: boolean; onClose: () => void; onSubmit: (message: string) => void }) {
+  const dialogRef = useDialogAccessibility(onClose);
   const [request, setRequest] = useState("");
   const [acknowledged, setAcknowledged] = useState(false);
   const [adultConfirmed, setAdultConfirmed] = useState(false);
@@ -414,10 +462,11 @@ function PrayerComposer({ member, onClose, onSubmit }: { member: boolean; onClos
     onSubmit(`Sample only: prayer request would be shared with ${visibility}. No request was submitted or saved.`);
     onClose();
   }
-  return <div className={styles.modalBackdrop} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><form className={styles.prayerDialog} role="dialog" aria-modal="true" aria-labelledby="prayer-composer-title" onSubmit={submit}><div className={styles.eventCardTop}><div><p className={styles.eyebrow}>{member ? "Member prayer" : "Visitor prayer"}</p><h2 id="prayer-composer-title">Submit a prayer request</h2></div><button type="button" className={styles.outlineButton} onClick={onClose}>Close</button></div><p className={styles.eventDialogIntro}>{member ? "Choose who may see this request. A moderator cannot expand the audience you choose." : "Visitor requests are public-only. They stay hidden from everyone until a moderator clears them for public sharing."}</p><label className={styles.prayerField}>Prayer request<textarea value={request} onChange={(event) => setRequest(event.target.value)} rows={5} placeholder="What would you like prayer for?" required /></label>{!member && <label className={styles.prayerCheck}><input type="checkbox" checked={adultConfirmed} onChange={(event) => setAdultConfirmed(event.target.checked)} /><span>I confirm I am 18 or older.</span></label>}{member ? <div className={styles.prayerAudience}><label className={styles.selectLabel}>Who may see this?<select value={audience} onChange={(event) => setAudience(event.target.value)}><option>Prayer team only</option><option>One accepted group</option><option>Public after moderator review</option></select></label>{audience === "One accepted group" && <label className={styles.selectLabel}>Accepted group<select value={group} onChange={(event) => setGroup(event.target.value)}><option>Men’s Bible study</option><option>Prayer ministry</option></select></label>}<p>Moderators cannot broaden your selected audience. Public requests appear only after review.</p></div> : <label className={styles.prayerCheck}><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>I understand this request may be shared publicly after moderator review.</span></label>}<div className={styles.requestActions}><button type="button" className={styles.outlineButton} onClick={onClose}>Cancel</button><button className={styles.primaryButton} type="submit" disabled={!request.trim() || (!member && (!adultConfirmed || !acknowledged))}>{member ? "Submit prayer request" : "Submit for review"}</button></div><p className={styles.caption}>Design preview only · nothing is sent or saved</p></form></div>;
+  return <div className={styles.modalBackdrop} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><form ref={dialogRef} tabIndex={-1} className={styles.prayerDialog} role="dialog" aria-modal="true" aria-labelledby="prayer-composer-title" onSubmit={submit}><div className={styles.eventCardTop}><div><p className={styles.eyebrow}>{member ? "Member prayer" : "Visitor prayer"}</p><h2 id="prayer-composer-title">Submit a prayer request</h2></div><button type="button" className={styles.outlineButton} onClick={onClose}>Close</button></div><p className={styles.eventDialogIntro}>{member ? "Choose who may see this request. A moderator cannot expand the audience you choose." : "Visitor requests are public-only. They stay hidden from everyone until a moderator clears them for public sharing."}</p><label className={styles.prayerField}>Prayer request<textarea value={request} onChange={(event) => setRequest(event.target.value)} rows={5} placeholder="What would you like prayer for?" required /></label>{!member && <label className={styles.prayerCheck}><input type="checkbox" checked={adultConfirmed} onChange={(event) => setAdultConfirmed(event.target.checked)} /><span>I confirm I am 18 or older.</span></label>}{member ? <div className={styles.prayerAudience}><label className={styles.selectLabel}>Who may see this?<select value={audience} onChange={(event) => setAudience(event.target.value)}><option>Prayer team only</option><option>One accepted group</option><option>Public after moderator review</option></select></label>{audience === "One accepted group" && <label className={styles.selectLabel}>Accepted group<select value={group} onChange={(event) => setGroup(event.target.value)}><option>Men’s Bible study</option><option>Prayer ministry</option></select></label>}<p>Moderators cannot broaden your selected audience. Public requests appear only after review.</p></div> : <label className={styles.prayerCheck}><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>I understand this request may be shared publicly after moderator review.</span></label>}<div className={styles.requestActions}><button type="button" className={styles.outlineButton} onClick={onClose}>Cancel</button><button className={styles.primaryButton} type="submit" disabled={!request.trim() || (!member && (!adultConfirmed || !acknowledged))}>{member ? "Submit prayer request" : "Submit for review"}</button></div><p className={styles.caption}>Design preview only · nothing is sent or saved</p></form></div>;
 }
 
 function CareCheckIn({ onClose, onSubmit }: { onClose: () => void; onSubmit: (message: string) => void }) {
+  const dialogRef = useDialogAccessibility(onClose);
   const [choice, setChoice] = useState("");
   const [note, setNote] = useState("");
   const [acknowledged, setAcknowledged] = useState(false);
@@ -426,19 +475,20 @@ function CareCheckIn({ onClose, onSubmit }: { onClose: () => void; onSubmit: (me
     onSubmit("Sample only: a care check-in would be routed to an authorized, assigned ministry leader. No information was sent or saved.");
     onClose();
   }
-  return <div className={styles.modalBackdrop} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><form className={styles.prayerDialog} role="dialog" aria-modal="true" aria-labelledby="care-checkin-title" onSubmit={submit}><div className={styles.eventCardTop}><div><p className={styles.eyebrow}>Your care matters</p><h2 id="care-checkin-title">How are you doing?</h2></div><button type="button" className={styles.outlineButton} onClick={onClose}>Close</button></div><p className={styles.eventDialogIntro}>This is a private check-in request for an authorized, assigned ministry leader. It does not appear in public Prayer &amp; Praise and does not start a member-to-member chat.</p><fieldset className={styles.careChoices}><legend>Choose what best fits today</legend>{[["doing-well", "I’m doing okay"], ["prayer", "I could use prayer"], ["follow-up", "I’d appreciate a personal check-in"]].map(([value, label]) => <label key={value}><input type="radio" name="care-choice" value={value} checked={choice === value} onChange={() => setChoice(value)}/><span>{label}</span></label>)}</fieldset><label className={styles.prayerField}>Anything you’d like your leader to know? <span className={styles.optionalLabel}>Optional</span><textarea value={note} onChange={(event) => setNote(event.target.value)} rows={4} placeholder="Share only what you are comfortable sharing." /></label><label className={styles.prayerCheck}><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)}/><span>I understand this would be visible only to authorized leaders assigned to care for me.</span></label><div className={styles.requestActions}><button type="button" className={styles.outlineButton} onClick={onClose}>Cancel</button><button className={styles.primaryButton} type="submit" disabled={!choice || !acknowledged}>Request a check-in</button></div><p className={styles.caption}>Design preview only · no response or note is sent or saved</p></form></div>;
+  return <div className={styles.modalBackdrop} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><form ref={dialogRef} tabIndex={-1} className={styles.prayerDialog} role="dialog" aria-modal="true" aria-labelledby="care-checkin-title" onSubmit={submit}><div className={styles.eventCardTop}><div><p className={styles.eyebrow}>Your care matters</p><h2 id="care-checkin-title">How are you doing?</h2></div><button type="button" className={styles.outlineButton} onClick={onClose}>Close</button></div><p className={styles.eventDialogIntro}>This is a private check-in request for an authorized, assigned ministry leader. It does not appear in public Prayer &amp; Praise and does not start a member-to-member chat.</p><fieldset className={styles.careChoices}><legend>Choose what best fits today</legend>{[["doing-well", "I’m doing okay"], ["prayer", "I could use prayer"], ["follow-up", "I’d appreciate a personal check-in"]].map(([value, label]) => <label key={value}><input type="radio" name="care-choice" value={value} checked={choice === value} onChange={() => setChoice(value)}/><span>{label}</span></label>)}</fieldset><label className={styles.prayerField}>Anything you’d like your leader to know? <span className={styles.optionalLabel}>Optional</span><textarea value={note} onChange={(event) => setNote(event.target.value)} rows={4} placeholder="Share only what you are comfortable sharing." /></label><label className={styles.prayerCheck}><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)}/><span>I understand this would be visible only to authorized leaders assigned to care for me.</span></label><div className={styles.requestActions}><button type="button" className={styles.outlineButton} onClick={onClose}>Cancel</button><button className={styles.primaryButton} type="submit" disabled={!choice || !acknowledged}>Request a check-in</button></div><p className={styles.caption}>Design preview only · no response or note is sent or saved</p></form></div>;
 }
 
 function MemberGatherings({ onOpen }: { onOpen: (message: string) => void }) {
   const [showRegister, setShowRegister] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
+  const registrationDialogRef = useDialogAccessibility(() => { setShowRegister(false); setAcknowledged(false); }, showRegister);
   function register(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onOpen("Sample only: your free Men’s Forge registration would be recorded. No registration was created and no payment was collected.");
     setShowRegister(false);
     setAcknowledged(false);
   }
-  return <><section className={styles.panel} aria-label="Upcoming gatherings"><div className={styles.approvalHeading}><SectionTitle title="Upcoming gatherings" help="See events shared with groups you have joined. Registration is free; the event’s audience and any capacity limit are shown before you respond."/><p>Take part in your accepted groups</p></div><ul className={styles.eventList}><li><div className={styles.eventCardTop}><div><span className={styles.requestLabel}>Men’s Forge · Thu, Nov 19 · 6:00 PM</span><h3>Faith That Shows Up</h3><p>James 1:1–4 · Group Bible study</p></div><span className={styles.statusPill}>Registration open</span></div><div className={styles.eventCardMeta}><span>9 of 15 registered · 6 spaces remain</span><span>Free · Adults 18+</span><span>For accepted Men’s Forge members</span></div><button className={styles.primaryButton} onClick={() => setShowRegister(true)}>View and register</button></li><li><div className={styles.eventCardTop}><div><span className={styles.requestLabel}>Prayer ministry · Sun, Nov 22 · 9:00 AM</span><h3>Prayer team gathering</h3><p>Prayer and encouragement</p></div><span className={styles.statusPill}>No registration</span></div><div className={styles.eventCardMeta}><span>Free · Adults 18+</span><span>Shared with: Prayer ministry</span></div><button className={styles.outlineButton} onClick={() => onOpen("Sample event details: this gathering is visible through your accepted Prayer ministry group. No event or member data was loaded.")}>View details</button></li></ul><p className={styles.caption}>Sample events only · no signups, payments, or calendar changes</p></section>{showRegister && <div className={styles.modalBackdrop} onMouseDown={(event) => { if (event.target === event.currentTarget) { setShowRegister(false); setAcknowledged(false); } }}><form className={styles.eventDialog} role="dialog" aria-modal="true" aria-labelledby="member-event-title" onSubmit={register}><div className={styles.eventCardTop}><div><p className={styles.eyebrow}>Men’s Forge · Free registration</p><h2 id="member-event-title">Faith That Shows Up</h2></div><button type="button" className={styles.outlineButton} onClick={() => {setShowRegister(false);setAcknowledged(false);}}>Close</button></div><p className={styles.eventDialogIntro}>Thursday, November 19 · 6:00 PM<br/>James 1:1–4 · Group Bible study</p><div className={styles.eventFreeNote}>No cost · Adults 18+ · 9 of 15 places registered · 6 spaces remain</div><p className={styles.eventDialogIntro}>This gathering is for accepted Men’s Forge members. Your response is visible to authorized event leaders for planning.</p><label className={styles.prayerCheck}><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)}/><span>I’m an accepted Men’s Forge member and want to register for this free gathering.</span></label><div className={styles.requestActions}><button type="button" className={styles.outlineButton} onClick={() => {setShowRegister(false);setAcknowledged(false);}}>Cancel</button><button className={styles.primaryButton} type="submit" disabled={!acknowledged}>Register for free</button></div><p className={styles.caption}>Design preview only · no registration or payment is submitted</p></form></div>}</>;
+  return <><section className={styles.panel} aria-label="Upcoming gatherings"><div className={styles.approvalHeading}><SectionTitle title="Upcoming gatherings" help="See events shared with groups you have joined. Registration is free; the event’s audience and any capacity limit are shown before you respond."/><p>Take part in your accepted groups</p></div><ul className={styles.eventList}><li><div className={styles.eventCardTop}><div><span className={styles.requestLabel}>Men’s Forge · Thu, Nov 19 · 6:00 PM</span><h3>Faith That Shows Up</h3><p>James 1:1–4 · Group Bible study</p></div><span className={styles.statusPill}>Registration open</span></div><div className={styles.eventCardMeta}><span>9 of 15 registered · 6 spaces remain</span><span>Free · Adults 18+</span><span>For accepted Men’s Forge members</span></div><button className={styles.primaryButton} onClick={() => setShowRegister(true)}>View and register</button></li><li><div className={styles.eventCardTop}><div><span className={styles.requestLabel}>Prayer ministry · Sun, Nov 22 · 9:00 AM</span><h3>Prayer team gathering</h3><p>Prayer and encouragement</p></div><span className={styles.statusPill}>No registration</span></div><div className={styles.eventCardMeta}><span>Free · Adults 18+</span><span>Shared with: Prayer ministry</span></div><button className={styles.outlineButton} onClick={() => onOpen("Sample event details: this gathering is visible through your accepted Prayer ministry group. No event or member data was loaded.")}>View details</button></li></ul><p className={styles.caption}>Sample events only · no signups, payments, or calendar changes</p></section>{showRegister && <div className={styles.modalBackdrop} onMouseDown={(event) => { if (event.target === event.currentTarget) { setShowRegister(false); setAcknowledged(false); } }}><form ref={registrationDialogRef} tabIndex={-1} className={styles.eventDialog} role="dialog" aria-modal="true" aria-labelledby="member-event-title" onSubmit={register}><div className={styles.eventCardTop}><div><p className={styles.eyebrow}>Men’s Forge · Free registration</p><h2 id="member-event-title">Faith That Shows Up</h2></div><button type="button" className={styles.outlineButton} onClick={() => {setShowRegister(false);setAcknowledged(false);}}>Close</button></div><p className={styles.eventDialogIntro}>Thursday, November 19 · 6:00 PM<br/>James 1:1–4 · Group Bible study</p><div className={styles.eventFreeNote}>No cost · Adults 18+ · 9 of 15 places registered · 6 spaces remain</div><p className={styles.eventDialogIntro}>This gathering is for accepted Men’s Forge members. Your response is visible to authorized event leaders for planning.</p><label className={styles.prayerCheck}><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)}/><span>I’m an accepted Men’s Forge member and want to register for this free gathering.</span></label><div className={styles.requestActions}><button type="button" className={styles.outlineButton} onClick={() => {setShowRegister(false);setAcknowledged(false);}}>Cancel</button><button className={styles.primaryButton} type="submit" disabled={!acknowledged}>Register for free</button></div><p className={styles.caption}>Design preview only · no registration or payment is submitted</p></form></div>}</>;
 }
 
 function MemberGroups({ onOpen }: { onOpen: (message: string) => void }) {
@@ -499,6 +549,7 @@ function MemberHome({ onOpen }: { onOpen: (message: string) => void }) {
 }
 
 function SignupPreview({ onClose, onComplete }: { onClose: () => void; onComplete: () => void }) {
+  const dialogRef = useDialogAccessibility(onClose);
   const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState("");
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -518,7 +569,7 @@ function SignupPreview({ onClose, onComplete }: { onClose: () => void; onComplet
     onComplete();
   }
   return <div className={styles.modalBackdrop} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-    <section className={styles.signupDialog} role="dialog" aria-modal="true" aria-labelledby="signup-heading">
+    <section ref={dialogRef} tabIndex={-1} className={styles.signupDialog} role="dialog" aria-modal="true" aria-labelledby="signup-heading">
       <button className={styles.signupClose} type="button" onClick={onClose} aria-label="Close signup">×</button>
       <p className={styles.eyebrow}>Join Lost &amp; Found</p>
       <h2 id="signup-heading">Create your member account</h2>
