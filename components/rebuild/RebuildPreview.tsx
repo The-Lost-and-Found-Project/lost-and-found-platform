@@ -11,8 +11,8 @@ function useDialogAccessibility(onClose: () => void, enabled = true) {
   const closeRef = useRef(onClose);
   useEffect(() => { closeRef.current = onClose; }, [onClose]);
   useEffect(() => {
-    const activeDialog = dialogRef.current;
-    if (!enabled || !activeDialog) return;
+    if (!enabled || !dialogRef.current) return;
+    const activeDialog = dialogRef.current as HTMLElement;
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
     const getFocusable = () => Array.from(activeDialog.querySelectorAll<HTMLElement>(focusableSelector)).filter((item) => item.getAttribute("aria-hidden") !== "true");
