@@ -11,13 +11,13 @@ function useDialogAccessibility(onClose: () => void, enabled = true) {
   const closeRef = useRef(onClose);
   useEffect(() => { closeRef.current = onClose; }, [onClose]);
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!enabled || !dialog) return;
+    const activeDialog = dialogRef.current;
+    if (!enabled || !activeDialog) return;
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-    const getFocusable = () => Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector)).filter((item) => item.getAttribute("aria-hidden") !== "true");
+    const getFocusable = () => Array.from(activeDialog.querySelectorAll<HTMLElement>(focusableSelector)).filter((item) => item.getAttribute("aria-hidden") !== "true");
     const focusable = getFocusable();
-    (focusable[0] ?? dialog).focus();
+    (focusable[0] ?? activeDialog).focus();
     function keepFocusInside(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -28,12 +28,15 @@ function useDialogAccessibility(onClose: () => void, enabled = true) {
       const current = getFocusable();
       if (!current.length) {
         event.preventDefault();
-        dialog.focus();
+        activeDialog.focus();
         return;
       }
       const first = current[0];
       const last = current[current.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
+      if (!activeDialog.contains(document.activeElement)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      } else if (event.shiftKey && document.activeElement === first) {
         event.preventDefault();
         last.focus();
       } else if (!event.shiftKey && document.activeElement === last) {
@@ -47,7 +50,7 @@ function useDialogAccessibility(onClose: () => void, enabled = true) {
       if (previousFocus?.isConnected) previousFocus.focus();
     };
   }, [enabled]);
-  return dialogRef;
+  return (element: HTMLElement | null) => { dialogRef.current = element; };
 }
 type Workspace = "Home" | "My tasks" | "Calendars" | "Groups" | "People & roles" | "Prayer review" | "Events" | "Studies" | "Settings";
 type RoleView = "Member directory" | "Role requests" | "Group requests" | "Group roster" | "Delegation" | "Current access";
