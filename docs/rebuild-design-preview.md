@@ -2,6 +2,8 @@
 
 This first implementation package adds `/rebuild-preview` as a public, read-only design sample. It does not replace the public home, member dashboard, or current administration screens. The route is intentionally available without sign-in because the preview deployment uses isolated synthetic authentication that cannot accept real L&F passwords.
 
+All sample dialogs support keyboard use: opening a dialog moves focus into it, Tab stays within it, Escape closes it, and focus returns to the control that opened it. The visitor prayer form requires a separate 18+ affirmation and public-sharing acknowledgement before its sample submission button is enabled.
+
 The app route itself has no L&F or Supabase sign-in requirement. However, the Vercel project has SSO protection enabled for all deployments except custom domains, so the current hosted branch deployment redirects unauthenticated visitors to Vercel sign-in before the preview UI loads (confirmed Nov. 19, 2026). Earlier interactive review notes below reflect their original review sessions; a fresh visual review of the latest deployment is pending an accessible preview path.
 
 The preview contains three switchable surfaces:
