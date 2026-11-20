@@ -361,6 +361,8 @@ Provide separate creation/read routes and RLS for visitor intake, member submiss
 
 Open implementation details: whether a member’s Prayer-team/group request requires moderator approval before its chosen audience can see it; field-level anonymity options; retention periods; abuse throttling/CAPTCHA approach; and whether visitors can edit or withdraw without an account. These are not settled by the public-after-clearance rule. No change to live behavior is approved by this proposal; implement only after a complete feed/RLS/write-path audit.
 
+**Low-cost abuse-control proposal:** assess whether the existing signup spam-check can be reused for visitor prayer without adding a provider or paid tier, and pair it with server-side rate limits. Do not require visitor email, phone, or account creation for the prayer request. Confirm privacy, accessibility, and cost before selecting the mechanism; the preview only tells the visitor a spam check will be present and does not execute one.
+
 ### Member-controlled profile sharing (proposal)
 
 The approved product rule is that members decide whether any profile information is shared. The initial directory should be limited to signed-in L&F members; a profile must not become publicly available on the web through a directory setting.
