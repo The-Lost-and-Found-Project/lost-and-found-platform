@@ -149,6 +149,8 @@ Optional profile information should answer practical ministry-planning questions
 
 **Suggested reporting guardrails:** show aggregate counts and trends only; suppress any demographic breakdown with fewer than 10 people; avoid combinations of filters that could reveal one person; and do not create individual engagement scores or leaderboards. Keep profile analytics first-party and use existing infrastructure; do not add a paid analytics vendor. Let members review and edit optional profile answers. On account deletion, remove identifiable profile answers with the account and retain only aggregates that cannot reasonably be tied back to a person, subject to the final retention policy.
 
+The design preview now maps this proposal to an Administration → Insights sample with synthetic age-band, ministry-interest, referral-source, and broad-region totals. It has no individual drilldown, raw birth dates, or member-level export. In a live app, who can view aggregate reports still needs an approved access policy and server-side enforcement.
+
 These are proposed privacy protections for review, not live analytics behavior. Confirm the cohort threshold, retention schedule, and whether a separate analytics preference is needed before implementation.
 
 ## Calendar and event implementation contract (proposal)
