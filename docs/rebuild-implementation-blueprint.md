@@ -37,6 +37,27 @@ This table is a mapping proposal based on the existing schema and approved produ
 | Administrator | `profiles.role = admin` | Site administration within an approved boundary; cannot grant or remove administrator access. |
 | Owner | Separate Owner authorization for Chad and Chrissy, not an existing profile-role enum value | Owner-only actions, especially granting/removing administrators, with server-side account-ID checks and an audit record. |
 
+### Candidate request catalog and reviewer map (proposal)
+
+This review-ready candidate set reflects the four scoped roles shown in the preview plus the existing Supervisor foundation. It is not an approved role catalog, does not add access, and must not be treated as permission to assign a role. L&F account membership remains immediate after signup and is separate from both group participation and role approval.
+
+| Candidate item | Example scope | Request path to consider | Reviewer boundary to configure | Training/evidence |
+| --- | --- | --- | --- | --- |
+| Group participant | One group ID | Join or request according to that group’s published access mode; this is group participation, not a ministry role. | Authorized reviewer for that group only, when its access mode requires approval. | Set per group if needed. |
+| Study facilitator | One named study group | Requestable in the preview; confirm which study groups use this role. | Named reviewer assigned to that group; use an active supervisor relationship only if the ministry approves it for review authority. | Not configured; ministry decision required. |
+| Prayer team | Prayer ministry | Requestable in the preview; confirm final role name and scope. | Named approver for Prayer ministry, or a current explicit delegation for that exact role and scope. | Not configured; ministry decision required. |
+| Ministry leader | One named ministry | Requestable in the preview; confirm whether leadership is elected, appointed, or member-requested. | Named approver for that ministry; do not assume every existing ministry leader can grant leadership. | Not configured; ministry decision required. |
+| Serve team | One named team | Requestable in the preview; confirm whether joining the team is a group request, a role request, or both as separate steps. | Named reviewer for that team; team participation must remain separate from any elevated serving role. | Not configured; ministry decision required. |
+| Supervisor | Assigned facilitator relationship(s) | Existing supervision relationship is not a general role request. Decide whether it is appointment-only or may be requested. | Named reviewer for the exact facilitator scope; never infer authority from the global profile label alone. | Not configured; ministry decision required. |
+| Administrator | Whole L&F administration boundary | Not member-requestable; grant or remove only through Owner-controlled workflow. | Chad or Chrissy Owner account only. Delegation cannot grant or remove administrator access. | Appointment and safeguards require Owner policy. |
+| Owner | Fixed Owner accounts | Not requestable or delegable. | Chad and Chrissy accounts, resolved to stable IDs before implementation. | Not applicable. |
+
+**Reviewer routing proposal:** a decision may be shown only to a currently authorized reviewer whose grant includes the request type and exact scope. If no eligible reviewer exists, keep the request pending with a clear “reviewer not assigned” state; never fall back to every administrator. A delegated reviewer must have a current, auditable grant for that request type and scope, and cannot approve their own request.
+
+**Training and evidence:** no training requirement is approved or verified for the candidate roles. Configure each role as “none,” “before request,” or “before approval” only after ministry review; the preview must say “not configured” until then. Do not label an unreviewed role as requiring no training.
+
+**Decisions still open:** confirm the final requestable roles, group/role separation for serving teams, Supervisor appointment path, role-specific prerequisites, named scope reviewers, and any term/renewal rules. These decisions are required before live requests or approval writes are enabled.
+
 **Recommended authorization rule:** require both the approved capability and its explicit scope relationship for scoped tools. A role name by itself should not grant access across all groups, ministries, assignments, or private records. Resolve the two Owner accounts to stable user IDs from an approved identity source before implementation; do not rely on email text or a hidden interface control.
 
 ### Live RLS policy notes (read-only)
