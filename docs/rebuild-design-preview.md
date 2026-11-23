@@ -2,6 +2,14 @@
 
 This first implementation package adds `/rebuild-preview` as a public, read-only design sample. It does not replace the public home, member dashboard, or current administration screens. The route is intentionally available without sign-in because the preview deployment uses isolated synthetic authentication that cannot accept real L&F passwords.
 
+## Admin visual and usability rules
+
+- Use flat, solid colors with clear contrast. Avoid glossy effects, gradients, and decorative shadows.
+- Keep administration compact and scannable. Do not repeat the same metric or action in multiple cards; use direct navigation and grouped sections instead of a card wall.
+- Prevent page-level horizontal scrolling at phone, tablet, and desktop widths. Let labels wrap and controls fit their container; if a truly wide data view needs scrolling, contain it within that view.
+- Put short, useful instructions beside the fields or choices they explain. Keep the expandable information icon optional for longer explanations, so members can use the form without opening help.
+- Keep calendar controls easy to find: master or personal scope, category, ministry, and role filters should combine clearly, and each event should identify approved-role visibility separately from assignment.
+
 All sample dialogs support keyboard use: opening a dialog moves focus into it, Tab stays within it, Escape closes it, and focus returns to the control that opened it. The visitor prayer form requires a separate 18+ affirmation and public-sharing acknowledgement before its sample submission button is enabled.
 
 The app route itself has no L&F or Supabase sign-in requirement. However, the Vercel project has SSO protection enabled for all deployments except custom domains, so the current hosted branch deployment redirects unauthenticated visitors to Vercel sign-in before the preview UI loads (confirmed Nov. 19, 2026). Earlier interactive review notes below reflect their original review sessions; a fresh visual review of the latest deployment is pending an accessible preview path.
