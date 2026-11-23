@@ -483,14 +483,105 @@ function SettingsWorkspace({ onOpen }: { onOpen: (message: string) => void }) {
 }
 
 function Calendar({ personal = false }: { personal?: boolean }) {
+  type View = "Day" | "Week" | "Month" | "Year";
   const [scope, setScope] = useState<CalendarScope>(personal ? "Personal calendar" : "Master calendar");
+  const [view, setView] = useState<View>("Month");
+  const [cursor, setCursor] = useState(() => new Date());
   const [filter, setFilter] = useState<CalendarFilter>("All");
   const [ministry, setMinistry] = useState("All ministries");
   const [role, setRole] = useState("All roles");
-  const events = filterPreviewEvents(previewEvents, scope, filter, ministry, role);
-  return <section className={styles.panel} aria-label="Calendar preview"><div className={styles.calendarHeading}><SectionTitle title={personal ? "My calendar" : "Calendar"} help="Master and personal calendars combine ministry, role, assignment, and sharing filters. In the live app, the server will enforce access from approved roles and event assignments; filters here use sample data only." /><label className={styles.selectLabel}>Calendar view<select value={scope} onChange={(event) => setScope(event.target.value as CalendarScope)}>{!personal && <option>Master calendar</option>}<option>Personal calendar</option></select></label></div><div className={styles.calendarControls}><div className={styles.filterGroup} role="group" aria-label="Calendar filters">{calendarFilters.map((item) => <button key={item} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}</button>)}</div><div className={styles.calendarSelects}><label className={styles.selectLabel}>Ministry<select value={ministry} onChange={(event) => setMinistry(event.target.value)}><option>All ministries</option><option>Studies</option><option>Outreach</option><option>Prayer</option></select></label><label className={styles.selectLabel}>Role<select value={role} onChange={(event) => setRole(event.target.value)}><option>All roles</option><option>Study facilitator</option><option>Men’s Forge</option><option>Serve team</option><option>Ministry leader</option><option>Prayer team</option></select></label></div></div><details className={styles.calendarAccess}><summary>How role and assignment sharing works</summary><p>Each event is visible only to people with an approved role for that ministry or to people directly assigned to it. Personal events stay private unless the member shares them. The role filter narrows this sample view; it does not grant access.</p></details><div aria-live="polite" aria-atomic="true"><p className={styles.resultCount}>{events.length + (events.length === 1 ? " sample event" : " sample events")}</p>{events.length ? <ul className={styles.agenda}>{events.map((event) => <li key={event.id}><span className={styles.eventDate}>{event.date}</span><time>{event.time}</time><div><strong>{event.title}</strong><span>{event.assigned ? "Assigned to you" : event.shared ? "Shared with your role" : "My event"}<small className={styles.eventAccess}>Roles: {event.roles.join(", ")} · Assigned: {event.assignee}</small></span></div></li>)}</ul> : <p className={styles.empty}>No sample events match these filters. Choose All or another ministry.</p>}</div><p className={styles.caption}>Design preview · sample events, roles, and assignments only</p></section>;
+  const [visibleCalendars, setVisibleCalendars] = useState<string[]>(["Studies", "Outreach", "Prayer"]);
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const shortDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const addDays = (date: Date, amount: number) => { const next = new Date(date); next.setDate(next.getDate() + amount); return next; };
+  const sameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  const weekStart = (date: Date) => addDays(startOfDay(date), -date.getDay());
+  const monthStart = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+  const gridStart = weekStart(monthStart);
+  const gridDays = Array.from({ length: 42 }, (_, index) => addDays(gridStart, index));
+  const weekDays = Array.from({ length: 7 }, (_, index) => addDays(weekStart(cursor), index));
+  const today = startOfDay(new Date());
+  const colors: Record<string, string> = { Studies: styles.calStudies, Outreach: styles.calOutreach, Prayer: styles.calPrayer };
+  const sampleEvents = previewEvents.map((event, index) => {
+    const date = addDays(today, index + 1);
+    const hour = event.time.includes("PM") ? (Number(event.time.split(":")[0]) % 12) + 12 : Number(event.time.split(":")[0]) % 12;
+    const minute = Number(event.time.match(/:(\d+)/)?.[1] ?? "0");
+    return { ...event, dateObject: date, hour, minute, calendar: event.ministry };
+  }).filter((event) => visibleCalendars.includes(event.calendar))
+    .filter((event) => scope === "Master calendar" || event.mine)
+    .filter((event) => filter === "All" || (filter === "Mine" && event.mine) || (filter === "Assigned" && event.assigned) || (filter === "Shared" && event.shared))
+    .filter((event) => ministry === "All ministries" || event.ministry === ministry)
+    .filter((event) => role === "All roles" || event.roles.includes(role));
+  const eventsOn = (date: Date) => sampleEvents.filter((event) => sameDay(event.dateObject, date));
+  const monthName = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(cursor);
+  function move(amount: number) {
+    const next = new Date(cursor);
+    if (view === "Day") next.setDate(next.getDate() + amount);
+    else if (view === "Week") next.setDate(next.getDate() + amount * 7);
+    else if (view === "Year") next.setFullYear(next.getFullYear() + amount);
+    else next.setMonth(next.getMonth() + amount);
+    setCursor(next);
+  }
+  function toggleCalendar(name: string) {
+    setVisibleCalendars((current) => current.includes(name) ? current.filter((item) => item !== name) : [...current, name]);
+  }
+  function eventCard(event: typeof sampleEvents[number], compact = false) {
+    return <div key={event.id} className={`${styles.calendarEvent} ${colors[event.calendar] ?? ""} ${compact ? styles.calendarEventCompact : ""}`} title={event.title + " · " + event.assignee}>
+      <strong>{event.title}</strong>{!compact && <span>{event.time}</span>}
+    </div>;
+  }
+  function monthGrid(monthDate: Date, mini = false) {
+    const first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+    const firstGridDay = weekStart(first);
+    const count = mini ? 35 : 42;
+    const dates = Array.from({ length: count }, (_, index) => addDays(firstGridDay, index));
+    return <div className={mini ? styles.miniMonth : styles.monthGrid}>
+      {shortDays.map((day) => <div key={day} className={styles.monthWeekday}>{mini ? day[0] : day}</div>)}
+      {dates.map((day, index) => {
+        const items = eventsOn(day);
+        return <div key={index} className={`${styles.monthDay} ${day.getMonth() !== monthDate.getMonth() ? styles.otherMonth : ""} ${sameDay(day, today) ? styles.todayCell : ""}`}>
+          <span className={styles.monthDayNumber}>{day.getDate()}</span>
+          {!mini && items.map((event) => eventCard(event, true))}
+          {mini && items.length > 0 && <i aria-label={items.length + " sample events"} className={styles.miniEventDot}/>}
+        </div>;
+      })}
+    </div>;
+  }
+  function timeGrid(selectedDays: Date[]) {
+    const hours = Array.from({ length: 15 }, (_, index) => index + 7);
+    return <div className={styles.timeGrid} style={{ "--calendar-days": selectedDays.length } as React.CSSProperties}>
+      <div className={styles.timeGridHeader}><span/><div className={styles.timeDayHeadings}>{selectedDays.map((day) => <div key={day.toISOString()} className={sameDay(day, today) ? styles.todayHeading : ""}><span>{shortDays[day.getDay()]}</span><strong>{day.getDate()}</strong></div>)}</div></div>
+      <div className={styles.timeGridBody}>
+        <div className={styles.hourLabels}>{hours.map((hour) => <span key={hour}>{hour > 12 ? hour - 12 : hour}{hour >= 12 ? " PM" : " AM"}</span>)}</div>
+        <div className={styles.timeDayColumns}>{selectedDays.map((day) => <div className={styles.timeDayColumn} key={day.toISOString()}>{hours.map((hour) => <div key={hour} className={styles.hourCell}/ >)}{eventsOn(day).map((event) => <div key={event.id} className={`${styles.timedEvent} ${colors[event.calendar] ?? ""}`} style={{ top: `calc((${event.hour - 7} * 54px) + (${event.minute / 60} * 54px) + 3px)` }}><strong>{event.title}</strong><span>{event.time}</span></div>)}</div>)}</div>
+      </div>
+    </div>;
+  }
+  const focusedDay = new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(cursor);
+  const title = view === "Day" ? focusedDay : view === "Week" ? `${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(weekDays[0])} – ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(weekDays[6])}` : view === "Year" ? String(cursor.getFullYear()) : monthName;
+  return <section className={styles.panel} aria-label="Calendar preview">
+    <div className={styles.calendarHeading}><SectionTitle title={personal ? "My calendar" : "Calendar"} help="Choose a day, week, month, or year. Toggle ministry calendars on and off to focus the schedule. Role and assignment filters narrow these sample events; in the live app, the server enforces access." />
+      <div className={styles.scopeSwitch} role="group" aria-label="Calendar scope">{(["Master calendar", "Personal calendar"] as CalendarScope[]).map((item) => <button key={item} aria-pressed={scope === item} disabled={personal && item === "Master calendar"} onClick={() => setScope(item)}>{item}</button>)}</div>
+    </div>
+    <div className={styles.calendarToolbar}>
+      <div className={styles.calendarNavigation}><button className={styles.outlineButton} onClick={() => setCursor(new Date())}>Today</button><button aria-label={"Previous " + view.toLowerCase()} className={styles.calendarArrow} onClick={() => move(-1)}>‹</button><button aria-label={"Next " + view.toLowerCase()} className={styles.calendarArrow} onClick={() => move(1)}>›</button><h3 aria-live="polite">{title}</h3></div>
+      <div className={styles.calendarViews} role="group" aria-label="Calendar view">{(["Day", "Week", "Month", "Year"] as View[]).map((item) => <button key={item} aria-pressed={view === item} onClick={() => setView(item)}>{item}</button>)}</div>
+    </div>
+    <div className={styles.calendarToggles} role="group" aria-label="Show calendars">{["Studies", "Outreach", "Prayer"].map((item) => <label key={item} className={styles.calendarToggle}><input type="checkbox" checked={visibleCalendars.includes(item)} onChange={() => toggleCalendar(item)}/><span className={colors[item]}/>{item}</label>)}</div>
+    <div className={styles.calendarControls}>
+      <div className={styles.filterGroup} role="group" aria-label="Event filters">{calendarFilters.map((item) => <button key={item} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}</button>)}</div>
+      <div className={styles.calendarSelects}><label className={styles.selectLabel}>Ministry<select value={ministry} onChange={(event) => setMinistry(event.target.value)}><option>All ministries</option><option>Studies</option><option>Outreach</option><option>Prayer</option></select></label><label className={styles.selectLabel}>Role<select value={role} onChange={(event) => setRole(event.target.value)}><option>All roles</option><option>Study facilitator</option><option>Men’s Forge</option><option>Serve team</option><option>Ministry leader</option><option>Prayer team</option></select></label></div>
+    </div>
+    <details className={styles.calendarAccess}><summary>How role and assignment sharing works</summary><p>Each event is visible only to people with an approved role for that ministry or to people directly assigned to it. Personal events stay private unless the member shares them. Filters only narrow the sample view; they do not grant access.</p></details>
+    <p className={styles.resultCount} aria-live="polite">{sampleEvents.length} sample {sampleEvents.length === 1 ? "event" : "events"} · Eastern Time</p>
+    {view === "Month" && monthGrid(new Date(cursor.getFullYear(), cursor.getMonth(), 1))}
+    {view === "Week" && timeGrid(weekDays)}
+    {view === "Day" && timeGrid([cursor])}
+    {view === "Year" && <div className={styles.yearGrid}>{Array.from({ length: 12 }, (_, index) => { const date = new Date(cursor.getFullYear(), index, 1); return <section key={index} className={styles.yearMonth}><h4>{new Intl.DateTimeFormat("en-US", { month: "long" }).format(date)}</h4>{monthGrid(date, true)}</section>; })}</div>}
+    <div className={styles.calendarLegend}><span>Samples only. No event or calendar changes are saved.</span><span>Calendar visibility follows approved roles and assignments.</span></div>
+  </section>;
 }
-
 function PrayerComposer({ member, onClose, onSubmit }: { member: boolean; onClose: () => void; onSubmit: (message: string) => void }) {
   const dialogRef = useDialogAccessibility(onClose);
   const [request, setRequest] = useState("");
