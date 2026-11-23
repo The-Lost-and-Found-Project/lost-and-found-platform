@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { filterPreviewEvents, previewEvents, type CalendarFilter, type CalendarScope } from "@/lib/rebuild-preview";
 import styles from "./RebuildPreview.module.css";
 
@@ -550,11 +550,11 @@ function Calendar({ personal = false }: { personal?: boolean }) {
   }
   function timeGrid(selectedDays: Date[]) {
     const hours = Array.from({ length: 15 }, (_, index) => index + 7);
-    return <div className={styles.timeGrid} style={{ "--calendar-days": selectedDays.length } as React.CSSProperties}>
+    return <div className={styles.timeGrid} style={{ "--calendar-days": selectedDays.length } as CSSProperties}>
       <div className={styles.timeGridHeader}><span/><div className={styles.timeDayHeadings}>{selectedDays.map((day) => <div key={day.toISOString()} className={sameDay(day, today) ? styles.todayHeading : ""}><span>{shortDays[day.getDay()]}</span><strong>{day.getDate()}</strong></div>)}</div></div>
       <div className={styles.timeGridBody}>
         <div className={styles.hourLabels}>{hours.map((hour) => <span key={hour}>{hour > 12 ? hour - 12 : hour}{hour >= 12 ? " PM" : " AM"}</span>)}</div>
-        <div className={styles.timeDayColumns}>{selectedDays.map((day) => <div className={styles.timeDayColumn} key={day.toISOString()}>{hours.map((hour) => <div key={hour} className={styles.hourCell}/ >)}{eventsOn(day).map((event) => <div key={event.id} className={`${styles.timedEvent} ${colors[event.calendar] ?? ""}`} style={{ top: `calc((${event.hour - 7} * 54px) + (${event.minute / 60} * 54px) + 3px)` }}><strong>{event.title}</strong><span>{event.time}</span></div>)}</div>)}</div>
+        <div className={styles.timeDayColumns}>{selectedDays.map((day) => <div className={styles.timeDayColumn} key={day.toISOString()}>{hours.map((hour) => <div key={hour} className={styles.hourCell}/>)}{eventsOn(day).map((event) => <div key={event.id} className={`${styles.timedEvent} ${colors[event.calendar] ?? ""}`} style={{ top: `${(event.hour - 7) * 54 + (event.minute / 60) * 54 + 3}px` }}><strong>{event.title}</strong><span>{event.time}</span></div>)}</div>)}</div>
       </div>
     </div>;
   }
