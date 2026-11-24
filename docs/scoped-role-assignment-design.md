@@ -51,7 +51,9 @@ Request states: `pending`, `approved`, `declined`, `withdrawn`, and `cancelled`.
 
 The audit record should be append-only and limited to the stable internal actor identifier, a minimal identity snapshot needed to attribute the action, role/workflow scope, affected record identifier, action, prior and resulting state, timestamp, and a structured reason code when needed. Do not store free-text prayer details or general profile fields. Access to identifiable audit history must be restricted to specifically authorized reviewers.
 
-Before implementing the audit tables, still decide the retention period and how references behave when the affected request or subject account is deleted. Until that duration and lifecycle behavior are approved, do not apply the schema or activate role and prayer moderation actions.
+**Tentative Owner proposal: 90 days after account departure.** Keep the minimal identifiable audit evidence for up to 90 days after the account is removed, then remove actor/subject identity fields. Non-identifying action metadata may remain only if the final retention policy allows it. This duration is not yet final because the question was raised tentatively.
+
+Before implementing the audit tables, confirm whether the 90-day window starts at account deletion and decide how references behave when an affected request or subject account is deleted. Until the duration and lifecycle behavior are approved, do not apply the schema or activate role and prayer moderation actions.
 
 ## Migration sequence
 
