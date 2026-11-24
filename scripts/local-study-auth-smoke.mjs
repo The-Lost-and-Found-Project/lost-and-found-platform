@@ -32,6 +32,8 @@ const grants=spawnSync("psql",["-X","-v","ON_ERROR_STOP=1","-d",db,
  "-c",`GRANT SELECT, INSERT, DELETE ON TABLE
  public.bible_studies,
  public.study_sessions,
+ public.study_groups,
+ public.study_group_members,
  public.study_session_participants,
  public.study_daily_responses,
  public.study_daily_progress TO service_role;`],{encoding:"utf8",timeout:15000});
@@ -42,7 +44,7 @@ const opts={auth:{persistSession:false,autoRefreshToken:false}};
 const service=createClient(api,env.SERVICE_ROLE_KEY,opts);
 const anon=()=>createClient(api,env.ANON_KEY,opts);
 const nonce=randomUUID(), password="LocalStudy-"+randomUUID()+"!9";
-const userIds=[], sessionIds=[], studyIds=[];
+const userIds=[], sessionIds=[], studyIds=[], groupIds=[];
 let passed=0;
 const check=(condition,label)=>{assert.ok(condition,label);passed++;console.log("PASS "+label)};
 async function insertOne(table,row){
@@ -72,18 +74,27 @@ try{
  const studyId=await insertOne("bible_studies",{
   title:"Synthetic study privacy acceptance",is_published:true,devotional_cards:[{day:1}]
  });studyIds.push(studyId);
+ const groupId=await insertOne("study_groups",{
+  ministry_slug:"hearth",name:"Synthetic administered group",status:"active"
+ });groupIds.push(groupId);
  const released=await insertOne("study_sessions",{
-  bible_study_id:studyId,ministry_slug:"hearth",facilitator_user_id:facilitator,
+  bible_study_id:studyId,ministry_slug:"hearth",group_id:groupId,facilitator_user_id:facilitator,
   scheduled_start:new Date().toISOString(),
   daily_path_released_at:new Date(Date.now()-3600000).toISOString()
  });sessionIds.push(released);
  const unreleased=await insertOne("study_sessions",{
-  bible_study_id:studyId,ministry_slug:"hearth",facilitator_user_id:facilitator,
+  bible_study_id:studyId,ministry_slug:"hearth",group_id:groupId,facilitator_user_id:facilitator,
   scheduled_start:new Date().toISOString()
  });sessionIds.push(unreleased);
+ await insert("study_group_members",[
+  {group_id:groupId,user_id:alice,group_role:"member",membership_status:"active"},
+  {group_id:groupId,user_id:bob,group_role:"member",membership_status:"active"},
+  {group_id:groupId,user_id:facilitator,group_role:"facilitator",membership_status:"active"}
+ ]);
  await insert("study_session_participants",[
   {study_session_id:released,user_id:alice},
   {study_session_id:released,user_id:bob},
+  {study_session_id:released,user_id:facilitator},
   {study_session_id:unreleased,user_id:alice}
  ]);
  const alicePrivate=await insertOne("study_daily_responses",{
@@ -113,7 +124,7 @@ try{
  const facilitatorView=await f.from("study_daily_responses").select("id").in("id",ids);
  if(facilitatorView.error)throw facilitatorView.error;
  check(facilitatorView.data.length===1 && facilitatorView.data[0].id===bobGroup,
-  "facilitator reads locked shared response but neither member private journal");
+  "assigned group facilitator reads locked shared response but neither member private journal");
  const outsiderView=await o.from("study_daily_responses").select("id").in("id",ids);
  if(outsiderView.error)throw outsiderView.error;
  check(outsiderView.data.length===0,"unassigned user cannot read study responses");
@@ -159,6 +170,10 @@ try{
  for(const id of sessionIds.reverse()){
   const {error}=await service.from("study_sessions").delete().eq("id",id);
   if(error)console.warn("Synthetic study-session cleanup warning: "+error.message);
+ }
+ for(const id of groupIds){
+  const {error}=await service.from("study_groups").delete().eq("id",id);
+  if(error)console.warn("Synthetic study-group cleanup warning: "+error.message);
  }
  for(const id of studyIds){
   const {error}=await service.from("bible_studies").delete().eq("id",id);

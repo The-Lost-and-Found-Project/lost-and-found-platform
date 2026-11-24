@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { expected } from "../scripts/check-release-migration-scope.mjs";
+import { expected, currentBase } from "../scripts/check-release-migration-scope.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const prerequisite = "20261110224156_restore_daily_path_release_gate.sql";
@@ -19,7 +19,7 @@ function withFixture(fn) {
     mkdirSync(scriptDir, { recursive: true });
     copyFileSync(join(root, "scripts", "check-release-migration-scope.mjs"),
       join(scriptDir, "check-release-migration-scope.mjs"));
-    for (const [name] of expected) {
+    for (const [name] of [...expected, ...currentBase]) {
       copyFileSync(join(root, "supabase", "migrations", name), join(migrationDir, name));
     }
     return fn(tmp, migrationDir);
@@ -34,7 +34,7 @@ function runCheck(cwd) {
   });
 }
 
-test("only the exact eight release migrations are valid before #182 merges", () => {
+test("the exact eight release migrations coexist with pinned current-base migrations before #182 merges", () => {
   withFixture((cwd) => assert.equal(runCheck(cwd).status, 0));
 });
 

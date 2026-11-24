@@ -56,4 +56,4 @@ if (process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url)
  console.log("NO DATABASE ACTION TAKEN. Hosted history differs from repository (#181).");
  console.log("DO NOT run unrestricted 'supabase db push' against L&F Production.");
 }
-export {expected, directory};
+export {expected, currentBase, directory};
