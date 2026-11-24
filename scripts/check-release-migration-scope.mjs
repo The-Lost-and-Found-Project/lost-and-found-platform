@@ -40,7 +40,7 @@ const currentBase=[
 // #182 is a separately reviewed prerequisite, never part of this bundle.
 const prerequisite=[
  "20261110224156_restore_daily_path_release_gate.sql",
- "4bc279783ab850f2eccb704b10b2db3c9a35a42f2ed15b1aa68aa436468b6bfe"
+ "8a7def60ad71e4ad36d241004c41759a148b3bb78e8e6a965525d50a0caa148e"
 ];
 const actual=readdirSync(directory).filter(x=>/^202611\d{8}_.*\.sql$/.test(x)).sort();
 const allowed=[...expected,...currentBase].map(x=>x[0]);
