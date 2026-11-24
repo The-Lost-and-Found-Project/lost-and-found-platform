@@ -88,6 +88,18 @@ Test the allow and deny cases for: active Owner, active Admin, properly delegate
 
 - **Approved:** Chad or Chrissy explicitly appoints initial reviewers for each role and ministry/group scope; an Owner title alone does not automatically place requests in their queue. Reviewers may delegate only authority they currently hold, for the exact role, action, and scope, under the approved term limits. A reviewer cannot appoint another reviewer unless that appointment authority is explicitly delegated. If no eligible reviewer is configured, the request stays pending; there is no fallback to all Admins or ministry leaders.
 
+## Initial reviewer assignment proposal (planning only)
+
+This proposed matrix records the requested initial names; it grants no access and does not create live reviewer assignments.
+
+| Role | Scope | Proposed initial reviewers | Approval rule |
+| --- | --- | --- | --- |
+| Prayer Team | Prayer ministry only | Chad and Crissy | Both must independently approve. Neither may review their own request. If either is the requester or unavailable, leave the request pending until a second eligible reviewer is explicitly appointed. |
+| Study Facilitator | Each named study group | Not assigned | Owner appointment required for each scope. |
+| Ministry Leader | Each named ministry | Not assigned | Owner appointment required for each scope. |
+| Serve Team | Each named serve team | Not assigned | Owner appointment required for each scope. Group participation remains separate. |
+| Supervisor | Each named facilitator/group scope | Not assigned | Owner appointment required for each scope. |
+
 ## Decisions still open before implementation
 
 2. Identify the named reviewer for each approved role/scope and define any training or evidence requirements.
