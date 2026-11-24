@@ -102,6 +102,8 @@ This approved planning matrix does not grant live access or create current revie
 
 ## Approved training and evidence policy
 
+- **Prayer Team:** confidentiality and privacy training is required before activation. Role approval alone does not grant access to private prayer requests. Curriculum and completion verifier remain to be specified.
+
 - **Approved:** Set a prerequisite policy separately for each role: `none`, `complete before approval`, or `complete before activation`. Record the training/evidence item and who verifies completion.
 - An unset prerequisite policy means `not configured`, not `none`; do not activate that role until an Owner sets the policy.
 - Training completion never grants a role. The required scoped approval remains a separate decision.
