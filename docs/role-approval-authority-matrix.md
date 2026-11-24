@@ -79,7 +79,14 @@ Test the allow and deny cases for: active Owner, active Admin, properly delegate
 - Renewal creates a new grant with a new end date and audit entry; delegates cannot extend their own authority.
 - When a grant expires or is revoked, unfinished requests return to the standing queue for that exact scope and remain pending. Expiry never approves a request automatically.
 
+## High-trust role approval proposal (not approved)
+
+- Require two independent approvals before assigning roles that can read or publish private prayer content, including `moderator` and `prayer_team` if those permissions remain part of the final role catalog.
+- The requester cannot be either reviewer; the two reviewers must be distinct, explicitly authorized for the exact role and scope, and neither may approve on behalf of the other.
+- Other non-admin scoped roles use one explicitly assigned reviewer, unless the final role catalog identifies a comparable sensitive capability.
+- If two eligible reviewers are not available, keep the request pending and show that a second reviewer is needed. Do not grant temporary access.
+
 ## Decisions still open before implementation
 
-1. Decide whether high-trust roles such as `moderator` or `prayer_team` need one reviewer or two independent approvals.
+1. Accept or change the two-reviewer rule for high-trust prayer roles.
 2. Identify the named reviewer for each approved role/scope and define any training or evidence requirements.
