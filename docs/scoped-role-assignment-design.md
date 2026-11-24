@@ -9,7 +9,7 @@ Status: implementation design for review. This document does not change database
 - A person may hold several roles at once; role assignments carry their ministry or group scope.
 - Group participation has a separate lifecycle from role assignment; joining a group never grants authority. See `docs/group-membership-and-approval-flow.md`.
 - An approver may act only inside the role types and scopes explicitly delegated to them.
-- Non-admin role requests go only to reviewers explicitly assigned the exact role and ministry/group scope. Admins have no blanket approval authority; ministry leaders may review only when explicitly delegated that exact role/scope. Specific reviewer assignments and delegation duration remain to be configured. See `docs/role-approval-authority-matrix.md`.
+- Chad and Chrissy, as configured Owners, may review all non-admin role requests across scopes and may appoint additional reviewers for exact role/scope assignments. Self-approval remains prohibited and high-trust prayer roles require two independent approvals. Admins and ministry leaders have no blanket review authority. See `docs/role-approval-authority-matrix.md`.
 - No person approves their own request or grants authority beyond their own.
 - Only configured Owners can grant or remove administrator access, change integrations, or authorize paid services.
 - The existing Supervisor lane remains supported during migration.
