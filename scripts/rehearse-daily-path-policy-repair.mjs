@@ -42,7 +42,9 @@ BEGIN
      and tablename='study_daily_responses'
      and policyname='participants read unlocked own or revealed group responses'
      and position('is_active_administered_study_group_member(user_id, study_session_id)' in qual)>0
-     and position('is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)' in qual)>0)
+     and position('is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)' in qual)
+         < position('has_locked_group_response' in qual)
+     and position('is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)' in substring(qual from position('facilitator_user_id' in qual)))>0)
  THEN RAISE EXCEPTION 'Failed #182 repair postflight'; END IF;
 END $assert$;`;
 const legacy=`
