@@ -8,8 +8,8 @@ test("Daily Path server actions reject unreleased or future days",()=>{
  const actions=read("app/study-path/[sessionId]/[day]/actions.ts");
  assert.match(actions,/assertDailyPathAccess/);
  assert.match(actions,/daily_path_released_at/);
- assert.match(actions,/Math\.floor\(\(nowMs-releaseMs\)\/86400000\)\+1/);
- assert.match(actions,/if\(day>unlocked\)throw new Error\("That Daily Path day is not available yet\."\)/);
+ assert.match(actions,/getUnlockedDailyPathDay\(session\.daily_path_released_at,cards\.length\)/);
+ assert.match(actions,/if\(unlocked===0\|\|day>unlocked\)throw new Error\("That Daily Path day is not available yet\."\)/);
  for(const action of ["savePrivateJournal","lockGroupResponse","savePersonalReflection","completeDailyStudy"]){
   const start=actions.indexOf(`export async function ${action}`);
   assert.ok(start>=0,`${action} exists`);

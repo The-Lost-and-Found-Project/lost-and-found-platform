@@ -5,9 +5,8 @@ import {createClient} from "@/lib/supabase/server";
 export default async function AnnualGivingReport({searchParams}:{searchParams:Promise<{year?:string}>}){
  const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/login?next=/account/giving/annual");
  const params=await searchParams;const current=new Date().getFullYear();const requested=Number(params.year);const year=Number.isInteger(requested)&&requested>=2020&&requested<=current?requested:current-1;
- const email=user.email?.trim().toLowerCase()??"";
  const start=`${year}-01-01T00:00:00.000Z`,end=`${year+1}-01-01T00:00:00.000Z`;
- const{data:x,error}=await s.from("giving_transactions").select("id,amount,currency,donated_at,status,receipt_url,transaction_type,source").or(`user_id.eq.${user.id}${email?`,contact_email.ilike.${email}`:""}`).gte("donated_at",start).lt("donated_at",end).eq("status","completed").order("donated_at",{ascending:true});
+ const{data:x,error}=await s.from("giving_transactions").select("id,amount,currency,donated_at,status,receipt_url,transaction_type,source").gte("donated_at",start).lt("donated_at",end).eq("status","completed").order("donated_at",{ascending:true});
  const rows=x??[];const total=rows.reduce((n:any,t:any)=>n+Number(t.amount),0);
  return <main className="lfp-page pb-24"><div className="lfp-shell py-10">
   <Link href="/account/giving" className="text-sm font-black text-blue-700">← My Giving</Link>

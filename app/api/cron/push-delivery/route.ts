@@ -23,22 +23,33 @@ function localParts(date: Date, timeZone: string) {
   };
 }
 
-async function sendAndTrack(admin: ReturnType<typeof createAdminClient>, row: any) {
-  const attemptedAt = new Date().toISOString();
+async function sendAndTrack(admin: ReturnType<typeof createAdminClient>, notificationId: string) {
+  const { data: claimedRows, error: claimError } = await admin.rpc(
+    "claim_notification_push_delivery",
+    { p_notification_id: notificationId }
+  );
+  if (claimError) throw claimError;
+  const row = Array.isArray(claimedRows) ? claimedRows[0] : claimedRows;
+  if (!row) return { status: "claimed_elsewhere" as const };
+
   const delivery = await sendPushToUser(row.user_id, {
     title: row.title,
     body: row.body ?? "",
     url: row.link ?? undefined,
-  });
-  await admin
-    .from("notifications")
-    .update({
-      push_status: delivery.status,
-      push_attempted_at: attemptedAt,
-      push_delivered_at: delivery.status === "sent" ? new Date().toISOString() : null,
-      push_error: delivery.reason ?? null,
-    })
-    .eq("id", row.id);
+  }, row.delivered_subscription_ids ?? []);
+  const { data: tracked, error: trackingError } = await admin.rpc(
+    "complete_notification_push_delivery",
+    {
+      p_notification_id: row.id,
+      p_claim_token: row.claim_token,
+      p_status: delivery.status,
+      p_error: delivery.reason ?? null,
+      p_delivered_subscription_ids: delivery.deliveredSubscriptionIds,
+    }
+  );
+  if (trackingError) throw trackingError;
+  if (!tracked) throw new Error("Push result was not recorded because its claim expired");
+
   return delivery;
 }
 
@@ -127,15 +138,17 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Database webhooks are helpful but should not be a single point of failure.
-  // Sweep fresh pending rows so every in-app notification has a server-side
-  // retry path even when the webhook is missing or temporarily unavailable.
-  const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+  // This cron is the sole sender. Database webhooks only acknowledge queueing,
+  // so overlapping cron runs cannot race a webhook send. The database claim
+  // RPC serializes workers and applies the persisted retry schedule.
   const { data: pending, error: pendingError } = await admin
     .from("notifications")
-    .select("id,user_id,title,body,link,created_at")
-    .eq("push_status", "pending")
-    .gte("created_at", cutoff)
+    .select("id,created_at")
+    .in("push_status", ["pending", "failed"])
+    .eq("push_delivery_uncertain", false)
+    .or("push_next_attempt_at.is.null,push_next_attempt_at.lte." + now.toISOString())
+    .or("push_claimed_until.is.null,push_claimed_until.lte." + now.toISOString())
+    .lt("push_attempt_count", 8)
     .order("created_at", { ascending: true })
     .limit(100);
 
@@ -145,10 +158,17 @@ export async function GET(request: NextRequest) {
   }
 
   for (const row of pending ?? []) {
-    const result = await sendAndTrack(admin, row);
-    if (result.status === "sent") sent += 1;
-    else if (result.status === "skipped") skipped += 1;
-    else failed += 1;
+    try {
+      const result = await sendAndTrack(admin, row.id);
+      if (result.status === "sent") sent += 1;
+      else if (result.status === "skipped") skipped += 1;
+      else if (result.status === "failed") failed += 1;
+    } catch (error) {
+      // Keep the claim until its lease expires. The DB retry schedule handles
+      // delivery failures; tracking failures are surfaced for admin review.
+      failed += 1;
+      console.error("push delivery attempt failed", { notificationId: row.id, error });
+    }
   }
 
   console.info("push delivery cron complete", { remindersCreated, sent, skipped, failed, pending: pending?.length ?? 0 });

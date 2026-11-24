@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { sendAdminNotification } from "./actions";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { requeueUncertainNotificationPush, sendAdminNotification } from "./actions";
 
 const audienceLabels: Record<string, string> = {
   all: "All members",
@@ -52,6 +53,23 @@ export default async function AdminNotificationsPage() {
     throw new Error("Unable to load notification history.");
   }
 
+  // Deliberately omit user_id, title, and body: reconciliation uses an opaque
+  // notification reference and aggregate delivery facts only.
+  const admin = createAdminClient();
+  const {
+    data: uncertainDeliveries,
+    error: uncertainError,
+  } = await admin
+    .from("notifications")
+    .select("id, push_attempted_at, push_attempt_count")
+    .eq("push_delivery_uncertain", true)
+    .order("push_attempted_at", { ascending: false })
+    .limit(50);
+
+  if (uncertainError) {
+    throw new Error("Unable to load uncertain push deliveries.");
+  }
+
   return (
     <main className="lfp-page pb-24">
       <section className="bg-slate-950 text-white">
@@ -64,13 +82,73 @@ export default async function AdminNotificationsPage() {
           </h1>
           <p className="mt-3 max-w-3xl text-slate-300">
             Send a message to a specific ministry audience or the whole
-            community. Notifications appear in the app; the existing delivery
-            webhook separately attempts home-screen push.
+            community. Notifications appear in the app; the scheduled server
+            worker handles home-screen push and its bounded retries.
           </p>
         </div>
       </section>
 
       <div className="lfp-shell grid gap-8 py-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <section className="lg:col-span-2" aria-labelledby="uncertain-push-heading">
+          <p className="lfp-eyebrow">Delivery reconciliation</p>
+          <h2 id="uncertain-push-heading" className="mt-2 text-2xl font-black">
+            Uncertain push outcomes
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+            Automatic retries are paused when a worker lease expires before its
+            result is recorded. A retry may duplicate a push if a device already
+            received it. Review the available delivery evidence and record your
+            reason before approving another attempt. This list contains no
+            recipient details or message content.
+          </p>
+          <div className="mt-4 grid gap-3">
+            {uncertainDeliveries?.length ? (
+              uncertainDeliveries.map((delivery) => (
+                <article key={delivery.id} className="lfp-card grid gap-4 p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-black text-amber-800">Outcome unknown · automatic retry paused</p>
+                      <p className="mt-1 text-xs text-slate-600">
+                        Reference <code>{delivery.id}</code>
+                      </p>
+                    </div>
+                    <p className="text-sm text-slate-600">
+                      Attempts: {delivery.push_attempt_count} · Last attempt: {delivery.push_attempted_at ? formatDate(delivery.push_attempted_at) : "Not recorded"}
+                    </p>
+                  </div>
+                  <form action={requeueUncertainNotificationPush} className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+                    <input type="hidden" name="notification_id" value={delivery.id} />
+                    <div className="grid gap-3">
+                      <label className="text-sm font-bold">
+                        Reconciliation note
+                        <textarea
+                          required
+                          minLength={12}
+                          maxLength={500}
+                          name="reason"
+                          rows={2}
+                          placeholder="What delivery evidence did you review?"
+                          className="mt-1 w-full rounded-xl border p-3 font-normal"
+                        />
+                      </label>
+                      <label className="flex items-start gap-2 text-sm text-slate-700">
+                        <input required type="checkbox" name="confirm_duplicate_risk" value="yes" className="mt-1" />
+                        I understand this retry may send a duplicate push.
+                      </label>
+                    </div>
+                    <button className="lfp-button self-end bg-amber-700 text-white">
+                      Approve retry
+                    </button>
+                  </form>
+                </article>
+              ))
+            ) : (
+              <div className="lfp-card p-5 text-sm text-slate-600" role="status">
+                No uncertain push outcomes need reconciliation.
+              </div>
+            )}
+          </div>
+        </section>
         <section aria-labelledby="compose-heading">
           <form
             action={sendAdminNotification}
@@ -192,8 +270,8 @@ export default async function AdminNotificationsPage() {
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 The app creates an in-app notification for each active matched
-                recipient. The existing webhook then records whether push
-                delivery was sent, skipped, or failed.
+                recipient. The scheduled worker records push delivery, retries
+                transient failures, and pauses uncertain outcomes for review.
               </p>
             </div>
 

@@ -24,7 +24,8 @@ export default async function AdminPage() {
   const requestRows = requestsResult.data ?? [];
   const failedPushCount = deliveryHealth?.[0]?.failed_count ?? 0;
   const overduePushCount = deliveryHealth?.[0]?.pending_overdue_count ?? 0;
-  const deliveryIssues = failedPushCount + overduePushCount;
+  const uncertainPushCount = deliveryHealth?.[0]?.uncertain_count ?? 0;
+  const deliveryIssues = failedPushCount + overduePushCount + uncertainPushCount;
   const openRequests = requestRows.filter((request) => request.user_id === null && request.is_public && request.moderation_status === "pending").length;
   const pendingCommunityReviews = [
     ...(testimoniesResult.data ?? []),

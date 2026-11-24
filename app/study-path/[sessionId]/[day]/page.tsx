@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getUnlockedDailyPathDay } from "@/lib/daily-path-unlock";
 import { completeDailyStudy, lockGroupResponse, savePersonalReflection, savePrivateJournal } from "./actions";
 
 export default async function DailyStudyPage({params}:{params:Promise<{sessionId:string;day:string}>}){
@@ -8,7 +9,7 @@ export default async function DailyStudyPage({params}:{params:Promise<{sessionId
  const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect(`/login?next=/study-path/${sessionId}/${day}`);
  const [{data:participant},{data:session}]=await Promise.all([s.from("study_session_participants").select("study_session_id").eq("study_session_id",sessionId).eq("user_id",user.id).maybeSingle(),s.from("study_sessions").select("id,bible_study_id,scheduled_start,daily_path_released_at,status,group_id,facilitator_user_id,bible_studies(id,title,subtitle,devotional_cards)").eq("id",sessionId).maybeSingle()]);
  if(!participant||!session)notFound();const study:any=Array.isArray((session as any).bible_studies)?(session as any).bible_studies[0]:(session as any).bible_studies;const cards=Array.isArray(study?.devotional_cards)?study.devotional_cards:[];const card=cards[day-1];if(!card)notFound();
- if(!session.daily_path_released_at)redirect("/dashboard");const release=new Date(session.daily_path_released_at);const nowMs=new Date().getTime();const unlockDay=Math.min(cards.length,Math.max(1,Math.floor((nowMs-release.getTime())/86400000)+1));if(day>unlockDay)redirect(`/study-path/${sessionId}/${unlockDay}`);
+const unlockDay=getUnlockedDailyPathDay(session.daily_path_released_at,cards.length);if(unlockDay===0)redirect("/dashboard");if(day>unlockDay)redirect(`/study-path/${sessionId}/${unlockDay}`);
  const {data:groupAllowed}=await s.rpc("is_active_administered_study_group_member",{uid:user.id,sid:sessionId});
  const [{data:responses},{data:progress}]=await Promise.all([s.from("study_daily_responses").select("id,user_id,response_type,response_text,locked_at,created_at").eq("study_session_id",sessionId).eq("day_number",day),s.from("study_daily_progress").select("completed_at").eq("study_session_id",sessionId).eq("user_id",user.id).eq("day_number",day).maybeSingle()]);
  const own=(responses||[]).filter((r:any)=>r.user_id===user.id);const privateJournal=own.find((r:any)=>r.response_type==="private_journal");const groupMine=own.find((r:any)=>r.response_type==="group_response");const reflection=own.find((r:any)=>r.response_type==="personal_reflection");const revealed=Boolean(groupAllowed && groupMine?.locked_at);const lockedGroupText=groupMine?.response_text||"";
