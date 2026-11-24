@@ -38,6 +38,11 @@ BEGIN
        'participants read own or revealed group responses'))
  OR has_function_privilege('anon',
      'public.is_daily_path_day_unlocked(uuid,uuid,integer)','EXECUTE')
+ OR NOT EXISTS(select 1 from pg_policies where schemaname='public'
+     and tablename='study_daily_responses'
+     and policyname='participants read unlocked own or revealed group responses'
+     and position('is_active_administered_study_group_member(user_id, study_session_id)' in qual)>0
+     and position('is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)' in qual)>0)
  THEN RAISE EXCEPTION 'Failed #182 repair postflight'; END IF;
 END $assert$;`;
 const legacy=`
@@ -54,7 +59,23 @@ CREATE POLICY "participants insert own daily responses" ON public.study_daily_re
 CREATE POLICY "participants update own unlocked responses" ON public.study_daily_responses FOR UPDATE TO authenticated
  USING (user_id=auth.uid()) WITH CHECK (user_id=auth.uid());
 CREATE POLICY "participants read own or revealed group responses" ON public.study_daily_responses FOR SELECT TO authenticated
- USING (user_id=auth.uid());
+ USING (
+   user_id=auth.uid()
+   OR (
+     response_type='group_response' AND locked_at IS NOT NULL
+     AND public.is_active_administered_study_group_member(user_id,study_session_id)
+     AND (
+       public.is_active_administered_study_group_member(( SELECT auth.uid() AS uid),study_daily_responses.study_session_id)
+       OR EXISTS (
+         SELECT 1 FROM public.study_sessions ss
+         WHERE ss.id=study_daily_responses.study_session_id
+         AND ss.facilitator_user_id=( SELECT auth.uid() AS uid)
+         AND public.is_active_administered_study_group_member(( SELECT auth.uid() AS uid),study_daily_responses.study_session_id)
+       )
+       OR public.is_lfp_admin(( SELECT auth.uid() AS uid))
+     )
+   )
+ );
 ${sql}
 ${check}
 ROLLBACK;`;
