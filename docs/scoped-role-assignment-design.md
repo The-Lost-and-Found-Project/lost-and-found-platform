@@ -45,6 +45,18 @@ Request states: `pending`, `approved`, `declined`, `withdrawn`, and `cancelled`.
 - Avoid policies that query the same protected assignment/delegation table recursively. Prefer server-side scoped reads for sensitive review queues until a non-recursive database helper has been independently reviewed.
 - Add database-level constraints for valid scope combinations and request transitions. Add audit data that cannot be rewritten by ordinary reviewers.
 
+## Audit history and account deletion
+
+The design requires auditable decisions, while the approved product direction says that leaving members have all of their data removed. Those requirements can conflict when an audit event retains an identifiable actor, subject, or prayer-request reference after account or request deletion. Do not resolve this by silently keeping identifiable records or by deleting history without an explicit policy decision.
+
+Before implementing the audit tables, decide:
+
+- Whether account departure removes linked audit events, anonymizes actor/subject references, or retains a narrowly scoped record for a defined period.
+- What happens to moderation events when a prayer request is deleted or an account is removed.
+- Whether free-text reasons are needed. Prefer a small reason code; never copy prayer text, contact details, or care information into an audit record.
+
+The audit design should record the minimum needed to reconstruct who acted, on which workflow item, the action, the prior and resulting state, and when. The exact retention, deletion behavior, and reason format remain open decisions. Until they are resolved, role and prayer moderation actions must not be activated.
+
 ## Migration sequence
 
 1. Inventory every route, page, component, RPC, trigger, and RLS policy that reads the legacy role. Record whether it grants access, controls presentation, or both.
