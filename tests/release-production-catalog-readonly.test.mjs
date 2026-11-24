@@ -30,8 +30,8 @@ test("report explicitly fails closed before #183 corrective release gate is inst
 });
 
 test("report recognizes PostgreSQL's stored empty fixed search_path", () => {
-  assert.match(uncommented, /FROM unnest\\(p\\.proconfig\\) AS cfg\\(setting\\)/);
-  assert.match(uncommented, /cfg\\.setting IN \\('search_path=', 'search_path=""'\\)/);
+  assert.match(uncommented, /FROM unnest\(p\.proconfig\) AS cfg\(setting\)/);
+  assert.match(uncommented, /cfg\.setting IN \('search_path=', 'search_path=""'\)/);
 });
 
 test("report detects unexpected extra permissive policies, not just named matches", () => {
