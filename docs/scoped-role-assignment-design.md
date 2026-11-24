@@ -55,6 +55,18 @@ The audit record should be append-only and limited to the stable internal actor 
 
 Before implementing the audit tables, confirm whether the 90-day window starts at account deletion and decide how references behave when an affected request or subject account is deleted. Until the duration and lifecycle behavior are approved, do not apply the schema or activate role and prayer moderation actions.
 
+## Proposed audit-event shape (design only)
+
+For review before a migration, use a separate append-only event record rather than a mutable `current_decision` field as the only history:
+
+- Record the event ID, actor and subject internal IDs, a minimal actor identity snapshot for accountability, role/workflow scope, target record ID, action key, previous and resulting state, timestamp, and optional structured reason code.
+- Use controlled action/state values and structured reason codes; do not accept arbitrary JSON or free-text prayer details as audit metadata.
+- Do not store email, phone, prayer text, care notes, or a full profile snapshot.
+- Keep audit identities separate from profile foreign keys so profile deletion cannot silently cascade away accountability history. The tentative 90-day departure window would redact the actor/subject identifiers and identity snapshot at expiry; handling of target IDs and post-redaction event metadata remains a final policy decision.
+- Deny anonymous and ordinary member reads/writes. Use server-side service-role insertion only after authorization, and restrict identifiable history reads to specifically authorized reviewers.
+
+This is a design outline only. Do not create or apply the table until the retention window and target-deletion behavior are approved.
+
 ## Migration sequence
 
 1. Inventory every route, page, component, RPC, trigger, and RLS policy that reads the legacy role. Record whether it grants access, controls presentation, or both.
