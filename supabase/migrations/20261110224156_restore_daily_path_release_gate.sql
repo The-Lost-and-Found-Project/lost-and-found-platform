@@ -39,6 +39,9 @@ BEGIN
     FROM pg_policies
     WHERE schemaname = 'public' AND tablename = 'study_daily_responses';
 
+  RAISE NOTICE '#182 observed local policy inventory: progress %, responses %',
+    actual_progress, actual_responses;
+
   IF actual_progress NOT IN (
     ARRAY['participants manage own daily progress']::text[],
     ARRAY['participants manage own unlocked daily progress']::text[]
