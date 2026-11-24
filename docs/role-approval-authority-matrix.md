@@ -6,6 +6,7 @@ Status: reviewer-scope, delegation-duration, and high-trust review policies appr
 
 - Signup grants baseline L&F membership immediately.
 - Every additional role requires approval.
+- Members may request each of these five candidate roles, with approval required for the exact role and ministry/group scope: Study Facilitator, Prayer Team, Ministry Leader, Serve Team, and Supervisor. This does not approve the final role catalog or assign any reviewer. Group participation remains a separate decision and never grants a role.
 - Delegated approvals are needed.
 - Non-admin role requests go only to people explicitly assigned the exact role type and ministry/group scope. An Admin title alone grants no blanket approval authority. Ministry leaders may review only when explicitly delegated that exact scope. Reviewers cannot grant authority beyond their own.
 - Chad and Chrissy are the only people who may grant or remove administrator access; that authority cannot be delegated.
