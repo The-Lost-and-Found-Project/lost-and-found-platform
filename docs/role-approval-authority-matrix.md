@@ -1,6 +1,6 @@
 # Role approval and delegation matrix
 
-Status: reviewer-scope policy approved for planning; this document does not change database schema, live authorization, or existing permissions.
+Status: reviewer-scope and delegation-duration policies approved for planning; this document does not change database schema, live authorization, or existing permissions.
 
 ## Policy already established
 
@@ -72,7 +72,7 @@ Enforce these limits:
 
 Test the allow and deny cases for: active Owner, active Admin, properly delegated reviewer, expired/revoked delegation, out-of-scope reviewer, unsupported role, inactive member, self-approval, duplicate request, delegated administrator request, delegation chaining, and an attempt to change another group's membership. Enforce these checks on the server and database boundary; a hidden or disabled button is not a permission check.
 
-## Delegation duration proposal (not approved)
+## Approved delegation duration
 
 - Default term: 30 days; maximum term: 90 days.
 - Every grant has explicit start and end timestamps. A grant may be revoked immediately by an authority that can issue it.
@@ -81,6 +81,5 @@ Test the allow and deny cases for: active Owner, active Admin, properly delegate
 
 ## Decisions still open before implementation
 
-1. Accept or change the proposed 30-day default and 90-day maximum, including whether every grant must have an end date.
-2. Decide whether high-trust roles such as `moderator` or `prayer_team` need one reviewer or two independent approvals.
-3. Identify the named reviewer for each approved role/scope and define any training or evidence requirements.
+1. Decide whether high-trust roles such as `moderator` or `prayer_team` need one reviewer or two independent approvals.
+2. Identify the named reviewer for each approved role/scope and define any training or evidence requirements.
