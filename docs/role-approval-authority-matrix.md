@@ -1,6 +1,6 @@
 # Role approval and delegation matrix
 
-Status: reviewer-scope, delegation-duration, high-trust review, and reviewer-provisioning policies approved for planning; this document does not change database schema, live authorization, or existing permissions.
+Status: reviewer-scope, delegation-duration, high-trust review, Owner blanket-review, and reviewer-provisioning policies approved for planning; this document does not change database schema, live authorization, or existing permissions.
 
 ## Policy already established
 
@@ -86,19 +86,19 @@ Test the allow and deny cases for: active Owner, active Admin, properly delegate
 
 ## Approved reviewer provisioning rule
 
-- **Approved:** Chad or Chrissy explicitly appoints initial reviewers for each role and ministry/group scope; an Owner title alone does not automatically place requests in their queue. Reviewers may delegate only authority they currently hold, for the exact role, action, and scope, under the approved term limits. A reviewer cannot appoint another reviewer unless that appointment authority is explicitly delegated. If no eligible reviewer is configured, the request stays pending; there is no fallback to all Admins or ministry leaders.
+- **Approved:** Chad and Chrissy are blanket reviewers for all non-admin role requests across ministry and group scopes. Either may review a request, except their own; high-trust prayer roles still require two independent approvals. They may appoint additional reviewers for appropriate exact role/scope assignments. Other reviewers may act only within their explicit assignment and may delegate only when that authority is explicitly included. Admins and ministry leaders have no blanket review authority. If no eligible reviewer is configured, the request stays pending.
 
 ## Initial reviewer assignment proposal (planning only)
 
-This proposed matrix records the requested initial names; it grants no access and does not create live reviewer assignments.
+This approved planning matrix does not grant live access or create current reviewer assignments.
 
-| Role | Scope | Proposed initial reviewers | Approval rule |
+| Role | Scope | Initial review authority | Approval rule |
 | --- | --- | --- | --- |
-| Prayer Team | Prayer ministry only | Chad and Crissy | Both must independently approve. Neither may review their own request. If either is the requester or unavailable, leave the request pending until a second eligible reviewer is explicitly appointed. |
-| Study Facilitator | Each named study group | Not assigned | Owner appointment required for each scope. |
-| Ministry Leader | Each named ministry | Not assigned | Owner appointment required for each scope. |
-| Serve Team | Each named serve team | Not assigned | Owner appointment required for each scope. Group participation remains separate. |
-| Supervisor | Each named facilitator/group scope | Not assigned | Owner appointment required for each scope. |
+| Prayer Team | Prayer ministry only | Chad and Crissy; either may appoint additional scoped reviewers | Two independent approvals. Neither Owner may review their own request. |
+| Study Facilitator | Each named study group | Chad or Crissy; they may appoint an additional reviewer for that group | One authorized reviewer unless the role's final sensitivity classification requires more. |
+| Ministry Leader | Each named ministry | Chad or Crissy; they may appoint an additional reviewer for that ministry | One authorized reviewer unless the role's final sensitivity classification requires more. |
+| Serve Team | Each named serve team | Chad or Crissy; they may appoint an additional reviewer for that team | One authorized reviewer. Group participation remains separate. |
+| Supervisor | Each named facilitator/group scope | Chad or Crissy; they may appoint an additional reviewer for that scope | One authorized reviewer unless the role's final sensitivity classification requires more. |
 
 ## Decisions still open before implementation
 
