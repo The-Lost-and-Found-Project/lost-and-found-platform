@@ -72,14 +72,25 @@ BEGIN
     SELECT 1 FROM pg_policies
     WHERE schemaname = 'public'
       AND tablename = 'study_daily_responses'
-      AND policyname IN (
-        'participants read unlocked own or revealed group responses',
-        'participants read own or revealed group responses'
+      AND (
+        (
+          policyname = 'participants read unlocked own or revealed group responses'
+          AND position('is_active_administered_study_group_member(user_id, study_session_id)' IN qual) > 0
+          AND position('is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)' IN qual) > 0
+        )
+        OR (
+          -- Exact local pre-release baseline from 20260916043500. It is
+          -- intentionally upgraded by this migration to the stricter checks
+          -- installed below; arbitrary expressions still fail closed.
+          policyname = 'participants read own or revealed group responses'
+          AND position('study_session_participants' IN qual) > 0
+          AND position('has_locked_group_response' IN qual) > 0
+          AND position('facilitator_user_id' IN qual) > 0
+          AND position('is_lfp_admin' IN qual) > 0
+        )
       )
-      AND position('is_active_administered_study_group_member(user_id, study_session_id)' IN qual) > 0
-      AND position('is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)' IN qual) > 0
   ) THEN
-    RAISE EXCEPTION '#182: unexpected group-response membership guards; aborting before changes';
+    RAISE EXCEPTION '#182: unexpected group-response policy expression; aborting before changes';
   END IF;
 END $policy_preflight$;
 
