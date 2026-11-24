@@ -12,7 +12,7 @@ This first implementation package adds `/rebuild-preview` as a public, read-only
 
 All sample dialogs support keyboard use: opening a dialog moves focus into it, Tab stays within it, Escape closes it, and focus returns to the control that opened it. The visitor prayer form requires a separate 18+ affirmation and public-sharing acknowledgement before its sample submission button is enabled.
 
-The app route itself has no L&F or Supabase sign-in requirement. However, the Vercel project has SSO protection enabled for all deployments except custom domains, so the current hosted branch deployment redirects unauthenticated visitors to Vercel sign-in before the preview UI loads (confirmed Nov. 19, 2026). Earlier interactive review notes below reflect their original review sessions; a fresh visual review of the latest deployment is pending an accessible preview path.
+The app route itself has no L&F or Supabase sign-in requirement. The Vercel project has SSO protection enabled for hosted preview deployments. On Nov. 23, 2026, Chad opened the latest `/rebuild-preview` link in his own browser, reported that it did not ask him to sign in, and confirmed that the design looked good. This clears the visual design review for the preview he saw. A separate cloud-browser session was redirected to Vercel sign-in; access may therefore depend on an existing Vercel session, and other reviewers may still encounter the protection screen.
 
 The preview contains three switchable surfaces:
 
