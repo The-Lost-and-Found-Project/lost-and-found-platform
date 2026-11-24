@@ -2,7 +2,7 @@
 
 Status: multi-session curriculum draft for planning. This material does not record anyone's completion, create a role assignment, or change live permissions. Finalize and version the curriculum, moderation criteria, review checklist, and escalation route before activation. A verifier appointed by Chad or Crissy records completion against the exact version.
 
-Each role has three 60-minute sessions. Sessions use short teaching segments, Scripture reading, participant discussion, and synthetic practice. The facilitator teaches the standard and asks learners to work through the cases; completion is based on demonstrated judgment, not attendance alone.
+Each role has three 60-minute sessions. Sessions use short teaching segments, Scripture reading, participant discussion, and synthetic practice from the companion casebook in owner-role-training-casebook.md. The facilitator teaches the standard and asks learners to work through the cases; completion is based on demonstrated judgment, not attendance alone.
 
 ## Moderator
 
