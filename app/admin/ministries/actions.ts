@@ -9,7 +9,7 @@ async function requireManager(slug?:string){
  const {data:{user}}=await supabase.auth.getUser();
  if(!user)redirect("/login");
  const {data:profile}=await supabase.from("profiles").select("role,preview_role,is_active").eq("id",user.id).single();
- if(profile?.is_active!==true)redirect("/dashboard");
+ if(profile?.is_active!==true) redirect("/dashboard");
  if(getEffectiveRole(profile?.role,profile?.preview_role)==="admin")return{supabase,user,isAdmin:true};
  if(slug){
   const {data:lead}=await supabase.from("ministry_memberships").select("id").eq("user_id",user.id).eq("ministry_slug",slug).eq("membership_role","leader").maybeSingle();
