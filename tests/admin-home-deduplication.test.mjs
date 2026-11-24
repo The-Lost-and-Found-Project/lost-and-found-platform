@@ -8,5 +8,7 @@ const command = fs.readFileSync("components/AdminCommandCenter.tsx", "utf8");
 assert.match(frame, /!p\.startsWith\("\/admin"\)&&<BottomNav\/>/);
 assert.doesNotMatch(page, /Administration Center/);
 assert.doesNotMatch(page, /AdminStat/);
-assert.match(command, /Ministry signals and next actions/);
+assert.match(command, /Needs attention/);
+assert.match(command, /Visitor prayer review/);
+assert.match(command, /Notification delivery issues/);
 console.log("admin home de-duplication: ok");

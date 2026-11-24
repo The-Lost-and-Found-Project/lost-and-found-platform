@@ -13,9 +13,9 @@ test('anonymous visitors are redirected away from the dashboard', async ({ page 
   await expect(page).toHaveURL(/\/login\?next=%2Fdashboard/i);
 });
 
-test('directory suggestion requires sign-in', async ({ page }) => {
+test('user-facing directory is unavailable', async ({ page }) => {
   await page.goto('/directory/suggest');
-  await expect(page).toHaveURL(/\/login\?next=/);
+  await expect(page).toHaveURL('/resources');
 });
 
 test('protected ministry pages redirect anonymous visitors to sign-in', async ({ page }) => {
