@@ -85,8 +85,11 @@ BEGIN
           -- Exact local pre-release baseline from 20260916043500. It is
           -- intentionally upgraded by this migration to the stricter checks
           -- installed below; arbitrary expressions still fail closed.
-          policyname = 'participants read own or revealed group responses'
-          AND position('study_session_participants' IN qual) > 0
+          to_regprocedure('public.is_active_administered_study_group_member(uuid,uuid)') IS NULL
+          AND policyname IN (
+            'participants read own or revealed group responses',
+            'participants read unlocked own or revealed group responses'
+          )
           AND position('has_locked_group_response' IN qual) > 0
           AND position('facilitator_user_id' IN qual) > 0
           AND position('is_lfp_admin' IN qual) > 0
@@ -127,6 +130,34 @@ $function$;
 REVOKE ALL ON FUNCTION public.is_daily_path_day_unlocked(uuid,uuid,integer)
  FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.is_daily_path_day_unlocked(uuid,uuid,integer)
+ TO authenticated;
+
+-- This prerequisite migration sorts before the later group-discussion
+-- migration; install its membership helper here so the guarded policy is
+-- valid both during local replay and on hosted Production.
+CREATE OR REPLACE FUNCTION public.is_active_administered_study_group_member(
+ uid uuid, sid uuid
+) RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = ''
+AS $function$
+ SELECT EXISTS (
+   SELECT 1 FROM public.study_sessions ss
+   JOIN public.study_groups g ON g.id=ss.group_id AND g.status='active'
+   JOIN public.study_group_members gm ON gm.group_id=g.id
+     AND gm.user_id=uid AND gm.membership_status='active'
+   JOIN public.study_session_participants sp ON sp.study_session_id=ss.id
+     AND sp.user_id=uid
+   WHERE ss.id=sid AND ss.facilitator_user_id IS NOT NULL
+   AND EXISTS (
+     SELECT 1 FROM public.study_group_members leader
+     WHERE leader.group_id=g.id AND leader.user_id=ss.facilitator_user_id
+       AND leader.group_role='facilitator' AND leader.membership_status='active'
+   )
+ );
+$function$;
+REVOKE ALL ON FUNCTION public.is_active_administered_study_group_member(uuid,uuid)
+ FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.is_active_administered_study_group_member(uuid,uuid)
  TO authenticated;
 
 -- DROP the older permissive rules. PostgreSQL ORs permissive policies; simply
