@@ -56,7 +56,7 @@ These facts establish the compatibility boundary. The reviewer-scope rule below 
 | Administrator access | Configured Owners only | No | Never available through ordinary role delegation or group membership |
 | Integration changes or paid services | Configured Owners only | No | Owner authorization remains separate from ministry roles |
 
-The scoped-review rule is approved for planning. It does not change current behavior: the existing system still allows active administrators to assign `member`, `facilitator`, and `supervisor`. Before implementation, identify the named reviewer for each role/scope and define any training or evidence requirements.
+The scoped-review rule and Owner blanket-review authority are approved for planning; current behavior remains unchanged, and the legacy role endpoint still permits active administrators to assign `member`, `facilitator`, and `supervisor`. Chad and Crissy are the standing reviewers for non-admin requests; appoint additional reviewers only when a role/scope needs them, and grant no broader authority than the exact documented assignment. Role-specific prerequisite types are documented below. Before activation, finish each curriculum/evidence item and appoint its verifier.
 
 ## Delegation record and limits
 
@@ -145,4 +145,4 @@ This approved planning matrix does not grant live access or create current revie
 
 ## Decisions still open before implementation
 
-2. Identify any additional reviewers, define the actual training/evidence requirements, and appoint verifiers for each role/scope.
+1. Develop and version the role-specific training materials, then appoint verifiers for each role/scope before activation. Chad and Crissy are the standing reviewers; appoint additional reviewers only for a defined need and exact scope.
