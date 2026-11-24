@@ -7,9 +7,9 @@ const root = process.cwd();
 async function routeFiles(directory){const entries=await readdir(directory,{withFileTypes:true});const nested=await Promise.all(entries.map(async(entry)=>{const fullPath=path.join(directory,entry.name);if(entry.isDirectory())return routeFiles(fullPath);return entry.name==="route.ts"?[fullPath]:[]}));return nested.flat()}
 async function sourceFiles(directory){const entries=await readdir(directory,{withFileTypes:true});const nested=await Promise.all(entries.map(async(entry)=>{const fullPath=path.join(directory,entry.name);if(entry.isDirectory())return sourceFiles(fullPath);return /\.(?:ts|tsx)$/.test(entry.name)?[fullPath]:[]}));return nested.flat()}
 
-test("all admin routes using the service role verify the caller is an admin",async()=>{const files=await routeFiles(path.join(root,"app","api","admin"));for(const file of files){const source=await readFile(file,"utf8");if(!source.includes("createAdminClient"))continue;assert.match(source,/auth\.getUser\(\)/,`${file} must authenticate`);assert.match(source,/callerProfile\?\.role !== "admin"/,`${file} must verify the admin role`)}});
+test("all admin routes using the service role verify the caller is an admin",async()=>{const files=await routeFiles(path.join(root,"app","api","admin"));for(const file of files){const source=await readFile(file,"utf8");if(!source.includes("createAdminClient"))continue;assert.match(source,/auth\.getUser\(\)/,`${file} must authenticate`);assert.match(source,/(?:callerProfile\?\.role\s*!==\s*"admin"|callerProfile\?\.is_active\s*!==\s*true\s*\|\|\s*getEffectiveRole\(callerProfile\?\.role,\s*callerProfile\?\.preview_role\)\s*!==\s*"admin")/,`${file} must verify the admin role`)}});
 
-test("non-admin page requests leave the admin navigation area",async()=>{const adminPages=["page.tsx","analytics/page.tsx","content/page.tsx","feedback/page.tsx","users/page.tsx"];for(const relativePath of adminPages){const file=path.join(root,"app","admin",relativePath);const source=await readFile(file,"utf8");assert.match(source,/if\s*\((?:!isAdmin|effectiveRole\s*!==\s*"admin")\)\s*(?:\{\s*)?redirect\("\/dashboard"\);?(?:\s*\})?/,`${file} must redirect ordinary members away from admin navigation`)}});
+test("non-admin page requests leave the admin navigation area",async()=>{const adminPages=["page.tsx","analytics/page.tsx","content/page.tsx","feedback/page.tsx","users/page.tsx"];for(const relativePath of adminPages){const file=path.join(root,"app","admin",relativePath);const source=await readFile(file,"utf8");assert.match(source,/if\s*\((?:!isAdmin|effectiveRole\s*!==\s*"admin"|profile\?\.is_active\s*!==\s*true\s*\|\|\s*effectiveRole\s*!==\s*"admin")\)\s*(?:\{\s*)?redirect\("\/dashboard"\);?(?:\s*\})?/,`${file} must redirect ordinary members away from admin navigation`)}});
 
 test("every scheduled cron route fails closed and verifies the Vercel cron bearer secret",async()=>{const config=JSON.parse(await readFile(path.join(root,"vercel.json"),"utf8"));assert.ok(config.crons.length>0,"expected a scheduled cron route");for(const cron of config.crons){const file=path.join(root,"app",...cron.path.split("/").filter(Boolean),"route.ts");const source=await readFile(file,"utf8");assert.match(source,/const cronSecret = process\.env\.CRON_SECRET/,`${file} must load CRON_SECRET explicitly`);assert.match(source,/authorization/,`${file} must read authorization`);assert.match(source,/if \(!cronSecret \|\| authHeader !== `Bearer \$\{cronSecret\}`\)/,`${file} must fail closed when CRON_SECRET is missing or invalid`);assert.match(source,/status:\s*401/,`${file} must reject invalid callers`)}});
 
@@ -32,3 +32,16 @@ test("members update or withdraw only their own prayer requests",async()=>{const
 test("linked praise reports can only answer the requester's own prayer",async()=>{const client=await readFile(path.join(root,"components","PraiseSubmitClient.tsx"),"utf8");const route=await readFile(path.join(root,"app","api","praise-reports","submit","route.ts"),"utf8");assert.match(client,/fetch\("\/api\/praise-reports\/submit"/);assert.doesNotMatch(client,/\.from\("prayer_requests"\)/);assert.match(route,/auth\.getUser\(\)/);assert.match(route,/\.from\("prayer_requests"\)[\s\S]*\.eq\("id", prayerRequestId\)[\s\S]*\.eq\("user_id", user\.id\)/);assert.match(route,/\.update\(\{\s*answered:\s*true,\s*status:\s*"Resolved",\s*is_public:\s*false\s*\}\)/)});
 
 test("prayer assignment updates are permanently retired",async()=>{const s=await readFile(path.join(root,"app","api","prayer-assignments","update","route.ts"),"utf8");assert.match(s,/retiredPrayerCareResponse/);assert.doesNotMatch(s,/assigned_to|ALLOWED_FIELDS|prayer_requests/)});
+
+
+test("member prayer actions have explicit constrained payloads and terminal-state guards",async()=>{
+  const route=await readFile(path.join(root,"app","api","prayer-requests","mine","update","route.ts"),"utf8");
+  assert.match(route,/const ACTIONS = new Set\(\["edit", "resolve", "withdraw"\]\)/);
+  assert.match(route,/\.eq\("user_id", user\.id\)/);
+  assert.match(route,/\.eq\("answered", false\)/);
+  assert.match(route,/\.eq\("archived", false\)/);
+  assert.match(route,/\.in\("status", \[/);
+  assert.match(route,/answered: true,\s*status: "Resolved"/);
+  assert.match(route,/status: "Withdrawn", archived: true, is_public: false/);
+  assert.doesNotMatch(route,/\.update\(body\)/);
+});

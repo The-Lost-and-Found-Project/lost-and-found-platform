@@ -14,8 +14,8 @@ export async function requireAppCapability(capability: AppCapability, nextPath =
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?next=${encodeURIComponent(nextPath)}`);
-  const { data: profile } = await supabase.from("profiles").select("role,preview_role").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("role,preview_role,is_active").eq("id", user.id).single();
   const role = getEffectiveRole(profile?.role, profile?.preview_role);
-  if (!hasCapability(role, capability)) redirect("/dashboard");
+  if (profile?.is_active !== true || !hasCapability(role, capability)) redirect("/dashboard");
   return { user, role, supabase };
 }

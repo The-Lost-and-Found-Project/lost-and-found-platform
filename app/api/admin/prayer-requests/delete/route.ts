@@ -1,3 +1,4 @@
+import { getEffectiveRole } from "@/lib/effective-role";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -27,11 +28,11 @@ export async function POST(request: NextRequest) {
 
     const { data: callerProfile } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role,preview_role,is_active")
       .eq("id", user.id)
       .single();
 
-    if (callerProfile?.role !== "admin") {
+    if (callerProfile?.is_active !== true || getEffectiveRole(callerProfile?.role, callerProfile?.preview_role) !== "admin") {
       return NextResponse.json({ error: "Admins only" }, { status: 403 });
     }
 
