@@ -16,7 +16,7 @@ export default async function AdminContentPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, preview_role")
+    .select("role, preview_role, is_active")
     .eq("id", user.id)
     .single();
 
@@ -24,7 +24,7 @@ export default async function AdminContentPage() {
 
   // Moderating/removing testimonies and praise reports is admin-only, same
   // as user management — not open to the broader care team.
-  if (effectiveRole !== "admin") {
+  if (profile?.is_active !== true || effectiveRole !== "admin") {
     redirect("/dashboard");
   }
 
