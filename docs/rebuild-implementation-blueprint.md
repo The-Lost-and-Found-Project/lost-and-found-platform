@@ -503,12 +503,12 @@ These details still need a written specification before their respective feature
 
 ### Recommended starting choices for unresolved details
 
-These recommendations are offered to make the next product review concrete. They remain proposals; do not encode them as approved ministry policy until accepted.
+The table distinguishes approved planning rules from remaining proposals. Do not encode unresolved recommendations as ministry policy until accepted.
 
 | Open detail | Recommended starting choice | Reason / boundary |
 | --- | --- | --- |
 | Reviewer assignment | **Confirmed:** route each non-admin role request only to reviewers explicitly assigned that role and ministry/group scope. Admins receive no blanket approval authority; ministry leaders may review only when explicitly delegated. Only Chad and Chrissy may grant or remove administrator access. | Approval follows explicit authority and scope, not a person's title. |
-| Delegation term and expiry handling | Proposal: use a 30-day default term, a proposed 90-day maximum, explicit start/end times, immediate revocation, and renewal as a new grant. On expiry or revocation, return unfinished decisions to the standing scoped queue and keep them pending. | Short, auditable grants reduce stale authority; durations and in-flight handling still require ministry approval. Never auto-approve on expiry. |
+| Delegation term and expiry handling | **Approved:** use a 30-day default term, a 90-day maximum, explicit start/end times, immediate revocation, and renewal as a new grant. On expiry or revocation, return unfinished decisions to the standing scoped queue and keep them pending. | Short, auditable grants reduce stale authority; durations and in-flight handling still require ministry approval. Never auto-approve on expiry. |
 | Profile directory defaults | Directory off and each field private until the member opts in; member-only audiences in the initial release; public-web sharing requires a separate explicit decision. | Matches member control and reduces accidental disclosure. |
 | Adult eligibility and optional analytics | Require an 18+ confirmation; make birth date optional and use it only for eligibility/aggregate age-band analytics when supplied. Offer other optional analytics fields with a skip path; keep raw birth date private and separate from directory sharing. | Supports useful aggregate insight without making optional data a membership condition. |
 | Notification controls | Start new categories enabled; let members opt out by category and channel; preserve existing explicit choices; ask for device push permission only after sign-in and member action. | Fits the approved all-on default while respecting browser permission and channel preferences. |
