@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(10);
+select plan(12);
 
 select ok(not has_function_privilege('anon',
  'public.is_daily_path_day_unlocked(uuid,uuid,integer)','EXECUTE'),
@@ -54,5 +54,17 @@ reset role;
 select is((select count(*)::integer from pg_policies
  where schemaname='public' and tablename='study_daily_responses'),3,
  'exactly three response policies remain; no residual permissive legacy policy');
+select ok(position(
+ 'is_active_administered_study_group_member(user_id, study_session_id)'
+ in (select qual from pg_policies where schemaname='public'
+     and tablename='study_daily_responses'
+     and policyname='participants read unlocked own or revealed group responses')
+)>0,'locked group responses remain limited to active administered group authors');
+select ok(position(
+ 'is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)'
+ in (select qual from pg_policies where schemaname='public'
+     and tablename='study_daily_responses'
+     and policyname='participants read unlocked own or revealed group responses')
+)>0,'facilitator access remains limited to active administered group membership');
 select * from finish();
 rollback;
