@@ -74,6 +74,8 @@ Therefore:
 
 For each request, invitation, approval, decline, withdrawal, removal, and delegation change, retain the actor, subject, group, prior state, new state, timestamp, and optional reason. Prevent state changes from an unrelated group scope, inactive accounts, and self-approval. Enforce the same boundary in server authorization and database policy; hiding a button is not authorization.
 
+Approved account-departure direction preserves the minimum identifiable audit history needed for accountability as a narrow exception to removing ordinary member data. Keep the stable actor reference and only the minimal identity snapshot needed to attribute actions; never copy prayer text, contact details, or care information. The retention duration and deleted-subject reference behavior remain to be decided before schema work.
+
 ## Recommended starting choices for remaining group decisions
 
 These are review-ready recommendations, not approved policy and not implemented behavior. Confirm them with ministry leadership before building persistence.
