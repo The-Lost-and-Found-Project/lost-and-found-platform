@@ -39,9 +39,6 @@ BEGIN
     FROM pg_policies
     WHERE schemaname = 'public' AND tablename = 'study_daily_responses';
 
-  RAISE NOTICE '#182 observed local policy inventory: progress %, responses %',
-    actual_progress, actual_responses;
-
   IF actual_progress NOT IN (
     ARRAY['participants manage own daily progress']::text[],
     ARRAY['participants manage own unlocked daily progress']::text[]
@@ -77,7 +74,10 @@ BEGIN
       AND tablename = 'study_daily_responses'
       AND (
         (
-          policyname = 'participants read unlocked own or revealed group responses'
+          policyname IN (
+            'participants read unlocked own or revealed group responses',
+            'participants read own or revealed group responses'
+          )
           AND position('is_active_administered_study_group_member(user_id, study_session_id)' IN qual) > 0
           AND position('is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)' IN qual) > 0
         )
