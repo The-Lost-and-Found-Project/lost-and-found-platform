@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(12);
+select plan(13);
 
 select ok(not has_function_privilege('anon',
  'public.is_daily_path_day_unlocked(uuid,uuid,integer)','EXECUTE'),
@@ -65,6 +65,22 @@ select ok(position(
  in (select qual from pg_policies where schemaname='public'
      and tablename='study_daily_responses'
      and policyname='participants read unlocked own or revealed group responses')
-)>0,'facilitator access remains limited to active administered group membership');
+)>position(
+ 'facilitator_user_id'
+ in (select qual from pg_policies where schemaname='public'
+     and tablename='study_daily_responses'
+     and policyname='participants read unlocked own or revealed group responses'),
+ 'facilitator access remains limited to active administered group membership');
+select ok(position(
+ 'is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)'
+ in (select qual from pg_policies where schemaname='public'
+     and tablename='study_daily_responses'
+     and policyname='participants read unlocked own or revealed group responses')
+)<position(
+ 'has_locked_group_response'
+ in (select qual from pg_policies where schemaname='public'
+     and tablename='study_daily_responses'
+     and policyname='participants read unlocked own or revealed group responses'),
+ 'viewer must be an active administered group member before locked-response access');
 select * from finish();
 rollback;
