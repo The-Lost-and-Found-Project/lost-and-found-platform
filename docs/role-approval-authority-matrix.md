@@ -84,6 +84,13 @@ Test the allow and deny cases for: active Owner, active Admin, properly delegate
 
 - **Approved:** - Roles that can read or publish private prayer content require two independent approvals before assignment, including `moderator` and `prayer_team` if those permissions remain in the final role catalog. Each reviewer must be explicitly authorized for the exact role and scope; the requester cannot be a reviewer, and the two reviewers cannot approve on behalf of one another. If two eligible reviewers are unavailable, the request stays pending with no temporary access. Other non-admin scoped roles require one explicitly assigned reviewer unless the final role catalog identifies a comparable sensitive capability.
 
+## Reviewer provisioning proposal (not approved)
+
+- Chad or Chrissy, as configured Owners, explicitly appoints the initial reviewer or reviewers for each role and ministry/group scope. An Owner title by itself does not automatically place every request in their queue.
+- Once appointed, a reviewer may delegate only the exact role, action, and scope they are currently authorized to review, using the approved 30-day default and 90-day maximum.
+- A reviewer cannot appoint another reviewer unless that exact authority is itself explicitly delegated.
+- If no eligible reviewer is configured, keep the request pending and show that a reviewer must be assigned. Do not fall back to all administrators or ministry leaders.
+
 ## Decisions still open before implementation
 
 2. Identify the named reviewer for each approved role/scope and define any training or evidence requirements.
