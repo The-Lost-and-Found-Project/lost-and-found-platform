@@ -1,6 +1,6 @@
 # Role approval and delegation matrix
 
-Status: reviewer-scope, delegation-duration, high-trust review, Owner blanket-review, and reviewer-provisioning policies approved for planning; this document does not change database schema, live authorization, or existing permissions.
+Status: reviewer-scope, delegation-duration, high-trust review, Owner blanket-review, reviewer-provisioning, and role-prerequisite policies approved for planning; this document does not change database schema, live authorization, or existing permissions.
 
 ## Policy already established
 
@@ -100,13 +100,13 @@ This approved planning matrix does not grant live access or create current revie
 | Serve Team | Each named serve team | Chad or Crissy; they may appoint an additional reviewer for that team | One authorized reviewer. Group participation remains separate. |
 | Supervisor | Each named facilitator/group scope | Chad or Crissy; they may appoint an additional reviewer for that scope | One authorized reviewer unless the role's final sensitivity classification requires more. |
 
-## Training and evidence proposal (not approved)
+## Approved training and evidence policy
 
-- Set a prerequisite policy separately for each role: `none`, `complete before approval`, or `complete before activation`. Record the training/evidence item and who verifies completion.
+- **Approved:** Set a prerequisite policy separately for each role: `none`, `complete before approval`, or `complete before activation`. Record the training/evidence item and who verifies completion.
 - An unset prerequisite policy means `not configured`, not `none`; do not activate that role until an Owner sets the policy.
 - Training completion never grants a role. The required scoped approval remains a separate decision.
 - A prerequisite may apply only to the exact role/scope for which it was configured; it cannot create broader authority.
 
 ## Decisions still open before implementation
 
-2. Identify the named reviewer for each approved role/scope and define any training or evidence requirements.
+2. Identify the named additional reviewers for role/scope assignments and define the actual training or evidence requirements for each role.
