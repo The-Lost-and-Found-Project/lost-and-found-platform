@@ -14,7 +14,7 @@ const ministrySlugs=new Set(["hearth","foundry","mens-study"]);
 
 async function currentUser(){
  const s=await createClient();const{data:{user}}=await s.auth.getUser();if(!user)redirect("/login");
- const{data:p}=await s.from("profiles").select("role,preview_role").eq("id",user.id).single();const role=getEffectiveRole(p?.role,p?.preview_role);
+ const{data:p}=await s.from("profiles").select("role,preview_role,is_active").eq("id",user.id).single();if(p?.is_active!==true)redirect("/dashboard");const role=getEffectiveRole(p?.role,p?.preview_role);
  return{s,user,role,isAdmin:role==="admin"};
 }
 async function requireAdmin(){const ctx=await currentUser();if(!ctx.isAdmin)redirect("/dashboard");return ctx;}

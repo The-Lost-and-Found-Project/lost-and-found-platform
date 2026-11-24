@@ -11,7 +11,7 @@ test("push delivery remains tracked and visible to administrators", async () => 
     source("supabase", "migrations", "20260810195945_harden_notification_delivery.sql"),
     source("supabase", "migrations", "20260810201500_restrict_notification_delivery_health.sql"),
     source("app", "api", "webhooks", "notification-created", "route.ts"),
-    source("app", "admin", "page.tsx"),
+    source("components", "AdminCommandCenter.tsx"),
   ]);
   assert.match(migration, /push_status text/);
   assert.match(migration, /notifications_push_attention_idx/);
