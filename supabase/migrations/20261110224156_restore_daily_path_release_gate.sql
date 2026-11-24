@@ -65,6 +65,19 @@ BEGIN
   ) THEN
     RAISE EXCEPTION '#182: unexpected Daily Path policy role/type; aborting before changes';
   END IF;
+
+  -- Policy names and roles are not enough: preserve the live restriction that
+  -- both the response author and facilitator belong to the administered group.
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'study_daily_responses'
+      AND policyname = 'participants read unlocked own or revealed group responses'
+      AND position('is_active_administered_study_group_member(user_id, study_session_id)' IN qual) > 0
+      AND position('is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)' IN qual) > 0
+  ) THEN
+    RAISE EXCEPTION '#182: unexpected group-response membership guards; aborting before changes';
+  END IF;
 END $policy_preflight$;
 
 -- SECURITY DEFINER is necessary to inspect membership despite the caller's
@@ -158,6 +171,7 @@ USING (
  OR (
    response_type='group_response'
    AND locked_at IS NOT NULL
+   AND public.is_active_administered_study_group_member(user_id,study_session_id)
    AND (
      (
        public.is_daily_path_day_unlocked(auth.uid(),study_session_id,day_number)
@@ -167,6 +181,7 @@ USING (
        SELECT 1 FROM public.study_sessions ss
        WHERE ss.id=study_daily_responses.study_session_id
        AND ss.facilitator_user_id=auth.uid()
+       AND public.is_active_administered_study_group_member(auth.uid(),study_daily_responses.study_session_id)
      )
      OR public.is_lfp_admin(auth.uid())
    )
