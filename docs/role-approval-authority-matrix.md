@@ -102,6 +102,8 @@ This approved planning matrix does not grant live access or create current revie
 
 ## Approved training and evidence policy
 
+- **Serve Team:** role-specific team onboarding is required before activation. Group membership remains a separate decision, and onboarding completion alone grants neither group access nor serving authority. Curriculum and completion verifier remain to be specified.
+
 - **Ministry Leader:** completion of the L&F multi-session leadership curriculum is required before activation. The curriculum is in development. Role approval remains a separate decision; completion alone grants no authority. The completion verifier remains to be specified.
 
 - **Study Facilitator:** Scripture-first facilitation training is required before activation. Role approval alone does not grant facilitator tools. Curriculum and completion verifier remain to be specified.
