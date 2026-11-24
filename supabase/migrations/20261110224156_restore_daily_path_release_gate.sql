@@ -54,7 +54,7 @@ BEGIN
       'participants update own unlocked responses'
     ]::text[]
   ) THEN
-    RAISE EXCEPTION '#182: unexpected Daily Path RLS policy inventory; aborting before changes';
+    RAISE EXCEPTION '#182: unexpected Daily Path RLS policy inventory (progress %, responses %); aborting before changes', actual_progress, actual_responses;
   END IF;
 
   IF EXISTS (
