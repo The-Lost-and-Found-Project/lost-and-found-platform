@@ -72,8 +72,15 @@ Enforce these limits:
 
 Test the allow and deny cases for: active Owner, active Admin, properly delegated reviewer, expired/revoked delegation, out-of-scope reviewer, unsupported role, inactive member, self-approval, duplicate request, delegated administrator request, delegation chaining, and an attempt to change another group's membership. Enforce these checks on the server and database boundary; a hidden or disabled button is not a permission check.
 
+## Delegation duration proposal (not approved)
+
+- Default term: 30 days; maximum term: 90 days.
+- Every grant has explicit start and end timestamps. A grant may be revoked immediately by an authority that can issue it.
+- Renewal creates a new grant with a new end date and audit entry; delegates cannot extend their own authority.
+- When a grant expires or is revoked, unfinished requests return to the standing queue for that exact scope and remain pending. Expiry never approves a request automatically.
+
 ## Decisions still open before implementation
 
-1. Set a maximum delegation term and whether every delegation requires an end date.
+1. Accept or change the proposed 30-day default and 90-day maximum, including whether every grant must have an end date.
 2. Decide whether high-trust roles such as `moderator` or `prayer_team` need one reviewer or two independent approvals.
 3. Identify the named reviewer for each approved role/scope and define any training or evidence requirements.
