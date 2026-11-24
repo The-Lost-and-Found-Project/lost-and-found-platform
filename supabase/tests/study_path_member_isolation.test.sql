@@ -6,15 +6,22 @@ select plan(13);
 insert into auth.users(id,instance_id,aud,role,email,created_at,updated_at)
 values
 ('00000000-0000-4000-8000-000000000b11','00000000-0000-0000-0000-000000000000','authenticated','authenticated','daily-path-a@example.test',now(),now()),
-('00000000-0000-4000-8000-000000000b12','00000000-0000-0000-0000-000000000000','authenticated','authenticated','daily-path-b@example.test',now(),now());
+('00000000-0000-4000-8000-000000000b12','00000000-0000-0000-0000-000000000000','authenticated','authenticated','daily-path-b@example.test',now(),now()),
+('00000000-0000-4000-8000-000000000b13','00000000-0000-0000-0000-000000000000','authenticated','authenticated','daily-path-facilitator@example.test',now(),now());
 
 insert into public.bible_studies(id,title,is_published,devotional_cards)
 values ('00000000-0000-4000-8000-000000000b21','Synthetic Scripture Study',true,'[{"day":1}]'::jsonb);
-insert into public.study_sessions(id,bible_study_id,ministry_slug,scheduled_start,daily_path_released_at)
-values ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b21','hearth',now(),now()-interval '1 hour');
+insert into public.study_groups(id,ministry_slug,name,status)
+values ('00000000-0000-4000-8000-000000000b24','hearth','Synthetic administered group','active');
+insert into public.study_sessions(id,bible_study_id,ministry_slug,scheduled_start,daily_path_released_at,group_id,facilitator_user_id)
+values ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b21','hearth',now(),now()-interval '1 hour','00000000-0000-4000-8000-000000000b24','00000000-0000-4000-8000-000000000b13');
 insert into public.study_session_participants(study_session_id,user_id)
 values ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b11'),
 ('00000000-0000-4000-8000-000000000b22','00000000-0000-4000-8000-000000000b12');
+insert into public.study_group_members(group_id,user_id,group_role,membership_status)
+values ('00000000-0000-4000-8000-000000000b24','00000000-0000-4000-8000-000000000b11','member','active'),
+('00000000-0000-4000-8000-000000000b24','00000000-0000-4000-8000-000000000b12','member','active'),
+('00000000-0000-4000-8000-000000000b24','00000000-0000-4000-8000-000000000b13','facilitator','active');
 -- A second assigned session deliberately stays unreleased.
 insert into public.study_sessions(id,bible_study_id,ministry_slug,scheduled_start)
 values ('00000000-0000-4000-8000-000000000b23','00000000-0000-4000-8000-000000000b21','hearth',now());
