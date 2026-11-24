@@ -4,16 +4,34 @@ Status: initial requestable-role catalog, reviewer-scope, delegation-duration, h
 
 ## Policy already established
 
+## Owner-assigned role definitions (planning; no live grants)
+
+| Role | Purpose and exact boundary | Scope | Actions allowed | Actions excluded | Activation prerequisite |
+| --- | --- | --- | --- | --- | --- |
+| `moderator` | Clear visitor-submitted public prayer requests before they appear publicly. | The single `public_visitor_prayer_queue` workflow. It does not include member prayer audiences. | View the pending visitor submission and its moderation status; approve for public display, decline, or hold/escalate under the approved moderation guidance; record the decision and reason. | Read or search private/member prayer requests, alter a member-selected audience, broaden visibility, edit the request's words, view unrelated profiles or care notes, or grant roles. | Complete prayer privacy, public moderation, and escalation training before activation; completion is recorded by a verifier appointed by Chad or Crissy. |
+| `content_creator` | Prepare Scripture-centered L&F study and ministry materials for review. | Only explicitly assigned `content_collection` scopes. No collection-wide access is implied by the role name. | Create and edit draft materials in the assigned collection; submit drafts for review; view review feedback on those drafts. | Publish, approve, or archive content; edit another creator's work absent a separate explicit assignment; alter Scripture text or approved source attribution without review; access private member records, prayer content, or role administration. | Complete Scripture-first editorial, source/copyright, and content-review workflow orientation before activation; completion is recorded by a verifier appointed by Chad or Crissy. |
+
+Both roles remain Owner-assigned and non-requestable. The intended initial assignees are configured Owners Chad and Crissy. This is a design record, not a live grant. Resolve both Owner identities to stable account IDs, record any eventual assignments in the audit history, and verify the prerequisites before activation. Chad and Crissy may not self-certify training completion. A later `moderator` assignment continues to require two independent authorized approvals under the approved high-trust policy; self-approval is prohibited. Publishing remains a separate capability requiring a separately authorized publisher/reviewer.
+
 - Signup grants baseline L&F membership immediately.
 - Every additional role requires approval.
 - **Approved initial requestable-role catalog:** Study Facilitator, Prayer Team, Ministry Leader, Serve Team, and Supervisor. Each request requires scoped approval and its configured prerequisite. Group participation remains a separate decision and never grants a role.
-- **Owner-assigned initial roles:** `moderator` and `content_creator` are not member-requestable roles. The initial assignments are reserved for the two configured Owners, Chad and Crissy. This records the intended initial assignment only; it does not grant live access. Define each role’s purpose, exact permissions and scope, prerequisites, and any additional assignment workflow before implementation. Any later moderator assignment that can read or publish private prayer content requires two independent authorized approvals; self-approval is prohibited.
+- **Owner-assigned initial roles:** `moderator` and `content_creator` are not member-requestable roles. The intended initial assignees are configured Owners Chad and Crissy. Their purposes, permissions, scopes, and activation prerequisites are defined below for planning; this does not grant live access. Any later moderator assignment requires two independent authorized approvals; self-approval is prohibited.
 - Delegated approvals are needed.
 - Non-admin role requests go only to people explicitly assigned the exact role type and ministry/group scope. An Admin title alone grants no blanket approval authority. Ministry leaders may review only when explicitly delegated that exact scope. Reviewers cannot grant authority beyond their own.
 - Chad and Chrissy are the only people who may grant or remove administrator access; that authority cannot be delegated.
 - A person may not approve their own request.
 - Configured Owners retain exclusive authority over administrator access, integration changes, and paid-service authorization.
 - Group membership and role assignment are separate decisions; group access alone does not grant a role.
+
+## Owner-assigned role definitions (planning; no live grants)
+
+| Role | Purpose and exact boundary | Scope | Actions allowed | Actions excluded | Activation prerequisite |
+| --- | --- | --- | --- | --- | --- |
+| `moderator` | Clear visitor-submitted public prayer requests before they appear publicly. | The single `public_visitor_prayer_queue` workflow. It does not include member prayer audiences. | View the pending visitor submission and its moderation status; approve for public display, decline, or hold/escalate under the approved moderation guidance; record the decision and reason. | Read or search private/member prayer requests, alter a member-selected audience, broaden visibility, edit the request's words, view unrelated profiles or care notes, or grant roles. | Complete prayer privacy, public moderation, and escalation training before activation; completion is recorded by a verifier appointed by Chad or Crissy. |
+| `content_creator` | Prepare Scripture-centered L&F study and ministry materials for review. | Only explicitly assigned `content_collection` scopes. No collection-wide access is implied by the role name. | Create and edit draft materials in the assigned collection; submit drafts for review; view review feedback on those drafts. | Publish, approve, or archive content; edit another creator's work absent a separate explicit assignment; alter Scripture text or approved source attribution without review; access private member records, prayer content, or role administration. | Complete Scripture-first editorial, source/copyright, and content-review workflow orientation before activation; completion is recorded by a verifier appointed by Chad or Crissy. |
+
+Both roles remain Owner-assigned and non-requestable. The intended initial assignees are configured Owners Chad and Crissy. This is a design record, not a live grant. Resolve both Owner identities to stable account IDs, record any eventual assignments in the audit history, and verify the prerequisites before activation. Chad and Crissy may not self-certify training completion. A later `moderator` assignment continues to require two independent authorized approvals under the approved high-trust policy; self-approval is prohibited. Publishing remains a separate capability requiring a separately authorized publisher/reviewer.
 
 ## Verified current-state evidence
 
