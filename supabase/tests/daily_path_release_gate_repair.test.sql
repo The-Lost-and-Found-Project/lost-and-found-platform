@@ -54,6 +54,9 @@ reset role;
 select is((select count(*)::integer from pg_policies
  where schemaname='public' and tablename='study_daily_responses'),3,
  'exactly three response policies remain; no residual permissive legacy policy');
+select diag((select qual from pg_policies where schemaname='public'
+ where tablename='study_daily_responses'
+ and policyname='participants read unlocked own or revealed group responses'));
 select ok(position(
  'is_active_administered_study_group_member(user_id, study_session_id)'
  in (select qual from pg_policies where schemaname='public'
