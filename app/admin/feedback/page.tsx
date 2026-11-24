@@ -16,21 +16,24 @@ export default async function AdminFeedbackPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, preview_role")
+    .select("role, preview_role, is_active")
     .eq("id", user.id)
     .single();
 
   // Reviewing beta feedback is admin-only, same restriction as Manage Users.
   const effectiveRole = getEffectiveRole(profile?.role, profile?.preview_role);
 
-  if (effectiveRole !== "admin") {
+  const isAdmin = profile?.is_active === true && effectiveRole === "admin";
+  if (!isAdmin) {
     redirect("/dashboard");
   }
 
-  const { data: messages } = await supabase
+  const { data: messages, error } = await supabase
     .from("feedback_messages")
     .select("id, user_id, name, email, message, status, created_at")
     .order("created_at", { ascending: false });
+
+  if (error) throw new Error("Unable to load feedback. Please try again.");
 
   return <AdminFeedbackClient messages={messages ?? []} />;
 }

@@ -9,9 +9,9 @@ test("both sign-in doors expose password recovery while preserving destination",
  const emmaus=read("app/emmaus/login/page.tsx");
  assert.match(login,/Forgot password\?/);
  assert.match(login,/\/forgot-password\?next=/);
- assert.match(emmaus,/redirect\(`\/login\?source=emmaus&next=/);
+ assert.match(emmaus,/Forgot password\?/);
+ assert.match(emmaus,/\/forgot-password\?next=/);
  assert.match(emmaus,/\/auth\/emmaus\?next=/);
- assert.match(login,/source===\"emmaus\"/);
 });
 
 test("password recovery uses a dedicated callback instead of the signup confirmation callback",()=>{

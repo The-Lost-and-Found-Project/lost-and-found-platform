@@ -6,12 +6,16 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3
 const ACTIONS = new Set(["edit", "resolve", "withdraw"]);
 
 export async function POST(request: Request) {
-  let body: Record<string, unknown>;
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: "Please review that change and try again." }, { status: 400 });
   }
+  if (!rawBody || typeof rawBody !== "object" || Array.isArray(rawBody)) {
+    return NextResponse.json({ error: "Please review that change and try again." }, { status: 400 });
+  }
+  const body = rawBody as Record<string, unknown>;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -30,7 +34,7 @@ export async function POST(request: Request) {
 
   const { data: existing, error: existingError } = await supabase
     .from("prayer_requests")
-    .select("id, answered, archived")
+    .select("id, status, answered, archived")
     .eq("id", requestId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -39,11 +43,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Prayer request not found." }, { status: 404 });
   }
 
+  // Terminal workflow statuses remain terminal even if legacy flags are inconsistent.
+  const isTerminal = existing.answered || existing.archived || ["Resolved", "Closed", "Withdrawn"].includes(existing.status);
+  if (action !== "edit" && isTerminal) {
+    return NextResponse.json({ error: "This prayer request has already been answered or withdrawn." }, { status: 409 });
+  }
+
   let changes: Record<string, unknown>;
   if (action === "edit") {
     const requestText = typeof body.requestText === "string" ? body.requestText.trim().slice(0, 5000) : "";
     const categoryId = typeof body.categoryId === "string" ? body.categoryId : "";
-    if (existing.answered || existing.archived || requestText.length < 10 || !UUID_PATTERN.test(categoryId)) {
+    if (isTerminal || requestText.length < 10 || !UUID_PATTERN.test(categoryId)) {
       return NextResponse.json({ error: "Please provide a complete prayer request and category." }, { status: 400 });
     }
     changes = {
@@ -68,12 +78,19 @@ export async function POST(request: Request) {
     .update(changes)
     .eq("id", requestId)
     .eq("user_id", user.id)
+    // Recheck terminal state in the UPDATE itself to close the read-then-write race.
+    .eq("answered", false)
+    .eq("archived", false)
+    .in("status", ["Submitted", "Reviewed", "Assigned", "Active Care", "Follow-Up", "Needs Reassignment", "Escalated", "Unable to Contact"])
     .select("id, request_text, status, category_id, is_public, is_anonymous, moderation_status, answered, answered_update, archived, prayer_count")
-    .single();
+    .maybeSingle();
 
-  if (updateError || !updated) {
+  if (updateError) {
     console.error("Member prayer request update failed:", updateError);
     return NextResponse.json({ error: "We could not save that change. Please try again." }, { status: 500 });
+  }
+  if (!updated) {
+    return NextResponse.json({ error: "This prayer request changed before your update. Refresh and try again." }, { status: 409 });
   }
 
   return NextResponse.json({ request: updated });
