@@ -7,9 +7,9 @@ type AdminStats = { openPrayerRequests: number; moderationAttention: number; ans
 
 export default function AdminCommandCenter({ modules, stats }: { modules: AdminModule[]; stats: AdminStats }) {
   const signals = [
-    { label: "Open prayer care", value: stats.openPrayerRequests, href: "/admin/content", action: "Open care queue", tone: stats.openPrayerRequests > 0 ? "text-amber-700" : "text-slate-950" },
-    { label: "Community review", value: stats.moderationAttention, href: "/admin/content", action: "Review submissions", tone: stats.moderationAttention > 0 ? "text-rose-700" : "text-slate-950" },
-    { label: "Delivery issues", value: stats.notificationIssues, href: "/admin/notifications", action: "Check delivery", tone: stats.notificationIssues > 0 ? "text-amber-700" : "text-slate-950" },
+    { label: "Visitor prayer review", value: stats.openPrayerRequests, href: "/admin/prayer-review", action: "View public submissions", tone: stats.openPrayerRequests > 0 ? "text-amber-700" : "text-slate-950" },
+    { label: "Community review", value: stats.moderationAttention, href: "/admin/content", action: "Review praise and testimonies", tone: stats.moderationAttention > 0 ? "text-rose-700" : "text-slate-950" },
+    { label: "Notification delivery issues", value: stats.notificationIssues, href: "/admin/notifications", action: "Check delivery", tone: stats.notificationIssues > 0 ? "text-amber-700" : "text-slate-950" },
     { label: "Answered prayers", value: stats.answeredPrayers, href: "/admin/analytics", action: "View outcomes", tone: "text-slate-950" },
   ];
 

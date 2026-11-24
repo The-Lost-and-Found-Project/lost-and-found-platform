@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 
 const adminNav = [
   { href: "/admin", label: "Command Center", description: "Today’s priorities", exact: true },
-  { href: "/admin/content", label: "Prayer & Community", description: "Review and care" },
+  { href: "/admin/prayer-review", label: "Visitor Prayer Review", description: "Public visitor submissions" },
+  { href: "/admin/content", label: "Praise & Testimonies", description: "Community content review" },
   { href: "/admin/users", label: "People & Leadership", description: "Members and roles" },
   { href: "/admin/studies", label: "Studies & Discipleship", description: "Studies and gatherings" },
   { href: "/admin/ministries", label: "Ministry Operations", description: "Events and publishing" },
