@@ -1,6 +1,6 @@
 # Role approval and delegation matrix
 
-Status: reviewer-scope and delegation-duration policies approved for planning; this document does not change database schema, live authorization, or existing permissions.
+Status: reviewer-scope, delegation-duration, and high-trust review policies approved for planning; this document does not change database schema, live authorization, or existing permissions.
 
 ## Policy already established
 
@@ -79,14 +79,10 @@ Test the allow and deny cases for: active Owner, active Admin, properly delegate
 - Renewal creates a new grant with a new end date and audit entry; delegates cannot extend their own authority.
 - When a grant expires or is revoked, unfinished requests return to the standing queue for that exact scope and remain pending. Expiry never approves a request automatically.
 
-## High-trust role approval proposal (not approved)
+## Approved high-trust role approval rule
 
-- Require two independent approvals before assigning roles that can read or publish private prayer content, including `moderator` and `prayer_team` if those permissions remain part of the final role catalog.
-- The requester cannot be either reviewer; the two reviewers must be distinct, explicitly authorized for the exact role and scope, and neither may approve on behalf of the other.
-- Other non-admin scoped roles use one explicitly assigned reviewer, unless the final role catalog identifies a comparable sensitive capability.
-- If two eligible reviewers are not available, keep the request pending and show that a second reviewer is needed. Do not grant temporary access.
+- **Approved:** - Roles that can read or publish private prayer content require two independent approvals before assignment, including `moderator` and `prayer_team` if those permissions remain in the final role catalog. Each reviewer must be explicitly authorized for the exact role and scope; the requester cannot be a reviewer, and the two reviewers cannot approve on behalf of one another. If two eligible reviewers are unavailable, the request stays pending with no temporary access. Other non-admin scoped roles require one explicitly assigned reviewer unless the final role catalog identifies a comparable sensitive capability.
 
 ## Decisions still open before implementation
 
-1. Accept or change the two-reviewer rule for high-trust prayer roles.
 2. Identify the named reviewer for each approved role/scope and define any training or evidence requirements.
