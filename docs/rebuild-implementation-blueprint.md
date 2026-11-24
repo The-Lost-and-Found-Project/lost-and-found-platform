@@ -491,7 +491,7 @@ The following decisions are captured from the planning conversation and should n
 
 These details still need a written specification before their respective features are built:
 
-- Final role catalog, training or evidence requirements, reviewer for each role and scope, and which roles any member may request.
+- **Approved requestability:** members may request Study Facilitator, Prayer Team, Ministry Leader, Serve Team, and Supervisor roles; every request requires approval for its exact role and ministry/group scope. The final role catalog, scope definitions, training/evidence requirements, and named reviewers remain to be specified. Group participation stays a separate request/decision and never grants a role.
 - Which roles may delegate each decision type, maximum delegation duration, renewal, revocation, and what happens to an in-flight decision when a delegation expires.
 - Exact audience labels, member-facing copy, and accessibility behavior for the proposed profile field controls; field-by-field member control, private-by-default sharing, and the proposed initial field catalog are documented above.
 - Exact notification categories, channels, delivery rules, and behavior when device-level push permission is denied.
