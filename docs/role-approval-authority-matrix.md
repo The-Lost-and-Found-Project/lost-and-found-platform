@@ -7,7 +7,7 @@ Status: initial requestable-role catalog, reviewer-scope, delegation-duration, h
 - Signup grants baseline L&F membership immediately.
 - Every additional role requires approval.
 - **Approved initial requestable-role catalog:** Study Facilitator, Prayer Team, Ministry Leader, Serve Team, and Supervisor. Each request requires scoped approval and its configured prerequisite. Group participation remains a separate decision and never grants a role.
-- **Deferred from the initial release:** `moderator` and `content_creator` are not requestable or assignable until their purpose, scope, reviewer authority, and prerequisites are separately defined and approved.
+- **Owner-assigned initial roles:** `moderator` and `content_creator` are not member-requestable roles. The initial assignments are reserved for the two configured Owners, Chad and Crissy. This records the intended initial assignment only; it does not grant live access. Define each role’s purpose, exact permissions and scope, prerequisites, and any additional assignment workflow before implementation. Any later moderator assignment that can read or publish private prayer content requires two independent authorized approvals; self-approval is prohibited.
 - Delegated approvals are needed.
 - Non-admin role requests go only to people explicitly assigned the exact role type and ministry/group scope. An Admin title alone grants no blanket approval authority. Ministry leaders may review only when explicitly delegated that exact scope. Reviewers cannot grant authority beyond their own.
 - Chad and Chrissy are the only people who may grant or remove administrator access; that authority cannot be delegated.
