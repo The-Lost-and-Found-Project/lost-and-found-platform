@@ -67,17 +67,13 @@ select ok(
  LIKE '%facilitator_user_id%is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)%',
  'facilitator access remains limited to active administered group membership');
 select ok(
- position(
-   'is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)'
-   in (select qual from pg_policies where schemaname='public'
-       and tablename='study_daily_responses'
-       and policyname='participants read unlocked own or revealed group responses')
- ) < position(
-   'has_locked_group_response'
-   in (select qual from pg_policies where schemaname='public'
-       and tablename='study_daily_responses'
-       and policyname='participants read unlocked own or revealed group responses')
- ),
- 'viewer must be an active administered group member before locked-response access');
+ (select
+   (length(qual)-length(replace(qual,
+     'is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)','')))
+   / length('is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)')
+  from pg_policies where schemaname='public'
+    and tablename='study_daily_responses'
+    and policyname='participants read unlocked own or revealed group responses') = 2,
+ 'viewer and facilitator each require active administered group membership');
 select * from finish();
 rollback;
