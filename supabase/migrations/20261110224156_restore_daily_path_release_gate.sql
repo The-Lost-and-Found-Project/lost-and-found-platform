@@ -222,14 +222,19 @@ USING (
    AND public.is_active_administered_study_group_member(user_id,study_session_id)
    AND (
      (
-       public.is_daily_path_day_unlocked(auth.uid(),study_session_id,day_number)
+       public.is_active_administered_study_group_member(
+         ( SELECT auth.uid() AS uid), study_daily_responses.study_session_id
+       )
+       AND public.is_daily_path_day_unlocked(auth.uid(),study_session_id,day_number)
        AND public.has_locked_group_response(auth.uid(),study_session_id,day_number)
      )
      OR EXISTS (
        SELECT 1 FROM public.study_sessions ss
        WHERE ss.id=study_daily_responses.study_session_id
-       AND ss.facilitator_user_id=auth.uid()
-       AND public.is_active_administered_study_group_member(auth.uid(),study_daily_responses.study_session_id)
+       AND ss.facilitator_user_id=( SELECT auth.uid() AS uid)
+       AND public.is_active_administered_study_group_member(
+         ( SELECT auth.uid() AS uid), study_daily_responses.study_session_id
+       )
      )
      OR public.is_lfp_admin(auth.uid())
    )
