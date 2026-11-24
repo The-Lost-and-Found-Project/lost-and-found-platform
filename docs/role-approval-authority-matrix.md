@@ -117,6 +117,13 @@ This approved planning matrix does not grant live access or create current revie
 - Training completion never grants a role. The required scoped approval remains a separate decision.
 - A prerequisite may apply only to the exact role/scope for which it was configured; it cannot create broader authority.
 
+## Training completion verification proposal (not approved)
+
+- Chad or Chrissy appoints a verifier for each role's training/evidence requirement, or delegates that exact verifier assignment.
+- The assigned verifier records the learner, role and scope, curriculum or evidence version, completion date, and verification method.
+- A member cannot certify their own completion. Completion verification does not approve or grant the role.
+- Role reviewers can see whether a prerequisite is satisfied but cannot waive an unmet requirement through the normal approval action. Any exception policy would require separate Owner approval.
+
 ## Decisions still open before implementation
 
 2. Identify the named additional reviewers for role/scope assignments and define the actual training or evidence requirements for each role.
