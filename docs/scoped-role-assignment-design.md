@@ -47,15 +47,11 @@ Request states: `pending`, `approved`, `declined`, `withdrawn`, and `cancelled`.
 
 ## Audit history and account deletion
 
-The design requires auditable decisions, while the approved product direction says that leaving members have all of their data removed. Those requirements can conflict when an audit event retains an identifiable actor, subject, or prayer-request reference after account or request deletion. Do not resolve this by silently keeping identifiable records or by deleting history without an explicit policy decision.
+**Approved direction: preserve accountability.** Account departure removes ordinary member content and profile data, but the minimum information required to attribute role and moderation actions remains in a restricted audit record. This is a narrow, explicit exception to the general data-removal rule; it does not authorize retaining prayer text, contact details, care information, or a copy of the full profile.
 
-Before implementing the audit tables, decide:
+The audit record should be append-only and limited to the stable internal actor identifier, a minimal identity snapshot needed to attribute the action, role/workflow scope, affected record identifier, action, prior and resulting state, timestamp, and a structured reason code when needed. Do not store free-text prayer details or general profile fields. Access to identifiable audit history must be restricted to specifically authorized reviewers.
 
-- Whether account departure removes linked audit events, anonymizes actor/subject references, or retains a narrowly scoped record for a defined period.
-- What happens to moderation events when a prayer request is deleted or an account is removed.
-- Whether free-text reasons are needed. Prefer a small reason code; never copy prayer text, contact details, or care information into an audit record.
-
-The audit design should record the minimum needed to reconstruct who acted, on which workflow item, the action, the prior and resulting state, and when. The exact retention, deletion behavior, and reason format remain open decisions. Until they are resolved, role and prayer moderation actions must not be activated.
+Before implementing the audit tables, still decide the retention period and how references behave when the affected request or subject account is deleted. Until that duration and lifecycle behavior are approved, do not apply the schema or activate role and prayer moderation actions.
 
 ## Migration sequence
 
