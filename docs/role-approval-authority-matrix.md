@@ -1,6 +1,6 @@
 # Role approval and delegation matrix
 
-Status: reviewer-scope, delegation-duration, and high-trust review policies approved for planning; this document does not change database schema, live authorization, or existing permissions.
+Status: reviewer-scope, delegation-duration, high-trust review, and reviewer-provisioning policies approved for planning; this document does not change database schema, live authorization, or existing permissions.
 
 ## Policy already established
 
@@ -84,12 +84,9 @@ Test the allow and deny cases for: active Owner, active Admin, properly delegate
 
 - **Approved:** - Roles that can read or publish private prayer content require two independent approvals before assignment, including `moderator` and `prayer_team` if those permissions remain in the final role catalog. Each reviewer must be explicitly authorized for the exact role and scope; the requester cannot be a reviewer, and the two reviewers cannot approve on behalf of one another. If two eligible reviewers are unavailable, the request stays pending with no temporary access. Other non-admin scoped roles require one explicitly assigned reviewer unless the final role catalog identifies a comparable sensitive capability.
 
-## Reviewer provisioning proposal (not approved)
+## Approved reviewer provisioning rule
 
-- Chad or Chrissy, as configured Owners, explicitly appoints the initial reviewer or reviewers for each role and ministry/group scope. An Owner title by itself does not automatically place every request in their queue.
-- Once appointed, a reviewer may delegate only the exact role, action, and scope they are currently authorized to review, using the approved 30-day default and 90-day maximum.
-- A reviewer cannot appoint another reviewer unless that exact authority is itself explicitly delegated.
-- If no eligible reviewer is configured, keep the request pending and show that a reviewer must be assigned. Do not fall back to all administrators or ministry leaders.
+- **Approved:** Chad or Chrissy explicitly appoints initial reviewers for each role and ministry/group scope; an Owner title alone does not automatically place requests in their queue. Reviewers may delegate only authority they currently hold, for the exact role, action, and scope, under the approved term limits. A reviewer cannot appoint another reviewer unless that appointment authority is explicitly delegated. If no eligible reviewer is configured, the request stays pending; there is no fallback to all Admins or ministry leaders.
 
 ## Decisions still open before implementation
 
