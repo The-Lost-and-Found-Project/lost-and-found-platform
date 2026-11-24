@@ -481,7 +481,7 @@ The following decisions are captured from the planning conversation and should n
 - Chad and Chrissy are the L&F Owner accounts. Owner authority is separate from ordinary administrator roles and must be enforced server-side.
 - Members control profile sharing at the field level and can opt out of individual notification categories. Notifications begin enabled, and the app prompts for push permission at sign-in.
 - Visitor prayer requests may be submitted without an account, but stay hidden until cleared by an authorized moderator; once cleared, they are public. Private prayer is available only to signed-in members, who choose the audience.
-- Delegated approvals are part of the approval workflow, with scope and expiry enforced.
+- Delegated approvals are part of the approval workflow, with scope and expiry enforced. Non-admin role requests go only to reviewers explicitly assigned the exact role and ministry/group scope; an Admin title alone gives no blanket approval authority, and ministry leaders review only when explicitly delegated. Only Chad and Chrissy may grant or remove administrator access.
 - The app is adults-only, free to use, and has no member-to-member messaging in the initial release.
 - Leaving the app includes taking a portable export and removing the member’s L&F personal data and connected Emmaus personal data, subject to clearly explained legal/operational retention limits.
 - Emmaus sign-in already uses the cross-product handoff described above. Study/progress synchronization remains a separate, consent-based future feature.
@@ -507,7 +507,7 @@ These recommendations are offered to make the next product review concrete. They
 
 | Open detail | Recommended starting choice | Reason / boundary |
 | --- | --- | --- |
-| Reviewer assignment | Assign named reviewer roles by request type and ministry/group scope. Existing admins may handle only explicitly delegated non-admin decisions; only Chad and Chrissy may grant or remove admin access. | Avoid a blanket assumption that every admin can approve every role. |
+| Reviewer assignment | **Confirmed:** route each non-admin role request only to reviewers explicitly assigned that role and ministry/group scope. Admins receive no blanket approval authority; ministry leaders may review only when explicitly delegated. Only Chad and Chrissy may grant or remove administrator access. | Approval follows explicit authority and scope, not a person's title. |
 | Delegation term and expiry handling | Proposal: use a 30-day default term, a proposed 90-day maximum, explicit start/end times, immediate revocation, and renewal as a new grant. On expiry or revocation, return unfinished decisions to the standing scoped queue and keep them pending. | Short, auditable grants reduce stale authority; durations and in-flight handling still require ministry approval. Never auto-approve on expiry. |
 | Profile directory defaults | Directory off and each field private until the member opts in; member-only audiences in the initial release; public-web sharing requires a separate explicit decision. | Matches member control and reduces accidental disclosure. |
 | Adult eligibility and optional analytics | Require an 18+ confirmation; make birth date optional and use it only for eligibility/aggregate age-band analytics when supplied. Offer other optional analytics fields with a skip path; keep raw birth date private and separate from directory sharing. | Supports useful aggregate insight without making optional data a membership condition. |
