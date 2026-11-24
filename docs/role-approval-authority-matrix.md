@@ -1,13 +1,14 @@
 # Role approval and delegation matrix
 
-Status: proposed authorization policy for review. No permission or database behavior changes in this document.
+Status: reviewer-scope policy approved for planning; this document does not change database schema, live authorization, or existing permissions.
 
 ## Policy already established
 
 - Signup grants baseline L&F membership immediately.
 - Every additional role requires approval.
 - Delegated approvals are needed.
-- A reviewer may act only within explicitly granted role types and scopes and may not grant authority beyond their own.
+- Non-admin role requests go only to people explicitly assigned the exact role type and ministry/group scope. An Admin title alone grants no blanket approval authority. Ministry leaders may review only when explicitly delegated that exact scope. Reviewers cannot grant authority beyond their own.
+- Chad and Chrissy are the only people who may grant or remove administrator access; that authority cannot be delegated.
 - A person may not approve their own request.
 - Configured Owners retain exclusive authority over administrator access, integration changes, and paid-service authorization.
 - Group membership and role assignment are separate decisions; group access alone does not grant a role.
@@ -21,7 +22,7 @@ The existing single-role path is documented separately from the proposed workflo
 - The existing supervision route lets an active Admin assign or remove a `supervisor` to `facilitator` relationship. It is not a general delegation mechanism and does not grant role-approval authority.
 - PR #253 remains a draft and has not changed Production. Its Owner allowlist only affects a future deployment of that code.
 
-These facts establish the compatibility boundary; they do not answer who should approve newly introduced scoped roles. The proposed matrix below must not be read as already deployed behavior.
+These facts establish the compatibility boundary. The reviewer-scope rule below is approved for planning, not deployed behavior.
 
 ## Proposed approval matrix
 
@@ -31,11 +32,11 @@ These facts establish the compatibility boundary; they do not answer who should 
 | Join an open group | Automatic group membership | Not applicable | Does not create a role assignment |
 | Join an approval-required group | Authorized approver for that exact group | Yes, only with a separate group-membership approval delegation | Approves participation only, never a role |
 | Invitation-only group | Authorized inviter issues; member accepts | Invitation authority must be explicitly scoped | Invitation and acceptance create group membership only |
-| Scoped ministry or group role, such as `prayer_team`, `study_facilitator`, or `ministry_leader` | Active Admin or configured Owner | Yes, only for named role types and exact ministry/group scope | Reviewer must already hold sufficient authority; self-approval is prohibited |
+| Scoped ministry or group role, such as `prayer_team`, `study_facilitator`, or `ministry_leader` | A reviewer explicitly assigned that exact role type and ministry/group scope | Yes, only through an explicit, current delegation for that role and scope | Admin or ministry-leader title alone is insufficient; self-approval is prohibited |
 | Administrator access | Configured Owners only | No | Never available through ordinary role delegation or group membership |
 | Integration changes or paid services | Configured Owners only | No | Owner authorization remains separate from ministry roles |
 
-The default reviewer row for scoped roles is a proposal. The existing system currently allows active administrators to assign `member`, `facilitator`, and `supervisor`; the new scoped role keys and their approver hierarchy still require review before implementation.
+The scoped-review rule is approved for planning. It does not change current behavior: the existing system still allows active administrators to assign `member`, `facilitator`, and `supervisor`. Before implementation, identify the named reviewer for each role/scope and define any training or evidence requirements.
 
 ## Delegation record and limits
 
@@ -61,7 +62,7 @@ Enforce these limits:
 ## Request and decision flow
 
 1. Member submits one role request for a specific role and scope. A duplicate active request for the same role/scope is blocked or linked to the existing request.
-2. The server resolves eligible reviewers from current Owner/Admin authority and valid explicit delegations. The client cannot choose or claim an approver.
+2. The server resolves eligible reviewers from explicit role-and-scope assignments and valid delegations. An Admin or ministry-leader title alone is insufficient. The client cannot choose or claim an approver.
 3. The reviewer sees only requests in their authority scope. A requester cannot review their own item.
 4. Approval creates an auditable assignment linked to the request. Decline records reviewer, time, and optional reason. Neither decision rewrites the request history.
 5. Reassignment of a pending request is a distinct audited action. It does not erase the original reviewer or any decision.
@@ -71,10 +72,8 @@ Enforce these limits:
 
 Test the allow and deny cases for: active Owner, active Admin, properly delegated reviewer, expired/revoked delegation, out-of-scope reviewer, unsupported role, inactive member, self-approval, duplicate request, delegated administrator request, delegation chaining, and an attempt to change another group's membership. Enforce these checks on the server and database boundary; a hidden or disabled button is not a permission check.
 
-## Decisions to resolve before implementation
+## Decisions still open before implementation
 
-1. Confirm whether active Admins may directly approve every non-Admin scoped role or only roles they already manage today.
-2. Confirm whether a ministry leader may be a default reviewer for lower-risk requests in their ministry, or only after explicit Owner/Admin delegation.
-3. Set a maximum delegation term and whether every delegation requires an end date.
-4. Decide whether high-trust roles such as `moderator` or `prayer_team` need one reviewer or two independent approvals.
-5. Confirm whether Owners should be able to delegate scoped-role approvals while retaining exclusive control of administrator access, integrations, and paid services.
+1. Set a maximum delegation term and whether every delegation requires an end date.
+2. Decide whether high-trust roles such as `moderator` or `prayer_team` need one reviewer or two independent approvals.
+3. Identify the named reviewer for each approved role/scope and define any training or evidence requirements.
