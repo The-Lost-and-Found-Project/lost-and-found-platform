@@ -1,6 +1,6 @@
 # Role approval and delegation matrix
 
-Status: reviewer-scope, delegation-duration, high-trust review, Owner blanket-review, reviewer-provisioning, and role-prerequisite policies approved for planning; this document does not change database schema, live authorization, or existing permissions.
+Status: reviewer-scope, delegation-duration, high-trust review, Owner blanket-review, reviewer-provisioning, role-prerequisite, and training-verification policies approved for planning; this document does not change database schema, live authorization, or existing permissions.
 
 ## Policy already established
 
@@ -117,7 +117,7 @@ This approved planning matrix does not grant live access or create current revie
 - Training completion never grants a role. The required scoped approval remains a separate decision.
 - A prerequisite may apply only to the exact role/scope for which it was configured; it cannot create broader authority.
 
-## Training completion verification proposal (not approved)
+## Approved training completion verification
 
 - Chad or Chrissy appoints a verifier for each role's training/evidence requirement, or delegates that exact verifier assignment.
 - The assigned verifier records the learner, role and scope, curriculum or evidence version, completion date, and verification method.
@@ -126,4 +126,4 @@ This approved planning matrix does not grant live access or create current revie
 
 ## Decisions still open before implementation
 
-2. Identify the named additional reviewers for role/scope assignments and define the actual training or evidence requirements for each role.
+2. Identify any additional reviewers, define the actual training/evidence requirements, and appoint verifiers for each role/scope.
