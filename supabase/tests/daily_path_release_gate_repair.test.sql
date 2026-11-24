@@ -65,11 +65,17 @@ select ok(position(
  in (select qual from pg_policies where schemaname='public'
      and tablename='study_daily_responses'
      and policyname='participants read unlocked own or revealed group responses')
-)>position(
- 'facilitator_user_id'
- in (select qual from pg_policies where schemaname='public'
-     and tablename='study_daily_responses'
-     and policyname='participants read unlocked own or revealed group responses'),
+)>0 and position(
+ 'is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)'
+ in substring(
+   (select qual from pg_policies where schemaname='public'
+      and tablename='study_daily_responses'
+      and policyname='participants read unlocked own or revealed group responses')
+   from position('facilitator_user_id' in
+     (select qual from pg_policies where schemaname='public'
+       and tablename='study_daily_responses'
+       and policyname='participants read unlocked own or revealed group responses'))
+ ),
  'facilitator access remains limited to active administered group membership');
 select ok(position(
  'is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)'
