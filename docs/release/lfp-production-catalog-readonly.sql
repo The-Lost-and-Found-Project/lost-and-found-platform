@@ -101,7 +101,10 @@ catalog_flags AS (
   EXISTS(SELECT 1 FROM pg_proc p
     WHERE p.oid=to_regprocedure('public.is_daily_path_day_unlocked(uuid,uuid,integer)')
       AND p.prosecdef
-      AND 'search_path=' = ANY(p.proconfig)) AS unlock_helper_has_fixed_search_path,
+      AND EXISTS (
+        SELECT 1 FROM unnest(p.proconfig) AS cfg(setting)
+        WHERE cfg.setting IN ('search_path=', 'search_path=""')
+      )) AS unlock_helper_has_fixed_search_path,
   (SELECT progress_count=1 AND responses_count=3 AND strict_policies=4
     FROM policy_snapshot) AS correct_study_policy_inventory,
   CASE WHEN EXISTS(
