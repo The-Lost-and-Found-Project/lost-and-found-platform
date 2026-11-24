@@ -74,15 +74,27 @@ Therefore:
 
 For each request, invitation, approval, decline, withdrawal, removal, and delegation change, retain the actor, subject, group, prior state, new state, timestamp, and optional reason. Prevent state changes from an unrelated group scope, inactive accounts, and self-approval. Enforce the same boundary in server authorization and database policy; hiding a button is not authorization.
 
-## Items to confirm before implementation
+## Recommended starting choices for remaining group decisions
 
-These choices affect data visibility and workflow, so keep them configurable or resolve them before building persistence:
+These are review-ready recommendations, not approved policy and not implemented behavior. Confirm them with ministry leadership before building persistence.
 
-1. The member-facing roster policy. Existing ministry membership policies expose only a member's own row to that member or an administrator; the study-group policy also permits facilitators to read their cohort roster. Decide which fields active group leaders need, while honoring each member's sharing choices.
-2. Whether removed members may submit a new request, and which authorized role may reinstate them.
-3. Whether an open group has a capacity limit and who may pause or close joining.
-4. Whether invitations expire, and the default expiration period.
-5. Whether a group-scoped role is automatically suspended immediately when group membership ends, or requires a separate authorized action. Recommended: suspend immediately, preserve the assignment record, then require a role approver to reinstate or revoke it.
+| Decision | Recommended starting choice | Boundary |
+| --- | --- | --- |
+| Member roster visibility | Keep no searchable member-facing directory in the initial release. Within a specific group, show a roster only to active members of that group and authorized group leaders. Show only fields the member explicitly shared with that audience; keep contact details, private prayer, care notes, and hidden profile fields out. | A scoped group roster is not a global member directory. The exact minimum identifying field needed for participation still needs ministry confirmation. |
+| Group taxonomy | Map each offering first to an existing ministry space or Bible-study cohort when its purpose fits. Add a new shared community-group type only when a real use case cannot fit either model, with a documented mapping and migration plan. | Do not duplicate the existing ministry or study-group systems or infer role authority from the group category. |
+| Declined, left, or removed members | A declined request or voluntary departure may be followed by a fresh request under the group's current access mode. Removal ends access immediately; rejoining requires a new request or invitation and a fresh authorized decision. | No automatic restoration. Preserve the removal and any later decision in the audit history. |
+| Capacity and join controls | No capacity limit by default. If a group sets a limit, stop new open joins when full and route any permitted request to a pending state; never remove existing members automatically. Let only a person explicitly authorized for that group's settings pause or close joining. | The group-specific authority and exact full-group behavior must be configured and audited. |
+| Invitation expiry | Use a 14-day default expiry with an explicit expiry timestamp. An expired invitation grants no membership; an authorized inviter may issue a new invitation. | Expiry changes only invitation availability, never membership or role assignment. |
+| Group-scoped role on departure/removal | Suspend the role's group-scoped capabilities as soon as group membership ends; retain the assignment and decision history. Restoration requires a separate authorized role review. | Do not silently widen the role to another group or delete the audit record. |
+
+### Remaining decisions before implementation
+
+1. Confirm the minimum group-roster fields and the audience-specific sharing control.
+2. Confirm the group taxonomy and any genuine need for a new shared group model.
+3. Confirm the rejoin, capacity, and 14-day invitation recommendations above, including who can manage each group's join settings.
+4. Confirm that membership end/removal immediately suspends group-scoped role capabilities, with separate review required for reinstatement.
+
+Do not implement these recommendations until the decisions are confirmed. The existing app, schema, and Production authorization remain unchanged.
 
 ## Preview acceptance checks
 
