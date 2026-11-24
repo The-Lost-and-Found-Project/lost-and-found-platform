@@ -51,18 +51,21 @@ export type PushDeliveryResult = {
   status: "sent" | "skipped" | "failed";
   deliveredCount: number;
   failedCount: number;
+  deliveredSubscriptionIds: string[];
   reason?: string;
 };
 
 export async function sendPushToUser(
   userId: string,
-  payload: PushPayload
+  payload: PushPayload,
+  alreadyDeliveredSubscriptionIds: string[] = []
 ): Promise<PushDeliveryResult> {
   if (!(await ensureConfigured())) {
     return {
       status: "failed",
       deliveredCount: 0,
       failedCount: 1,
+      deliveredSubscriptionIds: alreadyDeliveredSubscriptionIds,
       reason: "Push delivery is not configured",
     };
   }
@@ -79,16 +82,37 @@ export async function sendPushToUser(
       status: "failed",
       deliveredCount: 0,
       failedCount: 1,
+      deliveredSubscriptionIds: alreadyDeliveredSubscriptionIds,
       reason: "Subscription lookup failed",
     };
   }
 
   if (!subs || subs.length === 0) {
+    return alreadyDeliveredSubscriptionIds.length > 0
+      ? {
+          status: "sent",
+          deliveredCount: alreadyDeliveredSubscriptionIds.length,
+          failedCount: 0,
+          deliveredSubscriptionIds: alreadyDeliveredSubscriptionIds,
+        }
+      : {
+          status: "skipped",
+          deliveredCount: 0,
+          failedCount: 0,
+          deliveredSubscriptionIds: [],
+          reason: "No subscribed devices",
+        };
+  }
+
+  const alreadyDelivered = new Set(alreadyDeliveredSubscriptionIds);
+  const pendingSubscriptions = subs.filter((sub) => !alreadyDelivered.has(sub.id));
+
+  if (pendingSubscriptions.length === 0) {
     return {
-      status: "skipped",
-      deliveredCount: 0,
+      status: "sent",
+      deliveredCount: alreadyDeliveredSubscriptionIds.length,
       failedCount: 0,
-      reason: "No subscribed devices",
+      deliveredSubscriptionIds: alreadyDeliveredSubscriptionIds,
     };
   }
 
@@ -101,7 +125,7 @@ export async function sendPushToUser(
   const payloadWithBadge = { ...payload, badgeCount: unreadCount ?? 0 };
 
   const results = await Promise.all(
-    subs.map(async (sub) => {
+    pendingSubscriptions.map(async (sub) => {
       try {
         await webpush.sendNotification(
           {
@@ -110,28 +134,33 @@ export async function sendPushToUser(
           },
           JSON.stringify(payloadWithBadge)
         );
-        return "sent" as const;
+        return { id: sub.id, status: "sent" as const };
       } catch (err) {
         const statusCode = (err as { statusCode?: number })?.statusCode;
         if (statusCode === 404 || statusCode === 410) {
           await supabase.from("push_subscriptions").delete().eq("id", sub.id);
-          return "expired" as const;
+          return { id: sub.id, status: "expired" as const };
         }
         console.error("Push send failed:", err);
-        return "failed" as const;
+        return { id: sub.id, status: "failed" as const };
       }
     })
   );
 
-  const deliveredCount = results.filter((result) => result === "sent").length;
-  const failedCount = results.filter((result) => result === "failed").length;
-  const expiredCount = results.filter((result) => result === "expired").length;
+  const newlyDeliveredIds = results
+    .filter((result) => result.status === "sent")
+    .map((result) => result.id);
+  const deliveredSubscriptionIds = [...new Set([...alreadyDeliveredSubscriptionIds, ...newlyDeliveredIds])];
+  const deliveredCount = newlyDeliveredIds.length;
+  const failedCount = results.filter((result) => result.status === "failed").length;
+  const expiredCount = results.filter((result) => result.status === "expired").length;
 
   if (failedCount > 0) {
     return {
       status: "failed",
       deliveredCount,
       failedCount,
+      deliveredSubscriptionIds,
       reason:
         deliveredCount > 0
           ? `${failedCount} device delivery failed after ${deliveredCount} succeeded`
@@ -144,11 +173,12 @@ export async function sendPushToUser(
       status: "skipped",
       deliveredCount: 0,
       failedCount: 0,
+      deliveredSubscriptionIds,
       reason: expiredCount > 0 ? "Subscribed devices had expired" : "No subscribed devices",
     };
   }
 
-  return { status: "sent", deliveredCount, failedCount: 0 };
+  return { status: "sent", deliveredCount, failedCount: 0, deliveredSubscriptionIds };
 }
 
 export async function sendPushToUsers(

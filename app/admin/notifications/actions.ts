@@ -9,3 +9,34 @@ else if(audience==="ministry"){if(!ministry)throw new Error("Choose a ministry."
 else if(audience==="leaders"){const q=admin.from("ministry_memberships").select("user_id").eq("membership_role","leader");const{data,error}=ministry?await q.eq("ministry_slug",ministry):await q;if(error)throw error;ids=(data||[]).map(x=>x.user_id)}
 
 ids=[...new Set(ids)];if(ids.length){const{data:active,error:activeError}=await admin.from("profiles").select("id").in("id",ids).eq("is_active",true);if(activeError)throw activeError;ids=(active||[]).map(x=>x.id);}if(!ids.length)throw new Error("No active recipients matched this audience.");const{data:campaign,error:campaignError}=await admin.from("notification_campaigns").insert({title,body,link,audience_type:audience,audience_value:ministry,created_by:user.id,recipient_count:ids.length}).select("id").single();if(campaignError)throw campaignError;const rows=ids.map(id=>({user_id:id,type:"admin_broadcast",title,body,link,campaign_id:campaign.id}));const{error}=await admin.from("notifications").insert(rows);if(error)throw error;revalidatePath("/admin/notifications");revalidatePath("/notifications");}
+
+
+export async function requeueUncertainNotificationPush(f: FormData) {
+  const user = await requireAdmin();
+  const notificationId = String(f.get("notification_id") || "").trim();
+  const reason = String(f.get("reason") || "").trim();
+  const confirmDuplicateRisk = String(f.get("confirm_duplicate_risk") || "");
+
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(notificationId)) {
+    throw new Error("Notification reference is invalid.");
+  }
+  if (reason.length < 12 || reason.length > 500) {
+    throw new Error("Add a reconciliation note between 12 and 500 characters.");
+  }
+  if (confirmDuplicateRisk !== "yes") {
+    throw new Error("Confirm the possible duplicate-delivery risk before retrying.");
+  }
+
+  const admin = createAdminClient();
+  const { data, error } = await admin.rpc("requeue_uncertain_notification_push", {
+    p_notification_id: notificationId,
+    p_actor_user_id: user.id,
+    p_reason: reason,
+  });
+  if (error) throw new Error("Unable to record the notification reconciliation.");
+  if (data !== true) throw new Error("This delivery is no longer awaiting reconciliation.");
+
+  revalidatePath("/admin/notifications");
+  revalidatePath("/admin");
+  redirect("/admin/notifications");
+}

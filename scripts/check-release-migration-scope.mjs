@@ -9,7 +9,7 @@ import {dirname,join,resolve} from "node:path";
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
 const directory=join(root,"supabase","migrations");
-// The offline bundle contains only these eight reviewed candidate migrations.
+// The offline bundle contains only these nine reviewed candidate migrations.
 const expected=[
 ["20261105170653_restrict_anon_emmaus_table_grants.sql","9bde78e0509c4185a16defffa79052c8c99e69fb73e1c8bedfe40eb934b176d0"],
 ["20261105173628_verify_donor_email_before_history_access.sql","03e722ef5cd709c397c1726642cf411815a231b5689a7c16a9d2b806497a8fec"],
@@ -18,10 +18,11 @@ const expected=[
 ["20261105195229_restrict_study_auth_helper_rpc_visibility.sql","694990ef7335d61f28426a7df8a6bcf010936a2eb567c0be653e102c611d16c6"],
 ["20261110153802_atomic_ministry_publication_notifications.sql","8fe0660acfc3c8e94dddb3a33467b3ab4f7b7e41cc4af79563d3b2c9ceb5f515"],
 ["20261110181936_restore_notifications_schema_baseline.sql","1664fa8b04b51fc47e08ef76f53b374c9d21270e7632e23dc633a615abf48478"],
-["20261110194736_restrict_notification_member_update_columns.sql","b0797f2e9519bb9ad6c5b15387bcf3cf3b047866d9f2679212822a5a6f1b169c"]
+["20261110194736_restrict_notification_member_update_columns.sql","b0797f2e9519bb9ad6c5b15387bcf3cf3b047866d9f2679212822a5a6f1b169c"],
+["20261124113000_add_notification_push_retry_claims.sql","1632357bec2c481a57742dd0ac33fa90d6540b0e2012ca8c35e41366f2c5ea15"]
 ];
 // Exact current-main migrations are recognized and hash-pinned, but never
-// included in the eight-file targeted bundle. Any new migration or edit
+// included in the nine-file targeted bundle. Any new migration or edit
 // forces review rather than silently broadening the deployment scope.
 const currentBase=[
 ["20261111182457_marriage_journey_private_progress.sql","49a03ddf4071ae1ffeb092ad9783600e54f7bc0db5d7d2beded4609f5da96bed"],
@@ -51,8 +52,8 @@ for(const [name,hash] of [...expected,...currentBase,...(hasPrerequisite?[prereq
  assert.equal(actualHash,hash,`Migration changed without review: ${name}. Re-review the SQL and update the manifest deliberately.`);
 }
 if (process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
- console.log("RELEASE SCOPE VALID: 8 reviewed release migrations and 11 pinned current-base migrations match.");
- console.log("Only the 8 reviewed release migrations enter the offline bundle.");
+ console.log("RELEASE SCOPE VALID: 9 reviewed release migrations and 11 pinned current-base migrations match.");
+ console.log("Only the 9 reviewed release migrations enter the offline bundle.");
  console.log("NO DATABASE ACTION TAKEN. Hosted history differs from repository (#181).");
  console.log("DO NOT run unrestricted 'supabase db push' against L&F Production.");
 }
