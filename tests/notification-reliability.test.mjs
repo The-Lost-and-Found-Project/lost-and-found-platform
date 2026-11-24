@@ -7,16 +7,25 @@ const root = process.cwd();
 const source = (...parts) => readFile(path.join(root, ...parts), "utf8");
 
 test("push delivery remains tracked and visible to administrators", async () => {
-  const [migration, restriction, webhook, admin] = await Promise.all([
+  const [migration, restriction, retry, webhook, admin, push] = await Promise.all([
     source("supabase", "migrations", "20260810195945_harden_notification_delivery.sql"),
     source("supabase", "migrations", "20260810201500_restrict_notification_delivery_health.sql"),
+    source("supabase", "migrations", "20261124113000_add_notification_push_retry_claims.sql"),
     source("app", "api", "webhooks", "notification-created", "route.ts"),
     source("components", "AdminCommandCenter.tsx"),
+    source("lib", "push", "send.ts"),
   ]);
   assert.match(migration, /push_status text/);
   assert.match(migration, /notifications_push_attention_idx/);
-  assert.match(webhook, /push_attempted_at/);
-  assert.match(webhook, /push_delivered_at/);
+  assert.match(retry, /claim_notification_push_delivery/);
+  assert.match(retry, /push_next_attempt_at/);
+  assert.match(retry, /push_delivered_subscription_ids/);
+  assert.match(retry, /power\(2/);
+  assert.match(retry, /grant execute[\s\S]*to service_role/);
+  assert.match(webhook, /queued: true/);
+  assert.doesNotMatch(webhook, /sendPushToUser/);
+  assert.match(push, /pendingSubscriptions = subs\.filter/);
+  assert.match(push, /deliveredSubscriptionIds/);
   assert.match(admin, /Notification delivery issues/);
   assert.match(restriction, /grant execute[\s\S]*to service_role/);
   assert.match(restriction, /revoke all[\s\S]*from authenticated/);

@@ -10,17 +10,18 @@ const sql=execFileSync(process.execPath,["scripts/print-targeted-release-bundle.
 });
 const expected=[
  "20261105170653","20261105173628","20261105174247","20261105182138",
- "20261105195229","20261110153802","20261110181936","20261110194736"
+ "20261105195229","20261110153802","20261110181936","20261110194736",
+ "20261124113000"
 ];
 
-test("targeted bundle has one transaction around exactly eight reviewed scripts",()=>{
+test("targeted bundle has one transaction around exactly nine reviewed scripts",()=>{
  assert.equal((sql.match(/^BEGIN;$/gm)||[]).length,1);
  assert.equal((sql.match(/^COMMIT;$/gm)||[]).length,1);
  assert.ok(sql.indexOf("BEGIN;")<sql.indexOf("BEGIN REVIEWED MIGRATION"));
  assert.ok(sql.lastIndexOf("END REVIEWED MIGRATION")<sql.lastIndexOf("COMMIT;"));
  assert.deepEqual([...sql.matchAll(/^-- BEGIN REVIEWED MIGRATION: (\d{14})_/gm)]
    .map(m=>m[1]),expected);
- assert.equal((sql.match(/^-- SHA256: [a-f0-9]{64}$/gm)||[]).length,8);
+ assert.equal((sql.match(/^-- SHA256: [a-f0-9]{64}$/gm)||[]).length,9);
 });
 
 test("bundle refuses replayed migration versions before DDL begins",()=>{

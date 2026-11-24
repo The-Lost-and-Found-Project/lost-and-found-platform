@@ -10,7 +10,7 @@ import {expected,directory} from "./check-release-migration-scope.mjs";
 const versions=expected.map(([name])=>name.slice(0,14));
 const quoted=versions.map(v=>"'"+v+"'").join(",");
 const chunks=[];
-chunks.push(`-- L&F PR #178: exact reviewed 8-migration bundle, generated offline.
+chunks.push(`-- L&F PR #178: exact reviewed 9-migration bundle, generated offline.
 -- WARNING: NEVER run "supabase db push" against Production (#181).
 -- Requires a separately reviewed operator session and confirmed target.
 -- Must run with psql -X -v ON_ERROR_STOP=1 -f <bundle>.
@@ -149,10 +149,15 @@ BEGIN
     OR has_column_privilege('authenticated','public.notifications','title','UPDATE') THEN
   RAISE EXCEPTION 'Release postflight: notification update grant wrong';
  END IF;
+ IF NOT has_column_privilege('service_role','public.notifications','push_claim_token','UPDATE')
+    OR has_function_privilege('authenticated','public.claim_notification_push_delivery(uuid)','EXECUTE')
+    OR has_function_privilege('authenticated','public.complete_notification_push_delivery(uuid,uuid,text,text,uuid[])','EXECUTE') THEN
+  RAISE EXCEPTION 'Release postflight: push retry fields or function grants wrong';
+ END IF;
 END $lfp_postflight$;
 COMMIT;
 -- STOP HERE. History is NOT automatically repaired.
--- After verifying successful COMMIT, separately mark exactly the 8 versions
+-- After verifying successful COMMIT, separately mark exactly the 9 versions
 -- applied with the official Supabase CLI migration repair --status applied,
 -- on the verified target; never repair any old mismatched history versions.
 `);
