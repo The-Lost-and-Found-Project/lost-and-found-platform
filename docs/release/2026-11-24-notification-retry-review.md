@@ -13,8 +13,8 @@ This addendum extends release candidate PR #178 with the durable push retry port
 ## Validation performed on 2026-11-24
 
 - Disposable isolated Supabase project: replayed all migrations, then executed all 22 pgTAP files directly against its local PostgreSQL instance; all passed.
-- New retry pgTAP coverage checks service-role-only grants, overlapping claims, backoff eligibility, failed-state visibility, and retained successful device IDs across a retry.
-- Application tests: 290/290 passed.
+- New retry pgTAP coverage checks service-role-only grants, overlapping claims, backoff eligibility, failed-state visibility, retained successful device IDs, expired-lease pause, and audited manual retry.
+- Application tests: 291/291 passed.
 - TypeScript, ESLint, and Next.js production build passed. The build used the Webpack builder because the local worktree uses shared, symlinked node_modules, which Turbopack refused to resolve outside the worktree.
 - No production database, member data, push subscription, email, or notification was read or changed. The existing local L&F Supabase project was left running and untouched.
 

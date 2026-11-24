@@ -151,7 +151,10 @@ BEGIN
  END IF;
  IF NOT has_column_privilege('service_role','public.notifications','push_claim_token','UPDATE')
     OR has_function_privilege('authenticated','public.claim_notification_push_delivery(uuid)','EXECUTE')
-    OR has_function_privilege('authenticated','public.complete_notification_push_delivery(uuid,uuid,text,text,uuid[])','EXECUTE') THEN
+    OR has_function_privilege('authenticated','public.complete_notification_push_delivery(uuid,uuid,text,text,uuid[])','EXECUTE')
+    OR has_function_privilege('authenticated','public.requeue_uncertain_notification_push(uuid,uuid,text)','EXECUTE')
+    OR NOT has_function_privilege('service_role','public.requeue_uncertain_notification_push(uuid,uuid,text)','EXECUTE')
+    OR has_table_privilege('authenticated','public.notification_push_reconciliations','SELECT') THEN
   RAISE EXCEPTION 'Release postflight: push retry fields or function grants wrong';
  END IF;
 END $lfp_postflight$;

@@ -7,11 +7,12 @@ const root = process.cwd();
 const source = (...parts) => readFile(path.join(root, ...parts), "utf8");
 
 test("push delivery remains tracked and visible to administrators", async () => {
-  const [migration, restriction, retry, webhook, admin, push] = await Promise.all([
+  const [migration, restriction, retry, webhook, cron, admin, push] = await Promise.all([
     source("supabase", "migrations", "20260810195945_harden_notification_delivery.sql"),
     source("supabase", "migrations", "20260810201500_restrict_notification_delivery_health.sql"),
     source("supabase", "migrations", "20261124113000_add_notification_push_retry_claims.sql"),
     source("app", "api", "webhooks", "notification-created", "route.ts"),
+    source("app", "api", "cron", "push-delivery", "route.ts"),
     source("components", "AdminCommandCenter.tsx"),
     source("lib", "push", "send.ts"),
   ]);
@@ -20,15 +21,39 @@ test("push delivery remains tracked and visible to administrators", async () => 
   assert.match(retry, /claim_notification_push_delivery/);
   assert.match(retry, /push_next_attempt_at/);
   assert.match(retry, /push_delivered_subscription_ids/);
+  assert.match(retry, /push_delivery_uncertain/);
+  assert.match(retry, /requeue_uncertain_notification_push/);
   assert.match(retry, /power\(2/);
   assert.match(retry, /grant execute[\s\S]*to service_role/);
   assert.match(webhook, /queued: true/);
   assert.doesNotMatch(webhook, /sendPushToUser/);
+  assert.match(cron, /eq\("push_delivery_uncertain", false\)/);
   assert.match(push, /pendingSubscriptions = subs\.filter/);
   assert.match(push, /deliveredSubscriptionIds/);
   assert.match(admin, /Notification delivery issues/);
   assert.match(restriction, /grant execute[\s\S]*to service_role/);
   assert.match(restriction, /revoke all[\s\S]*from authenticated/);
+});
+
+test("uncertain pushes stop automatic retries and require an audited admin decision", async () => {
+  const [migration, actions, page, dashboard, bundle] = await Promise.all([
+    source("supabase", "migrations", "20261124113000_add_notification_push_retry_claims.sql"),
+    source("app", "admin", "notifications", "actions.ts"),
+    source("app", "admin", "notifications", "page.tsx"),
+    source("app", "admin", "page.tsx"),
+    source("scripts", "print-targeted-release-bundle.mjs"),
+  ]);
+  assert.match(migration, /push_delivery_uncertain = true/);
+  assert.match(migration, /not n\.push_delivery_uncertain/);
+  assert.match(migration, /notification_push_reconciliations/);
+  assert.match(migration, /uncertain_count/);
+  assert.match(actions, /await requireAdmin\(\)/);
+  assert.match(actions, /confirmDuplicateRisk !== "yes"/);
+  assert.match(actions, /requeue_uncertain_notification_push/);
+  assert.match(page, /select\("id, push_attempted_at, push_attempt_count"\)/);
+  assert.doesNotMatch(page, /select\("id, user_id[^)]*push_delivery_uncertain/);
+  assert.match(dashboard, /uncertain_count/);
+  assert.match(bundle, /notification_push_reconciliations/);
 });
 
 test("prayer notifications now lead members to their own request list", async () => {

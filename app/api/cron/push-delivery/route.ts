@@ -145,6 +145,7 @@ export async function GET(request: NextRequest) {
     .from("notifications")
     .select("id,created_at")
     .in("push_status", ["pending", "failed"])
+    .eq("push_delivery_uncertain", false)
     .or("push_next_attempt_at.is.null,push_next_attempt_at.lte." + now.toISOString())
     .or("push_claimed_until.is.null,push_claimed_until.lte." + now.toISOString())
     .lt("push_attempt_count", 8)

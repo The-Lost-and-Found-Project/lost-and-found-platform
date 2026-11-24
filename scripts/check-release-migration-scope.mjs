@@ -19,7 +19,7 @@ const expected=[
 ["20261110153802_atomic_ministry_publication_notifications.sql","8fe0660acfc3c8e94dddb3a33467b3ab4f7b7e41cc4af79563d3b2c9ceb5f515"],
 ["20261110181936_restore_notifications_schema_baseline.sql","1664fa8b04b51fc47e08ef76f53b374c9d21270e7632e23dc633a615abf48478"],
 ["20261110194736_restrict_notification_member_update_columns.sql","b0797f2e9519bb9ad6c5b15387bcf3cf3b047866d9f2679212822a5a6f1b169c"],
-["20261124113000_add_notification_push_retry_claims.sql","dd18705e6cc5a171a2a4e58d93493c51993b774b81144a8f74a22223de6d0cfe"]
+["20261124113000_add_notification_push_retry_claims.sql","1632357bec2c481a57742dd0ac33fa90d6540b0e2012ca8c35e41366f2c5ea15"]
 ];
 // Exact current-main migrations are recognized and hash-pinned, but never
 // included in the nine-file targeted bundle. Any new migration or edit
