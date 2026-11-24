@@ -79,6 +79,7 @@ BEGIN
             'participants read own or revealed group responses'
           )
           AND position('is_active_administered_study_group_member(user_id, study_session_id)' IN qual) > 0
+          AND position('is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_session_id)' IN qual) > 0
           AND position('is_active_administered_study_group_member(( SELECT auth.uid() AS uid), study_daily_responses.study_session_id)' IN qual) > 0
         )
         OR (
@@ -222,9 +223,7 @@ USING (
    AND public.is_active_administered_study_group_member(user_id,study_session_id)
    AND (
      (
-       public.is_active_administered_study_group_member(
-         ( SELECT auth.uid() AS uid), study_daily_responses.study_session_id
-       )
+       public.is_active_administered_study_group_member(( SELECT auth.uid() AS uid),study_session_id)
        AND public.is_daily_path_day_unlocked(auth.uid(),study_session_id,day_number)
        AND public.has_locked_group_response(auth.uid(),study_session_id,day_number)
      )
